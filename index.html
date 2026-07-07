@@ -199,6 +199,21 @@
   /* Analytics */
   .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
+  /* Subtabs (z.B. Erfassen / Analytics innerhalb einer Seite) */
+  .subnav { display: flex; gap: 8px; margin-bottom: 20px; }
+  .subnav-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.15s; }
+  .subnav-btn:hover { color: var(--text); }
+  .subnav-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .subpage { display: none; }
+  .subpage.active { display: block; }
+
+  /* Trend-Badges für Trainingsanalyse */
+  .trend-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+  .trend-badge.progress { background: rgba(74,222,128,0.15); color: var(--green); }
+  .trend-badge.plateau { background: rgba(251,191,36,0.15); color: var(--yellow); }
+  .trend-badge.decline { background: rgba(248,113,113,0.15); color: var(--red); }
+  .trend-badge.nodata { background: var(--surface2); color: var(--muted); }
+
   /* Export bar */
   .export-bar { display: flex; gap: 10px; margin-bottom: 20px; }
 
@@ -346,6 +361,13 @@
   <div class="page-title">Gesundheitsdaten</div>
   <div class="page-sub">Täglich eintragen, langfristig verstehen.</div>
 
+  <div class="subnav">
+    <button class="subnav-btn active" onclick="switchSubtab('health','entry',this)">📋 Erfassen</button>
+    <button class="subnav-btn" onclick="switchSubtab('health','analytics',this)">📊 Analytics</button>
+  </div>
+
+  <div id="health-entry" class="subpage active">
+
   <div class="grid-2" style="margin-bottom:16px">
 
     <!-- Schlaf -->
@@ -451,6 +473,29 @@
       <tbody id="healthTable"></tbody>
     </table>
   </div>
+
+  </div>
+
+  <div id="health-analytics" class="subpage">
+    <div class="analytics-grid">
+      <div class="card">
+        <div class="card-title">Schrittverlauf</div>
+        <div class="chart-wrap"><canvas id="chartSteps"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Schlafverlauf</div>
+        <div class="chart-wrap"><canvas id="chartSleep"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Gewichtsverlauf (gesamt)</div>
+        <div class="chart-wrap"><canvas id="chartWeightFull"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Blutdruckverlauf</div>
+        <div class="chart-wrap"><canvas id="chartBp"></canvas></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- JOURNAL -->
@@ -506,6 +551,13 @@
 <div id="page-sport" class="page">
   <div class="page-title">Sport</div>
   <div class="page-sub">Trainings erfassen und verfolgen.</div>
+
+  <div class="subnav">
+    <button class="subnav-btn active" onclick="switchSubtab('sport','entry',this)">📋 Erfassen</button>
+    <button class="subnav-btn" onclick="switchSubtab('sport','analytics',this)">📊 Analytics</button>
+  </div>
+
+  <div id="sport-entry" class="subpage active">
 
   <div class="grid-2" style="margin-bottom:16px">
 
@@ -610,6 +662,42 @@
       <thead><tr><th>Datum</th><th>Minuten</th><th></th></tr></thead>
       <tbody id="saunaTable"></tbody>
     </table>
+  </div>
+
+  </div>
+
+  <div id="sport-analytics" class="subpage">
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-header">
+        <span class="card-title">💪 Kraft – Übungsanalyse</span>
+        <select class="form-input" id="kraftAnalyticsSelect" style="width:auto;min-width:220px" onchange="renderKraftExerciseAnalytics()"></select>
+      </div>
+      <div id="kraftTrendBadge" style="margin-bottom:16px"></div>
+      <div class="grid-2">
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Top-Gewicht &amp; geschätztes 1RM</div>
+          <div class="chart-wrap"><canvas id="chartKraftWeight"></canvas></div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Trainingsvolumen (kg) pro Einheit</div>
+          <div class="chart-wrap"><canvas id="chartKraftVolume"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-header">
+        <span class="card-title">🏃 Cardio – Übungsanalyse</span>
+        <select class="form-input" id="cardioAnalyticsSelect" style="width:auto;min-width:220px" onchange="renderCardioExerciseAnalytics()"></select>
+      </div>
+      <div id="cardioTrendBadge" style="margin-bottom:16px"></div>
+      <div class="chart-wrap"><canvas id="chartCardioPace"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Gesamt-Trainingsvolumen pro Woche (alle Kraftübungen)</div>
+      <div class="chart-wrap"><canvas id="chartSportVolumeWeek"></canvas></div>
+    </div>
   </div>
 </div>
 
@@ -734,22 +822,6 @@
 
   <div class="analytics-grid" style="margin-bottom:16px">
     <div class="card">
-      <div class="card-title">Schrittverlauf</div>
-      <div class="chart-wrap"><canvas id="chartSteps"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Schlafverlauf</div>
-      <div class="chart-wrap"><canvas id="chartSleep"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Gewichtsverlauf (gesamt)</div>
-      <div class="chart-wrap"><canvas id="chartWeightFull"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Blutdruckverlauf</div>
-      <div class="chart-wrap"><canvas id="chartBp"></canvas></div>
-    </div>
-    <div class="card">
       <div class="card-title">Habit-Completion Rate</div>
       <div class="chart-wrap"><canvas id="chartHabitRate"></canvas></div>
     </div>
@@ -815,6 +887,7 @@ function nav(page) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => { if(n.getAttribute('onclick')?.includes(page)) n.classList.add('active'); });
+  if(page === 'health' || page === 'sport') resetSubtab(page);
   if(page === 'overview') renderOverview();
   if(page === 'habits') renderHabits();
   if(page === 'health') renderHealth();
@@ -822,6 +895,20 @@ function nav(page) {
   if(page === 'sport') renderSport();
   if(page === 'sales') renderSales();
   if(page === 'analytics') renderAnalytics();
+}
+
+// ===== SUBTABS (Erfassen / Analytics je Seite) =====
+function resetSubtab(page) {
+  document.querySelectorAll(`#page-${page} .subpage`).forEach((p,i) => p.classList.toggle('active', i===0));
+  document.querySelectorAll(`#page-${page} .subnav-btn`).forEach((b,i) => b.classList.toggle('active', i===0));
+}
+function switchSubtab(page, tab, btn) {
+  document.querySelectorAll(`#page-${page} .subpage`).forEach(p => p.classList.remove('active'));
+  document.getElementById(`${page}-${tab}`).classList.add('active');
+  document.querySelectorAll(`#page-${page} .subnav-btn`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if(page === 'health' && tab === 'analytics') renderHealthAnalytics();
+  if(page === 'sport' && tab === 'analytics') renderSportAnalytics();
 }
 
 // ===== TOAST =====
@@ -1270,23 +1357,10 @@ function calcTrend(values) {
 
 // ===== ANALYTICS =====
 let charts = {};
-function renderAnalytics() {
-  const health = DB.get('health', []);
-  const journal = DB.get('journal', []);
-  const habits = DB.get('habits', []);
 
-  // Habit completion rate (last 30 days)
-  const days30 = Array.from({length:30},(_,i)=>{ const d=new Date(); d.setDate(d.getDate()-29+i); return d.toISOString().split('T')[0]; });
-  const habitRates = days30.map(d => {
-    if(!habits.length) return 0;
-    const done = habits.filter(h=>DB.get('habit_log_'+h.id,{})[d]).length;
-    return Math.round(done/habits.length*100);
-  });
-  if(charts.hr) charts.hr.destroy();
-  charts.hr = new Chart(document.getElementById('chartHabitRate'), {
-    type:'bar', data:{ labels:days30.map(d=>new Date(d+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})), datasets:[{ data:habitRates, backgroundColor:'rgba(74,222,128,0.7)', borderRadius:4 }]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{min:0,max:100,ticks:{callback:v=>v+'%',color:cTick()},grid:{color:cGrid()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
-  });
+// Gesundheits-Analytics (Unterseite von Gesundheit)
+function renderHealthAnalytics() {
+  const health = DB.get('health', []);
 
   // Full weight
   const wd = health.filter(d=>d.weight);
@@ -1339,6 +1413,156 @@ function renderAnalytics() {
       { label:'Trend', data:calcTrend(stepsData.map(d=>parseInt(d.steps))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+  });
+}
+
+// Klassifiziert einen Wertverlauf: Steigung einer linearen Regression relativ zum Mittelwert
+// entscheidet, ob progressive Steigerung, Plateau oder Rückgang vorliegt.
+// higherIsBetter=false für Metriken wie Tempo (min/km), bei denen sinkende Werte Fortschritt bedeuten.
+function classifyTrend(values, {higherIsBetter=true} = {}) {
+  const clean = values.filter(v => v!=null && !isNaN(v));
+  if(clean.length < 3) return { cls:'nodata', label:'Nicht genug Daten', icon:'❔', pct:null };
+  const n = clean.length;
+  const xs = clean.map((_,i)=>i);
+  const mx = xs.reduce((a,b)=>a+b,0)/n;
+  const my = clean.reduce((a,b)=>a+b,0)/n;
+  const slope = xs.reduce((s,x,i)=>s+(x-mx)*(clean[i]-my),0) / xs.reduce((s,x)=>s+(x-mx)**2,0);
+  const totalChangePct = my ? (slope*(n-1)/my*100) : 0;
+  const signed = higherIsBetter ? totalChangePct : -totalChangePct;
+  if(signed > 3) return { cls:'progress', label:'Progressive Steigerung', icon:'📈', pct: totalChangePct };
+  if(signed < -3) return { cls:'decline', label:'Rückgang', icon:'📉', pct: totalChangePct };
+  return { cls:'plateau', label:'Plateau', icon:'➡️', pct: totalChangePct };
+}
+function renderTrendBadge(elId, trend, contextLabel) {
+  const el = document.getElementById(elId);
+  if(trend.cls==='nodata') { el.innerHTML = `<span class="trend-badge nodata">${trend.icon} ${trend.label}${contextLabel?(' '+contextLabel):''}</span>`; return; }
+  const sign = trend.pct>=0?'+':'';
+  el.innerHTML = `<span class="trend-badge ${trend.cls}">${trend.icon} ${trend.label} (${sign}${trend.pct.toFixed(1)}%${contextLabel?(' '+contextLabel):''})</span>`;
+}
+
+// Übungsauswahl (Dropdown) mit den bisher geloggten Übungsnamen befüllen
+function populateExerciseSelect(selectId, entries) {
+  const names = [...new Set(entries.map(e=>e.uebung))].sort();
+  const sel = document.getElementById(selectId);
+  const prev = sel.value;
+  sel.innerHTML = names.map(n=>`<option value="${n}">${n}</option>`).join('') || '<option value="">Keine Daten</option>';
+  if(names.includes(prev)) sel.value = prev;
+}
+
+// Sport-Analytics (Unterseite von Sport): Übungsauswahl + Verlauf/Plateau-Erkennung je Übung
+function renderSportAnalytics() {
+  const kraft = DB.get('sport_kraft', []);
+  const cardio = DB.get('sport_cardio', []);
+  populateExerciseSelect('kraftAnalyticsSelect', kraft);
+  populateExerciseSelect('cardioAnalyticsSelect', cardio);
+  renderKraftExerciseAnalytics();
+  renderCardioExerciseAnalytics();
+  renderSportVolumeWeek(kraft);
+}
+
+function renderKraftExerciseAnalytics() {
+  const kraft = DB.get('sport_kraft', []);
+  const uebung = document.getElementById('kraftAnalyticsSelect').value;
+  const entries = kraft.filter(e=>e.uebung===uebung && e.gewicht).sort((a,b)=>a.date.localeCompare(b.date));
+
+  if(charts.kw) charts.kw.destroy();
+  if(charts.kv) charts.kv.destroy();
+  if(!entries.length) {
+    renderTrendBadge('kraftTrendBadge', {cls:'nodata', label:'Keine Daten für diese Übung', icon:'❔'});
+    return;
+  }
+
+  const labels = entries.map(e=>fmtDate(e.date));
+  const weights = entries.map(e=>parseFloat(e.gewicht));
+  // Geschätztes 1RM nach Epley-Formel: Gewicht * (1 + Wdh/30)
+  const est1rms = entries.map(e => e.wdh ? parseFloat(e.gewicht)*(1+parseInt(e.wdh)/30) : parseFloat(e.gewicht));
+  const volumes = entries.map(e => (e.saetze&&e.wdh) ? parseFloat(e.gewicht)*parseInt(e.saetze)*parseInt(e.wdh) : 0);
+
+  charts.kw = new Chart(document.getElementById('chartKraftWeight'), {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'Top-Gewicht (kg)', data:weights, borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,0.1)', tension:0.3, fill:true, pointRadius:3 },
+      { label:'Geschätztes 1RM (kg)', data:est1rms, borderColor:'#22d3ee', borderDash:[4,3], tension:0.3, fill:false, pointRadius:2 },
+      { label:'Trend', data:calcTrend(est1rms), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+  });
+
+  charts.kv = new Chart(document.getElementById('chartKraftVolume'), {
+    type:'bar',
+    data:{ labels, datasets:[
+      { label:'Volumen (kg)', data:volumes, backgroundColor:'rgba(74,222,128,0.7)', borderRadius:4 },
+      { label:'Trend', data:calcTrend(volumes), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+  });
+
+  // Trend anhand der letzten 8 Einheiten (geschätztes 1RM) bewerten
+  const recent = est1rms.slice(-8);
+  const trend = classifyTrend(recent, {higherIsBetter:true});
+  renderTrendBadge('kraftTrendBadge', trend, `· ${uebung} · letzte ${Math.min(recent.length,8)} Einheiten`);
+}
+
+function renderCardioExerciseAnalytics() {
+  const cardio = DB.get('sport_cardio', []);
+  const uebung = document.getElementById('cardioAnalyticsSelect').value;
+  const entries = cardio.filter(e => e.uebung===uebung && parseDur(e.min) && e.km).sort((a,b)=>a.date.localeCompare(b.date));
+
+  if(charts.cp) charts.cp.destroy();
+  if(!entries.length) {
+    renderTrendBadge('cardioTrendBadge', {cls:'nodata', label:'Keine Daten für diese Übung', icon:'❔'});
+    return;
+  }
+
+  const labels = entries.map(e=>fmtDate(e.date));
+  const paces = entries.map(e => +(parseDur(e.min)/parseFloat(e.km)).toFixed(2));
+
+  charts.cp = new Chart(document.getElementById('chartCardioPace'), {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'Tempo (min/km)', data:paces, borderColor:'#f87171', backgroundColor:'rgba(248,113,113,0.1)', tension:0.3, fill:true, pointRadius:3 },
+      { label:'Trend', data:calcTrend(paces), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+  });
+
+  // Beim Tempo bedeutet ein sinkender Wert Fortschritt → higherIsBetter:false
+  const recent = paces.slice(-8);
+  const trend = classifyTrend(recent, {higherIsBetter:false});
+  renderTrendBadge('cardioTrendBadge', trend, `· ${uebung} · letzte ${Math.min(recent.length,8)} Einheiten`);
+}
+
+function renderSportVolumeWeek(kraft) {
+  const weekAgg = {};
+  kraft.forEach(e => {
+    if(!(e.gewicht && e.saetze && e.wdh)) return;
+    const wk = weekKey(e.date);
+    weekAgg[wk] = (weekAgg[wk]||0) + parseFloat(e.gewicht)*parseInt(e.saetze)*parseInt(e.wdh);
+  });
+  const wkKeys = Object.keys(weekAgg).sort().slice(-12);
+  if(charts.spv) charts.spv.destroy();
+  charts.spv = new Chart(document.getElementById('chartSportVolumeWeek'), {
+    type:'bar',
+    data:{ labels: wkKeys, datasets:[{ label:'Volumen (kg)', data: wkKeys.map(w=>Math.round(weekAgg[w])), backgroundColor:'rgba(99,102,241,0.7)', borderRadius:4 }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick()}} } }
+  });
+}
+
+function renderAnalytics() {
+  const journal = DB.get('journal', []);
+  const habits = DB.get('habits', []);
+
+  // Habit completion rate (last 30 days)
+  const days30 = Array.from({length:30},(_,i)=>{ const d=new Date(); d.setDate(d.getDate()-29+i); return d.toISOString().split('T')[0]; });
+  const habitRates = days30.map(d => {
+    if(!habits.length) return 0;
+    const done = habits.filter(h=>DB.get('habit_log_'+h.id,{})[d]).length;
+    return Math.round(done/habits.length*100);
+  });
+  if(charts.hr) charts.hr.destroy();
+  charts.hr = new Chart(document.getElementById('chartHabitRate'), {
+    type:'bar', data:{ labels:days30.map(d=>new Date(d+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})), datasets:[{ data:habitRates, backgroundColor:'rgba(74,222,128,0.7)', borderRadius:4 }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{min:0,max:100,ticks:{callback:v=>v+'%',color:cTick()},grid:{color:cGrid()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 
   // Journal entries per week
@@ -1857,7 +2081,8 @@ function toggleTheme() {
   // Re-render current page so charts pick up new grid colors
   const active = document.querySelector('.page.active')?.id?.replace('page-','');
   if(active === 'overview') renderOverview();
-  else if(active === 'health') renderHealth();
+  else if(active === 'health') { renderHealth(); if(document.getElementById('health-analytics').classList.contains('active')) renderHealthAnalytics(); }
+  else if(active === 'sport') { if(document.getElementById('sport-analytics').classList.contains('active')) renderSportAnalytics(); }
   else if(active === 'sales') renderSales();
   else if(active === 'analytics') renderAnalytics();
 }
