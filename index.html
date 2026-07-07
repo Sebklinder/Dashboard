@@ -266,17 +266,17 @@
       <div class="stat-group-3">
         <div class="stat mini">
           <div class="stat-value" id="statSleep" style="color:var(--yellow)">—</div>
-          <div class="stat-label">Ø Schlaf (h)</div>
+          <div class="stat-label">Ø Schlaf (h:min)</div>
           <div class="stat-delta" id="statSleepRating"></div>
         </div>
         <div class="stat mini">
           <div class="stat-value" id="statDeepSleep" style="color:var(--accent)">—</div>
-          <div class="stat-label">Ø Tiefschlaf (h)</div>
+          <div class="stat-label">Ø Tiefschlaf (h:min)</div>
           <div class="stat-delta" id="statDeepSleepRating"></div>
         </div>
         <div class="stat mini">
           <div class="stat-value" id="statRemSleep" style="color:var(--green)">—</div>
-          <div class="stat-label">Ø REM (h)</div>
+          <div class="stat-label">Ø REM (h:min)</div>
           <div class="stat-delta" id="statRemSleepRating"></div>
         </div>
       </div>
@@ -798,14 +798,14 @@ function renderOverview() {
   const lastBp = data.filter(d=>d.bpSys&&d.bpDia).pop();
 
   document.getElementById('statWeight').textContent = lastWeight?.weight || '—';
-  document.getElementById('statSleep').textContent = sleepAvgMin ? minToH(sleepAvgMin) : '—';
+  document.getElementById('statSleep').textContent = sleepAvgMin ? minToHM(sleepAvgMin) : '—';
   applyRating(document.getElementById('statSleepRating'), sleepAvgMin ? sleepDurationRating(sleepAvgMin/60) : null);
 
-  document.getElementById('statDeepSleep').textContent = deepAvgMin ? minToH(deepAvgMin) : '—';
+  document.getElementById('statDeepSleep').textContent = deepAvgMin ? minToHM(deepAvgMin) : '—';
   const deepPct = (deepAvgMin && sleepAvgMin) ? Math.round(deepAvgMin/sleepAvgMin*100) : null;
   applyRating(document.getElementById('statDeepSleepRating'), deepPct!=null ? sleepShareRating(deepPct,'deep') : null);
 
-  document.getElementById('statRemSleep').textContent = remAvgMin ? minToH(remAvgMin) : '—';
+  document.getElementById('statRemSleep').textContent = remAvgMin ? minToHM(remAvgMin) : '—';
   const remPct = (remAvgMin && sleepAvgMin) ? Math.round(remAvgMin/sleepAvgMin*100) : null;
   applyRating(document.getElementById('statRemSleepRating'), remPct!=null ? sleepShareRating(remPct,'rem') : null);
 
@@ -968,6 +968,8 @@ const fmtMin = (min) => {
   return m ? `${h}h ${m}min` : `${h}h`;
 };
 const minToH = (min) => min ? +(min/60).toFixed(2) : null;
+// Formatiert Minuten als Zeitangabe "H:MM" (z.B. 450 → "7:30").
+const minToHM = (min) => { const m = Math.round(min); return `${Math.floor(m/60)}:${String(m%60).padStart(2,'0')}`; };
 
 function bpCategory(sys, dia) {
   if(!sys||!dia) return '';
