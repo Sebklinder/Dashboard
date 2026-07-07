@@ -244,7 +244,6 @@
   <div class="nav-item" onclick="nav('health')"><span class="icon">❤️</span><span>Gesundheit</span></div>
   <div class="nav-item" onclick="nav('journal')"><span class="icon">📔</span><span>Journal</span></div>
   <div class="nav-item" onclick="nav('sport')"><span class="icon">🏋️</span><span>Sport</span></div>
-  <div class="nav-item" onclick="nav('sales')"><span class="icon">📈</span><span>Vertrieb</span></div>
   <div class="nav-item" onclick="nav('analytics')"><span class="icon">📊</span><span>Analytics</span></div>
   <div class="sidebar-footer">
     <div class="date-display" id="sidebarDate"></div>
@@ -322,10 +321,6 @@
     </div>
   </div>
 
-  <div class="card">
-    <div class="section-header"><span class="card-title">📈 Vertrieb – Diese Woche</span><a href="#" onclick="nav('sales');return false" style="font-size:12px;color:var(--accent)">Details →</a></div>
-    <div id="overviewSales" class="stat-group-3" style="grid-template-columns:repeat(5,1fr)"></div>
-  </div>
 
 </div>
 
@@ -673,16 +668,8 @@
         <select class="form-input" id="kraftAnalyticsSelect" style="width:auto;min-width:220px" onchange="renderKraftExerciseAnalytics()"></select>
       </div>
       <div id="kraftTrendBadge" style="margin-bottom:16px"></div>
-      <div class="grid-2">
-        <div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Top-Gewicht &amp; geschätztes 1RM</div>
-          <div class="chart-wrap"><canvas id="chartKraftWeight"></canvas></div>
-        </div>
-        <div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Trainingsvolumen (kg) pro Einheit</div>
-          <div class="chart-wrap"><canvas id="chartKraftVolume"></canvas></div>
-        </div>
-      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Top-Gewicht &amp; geschätztes 1RM</div>
+      <div class="chart-wrap"><canvas id="chartKraftWeight"></canvas></div>
     </div>
 
     <div class="card" style="margin-bottom:16px">
@@ -693,119 +680,6 @@
       <div id="cardioTrendBadge" style="margin-bottom:16px"></div>
       <div class="chart-wrap"><canvas id="chartCardioPace"></canvas></div>
     </div>
-
-    <div class="card">
-      <div class="card-title">Gesamt-Trainingsvolumen pro Woche (alle Kraftübungen)</div>
-      <div class="chart-wrap"><canvas id="chartSportVolumeWeek"></canvas></div>
-    </div>
-  </div>
-</div>
-
-<!-- SALES -->
-<div id="page-sales" class="page">
-  <div class="page-title">Vertrieb</div>
-  <div class="page-sub">Termine, Konversion und Umsatz im Blick behalten.</div>
-
-  <div class="grid-2" style="margin-bottom:16px">
-    <div class="card">
-      <div class="card-title">📅 Diese Woche (<span id="salesWeekLabel"></span>) — Ist vs. Ziel</div>
-      <div id="salesWeekStats" class="stat-group-3" style="grid-template-columns:repeat(5,1fr)"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">🔁 Konversionsraten (gesamt)</div>
-      <div id="salesConversion" class="stat-group-3" style="grid-template-columns:repeat(4,1fr)"></div>
-    </div>
-  </div>
-
-  <div class="grid-2" style="margin-bottom:16px">
-    <div class="card">
-      <div class="card-title">📝 Termin erfassen</div>
-      <div class="form-group">
-        <label class="form-label">Datum</label>
-        <input type="date" class="form-input" id="salesDate">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Termin-Typ</label>
-        <select class="form-input" id="salesType" onchange="renderSalesFormFields()">
-          <option value="neu">Neu-Termin</option>
-          <option value="gb">Grundberatung (GB)</option>
-          <option value="ft">Fachtermin (FT)</option>
-          <option value="at">Abschlusstermin (AT)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Stattgefunden?</label>
-        <div class="mood-picker">
-          <button type="button" class="mood-btn" id="salesSgYes" onclick="setSalesStattgefunden(true)" style="width:auto;padding:0 16px;font-size:14px">✅ Ja</button>
-          <button type="button" class="mood-btn" id="salesSgNo" onclick="setSalesStattgefunden(false)" style="width:auto;padding:0 16px;font-size:14px">❌ Nein</button>
-        </div>
-      </div>
-      <div id="salesGrundGroup" class="form-group" style="display:none">
-        <label class="form-label">Grund</label>
-        <select class="form-input" id="salesGrund">
-          <option value="Kunde abgesagt">Kunde abgesagt</option>
-          <option value="Verschoben">Verschoben</option>
-          <option value="No-Show">No-Show</option>
-          <option value="Sonstiges">Sonstiges</option>
-        </select>
-      </div>
-      <div id="salesFolgeGroup" class="form-group" style="display:none">
-        <label class="form-label" id="salesFolgeLabel">Folgetermin vereinbart?</label>
-        <div class="mood-picker">
-          <button type="button" class="mood-btn" id="salesFolgeYes" onclick="setSalesFolge(true)" style="width:auto;padding:0 16px;font-size:14px">✅ Ja</button>
-          <button type="button" class="mood-btn" id="salesFolgeNo" onclick="setSalesFolge(false)" style="width:auto;padding:0 16px;font-size:14px">❌ Nein</button>
-        </div>
-      </div>
-      <div id="salesUmsatzGroup" class="form-group" style="display:none">
-        <label class="form-label">Umsatz (€)</label>
-        <input type="number" step="0.01" class="form-input" id="salesUmsatz" placeholder="1500">
-      </div>
-      <div class="form-group" style="margin-bottom:0">
-        <label class="form-label">Notiz (optional)</label>
-        <input type="text" class="form-input" id="salesNotiz" placeholder="z.B. Kunde, Produkt, Besonderheiten">
-      </div>
-      <button class="btn btn-primary" onclick="saveAppointment()" style="width:100%;margin-top:16px">Speichern</button>
-    </div>
-
-    <div class="card">
-      <div class="card-title">🤝 Empfehlungen &amp; Tagesnotiz</div>
-      <div class="form-group">
-        <label class="form-label">Datum</label>
-        <input type="date" class="form-input" id="salesDailyDate">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Erhaltene Empfehlungen</label>
-        <input type="number" min="0" class="form-input" id="salesEmpfehlungen" placeholder="0">
-      </div>
-      <div class="form-group" style="margin-bottom:0">
-        <label class="form-label">Notiz zum Tag</label>
-        <textarea class="form-input" id="salesDailyNotiz" placeholder="Wie lief der Tag vertrieblich?" style="min-height:70px"></textarea>
-      </div>
-      <button class="btn btn-primary" onclick="saveSalesDaily()" style="width:100%;margin-top:16px">Speichern</button>
-
-      <div class="card-title" style="margin-top:24px">🎯 Wochenziele (fix)</div>
-      <div class="form-row-3">
-        <div class="form-group"><label class="form-label">Neu-Termine</label><input type="number" min="0" class="form-input" id="goalNeu"></div>
-        <div class="form-group"><label class="form-label">GB</label><input type="number" min="0" class="form-input" id="goalGb"></div>
-        <div class="form-group"><label class="form-label">FT</label><input type="number" min="0" class="form-input" id="goalFt"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">AT</label><input type="number" min="0" class="form-input" id="goalAt"></div>
-        <div class="form-group"><label class="form-label">Umsatz (€)</label><input type="number" min="0" class="form-input" id="goalUmsatz"></div>
-      </div>
-      <button class="btn btn-secondary btn-sm" onclick="saveSalesGoals()" style="width:100%">Ziele speichern</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="section-header">
-      <span class="card-title">Termine-Protokoll</span>
-      <button class="btn btn-secondary btn-sm" onclick="exportSales()">📥 CSV Export</button>
-    </div>
-    <table class="data-table">
-      <thead><tr><th>Datum</th><th>Typ</th><th>Stattgefunden</th><th>Ergebnis</th><th>Umsatz</th><th>Notiz</th><th></th></tr></thead>
-      <tbody id="salesTable"></tbody>
-    </table>
   </div>
 </div>
 
@@ -824,18 +698,6 @@
     <div class="card">
       <div class="card-title">Habit-Completion Rate</div>
       <div class="chart-wrap"><canvas id="chartHabitRate"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Journal-Einträge pro Monat</div>
-      <div class="chart-wrap"><canvas id="chartMoodFull"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Umsatz pro Woche</div>
-      <div class="chart-wrap"><canvas id="chartRevenue"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Stattgefundene Termine pro Woche</div>
-      <div class="chart-wrap"><canvas id="chartAppointments"></canvas></div>
     </div>
   </div>
 
@@ -893,7 +755,6 @@ function nav(page) {
   if(page === 'health') renderHealth();
   if(page === 'journal') renderJournal();
   if(page === 'sport') renderSport();
-  if(page === 'sales') renderSales();
   if(page === 'analytics') renderAnalytics();
 }
 
@@ -993,8 +854,6 @@ function renderOverview() {
       </div>`;
     }).join('');
   }
-
-  renderOverviewSalesWidget();
 }
 
 function toggleHabitFromOverview(id) {
@@ -1457,7 +1316,6 @@ function renderSportAnalytics() {
   populateExerciseSelect('cardioAnalyticsSelect', cardio);
   renderKraftExerciseAnalytics();
   renderCardioExerciseAnalytics();
-  renderSportVolumeWeek(kraft);
 }
 
 function renderKraftExerciseAnalytics() {
@@ -1466,7 +1324,6 @@ function renderKraftExerciseAnalytics() {
   const entries = kraft.filter(e=>e.uebung===uebung && e.gewicht).sort((a,b)=>a.date.localeCompare(b.date));
 
   if(charts.kw) charts.kw.destroy();
-  if(charts.kv) charts.kv.destroy();
   if(!entries.length) {
     renderTrendBadge('kraftTrendBadge', {cls:'nodata', label:'Keine Daten für diese Übung', icon:'❔'});
     return;
@@ -1476,7 +1333,6 @@ function renderKraftExerciseAnalytics() {
   const weights = entries.map(e=>parseFloat(e.gewicht));
   // Geschätztes 1RM nach Epley-Formel: Gewicht * (1 + Wdh/30)
   const est1rms = entries.map(e => e.wdh ? parseFloat(e.gewicht)*(1+parseInt(e.wdh)/30) : parseFloat(e.gewicht));
-  const volumes = entries.map(e => (e.saetze&&e.wdh) ? parseFloat(e.gewicht)*parseInt(e.saetze)*parseInt(e.wdh) : 0);
 
   charts.kw = new Chart(document.getElementById('chartKraftWeight'), {
     type:'line',
@@ -1484,15 +1340,6 @@ function renderKraftExerciseAnalytics() {
       { label:'Top-Gewicht (kg)', data:weights, borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,0.1)', tension:0.3, fill:true, pointRadius:3 },
       { label:'Geschätztes 1RM (kg)', data:est1rms, borderColor:'#22d3ee', borderDash:[4,3], tension:0.3, fill:false, pointRadius:2 },
       { label:'Trend', data:calcTrend(est1rms), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
-  });
-
-  charts.kv = new Chart(document.getElementById('chartKraftVolume'), {
-    type:'bar',
-    data:{ labels, datasets:[
-      { label:'Volumen (kg)', data:volumes, backgroundColor:'rgba(74,222,128,0.7)', borderRadius:4 },
-      { label:'Trend', data:calcTrend(volumes), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
@@ -1532,24 +1379,7 @@ function renderCardioExerciseAnalytics() {
   renderTrendBadge('cardioTrendBadge', trend, `· ${uebung} · letzte ${Math.min(recent.length,8)} Einheiten`);
 }
 
-function renderSportVolumeWeek(kraft) {
-  const weekAgg = {};
-  kraft.forEach(e => {
-    if(!(e.gewicht && e.saetze && e.wdh)) return;
-    const wk = weekKey(e.date);
-    weekAgg[wk] = (weekAgg[wk]||0) + parseFloat(e.gewicht)*parseInt(e.saetze)*parseInt(e.wdh);
-  });
-  const wkKeys = Object.keys(weekAgg).sort().slice(-12);
-  if(charts.spv) charts.spv.destroy();
-  charts.spv = new Chart(document.getElementById('chartSportVolumeWeek'), {
-    type:'bar',
-    data:{ labels: wkKeys, datasets:[{ label:'Volumen (kg)', data: wkKeys.map(w=>Math.round(weekAgg[w])), backgroundColor:'rgba(99,102,241,0.7)', borderRadius:4 }]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick()}} } }
-  });
-}
-
 function renderAnalytics() {
-  const journal = DB.get('journal', []);
   const habits = DB.get('habits', []);
 
   // Habit completion rate (last 30 days)
@@ -1564,271 +1394,6 @@ function renderAnalytics() {
     type:'bar', data:{ labels:days30.map(d=>new Date(d+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})), datasets:[{ data:habitRates, backgroundColor:'rgba(74,222,128,0.7)', borderRadius:4 }]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{min:0,max:100,ticks:{callback:v=>v+'%',color:cTick()},grid:{color:cGrid()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
-
-  // Journal entries per week
-  const weeks = {};
-  journal.forEach(e => { const w = e.date.slice(0,7); weeks[w] = (weeks[w]||0)+1; });
-  const weekKeys = Object.keys(weeks).sort().slice(-12);
-  if(charts.mf) charts.mf.destroy();
-  charts.mf = new Chart(document.getElementById('chartMoodFull'), {
-    type:'bar', data:{ labels:weekKeys, datasets:[{ data:weekKeys.map(w=>weeks[w]), backgroundColor:'rgba(251,191,36,0.7)', borderRadius:4, label:'Einträge' }]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ticks:{stepSize:1,color:cTick()},grid:{color:cGrid()}}, x:{grid:{display:false},ticks:{color:cTick()}} } }
-  });
-
-  // Sales: revenue & held appointments per week (last 12 weeks)
-  const sales = DB.get('sales_appointments', []);
-  const weekAgg = {};
-  sales.forEach(a => {
-    const wk = weekKey(a.date);
-    if(!weekAgg[wk]) weekAgg[wk] = { umsatz:0, neu:0, gb:0, ft:0, at:0 };
-    if(a.stattgefunden) weekAgg[wk][a.type]++;
-    if(a.type==='at' && a.umsatz) weekAgg[wk].umsatz += parseFloat(a.umsatz);
-  });
-  const wkKeys = Object.keys(weekAgg).sort().slice(-12);
-
-  if(charts.rev) charts.rev.destroy();
-  charts.rev = new Chart(document.getElementById('chartRevenue'), {
-    type:'bar',
-    data:{ labels: wkKeys, datasets:[{ label:'Umsatz (€)', data: wkKeys.map(w=>weekAgg[w].umsatz), backgroundColor:'rgba(99,102,241,0.7)', borderRadius:4 }]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+' €'}}, x:{grid:{display:false},ticks:{color:cTick()}} } }
-  });
-
-  if(charts.appt) charts.appt.destroy();
-  charts.appt = new Chart(document.getElementById('chartAppointments'), {
-    type:'bar',
-    data:{ labels: wkKeys, datasets:[
-      { label:'Neu-Termine', data: wkKeys.map(w=>weekAgg[w].neu), backgroundColor:'rgba(34,211,238,0.7)', borderRadius:3 },
-      { label:'GB', data: wkKeys.map(w=>weekAgg[w].gb), backgroundColor:'rgba(74,222,128,0.7)', borderRadius:3 },
-      { label:'FT', data: wkKeys.map(w=>weekAgg[w].ft), backgroundColor:'rgba(251,191,36,0.7)', borderRadius:3 },
-      { label:'AT', data: wkKeys.map(w=>weekAgg[w].at), backgroundColor:'rgba(248,113,113,0.7)', borderRadius:3 },
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),stepSize:1}}, x:{grid:{display:false},ticks:{color:cTick()}} } }
-  });
-
-}
-
-// ===== SALES =====
-const SALES_TYPES = {
-  neu: { label: 'Neu-Termin', icon: '🆕', folgeLabel: 'Grundberatung (GB) vereinbart?' },
-  gb:  { label: 'Grundberatung (GB)', icon: '📘', folgeLabel: 'Fachtermin (FT) vereinbart?' },
-  ft:  { label: 'Fachtermin (FT)', icon: '📗', folgeLabel: 'Abschlusstermin (AT) vereinbart?' },
-  at:  { label: 'Abschlusstermin (AT)', icon: '📕', folgeLabel: 'Abschluss erzielt?' },
-};
-
-let salesFormState = { stattgefunden: null, folge: null };
-
-// ISO-8601 Kalenderwoche, damit Wochen unabhängig vom Monat sauber gruppiert werden.
-function isoWeekInfo(dateStr) {
-  const d = new Date(dateStr + 'T12:00:00');
-  const day = (d.getDay()+6)%7;
-  d.setDate(d.getDate()-day+3);
-  const firstThursday = new Date(d.getFullYear(),0,4);
-  const diff = d - new Date(firstThursday.getFullYear(), firstThursday.getMonth(), firstThursday.getDate() - ((firstThursday.getDay()+6)%7));
-  const week = 1 + Math.round(diff/(7*86400000));
-  return { year: d.getFullYear(), week };
-}
-function weekKey(dateStr) { const {year,week} = isoWeekInfo(dateStr); return `${year}-W${String(week).padStart(2,'0')}`; }
-
-function setSalesStattgefunden(val) {
-  salesFormState.stattgefunden = val;
-  document.getElementById('salesSgYes').classList.toggle('selected', val===true);
-  document.getElementById('salesSgNo').classList.toggle('selected', val===false);
-  renderSalesFormFields();
-}
-function setSalesFolge(val) {
-  salesFormState.folge = val;
-  document.getElementById('salesFolgeYes').classList.toggle('selected', val===true);
-  document.getElementById('salesFolgeNo').classList.toggle('selected', val===false);
-  renderSalesFormFields();
-}
-
-function renderSalesFormFields() {
-  const type = document.getElementById('salesType').value;
-  const sg = salesFormState.stattgefunden;
-  document.getElementById('salesGrundGroup').style.display = (sg===false) ? '' : 'none';
-  document.getElementById('salesFolgeGroup').style.display = (sg===true) ? '' : 'none';
-  document.getElementById('salesFolgeLabel').textContent = SALES_TYPES[type].folgeLabel;
-  document.getElementById('salesUmsatzGroup').style.display = (sg===true && type==='at' && salesFormState.folge===true) ? '' : 'none';
-}
-
-function resetSalesForm() {
-  salesFormState = { stattgefunden: null, folge: null };
-  ['salesSgYes','salesSgNo','salesFolgeYes','salesFolgeNo'].forEach(id=>document.getElementById(id).classList.remove('selected'));
-  document.getElementById('salesGrundGroup').style.display = 'none';
-  document.getElementById('salesFolgeGroup').style.display = 'none';
-  document.getElementById('salesUmsatzGroup').style.display = 'none';
-  document.getElementById('salesNotiz').value = '';
-  document.getElementById('salesUmsatz').value = '';
-}
-
-function saveAppointment() {
-  if(salesFormState.stattgefunden === null) { toast('Bitte angeben, ob der Termin stattgefunden hat!'); return; }
-  const type = document.getElementById('salesType').value;
-  const entry = {
-    id: Date.now().toString(),
-    date: document.getElementById('salesDate').value || today(),
-    type,
-    stattgefunden: salesFormState.stattgefunden,
-    grund: salesFormState.stattgefunden===false ? document.getElementById('salesGrund').value : '',
-    folge: salesFormState.stattgefunden===true ? salesFormState.folge : null,
-    umsatz: (type==='at' && salesFormState.folge===true) ? (document.getElementById('salesUmsatz').value || 0) : '',
-    notiz: document.getElementById('salesNotiz').value.trim(),
-  };
-  const data = DB.get('sales_appointments', []);
-  data.push(entry);
-  data.sort((a,b)=>a.date.localeCompare(b.date));
-  DB.set('sales_appointments', data);
-  resetSalesForm();
-  renderSales();
-  toast('Termin gespeichert ✓');
-}
-
-function deleteAppointment(id) {
-  if(!confirm('Eintrag löschen?')) return;
-  DB.set('sales_appointments', DB.get('sales_appointments', []).filter(e=>e.id!==id));
-  renderSales();
-}
-
-function saveSalesDaily() {
-  const date = document.getElementById('salesDailyDate').value || today();
-  const data = DB.get('sales_daily', []);
-  const idx = data.findIndex(d=>d.date===date);
-  const entry = idx>=0 ? { ...data[idx] } : { date };
-  const emp = document.getElementById('salesEmpfehlungen').value;
-  const note = document.getElementById('salesDailyNotiz').value.trim();
-  if(emp !== '') entry.empfehlungen = emp;
-  if(note !== '') entry.notiz = note;
-  entry.date = date;
-  if(idx>=0) data[idx] = entry; else data.push(entry);
-  data.sort((a,b)=>a.date.localeCompare(b.date));
-  DB.set('sales_daily', data);
-  document.getElementById('salesEmpfehlungen').value = '';
-  document.getElementById('salesDailyNotiz').value = '';
-  toast('Tagesdaten gespeichert ✓');
-}
-
-function saveSalesGoals() {
-  const goals = {
-    neu: document.getElementById('goalNeu').value || 0,
-    gb: document.getElementById('goalGb').value || 0,
-    ft: document.getElementById('goalFt').value || 0,
-    at: document.getElementById('goalAt').value || 0,
-    umsatz: document.getElementById('goalUmsatz').value || 0,
-  };
-  DB.set('sales_goals', goals);
-  renderSales();
-  toast('Wochenziele gespeichert ✓');
-}
-
-function computeConversion(type) {
-  const appts = DB.get('sales_appointments', []);
-  const held = appts.filter(a => a.type===type && a.stattgefunden===true);
-  if(!held.length) return null;
-  const converted = held.filter(a => a.folge===true).length;
-  return Math.round(converted/held.length*100);
-}
-
-function goalDeltaClass(ist, soll) {
-  soll = parseFloat(soll) || 0;
-  if(!soll) return 'neutral';
-  return ist>=soll ? 'up' : (ist>=soll*0.7 ? 'neutral' : 'down');
-}
-
-// Fasst die aktuelle Kalenderwoche zusammen — wird von Übersicht und Vertriebsseite gemeinsam genutzt.
-function getSalesWeekSummary(dateStr = today()) {
-  const goals = DB.get('sales_goals', {neu:0,gb:0,ft:0,at:0,umsatz:0});
-  const wk = weekKey(dateStr);
-  const appts = DB.get('sales_appointments', []).filter(a => weekKey(a.date) === wk);
-  const typeStats = {};
-  ['neu','gb','ft','at'].forEach(t => {
-    const all = appts.filter(a=>a.type===t);
-    typeStats[t] = { total: all.length, held: all.filter(a=>a.stattgefunden===true).length };
-  });
-  const umsatz = appts.filter(a=>a.type==='at' && a.umsatz).reduce((s,a)=>s+parseFloat(a.umsatz||0),0);
-  const { year, week } = isoWeekInfo(dateStr);
-  return { goals, typeStats, umsatz, year, week };
-}
-
-function renderOverviewSalesWidget() {
-  const { goals, typeStats, umsatz } = getSalesWeekSummary();
-  const el = document.getElementById('overviewSales');
-  if(!el) return;
-  el.innerHTML = ['neu','gb','ft','at'].map(t => `
-    <div class="stat mini">
-      <div class="stat-value">${typeStats[t].total}</div>
-      <div class="stat-label">${SALES_TYPES[t].label.replace(/ \(.*\)/,'')}</div>
-      <div class="stat-delta ${goalDeltaClass(typeStats[t].total, goals[t])}">${typeStats[t].held}/${typeStats[t].total} statt.</div>
-    </div>`).join('') + `
-    <div class="stat mini">
-      <div class="stat-value">${umsatz ? Math.round(umsatz).toLocaleString('de-DE') + ' €' : '—'}</div>
-      <div class="stat-label">Umsatz</div>
-      <div class="stat-delta ${goalDeltaClass(umsatz, goals.umsatz)}">${goals.umsatz ? 'Ziel '+parseFloat(goals.umsatz).toLocaleString('de-DE')+' €' : ''}</div>
-    </div>`;
-}
-
-function renderSales() {
-  document.getElementById('salesDate').value = today();
-  document.getElementById('salesDailyDate').value = today();
-  resetSalesForm();
-  renderSalesFormFields();
-
-  const { goals, typeStats, umsatz, year, week } = getSalesWeekSummary();
-  document.getElementById('salesWeekLabel').textContent = `KW ${week}/${year}`;
-  ['goalNeu','goalGb','goalFt','goalAt','goalUmsatz'].forEach((id,i)=>{
-    const key = ['neu','gb','ft','at','umsatz'][i];
-    document.getElementById(id).value = goals[key] || '';
-  });
-
-  const statsEl = document.getElementById('salesWeekStats');
-  statsEl.innerHTML = ['neu','gb','ft','at'].map(t => `
-    <div class="stat mini">
-      <div class="stat-value">${typeStats[t].total}</div>
-      <div class="stat-label">${SALES_TYPES[t].label}</div>
-      <div class="stat-delta ${goalDeltaClass(typeStats[t].total, goals[t])}">${typeStats[t].held}/${typeStats[t].total} statt.${goals[t]?(' · Ziel '+goals[t]):''}</div>
-    </div>`).join('') + `
-    <div class="stat mini">
-      <div class="stat-value">${umsatz ? umsatz.toLocaleString('de-DE') + ' €' : '—'}</div>
-      <div class="stat-label">Umsatz</div>
-      <div class="stat-delta ${goalDeltaClass(umsatz, goals.umsatz)}">${goals.umsatz ? 'Ziel '+parseFloat(goals.umsatz).toLocaleString('de-DE')+' €' : ''}</div>
-    </div>`;
-
-  const convEl = document.getElementById('salesConversion');
-  const convLabels = { neu:'Neu → GB', gb:'GB → FT', ft:'FT → AT', at:'AT → Abschluss' };
-  convEl.innerHTML = Object.keys(convLabels).map(t => {
-    const rate = computeConversion(t);
-    return `<div class="stat mini">
-      <div class="stat-value">${rate!=null ? rate+'%' : '—'}</div>
-      <div class="stat-label">${convLabels[t]}</div>
-    </div>`;
-  }).join('');
-
-  const appts = DB.get('sales_appointments', []);
-  const tbody = document.getElementById('salesTable');
-  tbody.innerHTML = [...appts].reverse().slice(0,50).map(a => {
-    let ergebnis = '—';
-    if(a.stattgefunden===false) ergebnis = `Nicht stattgefunden (${a.grund||'-'})`;
-    else if(a.stattgefunden===true) {
-      if(a.type==='at') ergebnis = a.folge===true ? '✅ Abschluss' : (a.folge===false ? '❌ Kein Abschluss' : '—');
-      else ergebnis = a.folge===true ? '✅ Folgetermin vereinbart' : (a.folge===false ? '❌ Kein Folgetermin' : '—');
-    }
-    return `<tr>
-      <td>${fmtDate(a.date)}</td>
-      <td>${SALES_TYPES[a.type].icon} ${SALES_TYPES[a.type].label}</td>
-      <td>${a.stattgefunden ? '✅' : '❌'}</td>
-      <td>${ergebnis}</td>
-      <td>${a.umsatz ? parseFloat(a.umsatz).toLocaleString('de-DE')+' €' : '—'}</td>
-      <td>${a.notiz||''}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteAppointment('${a.id}')" style="padding:3px 8px;font-size:11px">✕</button></td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="7" class="empty">Noch keine Einträge</td></tr>';
-}
-
-function exportSales() {
-  const data = DB.get('sales_appointments', []);
-  const csv = ['Datum,Typ,Stattgefunden,Grund,Folge/Abschluss,Umsatz,Notiz']
-    .concat(data.map(a=>`${a.date},${SALES_TYPES[a.type].label},${a.stattgefunden?'Ja':'Nein'},${a.grund||''},${a.folge===true?'Ja':(a.folge===false?'Nein':'')},${a.umsatz||''},"${(a.notiz||'').replace(/"/g,'""')}"`))
-    .join('\n');
-  download('vertrieb-termine.csv', 'text/csv', csv);
 }
 
 // ===== SPORT =====
@@ -2034,9 +1599,6 @@ function exportAll() {
     sport_cardio: DB.get('sport_cardio', []),
     sport_sauna: DB.get('sport_sauna', []),
     journal: DB.get('journal', []),
-    sales_appointments: DB.get('sales_appointments', []),
-    sales_daily: DB.get('sales_daily', []),
-    sales_goals: DB.get('sales_goals', {}),
   };
   download('dashboard-backup-' + today() + '.json', 'application/json', JSON.stringify(all,null,2));
   toast('Export erfolgreich ✓');
@@ -2059,9 +1621,6 @@ function handleImport(event) {
       if(data.sport_cardio) DB.set('sport_cardio', data.sport_cardio);
       if(data.sport_sauna) DB.set('sport_sauna', data.sport_sauna);
       if(data.journal) DB.set('journal', data.journal);
-      if(data.sales_appointments) DB.set('sales_appointments', data.sales_appointments);
-      if(data.sales_daily) DB.set('sales_daily', data.sales_daily);
-      if(data.sales_goals) DB.set('sales_goals', data.sales_goals);
       toast('Import erfolgreich ✓');
       renderAnalytics();
     } catch(err) { alert('Fehler beim Importieren: ' + err.message); }
@@ -2083,7 +1642,6 @@ function toggleTheme() {
   if(active === 'overview') renderOverview();
   else if(active === 'health') { renderHealth(); if(document.getElementById('health-analytics').classList.contains('active')) renderHealthAnalytics(); }
   else if(active === 'sport') { if(document.getElementById('sport-analytics').classList.contains('active')) renderSportAnalytics(); }
-  else if(active === 'sales') renderSales();
   else if(active === 'analytics') renderAnalytics();
 }
 (function() {
