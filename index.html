@@ -334,15 +334,9 @@
     <button class="btn btn-primary btn-sm" onclick="openHabitModal()">+ Habit hinzufügen</button>
   </div>
 
-  <div class="grid-2" style="margin-bottom:16px">
-    <div class="card">
-      <div class="card-title">Heute — <span id="habitTodayDate"></span></div>
-      <div id="habitList"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Streak-Übersicht</div>
-      <div id="streakList"></div>
-    </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Heute — <span id="habitTodayDate"></span></div>
+    <div id="habitList"></div>
   </div>
 
   <div class="card">
@@ -932,28 +926,18 @@ function renderHabits() {
     hl.innerHTML = habits.map(h => {
       const log = DB.get('habit_log_' + h.id, {});
       const done = log[td];
+      const streak = calcStreak(log);
+      const total = Object.values(log).filter(Boolean).length;
       return `<div class="habit-row">
         <span style="font-size:20px">${h.emoji}</span>
         <div style="flex:1"><div class="habit-name">${h.name}</div>${h.goal?`<div style="font-size:11px;color:var(--muted)">${h.goal}</div>`:''}</div>
+        <span class="habit-streak" title="Aktuelle Serie">🔥 ${streak}</span>
+        <span style="font-size:11px;color:var(--muted)" title="Insgesamt erledigt">${total}×</span>
         <div class="habit-check ${done?'done':''}" onclick="toggleHabit('${h.id}')"></div>
         <button class="btn btn-danger btn-sm" onclick="deleteHabit('${h.id}')" style="padding:4px 8px;font-size:11px">✕</button>
       </div>`;
     }).join('');
   }
-
-  // Streak list
-  const sl = document.getElementById('streakList');
-  sl.innerHTML = habits.map(h => {
-    const log = DB.get('habit_log_' + h.id, {});
-    const streak = calcStreak(log);
-    const total = Object.values(log).filter(Boolean).length;
-    return `<div class="habit-row">
-      <span style="font-size:20px">${h.emoji}</span>
-      <span class="habit-name">${h.name}</span>
-      <span class="habit-streak">🔥 ${streak}</span>
-      <span style="font-size:11px;color:var(--muted);margin-left:8px">${total}x gesamt</span>
-    </div>`;
-  }).join('') || '<div class="empty">Keine Habits</div>';
 
   // 14-day history grid
   const days14 = Array.from({length:14},(_,i)=>{ const d=new Date(); d.setDate(d.getDate()-13+i); return d.toISOString().split('T')[0]; });
