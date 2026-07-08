@@ -437,6 +437,20 @@
       </div>
       <button class="btn btn-primary" onclick="saveWeight()" style="width:100%">Speichern</button>
     </div>
+
+    <!-- Körpertemperatur -->
+    <div class="card">
+      <div class="card-title">🌡️ Körpertemperatur – Neuer Eintrag</div>
+      <div class="form-group">
+        <label class="form-label">Datum</label>
+        <input type="date" class="form-input" id="tempDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Temperatur (°C)</label>
+        <input type="number" step="0.1" min="30" max="45" class="form-input" id="healthTemp" placeholder="36.6">
+      </div>
+      <button class="btn btn-primary" onclick="saveTemp()" style="width:100%">Speichern</button>
+    </div>
   </div>
 
   <div class="card" style="margin-bottom:16px">
@@ -458,7 +472,7 @@
       <button class="btn btn-secondary btn-sm" onclick="exportHealth()">📥 CSV Export</button>
     </div>
     <table class="data-table">
-      <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Schritte</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th></tr></thead>
+      <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th></tr></thead>
       <tbody id="healthTable"></tbody>
     </table>
   </div>
@@ -482,6 +496,10 @@
       <div class="card">
         <div class="card-title">Blutdruckverlauf</div>
         <div class="chart-wrap"><canvas id="chartBp"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Körpertemperatur</div>
+        <div class="chart-wrap"><canvas id="chartTemp"></canvas></div>
       </div>
     </div>
   </div>
@@ -894,6 +912,11 @@ function deleteHabit(id) {
 function calcStreak(log) {
   let streak = 0;
   const d = new Date();
+  // Heute bekommt eine Karenz: Ist heute noch nicht abgehakt, wird der Streak
+  // nicht sofort gelöscht, sondern erst am Folgetag. Wir starten die Zählung
+  // dann bei gestern und brechen erst beim ersten fehlenden Tag davor ab.
+  const todayKey = d.toISOString().split('T')[0];
+  if(!log[todayKey]) d.setDate(d.getDate()-1);
   while(true) {
     const key = d.toISOString().split('T')[0];
     if(log[key]) { streak++; d.setDate(d.getDate()-1); }
@@ -1012,7 +1035,7 @@ function applyRating(el, rating) {
   el.className = 'stat-delta ' + rating.cls;
 }
 function renderHealth() {
-  ['sleepDate','stepsDate','bpDate','weightDate','noteDate'].forEach(id=>document.getElementById(id).value = today());
+  ['sleepDate','stepsDate','bpDate','weightDate','tempDate','noteDate'].forEach(id=>document.getElementById(id).value = today());
   const data = DB.get('health', []);
 
   // Table
@@ -1022,11 +1045,12 @@ function renderHealth() {
     <td>${fmtDate(d.date)}</td>
     <td>${d.weight||'—'}</td>
     <td>${d.bpSys&&d.bpDia ? `<span style="color:var(--red)">${d.bpSys}</span>/<span style="color:var(--accent2)">${d.bpDia}</span>` : '—'}</td>
+    <td>${d.temp ? `<span style="color:${parseFloat(d.temp)>=38 ? 'var(--red)' : 'inherit'}">${d.temp}°</span>` : '—'}</td>
     <td>${d.steps||'—'}</td>
     <td>${fmtMin(d.sleepMin)}</td>
     <td>${fmtMin(d.deepMin)}</td>
     <td>${fmtMin(d.remMin)}</td>
-  </tr>`).join('') || '<tr><td colspan="7" class="empty">Noch keine Einträge</td></tr>';
+  </tr>`).join('') || '<tr><td colspan="8" class="empty">Noch keine Einträge</td></tr>';
 }
 
 // Speichert Felder für ein Datum und merged sie in einen bestehenden Eintrag,
@@ -1084,6 +1108,14 @@ function saveWeight() {
   toast('Gewicht gespeichert ✓');
 }
 
+function saveTemp() {
+  const date = document.getElementById('tempDate').value || today();
+  saveHealthEntry(date, { temp: document.getElementById('healthTemp').value });
+  document.getElementById('healthTemp').value = '';
+  renderHealth();
+  toast('Temperatur gespeichert ✓');
+}
+
 function saveNote() {
   const date = document.getElementById('noteDate').value || today();
   saveHealthEntry(date, { note: document.getElementById('healthNote').value });
@@ -1107,7 +1139,7 @@ function checkStepsHabit(date, steps) {
 
 function exportHealth() {
   const data = DB.get('health', []);
-  const csv = ['Datum,Gewicht,BP sys,BP dia,Schritte,Schlaf gesamt (min),Tiefschlaf (min),REM (min),Notiz'].concat(data.map(d=>`${d.date},${d.weight||''},${d.bpSys||''},${d.bpDia||''},${d.steps||''},${d.sleepMin||''},${d.deepMin||''},${d.remMin||''},"${d.note||''}"`)).join('\n');
+  const csv = ['Datum,Gewicht,BP sys,BP dia,Temperatur (°C),Schritte,Schlaf gesamt (min),Tiefschlaf (min),REM (min),Notiz'].concat(data.map(d=>`${d.date},${d.weight||''},${d.bpSys||''},${d.bpDia||''},${d.temp||''},${d.steps||''},${d.sleepMin||''},${d.deepMin||''},${d.remMin||''},"${d.note||''}"`)).join('\n');
   download('gesundheitsdaten.csv', 'text/csv', csv);
 }
 
@@ -1232,6 +1264,19 @@ function renderHealthAnalytics() {
       { label:'Ziel dia. 80', data:bpData.map(()=>80), borderColor:'rgba(34,211,238,0.35)', borderDash:[6,4], pointRadius:2, fill:false },
     ]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{min:50,grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{color:cGrid()},ticks:{color:cTick(),maxTicksLimit:6}} } }
+  });
+
+  // Temperatur chart
+  const tempData = health.filter(d=>d.temp).slice(-30);
+  if(charts.temp) charts.temp.destroy();
+  charts.temp = new Chart(document.getElementById('chartTemp'), {
+    type:'line',
+    data:{ labels: tempData.map(d=>fmtDate(d.date)), datasets:[
+      { label:'Temperatur', data:tempData.map(d=>parseFloat(d.temp)), borderColor:'#fb923c', backgroundColor:'rgba(251,146,60,0.1)', tension:0.3, fill:true, pointRadius:4 },
+      { label:'Normal 37°', data:tempData.map(()=>37), borderColor:'rgba(74,222,128,0.5)', borderDash:[6,4], pointRadius:2, fill:false },
+      { label:'Fieber 38°', data:tempData.map(()=>38), borderColor:'rgba(248,113,113,0.5)', borderDash:[6,4], pointRadius:2, fill:false },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+'°'}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:6}} } }
   });
 
   // Sleep chart
