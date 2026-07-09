@@ -215,7 +215,6 @@
   .trend-badge.nodata { background: var(--surface2); color: var(--muted); }
 
   /* Export bar */
-  .export-bar { display: flex; gap: 10px; margin-bottom: 20px; }
 
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
@@ -244,7 +243,6 @@
   <div class="nav-item" onclick="nav('health')"><span class="icon">❤️</span><span>Gesundheit</span></div>
   <div class="nav-item" onclick="nav('journal')"><span class="icon">📔</span><span>Journal</span></div>
   <div class="nav-item" onclick="nav('sport')"><span class="icon">🏋️</span><span>Sport</span></div>
-  <div class="nav-item" onclick="nav('analytics')"><span class="icon">📊</span><span>Analytics</span></div>
   <div class="sidebar-footer">
     <div class="date-display" id="sidebarDate"></div>
     <button class="btn btn-secondary btn-sm" onclick="toggleTheme()" id="themeBtn" style="margin-top:10px;width:100%">☀️ Hell</button>
@@ -697,25 +695,6 @@
 </div>
 
 <!-- ANALYTICS -->
-<div id="page-analytics" class="page">
-  <div class="page-title">Analytics</div>
-  <div class="page-sub">Muster und Trends in deinen Daten entdecken.</div>
-
-  <div class="export-bar">
-    <button class="btn btn-secondary btn-sm" onclick="exportAll()">📦 Alles exportieren (JSON)</button>
-    <button class="btn btn-secondary btn-sm" onclick="importData()">📤 Daten importieren</button>
-    <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
-  </div>
-
-  <div class="analytics-grid" style="margin-bottom:16px">
-    <div class="card">
-      <div class="card-title">Habit-Completion Rate</div>
-      <div class="chart-wrap"><canvas id="chartHabitRate"></canvas></div>
-    </div>
-  </div>
-
-</div>
-
 </main>
 </div>
 
@@ -768,7 +747,6 @@ function nav(page) {
   if(page === 'health') renderHealth();
   if(page === 'journal') renderJournal();
   if(page === 'sport') renderSport();
-  if(page === 'analytics') renderAnalytics();
 }
 
 // ===== SUBTABS (Erfassen / Analytics je Seite) =====
@@ -1411,23 +1389,6 @@ function renderCardioExerciseAnalytics() {
   renderTrendBadge('cardioTrendBadge', trend, `· ${uebung} · letzte ${Math.min(recent.length,8)} Einheiten`);
 }
 
-function renderAnalytics() {
-  const habits = DB.get('habits', []);
-
-  // Habit completion rate (last 30 days)
-  const days30 = Array.from({length:30},(_,i)=>{ const d=new Date(); d.setDate(d.getDate()-29+i); return d.toISOString().split('T')[0]; });
-  const habitRates = days30.map(d => {
-    if(!habits.length) return 0;
-    const done = habits.filter(h=>DB.get('habit_log_'+h.id,{})[d]).length;
-    return Math.round(done/habits.length*100);
-  });
-  if(charts.hr) charts.hr.destroy();
-  charts.hr = new Chart(document.getElementById('chartHabitRate'), {
-    type:'bar', data:{ labels:days30.map(d=>new Date(d+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})), datasets:[{ data:habitRates, backgroundColor:'rgba(74,222,128,0.7)', borderRadius:4 }]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{min:0,max:100,ticks:{callback:v=>v+'%',color:cTick()},grid:{color:cGrid()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
-  });
-}
-
 // ===== SPORT =====
 // Wandelt Dauer-Eingaben in Dezimalminuten um — akzeptiert "mm:ss" und reine Minutenzahlen (Alt-Einträge).
 function parseDur(v) {
@@ -1654,7 +1615,7 @@ function handleImport(event) {
       if(data.sport_sauna) DB.set('sport_sauna', data.sport_sauna);
       if(data.journal) DB.set('journal', data.journal);
       toast('Import erfolgreich ✓');
-      renderAnalytics();
+      setTimeout(() => location.reload(), 600);
     } catch(err) { alert('Fehler beim Importieren: ' + err.message); }
   };
   reader.readAsText(file);
@@ -1674,7 +1635,6 @@ function toggleTheme() {
   if(active === 'overview') renderOverview();
   else if(active === 'health') { renderHealth(); if(document.getElementById('health-analytics').classList.contains('active')) renderHealthAnalytics(); }
   else if(active === 'sport') { if(document.getElementById('sport-analytics').classList.contains('active')) renderSportAnalytics(); }
-  else if(active === 'analytics') renderAnalytics();
 }
 (function() {
   if(localStorage.getItem('theme') === 'light') {
