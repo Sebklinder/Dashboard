@@ -245,6 +245,7 @@
   <div class="nav-item" onclick="nav('sport')"><span class="icon">🏋️</span><span>Sport</span></div>
   <div class="sidebar-footer">
     <div class="date-display" id="sidebarDate"></div>
+    <div id="syncStatus" style="font-size:11px;color:var(--muted);margin-top:4px;">Lädt…</div>
     <button class="btn btn-secondary btn-sm" onclick="toggleTheme()" id="themeBtn" style="margin-top:10px;width:100%">☀️ Hell</button>
     <button class="btn btn-primary btn-sm" onclick="exportAll()" style="margin-top:8px;width:100%">💾 Speichern</button>
     <button class="btn btn-secondary btn-sm" onclick="importData()" style="margin-top:6px;width:100%">📤 Importieren</button>
@@ -727,8 +728,43 @@
 // ===== DATA LAYER =====
 const DB = {
   get: (key, def=[]) => { try { return JSON.parse(localStorage.getItem(key)) || def; } catch(e) { return def; } },
-  set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
+  set: (key, val) => { localStorage.setItem(key, JSON.stringify(val)); queueSync(); },
 };
+
+// ===== CLOUD SYNC (Cloudflare KV) =====
+let syncTimer = null;
+function queueSync() {
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushState, 800);
+}
+function setSyncStatus(text) {
+  const el = document.getElementById('syncStatus');
+  if (el) el.textContent = text;
+}
+async function pushState() {
+  try {
+    const snapshot = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k === 'theme') continue; // rein lokale UI-Einstellung, nicht syncen
+      snapshot[k] = localStorage.getItem(k);
+    }
+    await fetch('/api/state', { method: 'POST', body: JSON.stringify(snapshot) });
+    setSyncStatus('✓ Synchronisiert · ' + new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}));
+  } catch (e) {
+    setSyncStatus('⚠ Sync fehlgeschlagen');
+  }
+}
+async function pullState() {
+  try {
+    const res = await fetch('/api/state');
+    const data = await res.json();
+    Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+    setSyncStatus('✓ Aktuell · ' + new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}));
+  } catch (e) {
+    setSyncStatus('⚠ Offline – lokaler Stand');
+  }
+}
 
 const today = () => new Date().toISOString().split('T')[0];
 const fmtDate = (d) => new Date(d + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'});
@@ -885,6 +921,7 @@ function deleteHabit(id) {
   habits = habits.filter(h => h.id !== id);
   DB.set('habits', habits);
   localStorage.removeItem('habit_log_' + id);
+  queueSync();
   renderHabits();
 }
 
@@ -1614,8 +1651,8 @@ function handleImport(event) {
       if(data.sport_cardio) DB.set('sport_cardio', data.sport_cardio);
       if(data.sport_sauna) DB.set('sport_sauna', data.sport_sauna);
       if(data.journal) DB.set('journal', data.journal);
-      toast('Import erfolgreich ✓');
-      setTimeout(() => location.reload(), 600);
+      clearTimeout(syncTimer);
+      pushState().then(() => { toast('Import erfolgreich ✓'); setTimeout(() => location.reload(), 600); });
     } catch(err) { alert('Fehler beim Importieren: ' + err.message); }
   };
   reader.readAsText(file);
@@ -1649,7 +1686,7 @@ function toggleTheme() {
 // ===== INIT =====
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeHabitModal(); });
 document.getElementById('habitModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeHabitModal(); });
-renderOverview();
+pullState().then(renderOverview);
 </script>
 </body>
 </html>
