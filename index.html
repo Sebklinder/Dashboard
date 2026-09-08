@@ -168,6 +168,12 @@
   .data-table tr:last-child td { border-bottom: none; }
   .data-table tr:hover td { background: var(--surface2); }
 
+  /* Einzelne Werte löschbar machen */
+  .cell-val { display: inline-block; padding: 2px 6px; margin: -2px -6px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+  .cell-val:hover { background: rgba(248,113,113,0.15); color: var(--red); }
+  .cell-val:hover::after { content: ' \2715'; font-size: 10px; opacity: 0.8; }
+  .table-hint { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+
   /* Chart wrapper */
   .chart-wrap { position: relative; height: 220px; }
 
@@ -471,8 +477,9 @@
       <span class="card-title">Protokoll</span>
       <button class="btn btn-secondary btn-sm" onclick="exportHealth()">📥 CSV Export</button>
     </div>
+    <div class="table-hint">Tipp: Auf einen Wert klicken, um ihn einzeln zu löschen – mit ✕ den ganzen Tag.</div>
     <table class="data-table">
-      <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th></tr></thead>
+      <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th>Notiz</th><th></th></tr></thead>
       <tbody id="healthTable"></tbody>
     </table>
   </div>
@@ -1057,16 +1064,60 @@ function renderHealth() {
   // Table
   const tbody = document.getElementById('healthTable');
   const rows = [...data].reverse().slice(0,20);
+  // Einzelwert-Zelle: Klick löscht genau diesen Wert
+  const cell = (date, field, html) => `<span class="cell-val" title="Wert löschen" onclick="deleteHealthValue('${date}','${field}')">${html}</span>`;
   tbody.innerHTML = rows.map(d=>`<tr>
     <td>${fmtDate(d.date)}</td>
-    <td>${d.weight||'—'}</td>
-    <td>${d.bpSys&&d.bpDia ? `<span style="color:var(--red)">${d.bpSys}</span>/<span style="color:var(--accent2)">${d.bpDia}</span>` : '—'}</td>
-    <td>${d.temp ? `<span style="color:${parseFloat(d.temp)>=38 ? 'var(--red)' : 'inherit'}">${d.temp}°</span>` : '—'}</td>
-    <td>${d.steps||'—'}</td>
-    <td>${fmtMin(d.sleepMin)}</td>
-    <td>${fmtMin(d.deepMin)}</td>
-    <td>${fmtMin(d.remMin)}</td>
-  </tr>`).join('') || '<tr><td colspan="8" class="empty">Noch keine Einträge</td></tr>';
+    <td>${d.weight ? cell(d.date,'weight',d.weight) : '—'}</td>
+    <td>${d.bpSys&&d.bpDia ? cell(d.date,'bp',`<span style="color:var(--red)">${d.bpSys}</span>/<span style="color:var(--accent2)">${d.bpDia}</span>`) : '—'}</td>
+    <td>${d.temp ? cell(d.date,'temp',`<span style="color:${parseFloat(d.temp)>=38 ? 'var(--red)' : 'inherit'}">${d.temp}°</span>`) : '—'}</td>
+    <td>${d.steps ? cell(d.date,'steps',d.steps) : '—'}</td>
+    <td>${d.sleepMin ? cell(d.date,'sleepMin',fmtMin(d.sleepMin)) : '—'}</td>
+    <td>${d.deepMin ? cell(d.date,'deepMin',fmtMin(d.deepMin)) : '—'}</td>
+    <td>${d.remMin ? cell(d.date,'remMin',fmtMin(d.remMin)) : '—'}</td>
+    <td style="max-width:180px">${d.note ? cell(d.date,'note',`<span title="${escAttr(d.note)}" style="display:inline-block;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom">${escHtml(d.note)}</span>`) : '—'}</td>
+    <td><button class="btn btn-danger btn-sm" title="Ganzen Tag löschen" onclick="deleteHealthEntry('${d.date}')" style="padding:3px 8px;font-size:11px">✕</button></td>
+  </tr>`).join('') || '<tr><td colspan="10" class="empty">Noch keine Einträge</td></tr>';
+}
+
+const escHtml = (str) => String(str).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const escAttr = (str) => escHtml(str).replace(/"/g, '&quot;');
+
+// Beschriftungen der einzelnen Messwerte (für Rückfragen beim Löschen)
+const HEALTH_FIELDS = {
+  weight:   { label: 'Gewicht',       keys: ['weight'] },
+  bp:       { label: 'Blutdruck',     keys: ['bpSys','bpDia'] },
+  temp:     { label: 'Temperatur',    keys: ['temp'] },
+  steps:    { label: 'Schritte',      keys: ['steps'] },
+  sleepMin: { label: 'Schlaf gesamt', keys: ['sleepMin'] },
+  deepMin:  { label: 'Tiefschlaf',    keys: ['deepMin'] },
+  remMin:   { label: 'REM',           keys: ['remMin'] },
+  note:     { label: 'Notiz',         keys: ['note'] },
+};
+
+// Löscht einen einzelnen falsch erfassten Wert; bleibt danach nichts mehr
+// übrig, verschwindet der Tageseintrag komplett.
+function deleteHealthValue(date, field) {
+  const cfg = HEALTH_FIELDS[field];
+  if(!cfg) return;
+  if(!confirm(`${cfg.label} vom ${fmtDate(date)} löschen?`)) return;
+  const data = DB.get('health', []);
+  const idx = data.findIndex(d => d.date === date);
+  if(idx < 0) return;
+  const entry = { ...data[idx] };
+  cfg.keys.forEach(k => delete entry[k]);
+  const hasValues = Object.keys(entry).some(k => k !== 'date' && entry[k] !== '' && entry[k] != null);
+  if(hasValues) data[idx] = entry; else data.splice(idx, 1);
+  DB.set('health', data);
+  renderHealth();
+  toast(`${cfg.label} gelöscht ✓`);
+}
+
+function deleteHealthEntry(date) {
+  if(!confirm(`Alle Werte vom ${fmtDate(date)} löschen?`)) return;
+  DB.set('health', DB.get('health', []).filter(d => d.date !== date));
+  renderHealth();
+  toast('Eintrag gelöscht ✓');
 }
 
 // Speichert Felder für ein Datum und merged sie in einen bestehenden Eintrag,
