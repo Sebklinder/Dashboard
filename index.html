@@ -1961,19 +1961,66 @@ const DEFAULT_REZEPTE = [
     zutaten: [['Tofu (fest)', 160], ['Mini-Mozzarella', 80], ['Tomate', 50], ['Brokkoli', 135], ['Rote Zwiebel', 25], ['Kartoffel (gekocht)', 115], ['Olivenöl', 5]] },
   { name: 'Thunfisch-Ofengemüse mit Tomate & Kartoffeln', category: 'abend', kcal: 578, protein: 67.5, kh: 60, fett: 8.5,
     zutaten: [['Thunfisch (Dose, abgetropft)', 210], ['Blumenkohl', 170], ['Brokkoli', 170], ['Tomate', 50], ['Kartoffel (gekocht)', 190], ['Rote Zwiebel', 35], ['Olivenöl', 5]] },
+
+  // ---- Wochenplan 2 ----
+  // Frühstück
+  { name: 'Blaubeer-Chia-Pudding', category: 'fruehstueck', kcal: 337, protein: 37.5, kh: 26, fett: 10,
+    zutaten: [['Fettarme Milch (1,5%)', 165], ['Eiweißpulver (Whey Isolat)', 35], ['Chia-Samen', 20], ['Heidelbeeren', 55]] },
+  { name: 'Tofu-Beeren-Smoothie', category: 'fruehstueck', kcal: 344, protein: 24, kh: 30.5, fett: 15.5,
+    zutaten: [['Tofu (fest)', 105], ['Fettarme Milch (1,5%)', 160], ['Banane', 45], ['Heidelbeeren', 45], ['Leinsamen (gemahlen)', 10]] },
+  { name: 'Frischkäse-Apfel-Bowl mit Cashew', category: 'fruehstueck', kcal: 332, protein: 29.5, kh: 20, fett: 16,
+    zutaten: [['Körniger Frischkäse', 220], ['Apfel', 65], ['Cashews', 15]] },
+  { name: 'Chia-Pudding Apfel-Zimt', category: 'fruehstueck', kcal: 319, protein: 33, kh: 27, fett: 9.5,
+    zutaten: [['Fettarme Milch (1,5%)', 160], ['Eiweißpulver (Whey Isolat)', 30], ['Chia-Samen', 20], ['Apfel', 65]] },
+  { name: 'Skyr-Bowl mit Apfel-Zimt & Leinsamen', category: 'fruehstueck', kcal: 255, protein: 31, kh: 23, fett: 5,
+    zutaten: [['Griechischer Joghurt (0,2%)', 290], ['Apfel', 70], ['Leinsamen (gemahlen)', 10]] },
+  // Mittagessen
+  { name: 'Linsen-Reis-Bowl mit Paprika & Tomate', category: 'mittag', kcal: 566, protein: 29.5, kh: 85.5, fett: 14,
+    zutaten: [['Linsen (gekocht/Dose)', 255], ['Reis (Vollkorn, gekocht)', 75], ['Paprika', 75], ['Tomate', 75], ['Rote Zwiebel', 35], ['Cashews', 15], ['Olivenöl', 5]] },
+  { name: 'Kichererbsen-Ofengemüse mit Feta', category: 'mittag', kcal: 580, protein: 30, kh: 58, fett: 24.5,
+    zutaten: [['Kichererbsen (Dose, abgetropft)', 200], ['Blumenkohl', 200], ['Paprika', 80], ['Rote Zwiebel', 30], ['Feta', 65], ['Olivenöl', 5]] },
+  { name: 'Tofu-Brokkoli-Paprika-Bowl mit Reis', category: 'mittag', kcal: 573, protein: 42.5, kh: 47.5, fett: 25,
+    zutaten: [['Tofu (fest)', 225], ['Brokkoli', 180], ['Paprika', 75], ['Rote Zwiebel', 35], ['Reis (Vollkorn, gekocht)', 85], ['Olivenöl', 5]] },
+  { name: 'Mozzarella-Tomate-Kichererbsen-Salat', category: 'mittag', kcal: 557, protein: 32.5, kh: 41.5, fett: 29,
+    zutaten: [['Mini-Mozzarella', 105], ['Tomate', 150], ['Kichererbsen (Dose, abgetropft)', 150], ['Rote Zwiebel', 30], ['Olivenöl', 5]] },
+  { name: 'Kichererbsen-Curry-Bowl', category: 'mittag', kcal: 607, protein: 28, kh: 92.5, fett: 13,
+    zutaten: [['Kichererbsen (Dose, abgetropft)', 250], ['Blumenkohl', 215], ['Paprika', 80], ['Reis (Vollkorn, gekocht)', 100], ['Rote Zwiebel', 35], ['Olivenöl (+ Currypulver)', 5]] },
+  // Abendessen
+  { name: 'Tofu-Kichererbsen-Pfanne mit Blumenkohl', category: 'abend', kcal: 578, protein: 45, kh: 43.5, fett: 25,
+    zutaten: [['Tofu (fest)', 200], ['Kichererbsen (Dose, abgetropft)', 125], ['Blumenkohl', 235], ['Rote Zwiebel', 35], ['Olivenöl', 5]] },
+  { name: 'Thunfisch-Kartoffel-Paprika-Salat', category: 'abend', kcal: 565, protein: 67, kh: 56, fett: 8,
+    zutaten: [['Thunfisch (Dose, abgetropft)', 235], ['Kartoffel (gekocht)', 235], ['Paprika', 90], ['Rote Zwiebel', 40], ['Olivenöl', 5]] },
+  { name: 'Linsen-Curry mit Kartoffeln', category: 'abend', kcal: 582, protein: 29.5, kh: 105, fett: 6.5,
+    zutaten: [['Linsen (gekocht/Dose)', 265], ['Kartoffel (gekocht)', 225], ['Rote Zwiebel', 40], ['Paprika', 60], ['Olivenöl (+ Currypulver)', 5]] },
+  { name: 'Kichererbsen-Pfanne mit Paprika & Feta', category: 'abend', kcal: 598, protein: 27.5, kh: 67, fett: 23.5,
+    zutaten: [['Kichererbsen (Dose, abgetropft)', 190], ['Paprika', 70], ['Rote Zwiebel', 25], ['Feta', 65], ['Kartoffel (gekocht)', 100], ['Olivenöl', 5]] },
+  { name: 'Lachs mit Tomate-Paprika & Reis', category: 'abend', kcal: 620, protein: 46.5, kh: 38, fett: 31,
+    zutaten: [['Lachsfilet (gegart)', 190], ['Tomate', 105], ['Paprika', 75], ['Rote Zwiebel', 25], ['Reis (Vollkorn, gekocht)', 105], ['Olivenöl', 5]] },
+  { name: 'Mozzarella-Gemüse-Auflauf', category: 'abend', kcal: 580, protein: 30.5, kh: 53, fett: 29,
+    zutaten: [['Mini-Mozzarella', 120], ['Blumenkohl', 220], ['Tomate', 85], ['Kartoffel (gekocht)', 175], ['Rote Zwiebel', 25], ['Olivenöl', 5]] },
 ];
 
+// Version hochzählen, wenn neue Standard-Rezepte ergänzt werden – fehlende werden dann nachgetragen
+const REZEPT_SEED_VERSION = 2;
 function seedRezepte() {
-  if(DB.get('rezepte', []).length || localStorage.getItem('rezepte_seeded')) return;
+  const done = parseInt(localStorage.getItem('rezepte_seed_version') || (localStorage.getItem('rezepte_seeded') ? '1' : '0'), 10);
+  if(done >= REZEPT_SEED_VERSION) return;
+  const data = DB.get('rezepte', []);
+  const have = new Set(data.map(r => r.name.trim().toLowerCase()));
   const stamp = Date.now();
-  DB.set('rezepte', DEFAULT_REZEPTE.map((r, i) => ({
-    id: 'seed_' + (stamp + i),
-    name: r.name, category: r.category,
-    zutaten: r.zutaten.map(([name, gramm]) => ({ name, gramm })),
-    kcal: r.kcal, protein: r.protein, fett: r.fett, kh: r.kh,
-    created: today(), updated: today(),
-  })));
-  localStorage.setItem('rezepte_seeded', '1');
+  DEFAULT_REZEPTE.forEach((r, i) => {
+    if(have.has(r.name.toLowerCase())) return;
+    data.push({
+      id: 'seed_' + (stamp + i),
+      name: r.name, category: r.category,
+      zutaten: r.zutaten.map(([name, gramm]) => ({ name, gramm })),
+      kcal: r.kcal, protein: r.protein, fett: r.fett, kh: r.kh,
+      created: today(), updated: today(),
+    });
+  });
+  DB.set('rezepte', data);
+  localStorage.setItem('rezepte_seed_version', String(REZEPT_SEED_VERSION));
+  localStorage.removeItem('rezepte_seeded');
 }
 
 function renderRezepte() {
