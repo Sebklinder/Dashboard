@@ -1934,7 +1934,50 @@ const REZEPT_KATEGORIEN = { fruehstueck: 'Frühstück', mittag: 'Mittagessen', a
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtNum = (v, unit='') => (v === '' || v == null || isNaN(v)) ? '—' : (Math.round(v*10)/10).toLocaleString('de-DE') + unit;
 
+// Startbestand aus dem Wochenernährungsplan – wird einmalig angelegt, wenn noch keine Rezepte existieren
+const DEFAULT_REZEPTE = [
+  // Frühstück
+  { name: 'Shake Banane-Blaubeere mit Leinsamen', category: 'fruehstueck', kcal: 341, protein: 41, kh: 26, fett: 8.5,
+    zutaten: [['Fettarme Milch (1,5%)', 200], ['Eiweißpulver (Whey Isolat)', 40], ['Banane', 30], ['Heidelbeeren', 30], ['Leinsamen (gemahlen)', 10]] },
+  { name: 'Shake Apfel-Chia', category: 'fruehstueck', kcal: 319, protein: 40.5, kh: 23, fett: 7.5,
+    zutaten: [['Fettarme Milch (1,5%)', 200], ['Eiweißpulver (Whey Isolat)', 40], ['Apfel', 50], ['Chia-Samen', 10]] },
+  { name: 'Körniger-Frischkäse-Bowl mit Chia', category: 'fruehstueck', kcal: 294, protein: 26.5, kh: 22.5, fett: 12,
+    zutaten: [['Körniger Frischkäse', 200], ['Heidelbeeren', 40], ['Banane', 30], ['Chia-Samen', 10]] },
+  // Mittagessen
+  { name: 'Thunfisch-Kichererbsen-Paprika-Bowl', category: 'mittag', kcal: 577, protein: 70, kh: 49.5, fett: 11,
+    zutaten: [['Thunfisch (Dose, abgetropft)', 215], ['Kichererbsen (Dose, abgetropft)', 90], ['Brokkoli', 145], ['Paprika', 50], ['Rote Zwiebel', 30], ['Reis (Vollkorn, gekocht)', 65], ['Olivenöl', 5]] },
+  { name: 'Blumenkohl-Kichererbsen-Paprika-Salat mit Feta', category: 'mittag', kcal: 553, protein: 27, kh: 54.5, fett: 25,
+    zutaten: [['Blumenkohl', 230], ['Kichererbsen (Dose, abgetropft)', 120], ['Feta', 75], ['Paprika', 55], ['Rote Zwiebel', 35], ['Reis (Vollkorn, gekocht)', 45], ['Olivenöl', 5]] },
+  { name: 'Kichererbsen-Blumenkohl-Paprika-Curry', category: 'mittag', kcal: 519, protein: 22.5, kh: 69, fett: 17,
+    zutaten: [['Kichererbsen (Dose, abgetropft)', 165], ['Blumenkohl', 205], ['Paprika', 50], ['Reis (Vollkorn, gekocht)', 70], ['Rote Zwiebel', 25], ['Cashews', 15], ['Olivenöl', 5]] },
+  { name: 'Linsen-Tofu-Paprika-Bowl', category: 'mittag', kcal: 568, protein: 40, kh: 63, fett: 18.5,
+    zutaten: [['Tofu (fest)', 145], ['Linsen (gekocht/Dose)', 125], ['Reis (Vollkorn, gekocht)', 75], ['Brokkoli', 145], ['Paprika', 50], ['Rote Zwiebel', 30], ['Olivenöl', 5]] },
+  // Abendessen
+  { name: 'Lachs mit Blumenkohl, Tomate & Kartoffeln', category: 'abend', kcal: 579, protein: 49.5, kh: 38, fett: 25.5,
+    zutaten: [['Lachsfilet (gegart)', 190], ['Blumenkohl', 215], ['Tomate', 50], ['Kartoffel (gekocht)', 125], ['Rote Zwiebel', 30]] },
+  { name: 'Gebratener Tofu mit Brokkoli, Tomate & Kartoffeln', category: 'abend', kcal: 605, protein: 44.5, kh: 56.5, fett: 24,
+    zutaten: [['Tofu (fest)', 225], ['Brokkoli', 225], ['Tomate', 50], ['Kartoffel (gekocht)', 155], ['Rote Zwiebel', 35], ['Olivenöl', 5]] },
+  { name: 'Tofu-Caprese mit Mini-Mozzarella & Tomate', category: 'abend', kcal: 643, protein: 45.5, kh: 42.5, fett: 34,
+    zutaten: [['Tofu (fest)', 160], ['Mini-Mozzarella', 80], ['Tomate', 50], ['Brokkoli', 135], ['Rote Zwiebel', 25], ['Kartoffel (gekocht)', 115], ['Olivenöl', 5]] },
+  { name: 'Thunfisch-Ofengemüse mit Tomate & Kartoffeln', category: 'abend', kcal: 578, protein: 67.5, kh: 60, fett: 8.5,
+    zutaten: [['Thunfisch (Dose, abgetropft)', 210], ['Blumenkohl', 170], ['Brokkoli', 170], ['Tomate', 50], ['Kartoffel (gekocht)', 190], ['Rote Zwiebel', 35], ['Olivenöl', 5]] },
+];
+
+function seedRezepte() {
+  if(DB.get('rezepte', []).length || localStorage.getItem('rezepte_seeded')) return;
+  const stamp = Date.now();
+  DB.set('rezepte', DEFAULT_REZEPTE.map((r, i) => ({
+    id: 'seed_' + (stamp + i),
+    name: r.name, category: r.category,
+    zutaten: r.zutaten.map(([name, gramm]) => ({ name, gramm })),
+    kcal: r.kcal, protein: r.protein, fett: r.fett, kh: r.kh,
+    created: today(), updated: today(),
+  })));
+  localStorage.setItem('rezepte_seeded', '1');
+}
+
 function renderRezepte() {
+  seedRezepte();
   const all = DB.get('rezepte', []);
   const q = (document.getElementById('rezeptSearch')?.value || '').trim().toLowerCase();
   Object.keys(REZEPT_KATEGORIEN).forEach(kat => {
