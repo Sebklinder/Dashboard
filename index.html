@@ -2,7 +2,11 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dashboard">
 <title>Mein Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
@@ -51,7 +55,8 @@
   :root.light .data-table td { border-color: #e2e8f0; }
   :root.light .data-table tr:hover td { background: #f8fafc; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; overflow-x: hidden; }
 
   /* Layout */
   .app { display: flex; min-height: 100vh; }
@@ -65,6 +70,10 @@
   .nav-item .icon { font-size: 16px; }
   .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border); }
   .date-display { font-size: 12px; color: var(--muted); }
+
+  /* Mobile-Kopfzeile & Tab-Leiste (nur auf kleinen Screens sichtbar) */
+  .mobile-header { display: none; }
+  .tabbar { display: none; }
 
   /* Pages */
   .page { display: none; }
@@ -119,7 +128,7 @@
   /* Forms */
   .form-group { margin-bottom: 16px; }
   .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
-  .form-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; outline: none; transition: border-color 0.15s; }
+  .form-input { font-family: inherit; width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; outline: none; transition: border-color 0.15s; }
   .form-input:focus { border-color: var(--accent); }
   .form-input::placeholder { color: var(--muted); }
   textarea.form-input { resize: vertical; min-height: 100px; }
@@ -166,12 +175,15 @@
   .data-table th { text-align: left; padding: 10px 12px; font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
   .data-table td { padding: 12px; border-bottom: 1px solid var(--border); }
   .data-table tr:last-child td { border-bottom: none; }
-  .data-table tr:hover td { background: var(--surface2); }
+  @media (hover: hover) { .data-table tr:hover td { background: var(--surface2); } }
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
 
   /* Einzelne Werte löschbar machen */
   .cell-val { display: inline-block; padding: 2px 6px; margin: -2px -6px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
-  .cell-val:hover { background: rgba(248,113,113,0.15); color: var(--red); }
-  .cell-val:hover::after { content: ' \2715'; font-size: 10px; opacity: 0.8; }
+  @media (hover: hover) {
+    .cell-val:hover { background: rgba(248,113,113,0.15); color: var(--red); }
+    .cell-val:hover::after { content: ' \2715'; font-size: 10px; opacity: 0.8; }
+  }
   .table-hint { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
   .val-del-btn { border: none; background: none; color: var(--muted); cursor: pointer; font-size: 11px; padding: 2px 6px; border-radius: 5px; opacity: 0.45; transition: all 0.15s; }
   .val-del-btn:hover { opacity: 1; color: var(--red); background: rgba(248,113,113,0.15); }
@@ -197,7 +209,7 @@
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
   /* Section header */
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 10px; flex-wrap: wrap; }
   .section-title { font-size: 16px; font-weight: 600; }
   .habit-ratio { font-size: 13px; font-weight: 700; color: var(--green); }
 
@@ -229,14 +241,86 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  @media (max-width: 768px) {
-    .sidebar { width: 60px; }
-    .nav-item span, .logo span, .logo, .sidebar-footer { display: none; }
-    .main { margin-left: 60px; padding: 20px; }
-    .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+  /* ===== Tablet ===== */
+  @media (max-width: 1024px) {
+    .main { padding: 24px; }
+    .overview-groups { grid-template-columns: 1fr 1fr; }
     .analytics-grid { grid-template-columns: 1fr; }
-    .overview-groups { grid-template-columns: 1fr; }
-    .overview-bottom { grid-template-columns: 1fr; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ===== Smartphone (iPhone & Co.) ===== */
+  @media (max-width: 768px) {
+    body { padding-bottom: env(safe-area-inset-bottom); }
+    .app { display: block; }
+
+    /* Sidebar ausblenden – Navigation wandert nach unten */
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 16px 16px calc(84px + env(safe-area-inset-bottom)); max-width: none; }
+
+    /* Kopfzeile mit Logo + Aktionen */
+    .mobile-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; position: sticky; top: 0; z-index: 50; background: var(--surface); border-bottom: 1px solid var(--border); padding: calc(10px + env(safe-area-inset-top)) 16px 10px; }
+    .mobile-header .logo { padding: 0; border: none; margin: 0; font-size: 17px; }
+    .mobile-header .logo span { display: inline; }
+    .mobile-actions { display: flex; gap: 6px; }
+    .mobile-actions .btn { padding: 8px 10px; font-size: 15px; line-height: 1; }
+    .mobile-sync { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+    /* Tab-Leiste unten */
+    .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: var(--surface); border-top: 1px solid var(--border); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
+    .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0; font-size: 10px; color: var(--muted); cursor: pointer; border-radius: 8px; -webkit-tap-highlight-color: transparent; }
+    .tab-item .icon { font-size: 20px; line-height: 1.2; }
+    .tab-item.active { color: var(--accent); }
+
+    /* Typografie */
+    .page-title { font-size: 21px; }
+    .page-sub { font-size: 13px; margin-bottom: 18px; }
+    .card { padding: 14px; }
+
+    /* Alle Grids einspaltig */
+    .grid-2, .grid-3, .grid-4, .analytics-grid, .overview-groups, .overview-bottom { grid-template-columns: 1fr; gap: 12px; }
+    .col-span-2 { grid-column: auto; }
+    .form-row-3 { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .stat-group-3 { gap: 4px; }
+    .stat.mini .stat-value { font-size: 16px; }
+
+    /* Eingaben: 16px verhindert das Auto-Zoom von iOS */
+    .form-input { font-size: 16px; padding: 11px 12px; }
+    .btn { min-height: 42px; }
+    .btn-sm { min-height: 34px; }
+    .subnav-btn { flex: 1; padding: 10px 8px; }
+    .mood-btn { width: 40px; height: 40px; font-size: 20px; }
+    .habit-check { width: 32px; height: 32px; }
+    .habit-name { font-size: 14px; }
+
+    /* Section-Header mit Select (Sport-Analyse) untereinander */
+    .section-header select.form-input { width: 100% !important; min-width: 0 !important; }
+
+    /* Tabellen: kompakter, erste Spalte bleibt beim Scrollen stehen */
+    .data-table { font-size: 13px; }
+    .data-table th { padding: 8px 10px; white-space: nowrap; }
+    .data-table td { padding: 9px 10px; white-space: nowrap; }
+    .data-table .btn-sm { min-height: 0; }
+    .data-table th:first-child, .data-table td:first-child,
+    .habit-hist th:first-child, .habit-hist td:first-child { position: sticky; left: 0; background: var(--surface); z-index: 1; }
+    .habit-hist th:first-child { min-width: 0 !important; }
+    .habit-hist td:first-child { white-space: nowrap; padding-right: 12px !important; }
+    input[type="date"].form-input { min-height: 44px; -webkit-appearance: none; appearance: none; display: block; }
+
+    /* Charts etwas flacher */
+    .chart-wrap { height: 200px; }
+
+    /* Modal & Toast */
+    .modal { padding: 20px; width: 100%; max-width: calc(100vw - 24px); }
+    .modal-actions { flex-direction: column-reverse; }
+    .modal-actions .btn { width: 100%; justify-content: center; }
+    .toast { left: 16px; right: 16px; bottom: calc(76px + env(safe-area-inset-bottom)); text-align: center; }
+  }
+
+  @media (max-width: 380px) {
+    .stat.mini .stat-value { font-size: 15px; }
+    .stat.mini .stat-label { font-size: 9px; }
+    .form-row-3 { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -254,12 +338,25 @@
   <div class="sidebar-footer">
     <div class="date-display" id="sidebarDate"></div>
     <div id="syncStatus" style="font-size:11px;color:var(--muted);margin-top:4px;">Lädt…</div>
-    <button class="btn btn-secondary btn-sm" onclick="toggleTheme()" id="themeBtn" style="margin-top:10px;width:100%">☀️ Hell</button>
+    <button onclick="toggleTheme()" id="themeBtn" class="btn btn-secondary btn-sm theme-btn" style="margin-top:10px;width:100%">☀️ Hell</button>
     <button class="btn btn-primary btn-sm" onclick="exportAll()" style="margin-top:8px;width:100%">💾 Speichern</button>
     <button class="btn btn-secondary btn-sm" onclick="importData()" style="margin-top:6px;width:100%">📤 Importieren</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
   </div>
 </nav>
+
+<!-- Mobile-Kopfzeile (nur Smartphone) -->
+<header class="mobile-header">
+  <div>
+    <div class="logo">✦ <span>Dashboard</span></div>
+    <div class="mobile-sync" data-sync-status>Lädt…</div>
+  </div>
+  <div class="mobile-actions">
+    <button class="btn btn-secondary theme-btn" onclick="toggleTheme()" title="Design wechseln">☀️</button>
+    <button class="btn btn-primary" onclick="exportAll()" title="Speichern">💾</button>
+    <button class="btn btn-secondary" onclick="importData()" title="Importieren">📤</button>
+  </div>
+</header>
 
 <!-- OVERVIEW -->
 <main class="main">
@@ -480,10 +577,10 @@
       <button class="btn btn-secondary btn-sm" onclick="exportHealth()">📥 CSV Export</button>
     </div>
     <div class="table-hint">Tipp: Auf einen Wert klicken, um ihn einzeln zu löschen – mit ✕ den ganzen Tag.</div>
-    <table class="data-table">
+    <div class="table-scroll"><table class="data-table">
       <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th>Notiz</th><th></th></tr></thead>
       <tbody id="healthTable"></tbody>
-    </table>
+    </table></div>
   </div>
 
   </div>
@@ -656,28 +753,28 @@
       <span class="card-title">Kraft-Protokoll</span>
       <button class="btn btn-secondary btn-sm" onclick="exportSport()">📥 CSV Export</button>
     </div>
-    <table class="data-table">
+    <div class="table-scroll"><table class="data-table">
       <thead><tr><th>Datum</th><th>Übung</th><th>Gewicht</th><th>Sätze</th><th>Wdh.</th><th>Volumen (kg)</th><th></th></tr></thead>
       <tbody id="kraftTable"></tbody>
-    </table>
+    </table></div>
   </div>
 
   <!-- Cardio-Protokoll -->
   <div class="card" style="margin-bottom:16px">
     <div class="card-title">Cardio-Protokoll</div>
-    <table class="data-table">
+    <div class="table-scroll"><table class="data-table">
       <thead><tr><th>Datum</th><th>Übung</th><th>Dauer (mm:ss)</th><th>Strecke (km)</th><th>Tempo (min/km)</th><th></th></tr></thead>
       <tbody id="cardioTable"></tbody>
-    </table>
+    </table></div>
   </div>
 
   <!-- Sauna-Protokoll -->
   <div class="card">
     <div class="card-title">Sauna-Protokoll</div>
-    <table class="data-table">
+    <div class="table-scroll"><table class="data-table">
       <thead><tr><th>Datum</th><th>Minuten</th><th></th></tr></thead>
       <tbody id="saunaTable"></tbody>
-    </table>
+    </table></div>
   </div>
 
   </div>
@@ -704,9 +801,17 @@
   </div>
 </div>
 
-<!-- ANALYTICS -->
 </main>
 </div>
+
+<!-- Tab-Leiste unten (nur Smartphone) -->
+<nav class="tabbar">
+  <div class="tab-item active" onclick="nav('overview')"><span class="icon">🏠</span><span>Übersicht</span></div>
+  <div class="tab-item" onclick="nav('habits')"><span class="icon">✅</span><span>Habits</span></div>
+  <div class="tab-item" onclick="nav('health')"><span class="icon">❤️</span><span>Gesundheit</span></div>
+  <div class="tab-item" onclick="nav('journal')"><span class="icon">📔</span><span>Journal</span></div>
+  <div class="tab-item" onclick="nav('sport')"><span class="icon">🏋️</span><span>Sport</span></div>
+</nav>
 
 <!-- Modal: Habit hinzufügen -->
 <div class="modal-overlay" id="habitModal">
@@ -747,8 +852,7 @@ function queueSync() {
   syncTimer = setTimeout(pushState, 800);
 }
 function setSyncStatus(text) {
-  const el = document.getElementById('syncStatus');
-  if (el) el.textContent = text;
+  document.querySelectorAll('#syncStatus, [data-sync-status]').forEach(el => el.textContent = text);
 }
 async function pushState() {
   try {
@@ -783,9 +887,9 @@ const avg = arr => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1)
 // ===== NAVIGATION =====
 function nav(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => { if(n.getAttribute('onclick')?.includes(page)) n.classList.add('active'); });
+  document.querySelectorAll('.nav-item, .tab-item').forEach(n => { n.classList.toggle('active', !!n.getAttribute('onclick')?.includes("'" + page + "'")); });
+  window.scrollTo({ top: 0 });
   if(page === 'health' || page === 'sport') resetSubtab(page);
   if(page === 'overview') renderOverview();
   if(page === 'habits') renderHabits();
@@ -991,10 +1095,10 @@ function renderHabits() {
   const days14 = Array.from({length:14},(_,i)=>{ const d=new Date(); d.setDate(d.getDate()-13+i); return d.toISOString().split('T')[0]; });
   const hh = document.getElementById('habitHistory');
   if(!habits.length) { hh.innerHTML = '<div class="empty">Keine Daten</div>'; return; }
-  hh.innerHTML = `<table style="width:100%;border-collapse:collapse">
+  hh.innerHTML = `<div class="table-scroll"><table class="habit-hist" style="width:100%;border-collapse:collapse">
     <tr><th style="text-align:left;padding:6px;font-size:12px;color:var(--muted);min-width:140px">Habit</th>${days14.map(d=>`<th style="text-align:center;padding:4px;font-size:10px;color:var(--muted)">${new Date(d+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}</th>`).join('')}</tr>
     ${habits.map(h=>{const log=DB.get('habit_log_'+h.id,{});return`<tr><td style="padding:8px 6px;font-size:14px">${h.emoji} ${h.name}</td>${days14.map(d=>`<td style="text-align:center;padding:4px"><div class="habit-day-dot" title="${fmtDate(d)}" onclick="toggleHabitDay('${h.id}','${d}')" style="width:22px;height:22px;border-radius:5px;background:${log[d]?'var(--green)':'var(--border)'};margin:auto;cursor:pointer;${d===td?'border:2px solid var(--accent)':''}"></div></td>`).join('')}</tr>`;}).join('')}
-  </table>`;
+  </table></div>`;
 }
 
 function toggleHabitDay(id, date) {
@@ -1768,9 +1872,16 @@ const cGrid = () => document.documentElement.classList.contains('light') ? '#e2e
 const cTick = () => document.documentElement.classList.contains('light') ? '#64748b' : '#64748b';
 
 // ===== THEME =====
+function setThemeButtons(isLight) {
+  const sb = document.getElementById('themeBtn');
+  if(sb) sb.textContent = isLight ? '🌙 Dunkel' : '☀️ Hell';
+  document.querySelectorAll('.mobile-header .theme-btn').forEach(b => b.textContent = isLight ? '🌙' : '☀️');
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', isLight ? '#ffffff' : '#0f1117');
+}
 function toggleTheme() {
   const isLight = document.documentElement.classList.toggle('light');
-  document.getElementById('themeBtn').textContent = isLight ? '🌙 Dunkel' : '☀️ Hell';
+  setThemeButtons(isLight);
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
   // Re-render current page so charts pick up new grid colors
   const active = document.querySelector('.page.active')?.id?.replace('page-','');
@@ -1782,8 +1893,7 @@ function toggleTheme() {
   if(localStorage.getItem('theme') === 'light') {
     document.documentElement.classList.add('light');
     document.addEventListener('DOMContentLoaded', () => {
-      const btn = document.getElementById('themeBtn');
-      if(btn) btn.textContent = '🌙 Dunkel';
+      setThemeButtons(true);
     });
   }
 })();
