@@ -541,6 +541,20 @@
       <button class="btn btn-primary" onclick="saveSteps()" style="width:100%">Speichern</button>
     </div>
 
+    <!-- Kalorien -->
+    <div class="card">
+      <div class="card-title">🍽️ Kalorienzufuhr – Neuer Eintrag</div>
+      <div class="form-group">
+        <label class="form-label">Datum</label>
+        <input type="date" class="form-input" id="kcalDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kalorien (kcal)</label>
+        <input type="number" min="0" step="1" class="form-input" id="healthKcal" placeholder="2000">
+      </div>
+      <button class="btn btn-primary" onclick="saveKcal()" style="width:100%">Speichern</button>
+    </div>
+
     <!-- Blutdruck -->
     <div class="card">
       <div class="card-title">🩺 Blutdruck – Neuer Eintrag</div>
@@ -611,7 +625,7 @@
     </div>
     <div class="table-hint">Tipp: Auf einen Wert klicken, um ihn einzeln zu löschen – mit ✕ den ganzen Tag.</div>
     <div class="table-scroll"><table class="data-table">
-      <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th>Notiz</th><th></th></tr></thead>
+      <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Kalorien</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th>Notiz</th><th></th></tr></thead>
       <tbody id="healthTable"></tbody>
     </table></div>
   </div>
@@ -623,6 +637,10 @@
       <div class="card">
         <div class="card-title">Schrittverlauf</div>
         <div class="chart-wrap"><canvas id="chartSteps"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Kalorienzufuhr</div>
+        <div class="chart-wrap"><canvas id="chartKcal"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">Schlafverlauf</div>
@@ -1275,7 +1293,7 @@ function applyRating(el, rating) {
   el.className = 'stat-delta ' + rating.cls;
 }
 function renderHealth() {
-  ['sleepDate','stepsDate','bpDate','weightDate','tempDate','noteDate'].forEach(id=>document.getElementById(id).value = today());
+  ['sleepDate','stepsDate','kcalDate','bpDate','weightDate','tempDate','noteDate'].forEach(id=>document.getElementById(id).value = today());
   const data = DB.get('health', []);
 
   // Table
@@ -1289,12 +1307,13 @@ function renderHealth() {
     <td>${d.bpSys&&d.bpDia ? cell(d.date,'bp',`<span style="color:var(--red)">${d.bpSys}</span>/<span style="color:var(--accent2)">${d.bpDia}</span>`) : '—'}</td>
     <td>${d.temp ? cell(d.date,'temp',`<span style="color:${parseFloat(d.temp)>=38 ? 'var(--red)' : 'inherit'}">${d.temp}°</span>`) : '—'}</td>
     <td>${d.steps ? cell(d.date,'steps',d.steps) : '—'}</td>
+    <td>${d.kcal ? cell(d.date,'kcal',`<span style="color:${parseInt(d.kcal)>KCAL_GOAL ? 'var(--red)' : 'var(--green)'}">${d.kcal}</span>`) : '—'}</td>
     <td>${d.sleepMin ? cell(d.date,'sleepMin',fmtMin(d.sleepMin)) : '—'}</td>
     <td>${d.deepMin ? cell(d.date,'deepMin',fmtMin(d.deepMin)) : '—'}</td>
     <td>${d.remMin ? cell(d.date,'remMin',fmtMin(d.remMin)) : '—'}</td>
     <td style="max-width:180px">${d.note ? cell(d.date,'note',`<span title="${escAttr(d.note)}" style="display:inline-block;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom">${escHtml(d.note)}</span>`) : '—'}</td>
     <td><button class="btn btn-danger btn-sm" title="Ganzen Tag löschen" onclick="deleteHealthEntry('${d.date}')" style="padding:3px 8px;font-size:11px">✕</button></td>
-  </tr>`).join('') || '<tr><td colspan="10" class="empty">Noch keine Einträge</td></tr>';
+  </tr>`).join('') || '<tr><td colspan="11" class="empty">Noch keine Einträge</td></tr>';
 }
 
 const escHtml = (str) => String(str).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -1306,6 +1325,7 @@ const HEALTH_FIELDS = {
   bp:       { label: 'Blutdruck',     keys: ['bpSys','bpDia'] },
   temp:     { label: 'Temperatur',    keys: ['temp'] },
   steps:    { label: 'Schritte',      keys: ['steps'] },
+  kcal:     { label: 'Kalorien',      keys: ['kcal'] },
   sleepMin: { label: 'Schlaf gesamt', keys: ['sleepMin'] },
   deepMin:  { label: 'Tiefschlaf',    keys: ['deepMin'] },
   remMin:   { label: 'REM',           keys: ['remMin'] },
@@ -1422,6 +1442,15 @@ function saveSteps() {
   toast('Schritte gespeichert ✓');
 }
 
+function saveKcal() {
+  const date = document.getElementById('kcalDate').value || today();
+  const entry = saveHealthEntry(date, { kcal: document.getElementById('healthKcal').value });
+  document.getElementById('healthKcal').value = '';
+  if(entry.kcal) checkKcalHabit(date, parseInt(entry.kcal));
+  renderHealth();
+  toast('Kalorien gespeichert ✓');
+}
+
 function saveBp() {
   const date = document.getElementById('bpDate').value || today();
   saveHealthEntry(date, {
@@ -1470,9 +1499,33 @@ function checkStepsHabit(date, steps) {
   }
 }
 
+// Tagesziel für die Kalorienzufuhr: bis einschließlich 2.000 kcal gilt das Habit als erfüllt.
+const KCAL_GOAL = 2000;
+
+// Anders als bei den Schritten wird hier auch wieder abgehakt: Wer über dem Ziel liegt,
+// bekommt das Kreuzchen nicht – auch wenn es vorher manuell gesetzt war.
+function checkKcalHabit(date, kcal) {
+  const habits = DB.get('habits', []);
+  const kcalHabit = habits.find(h => /kalorie|kcal|calorie/i.test(h.name));
+  if(!kcalHabit) return;
+  const log = DB.get('habit_log_' + kcalHabit.id, {});
+  const ok = kcal <= KCAL_GOAL;
+  if(ok && !log[date]) {
+    log[date] = true;
+    DB.set('habit_log_' + kcalHabit.id, log);
+    toast('🍽️ Kalorien-Habit automatisch abgehakt ✓');
+  } else if(!ok && log[date]) {
+    delete log[date];
+    DB.set('habit_log_' + kcalHabit.id, log);
+    toast(`🍽️ Über ${KCAL_GOAL.toLocaleString('de-DE')} kcal – Kalorien-Habit für den Tag zurückgesetzt`);
+  } else if(!ok) {
+    toast(`🍽️ Über ${KCAL_GOAL.toLocaleString('de-DE')} kcal – Kalorien-Habit heute nicht erfüllt`);
+  }
+}
+
 function exportHealth() {
   const data = DB.get('health', []);
-  const csv = ['Datum,Gewicht,BP sys,BP dia,Temperatur (°C),Schritte,Schlaf gesamt (min),Tiefschlaf (min),REM (min),Notiz'].concat(data.map(d=>`${d.date},${d.weight||''},${d.bpSys||''},${d.bpDia||''},${d.temp||''},${d.steps||''},${d.sleepMin||''},${d.deepMin||''},${d.remMin||''},"${d.note||''}"`)).join('\n');
+  const csv = ['Datum,Gewicht,BP sys,BP dia,Temperatur (°C),Schritte,Kalorien (kcal),Schlaf gesamt (min),Tiefschlaf (min),REM (min),Notiz'].concat(data.map(d=>`${d.date},${d.weight||''},${d.bpSys||''},${d.bpDia||''},${d.temp||''},${d.steps||''},${d.kcal||''},${d.sleepMin||''},${d.deepMin||''},${d.remMin||''},"${d.note||''}"`)).join('\n');
   download('gesundheitsdaten.csv', 'text/csv', csv);
 }
 
@@ -1640,6 +1693,19 @@ function renderHealthAnalytics() {
     ]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
+
+  // Kcal chart – Balken über dem Ziel rot, darunter grün
+  const kcalData = health.filter(d=>d.kcal).slice(-30);
+  if(charts.kc) charts.kc.destroy();
+  charts.kc = new Chart(document.getElementById('chartKcal'), {
+    type:'bar',
+    data:{ labels: kcalData.map(d=>fmtDate(d.date)), datasets:[
+      { label:'Kalorien', data:kcalData.map(d=>parseInt(d.kcal)), backgroundColor:kcalData.map(d=>parseInt(d.kcal)>KCAL_GOAL ? 'rgba(248,113,113,0.7)' : 'rgba(74,222,128,0.7)'), borderRadius:3 },
+      { label:'Ziel 2.000', data:kcalData.map(()=>KCAL_GOAL), type:'line', borderColor:'rgba(34,211,238,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
+      { label:'Trend', data:calcTrend(kcalData.map(d=>parseInt(d.kcal))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+  });
 }
 
 // Klassifiziert einen Wertverlauf: Steigung einer linearen Regression relativ zum Mittelwert
@@ -1708,7 +1774,17 @@ function renderKraftExerciseAnalytics() {
       { label:'Geschätztes 1RM (kg)', data:est1rms, borderColor:'#22d3ee', borderDash:[4,3], tension:0.3, fill:false, pointRadius:2 },
       { label:'Trend', data:calcTrend(est1rms), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, plugins:{
+      legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}},
+      // Tooltip am Datenpunkt zeigt zusätzlich Sätze × Wdh und Volumen der Einheit
+      tooltip:{ callbacks:{ afterBody: items => {
+        const e = entries[items[0].dataIndex];
+        const lines = [];
+        if(e.saetze || e.wdh) lines.push(`Sätze × Wdh: ${e.saetze||'—'} × ${e.wdh||'—'}`);
+        if(e.gewicht && e.saetze && e.wdh) lines.push(`Volumen: ${(parseFloat(e.gewicht)*parseInt(e.saetze)*parseInt(e.wdh)).toLocaleString('de-DE')} kg`);
+        return lines;
+      } } }
+    }, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 
   // Trend anhand der letzten 8 Einheiten (geschätztes 1RM) bewerten
@@ -1737,7 +1813,14 @@ function renderCardioExerciseAnalytics() {
       { label:'Tempo (min/km)', data:paces, borderColor:'#f87171', backgroundColor:'rgba(248,113,113,0.1)', tension:0.3, fill:true, pointRadius:3 },
       { label:'Trend', data:calcTrend(paces), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, plugins:{
+      legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}},
+      // Tooltip am Datenpunkt zeigt zusätzlich Dauer und Distanz der Einheit
+      tooltip:{ callbacks:{ afterBody: items => {
+        const e = entries[items[0].dataIndex];
+        return [`Dauer: ${fmtMinSec(parseDur(e.min))} · Distanz: ${e.km} km`];
+      } } }
+    }, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 
   // Beim Tempo bedeutet ein sinkender Wert Fortschritt → higherIsBetter:false
