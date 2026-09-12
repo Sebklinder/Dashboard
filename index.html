@@ -104,8 +104,8 @@
   .stat.mini .stat-value { font-size: 17px; margin-bottom: 2px; }
   .stat.mini .stat-label { font-size: 10px; }
   .stat.mini .stat-delta { font-size: 10px; margin-top: 1px; }
-  .overview-groups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .overview-bottom { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 12px; }
+  .overview-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .overview-bottom { display: grid; grid-template-columns: 1fr 1fr 1.3fr 1.7fr; gap: 12px; }
   .stat-group-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
   .stat-group-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
   .up { color: var(--green); }
@@ -280,7 +280,7 @@
   /* ===== Tablet ===== */
   @media (max-width: 1024px) {
     .main { padding: 24px; }
-    .overview-groups { grid-template-columns: 1fr 1fr; }
+    .overview-bottom { grid-template-columns: 1fr 1fr; }
     .analytics-grid { grid-template-columns: 1fr; }
     .grid-4 { grid-template-columns: 1fr 1fr; }
   }
@@ -448,6 +448,25 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="overview-bottom" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">🚶 Schritte</div>
+      <div class="stat mini">
+        <div class="stat-value" id="statSteps" style="color:var(--green)">—</div>
+        <div class="stat-label">Ø Schritte</div>
+        <div class="stat-delta" id="statStepsRating"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🩺 Blutdruck</div>
+      <div class="stat mini">
+        <div class="stat-value" id="statBp" style="color:var(--red)">—</div>
+        <div class="stat-label">Blutdruck (sys/dia)</div>
+        <div class="stat-delta" id="statBpNote"></div>
+      </div>
+    </div>
     <div class="card">
       <div class="card-title">⚖️ Gewicht &amp; BMI</div>
       <div class="stat-group-2">
@@ -461,25 +480,6 @@
           <div class="stat-label">BMI</div>
           <div class="stat-delta" id="statBmiRating"></div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="overview-bottom" style="margin-bottom:16px">
-    <div class="card">
-      <div class="card-title">🩺 Blutdruck</div>
-      <div class="stat mini">
-        <div class="stat-value" id="statBp" style="color:var(--red)">—</div>
-        <div class="stat-label">Blutdruck (sys/dia)</div>
-        <div class="stat-delta" id="statBpNote"></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">🚶 Schritte</div>
-      <div class="stat mini">
-        <div class="stat-value" id="statSteps" style="color:var(--green)">—</div>
-        <div class="stat-label">Ø Schritte</div>
-        <div class="stat-delta" id="statStepsRating"></div>
       </div>
     </div>
     <div class="card">
