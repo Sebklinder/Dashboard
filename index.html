@@ -87,6 +87,7 @@
 
   /* Grid */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-2 > .card { min-width: 0; } /* Tabellen in Karten scrollen, statt die Spalte aufzuweiten */
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
   .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .col-span-2 { grid-column: span 2; }
@@ -378,6 +379,7 @@
   <div class="nav-item" onclick="nav('journal')"><span class="icon">📔</span><span>Journal</span></div>
   <div class="nav-item" onclick="nav('sport')"><span class="icon">🏋️</span><span>Sport</span></div>
   <div class="nav-item" onclick="nav('rezepte')"><span class="icon">🍽️</span><span>Rezepte</span></div>
+  <div class="nav-item" onclick="nav('schiri')"><span class="icon">🏀</span><span>Schiedsrichter</span></div>
   <div class="sidebar-footer">
     <div class="date-display" id="sidebarDate"></div>
     <div id="syncStatus" style="font-size:11px;color:var(--muted);margin-top:4px;">Lädt…</div>
@@ -901,6 +903,63 @@
   <div id="rezepte-abend" class="subpage"><div class="rezept-grid" id="rezeptList-abend"></div></div>
 </div>
 
+<!-- SCHIEDSRICHTER -->
+<div id="page-schiri" class="page">
+  <div class="page-title">Schiedsrichter-Einsätze</div>
+  <div class="page-sub">Spiele, Spielgebühren und Fahrtkosten – nach Jahr sortiert.</div>
+
+  <div class="grid-2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">🏀 Neues Spiel</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Datum</label>
+          <input type="date" class="form-input" id="schiriDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Liga</label>
+          <select class="form-input" id="schiriLigaSelect" onchange="onLigaSelect(this.value)"></select>
+          <input type="text" class="form-input" id="schiriLigaNeu" placeholder="Name der neuen Liga" style="display:none;margin-top:8px">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Heim</label>
+          <input type="text" class="form-input" id="schiriHeim" placeholder="Heimmannschaft">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gast</label>
+          <input type="text" class="form-input" id="schiriGast" placeholder="Gastmannschaft">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Spielgebühr (€)</label>
+          <input type="number" min="0" step="0.01" class="form-input" id="schiriGebuehr" placeholder="40">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fahrtkosten (€)</label>
+          <input type="number" min="0" step="0.01" class="form-input" id="schiriFahrt" placeholder="12.50">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSchiri()" style="width:100%">Spiel speichern</button>
+    </div>
+
+    <div class="card">
+      <div class="section-header">
+        <span class="card-title">Jahresübersicht</span>
+        <button class="btn btn-secondary btn-sm" onclick="exportSchiri()">📥 CSV Export</button>
+      </div>
+      <div class="table-scroll"><table class="data-table">
+        <thead><tr><th>Jahr</th><th>Spiele</th><th>Spielgebühr</th><th>Fahrtkosten</th><th>Gesamt</th></tr></thead>
+        <tbody id="schiriYearTable"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div id="schiriYears"></div>
+</div>
+
 </main>
 </div>
 
@@ -912,6 +971,7 @@
   <div class="tab-item" onclick="nav('journal')"><span class="icon">📔</span><span>Journal</span></div>
   <div class="tab-item" onclick="nav('sport')"><span class="icon">🏋️</span><span>Sport</span></div>
   <div class="tab-item" onclick="nav('rezepte')"><span class="icon">🍽️</span><span>Rezepte</span></div>
+  <div class="tab-item" onclick="nav('schiri')"><span class="icon">🏀</span><span>Schiri</span></div>
 </nav>
 
 <!-- Modal: Habit hinzufügen -->
@@ -1053,6 +1113,7 @@ function nav(page) {
   if(page === 'journal') renderJournal();
   if(page === 'sport') renderSport();
   if(page === 'rezepte') renderRezepte();
+  if(page === 'schiri') renderSchiri();
 }
 
 // ===== SUBTABS (Erfassen / Analytics je Seite) =====
@@ -2364,6 +2425,115 @@ function seedRezepte() {
   DB.set('rezepte', data);
   localStorage.setItem('rezepte_seed_version', String(REZEPT_SEED_VERSION));
   localStorage.removeItem('rezepte_seeded');
+}
+
+// ===== SCHIEDSRICHTER =====
+// Ein Eintrag je Spiel: { id, date, heim, gast, liga, gebuehr, fahrt } im Store 'schiri_spiele'
+const fmtEur = (v) => (parseFloat(v) || 0).toLocaleString('de-DE', { style:'currency', currency:'EUR' });
+
+// Bisher verwendete Ligen (aus den Spielen) für das Dropdown
+function schiriLigen() {
+  return [...new Set(DB.get('schiri_spiele', []).map(g => g.liga).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'de'));
+}
+
+function renderLigaSelect(selected) {
+  const sel = document.getElementById('schiriLigaSelect');
+  const ligen = schiriLigen();
+  sel.innerHTML = `<option value="" disabled ${!selected ? 'selected' : ''}>Liga wählen…</option>`
+    + ligen.map(l => `<option value="${escAttr(l)}" ${selected === l ? 'selected' : ''}>${escHtml(l)}</option>`).join('')
+    + `<option value="__new__" ${selected === '__new__' ? 'selected' : ''}>➕ Neue Liga eingeben…</option>`;
+  if(!ligen.length) { sel.value = '__new__'; onLigaSelect('__new__'); }
+}
+
+function onLigaSelect(value) {
+  const neu = document.getElementById('schiriLigaNeu');
+  neu.style.display = value === '__new__' ? '' : 'none';
+  if(value === '__new__') neu.focus();
+}
+
+function saveSchiri() {
+  const heim = document.getElementById('schiriHeim').value.trim();
+  const gast = document.getElementById('schiriGast').value.trim();
+  const ligaSel = document.getElementById('schiriLigaSelect').value;
+  const liga = (ligaSel === '__new__' ? document.getElementById('schiriLigaNeu').value : ligaSel).trim();
+  if(!heim || !gast) { toast('Bitte Heim und Gast eingeben!'); return; }
+  if(!liga) { toast('Bitte Liga angeben!'); return; }
+  const entry = {
+    id: Date.now().toString(),
+    date: document.getElementById('schiriDate').value || today(),
+    heim, gast, liga,
+    gebuehr: document.getElementById('schiriGebuehr').value,
+    fahrt: document.getElementById('schiriFahrt').value,
+  };
+  const data = DB.get('schiri_spiele', []);
+  data.push(entry);
+  data.sort((a,b) => a.date.localeCompare(b.date));
+  DB.set('schiri_spiele', data);
+  ['schiriHeim','schiriGast','schiriGebuehr','schiriFahrt','schiriLigaNeu'].forEach(id => document.getElementById(id).value = '');
+  renderSchiri(liga); // Liga bleibt vorausgewählt – meist mehrere Spiele derselben Liga hintereinander
+  toast('Spiel gespeichert ✓');
+}
+
+function deleteSchiri(id) {
+  if(!confirm('Spiel löschen?')) return;
+  DB.set('schiri_spiele', DB.get('schiri_spiele', []).filter(g => g.id !== id));
+  renderSchiri();
+  toast('Spiel gelöscht ✓');
+}
+
+function renderSchiri(keepLiga) {
+  document.getElementById('schiriDate').value = today();
+  renderLigaSelect(keepLiga || '');
+  onLigaSelect(document.getElementById('schiriLigaSelect').value);
+  const data = DB.get('schiri_spiele', []);
+  const num = v => parseFloat(v) || 0;
+
+  // Nach Jahr gruppieren, neuestes Jahr zuerst; innerhalb des Jahres neuestes Spiel zuerst
+  const years = {};
+  data.forEach(g => { const y = g.date.slice(0,4); (years[y] = years[y] || []).push(g); });
+  const yearKeys = Object.keys(years).sort((a,b) => b.localeCompare(a));
+  const sumOf = (list, key) => list.reduce((sum, g) => sum + num(g[key]), 0);
+
+  document.getElementById('schiriYearTable').innerHTML = yearKeys.map(y => {
+    const list = years[y];
+    return `<tr>
+      <td><strong>${y}</strong></td>
+      <td>${list.length}</td>
+      <td>${fmtEur(sumOf(list,'gebuehr'))}</td>
+      <td>${fmtEur(sumOf(list,'fahrt'))}</td>
+      <td><strong>${fmtEur(sumOf(list,'gebuehr') + sumOf(list,'fahrt'))}</strong></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" class="empty">Noch keine Spiele</td></tr>';
+
+  document.getElementById('schiriYears').innerHTML = yearKeys.map(y => {
+    const list = [...years[y]].reverse();
+    const geb = sumOf(list,'gebuehr'), fahrt = sumOf(list,'fahrt');
+    return `<div class="card" style="margin-bottom:16px">
+      <div class="section-header">
+        <span class="card-title">${y}</span>
+        <span style="font-size:12px;color:var(--muted)">${list.length} Spiel${list.length===1?'':'e'} · Gebühren ${fmtEur(geb)} · Fahrt ${fmtEur(fahrt)} · <strong style="color:var(--text)">${fmtEur(geb+fahrt)}</strong></span>
+      </div>
+      <div class="table-scroll"><table class="data-table">
+        <thead><tr><th>Datum</th><th>Spielpaarung</th><th>Liga</th><th>Spielgebühr</th><th>Fahrtkosten</th><th>Summe</th><th></th></tr></thead>
+        <tbody>${list.map(g => `<tr>
+          <td>${fmtDate(g.date)}</td>
+          <td>${escHtml(g.heim)} <span style="color:var(--muted)">vs.</span> ${escHtml(g.gast)}</td>
+          <td>${escHtml(g.liga)}</td>
+          <td>${g.gebuehr !== '' && g.gebuehr != null ? fmtEur(g.gebuehr) : '—'}</td>
+          <td>${g.fahrt !== '' && g.fahrt != null ? fmtEur(g.fahrt) : '—'}</td>
+          <td><strong>${fmtEur(num(g.gebuehr) + num(g.fahrt))}</strong></td>
+          <td><button class="btn btn-danger btn-sm" title="Spiel löschen" onclick="deleteSchiri('${g.id}')" style="padding:3px 8px;font-size:11px">✕</button></td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`;
+  }).join('') || '<div class="card"><div class="empty">Noch keine Spiele erfasst.<br>Trage oben dein erstes Spiel ein!</div></div>';
+}
+
+function exportSchiri() {
+  const data = DB.get('schiri_spiele', []);
+  const csv = ['Datum,Heim,Gast,Liga,Spielgebühr (€),Fahrtkosten (€),Summe (€)']
+    .concat(data.map(g => `${g.date},"${g.heim}","${g.gast}","${g.liga}",${g.gebuehr||''},${g.fahrt||''},${((parseFloat(g.gebuehr)||0)+(parseFloat(g.fahrt)||0)).toFixed(2)}`)).join('\n');
+  download('schiedsrichter-spiele.csv', 'text/csv', csv);
 }
 
 function renderRezepte() {
