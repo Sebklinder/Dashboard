@@ -105,7 +105,7 @@
   .stat.mini .stat-label { font-size: 10px; }
   .stat.mini .stat-delta { font-size: 10px; margin-top: 1px; }
   .overview-groups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .overview-bottom { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; }
+  .overview-bottom { display: grid; grid-template-columns: 1fr 2.3fr 1.7fr; gap: 12px; }
   .stat-group-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
   .stat-group-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
   .up { color: var(--green); }
@@ -460,6 +460,26 @@
         <div class="stat-value" id="statSteps" style="color:var(--green)">—</div>
         <div class="stat-label">Ø Schritte</div>
         <div class="stat-delta" id="statStepsRating"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-header"><span class="card-title">🏋️ Training diese Woche</span><span id="statTrainingWeek" style="font-size:11px;color:var(--muted);white-space:nowrap"></span></div>
+      <div class="stat-group-3">
+        <div class="stat mini">
+          <div class="stat-value" id="statKraftTime" style="color:var(--accent)">—</div>
+          <div class="stat-label">Kraft</div>
+          <div class="stat-delta" id="statKraftSessions"></div>
+        </div>
+        <div class="stat mini">
+          <div class="stat-value" id="statCardioTime" style="color:var(--red)">—</div>
+          <div class="stat-label">Ausdauer</div>
+          <div class="stat-delta" id="statCardioSessions"></div>
+        </div>
+        <div class="stat mini">
+          <div class="stat-value" id="statTrainingTotal" style="color:var(--green)">—</div>
+          <div class="stat-label">Gesamt</div>
+          <div class="stat-delta" id="statTrainingDelta"></div>
+        </div>
       </div>
     </div>
     <div class="card">
@@ -1107,6 +1127,8 @@ function renderOverview() {
     weightDeltaEl.className = 'stat-delta';
   }
 
+  renderWeeklyTraining();
+
   // Today habits preview
   const oh = document.getElementById('overviewHabits');
   if(!habits.length) { oh.innerHTML = '<div class="empty">Noch keine Habits angelegt.<br><a href="#" onclick="nav(\'habits\')" style="color:var(--accent)">Jetzt anlegen →</a></div>'; }
@@ -1133,6 +1155,56 @@ function toggleHabitFromOverview(id) {
   log[td] = !log[td];
   DB.set('habit_log_' + id, log);
   renderOverview();
+}
+
+// ===== TRAININGSZEIT PRO WOCHE (Übersicht) =====
+const addDays = (dateStr, n) => { const d = new Date(dateStr + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().split('T')[0]; };
+// Montag der Woche (Mo–So), in der das Datum liegt
+const weekStart = (dateStr) => { const d = new Date(dateStr + 'T12:00:00'); return addDays(dateStr, -((d.getDay() + 6) % 7)); };
+const isoWeek = (dateStr) => {
+  const d = new Date(dateStr + 'T12:00:00'); d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+  const jan4 = new Date(d.getFullYear(), 0, 4);
+  return 1 + Math.round(((d - jan4) / 86400000 - 3 + ((jan4.getDay() + 6) % 7)) / 7);
+};
+const fmtDur = (min) => min >= 60 ? fmtMin(Math.round(min)) : `${Math.round(min)} min`;
+
+// Trainingsminuten je Kategorie im Zeitraum [from, to].
+// Kraft: die Dauer gehört zur Einheit, nicht zur einzelnen Übung → nur einmal je trainingId zählen.
+function trainingMinutes(from, to) {
+  const inRange = e => e.date >= from && e.date <= to;
+  const seen = new Set();
+  let kraft = 0, kraftSessions = 0;
+  DB.get('sport_kraft', []).filter(inRange).forEach(e => {
+    const key = e.trainingId || 'day-' + e.date;
+    if(seen.has(key)) return;
+    seen.add(key); kraftSessions++;
+    kraft += parseFloat(e.dauer) || 0;
+  });
+  let cardio = 0, cardioSessions = 0;
+  DB.get('sport_cardio', []).filter(inRange).forEach(e => { cardioSessions++; cardio += parseDur(e.min) || 0; });
+  return { kraft, kraftSessions, cardio, cardioSessions, total: kraft + cardio };
+}
+
+function renderWeeklyTraining() {
+  const td = today();
+  const from = weekStart(td), to = addDays(from, 6);
+  const cur = trainingMinutes(from, to);
+  const prev = trainingMinutes(addDays(from, -7), addDays(from, -1));
+  const dm = d => new Date(d + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'});
+  document.getElementById('statTrainingWeek').textContent = `KW ${isoWeek(td)} · ${dm(from)}–${dm(to)}`;
+  // Anzahl Einheiten + Ø Dauer je Einheit in dieser Woche
+  const unit = (n, min) => `${n} Einheit${n === 1 ? '' : 'en'} · Ø ${fmtDur(min / n)}`;
+  document.getElementById('statKraftTime').textContent = cur.kraftSessions ? fmtDur(cur.kraft) : '—';
+  document.getElementById('statKraftSessions').textContent = cur.kraftSessions ? unit(cur.kraftSessions, cur.kraft) : 'noch nichts';
+  document.getElementById('statCardioTime').textContent = cur.cardioSessions ? fmtDur(cur.cardio) : '—';
+  document.getElementById('statCardioSessions').textContent = cur.cardioSessions ? unit(cur.cardioSessions, cur.cardio) : 'noch nichts';
+  document.getElementById('statTrainingTotal').textContent = (cur.kraftSessions || cur.cardioSessions) ? fmtDur(cur.total) : '—';
+  const delta = document.getElementById('statTrainingDelta');
+  const diff = Math.round(cur.total - prev.total);
+  if(!prev.total && !cur.total) { delta.textContent = ''; }
+  else if(diff > 0) { delta.textContent = `▲ +${fmtDur(diff)} vs. Vorwoche`; delta.style.color = 'var(--green)'; }
+  else if(diff < 0) { delta.textContent = `▼ −${fmtDur(-diff)} vs. Vorwoche`; delta.style.color = 'var(--red)'; }
+  else { delta.textContent = '= wie Vorwoche'; delta.style.color = 'var(--muted)'; }
 }
 
 // ===== HABITS =====
