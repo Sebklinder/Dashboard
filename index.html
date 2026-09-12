@@ -918,18 +918,20 @@
         </div>
         <div class="form-group">
           <label class="form-label">Liga</label>
-          <select class="form-input" id="schiriLigaSelect" onchange="onLigaSelect(this.value)"></select>
-          <input type="text" class="form-input" id="schiriLigaNeu" placeholder="Name der neuen Liga" style="display:none;margin-top:8px">
+          <select class="form-input" id="schiriLigaSelect" onchange="onPickSelect('schiriLiga')"></select>
+          <input type="text" class="form-input" id="schiriLigaNeu" placeholder="Neue Liga (z. B. RLH)" style="display:none;margin-top:8px">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Heim</label>
-          <input type="text" class="form-input" id="schiriHeim" placeholder="Heimmannschaft">
+          <select class="form-input" id="schiriHeimSelect" onchange="onPickSelect('schiriHeim')"></select>
+          <input type="text" class="form-input" id="schiriHeimNeu" placeholder="Neue Mannschaft" style="display:none;margin-top:8px">
         </div>
         <div class="form-group">
           <label class="form-label">Gast</label>
-          <input type="text" class="form-input" id="schiriGast" placeholder="Gastmannschaft">
+          <select class="form-input" id="schiriGastSelect" onchange="onPickSelect('schiriGast')"></select>
+          <input type="text" class="form-input" id="schiriGastNeu" placeholder="Neue Mannschaft" style="display:none;margin-top:8px">
         </div>
       </div>
       <div class="form-row">
@@ -2431,32 +2433,50 @@ function seedRezepte() {
 // Ein Eintrag je Spiel: { id, date, heim, gast, liga, gebuehr, fahrt } im Store 'schiri_spiele'
 const fmtEur = (v) => (parseFloat(v) || 0).toLocaleString('de-DE', { style:'currency', currency:'EUR' });
 
-// Bisher verwendete Ligen (aus den Spielen) für das Dropdown
+// Standard-Ligen; selbst angelegte landen in 'custom_ligen', Mannschaften in 'schiri_teams'
+const DEFAULT_LIGEN = ['LLH','LLD','OLH','OLD','RLH','RLD','JBBL','NBBL','WNBL','2.DBBL'];
+
 function schiriLigen() {
-  return [...new Set(DB.get('schiri_spiele', []).map(g => g.liga).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'de'));
+  const spiele = DB.get('schiri_spiele', []).map(g => g.liga);
+  return [...new Set([...DEFAULT_LIGEN, ...DB.get('custom_ligen', []), ...spiele])].filter(Boolean);
+}
+function schiriTeams() {
+  const spiele = DB.get('schiri_spiele', []).flatMap(g => [g.heim, g.gast]);
+  return [...new Set([...DB.get('schiri_teams', []), ...spiele])].filter(Boolean).sort((a,b) => a.localeCompare(b, 'de'));
+}
+function rememberValue(storeKey, value, defaults = []) {
+  if(!value || defaults.includes(value)) return;
+  const list = DB.get(storeKey, []);
+  if(!list.includes(value)) { list.push(value); DB.set(storeKey, list); }
 }
 
-function renderLigaSelect(selected) {
-  const sel = document.getElementById('schiriLigaSelect');
-  const ligen = schiriLigen();
-  sel.innerHTML = `<option value="" disabled ${!selected ? 'selected' : ''}>Liga wählen…</option>`
-    + ligen.map(l => `<option value="${escAttr(l)}" ${selected === l ? 'selected' : ''}>${escHtml(l)}</option>`).join('')
-    + `<option value="__new__" ${selected === '__new__' ? 'selected' : ''}>➕ Neue Liga eingeben…</option>`;
-  if(!ligen.length) { sel.value = '__new__'; onLigaSelect('__new__'); }
+// Auswahlfeld mit „➕ Neu…"-Option; bei „Neu" erscheint darunter ein Textfeld.
+// base = gemeinsames id-Präfix: <base>Select + <base>Neu
+function renderPickSelect(base, options, selected, placeholder, newLabel) {
+  const sel = document.getElementById(base + 'Select');
+  const known = options.includes(selected);
+  sel.innerHTML = `<option value="" disabled ${!selected ? 'selected' : ''}>${placeholder}</option>`
+    + options.map(o => `<option value="${escAttr(o)}" ${selected === o ? 'selected' : ''}>${escHtml(o)}</option>`).join('')
+    + `<option value="__new__" ${selected === '__new__' || (selected && !known) ? 'selected' : ''}>➕ ${newLabel}</option>`;
+  if(selected && !known && selected !== '__new__') document.getElementById(base + 'Neu').value = selected;
+  onPickSelect(base, true);
 }
-
-function onLigaSelect(value) {
-  const neu = document.getElementById('schiriLigaNeu');
-  neu.style.display = value === '__new__' ? '' : 'none';
-  if(value === '__new__') neu.focus();
+function onPickSelect(base, silent) {
+  const isNew = document.getElementById(base + 'Select').value === '__new__';
+  const neu = document.getElementById(base + 'Neu');
+  neu.style.display = isNew ? '' : 'none';
+  if(isNew && !silent) neu.focus();
+}
+function pickValue(base) {
+  const v = document.getElementById(base + 'Select').value;
+  return (v === '__new__' ? document.getElementById(base + 'Neu').value : v || '').trim();
 }
 
 function saveSchiri() {
-  const heim = document.getElementById('schiriHeim').value.trim();
-  const gast = document.getElementById('schiriGast').value.trim();
-  const ligaSel = document.getElementById('schiriLigaSelect').value;
-  const liga = (ligaSel === '__new__' ? document.getElementById('schiriLigaNeu').value : ligaSel).trim();
-  if(!heim || !gast) { toast('Bitte Heim und Gast eingeben!'); return; }
+  const heim = pickValue('schiriHeim');
+  const gast = pickValue('schiriGast');
+  const liga = pickValue('schiriLiga');
+  if(!heim || !gast) { toast('Bitte Heim und Gast angeben!'); return; }
   if(!liga) { toast('Bitte Liga angeben!'); return; }
   const entry = {
     id: Date.now().toString(),
@@ -2469,7 +2489,12 @@ function saveSchiri() {
   data.push(entry);
   data.sort((a,b) => a.date.localeCompare(b.date));
   DB.set('schiri_spiele', data);
-  ['schiriHeim','schiriGast','schiriGebuehr','schiriFahrt','schiriLigaNeu'].forEach(id => document.getElementById(id).value = '');
+  // Neue Liga / Mannschaften merken → künftig im Dropdown
+  rememberValue('custom_ligen', liga, DEFAULT_LIGEN);
+  rememberValue('schiri_teams', heim);
+  rememberValue('schiri_teams', gast);
+  ['schiriGebuehr','schiriFahrt','schiriLigaNeu','schiriHeimNeu','schiriGastNeu'].forEach(id => document.getElementById(id).value = '');
+  checkGymHabit(entry.date); // Spiel gepfiffen = Sport gemacht
   renderSchiri(liga); // Liga bleibt vorausgewählt – meist mehrere Spiele derselben Liga hintereinander
   toast('Spiel gespeichert ✓');
 }
@@ -2483,8 +2508,10 @@ function deleteSchiri(id) {
 
 function renderSchiri(keepLiga) {
   document.getElementById('schiriDate').value = today();
-  renderLigaSelect(keepLiga || '');
-  onLigaSelect(document.getElementById('schiriLigaSelect').value);
+  renderPickSelect('schiriLiga', schiriLigen(), keepLiga || '', 'Liga wählen…', 'Neue Liga…');
+  const teams = schiriTeams();
+  renderPickSelect('schiriHeim', teams, '', 'Heim wählen…', 'Neue Mannschaft…');
+  renderPickSelect('schiriGast', teams, '', 'Gast wählen…', 'Neue Mannschaft…');
   const data = DB.get('schiri_spiele', []);
   const num = v => parseFloat(v) || 0;
 
