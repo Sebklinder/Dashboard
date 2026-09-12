@@ -185,6 +185,16 @@
     .cell-val:hover::after { content: ' \2715'; font-size: 10px; opacity: 0.8; }
   }
   .table-hint { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+
+  /* Trainingseinheit: eine Zeile pro Übung */
+  .training-row { padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: var(--surface2); }
+  .training-row-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .training-row-num { font-size: 12px; color: var(--muted); font-weight: 600; min-width: 18px; }
+  .training-row-head .form-input { flex: 1; }
+  .training-row .form-row-3 { gap: 8px; grid-template-columns: 1fr 1fr 1fr; } /* auch auf schmalen Handys nebeneinander */
+  .training-row .form-group { margin-bottom: 0; }
+  .training-head td { background: var(--surface2); font-weight: 600; }
+  .training-sub td:nth-child(2) { padding-left: 24px; }
   .val-del-btn { border: none; background: none; color: var(--muted); cursor: pointer; font-size: 11px; padding: 2px 6px; border-radius: 5px; opacity: 0.45; transition: all 0.15s; }
   .val-del-btn:hover { opacity: 1; color: var(--red); background: rgba(248,113,113,0.15); }
 
@@ -725,34 +735,25 @@
 
   <div class="grid-2" style="margin-bottom:16px">
 
-    <!-- Kraft -->
+    <!-- Krafttraining: ganze Einheit mit mehreren Übungen -->
     <div class="card">
-      <div class="card-title">💪 Kraft – Neuer Eintrag</div>
-      <div class="form-group">
-        <label class="form-label">Datum</label>
-        <input type="date" class="form-input" id="kraftDate">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Übung</label>
-        <input type="text" class="form-input" id="kraftUebung" list="kraftList" placeholder="Übung wählen oder neue eingeben…" autocomplete="off">
-        <datalist id="kraftList"></datalist>
-        <div style="font-size:11px;color:var(--muted);margin-top:6px">Neue Übung einfach eintippen und speichern — wird automatisch zur Liste ergänzt.</div>
-      </div>
-      <div class="form-row-3">
+      <div class="card-title">💪 Krafttraining – Neue Einheit</div>
+      <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Gewicht (kg)</label>
-          <input type="number" step="0.5" class="form-input" id="kraftGewicht" placeholder="80">
+          <label class="form-label">Datum</label>
+          <input type="date" class="form-input" id="kraftDate">
         </div>
         <div class="form-group">
-          <label class="form-label">Sätze</label>
-          <input type="number" class="form-input" id="kraftSaetze" placeholder="3">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Wdh.</label>
-          <input type="number" class="form-input" id="kraftWdh" placeholder="10">
+          <label class="form-label">Trainingszeit (min)</label>
+          <input type="number" min="0" class="form-input" id="kraftDauer" placeholder="60" oninput="updateTrainingDraft()">
         </div>
       </div>
-      <button class="btn btn-primary" onclick="saveKraft()" style="width:100%">Speichern</button>
+      <label class="form-label">Übungen</label>
+      <div id="trainingRows"></div>
+      <datalist id="kraftList"></datalist>
+      <button class="btn btn-secondary btn-sm" onclick="addTrainingRow()" style="width:100%;margin-bottom:8px">+ Übung hinzufügen</button>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Neue Übung einfach eintippen — wird beim Speichern automatisch zur Liste ergänzt.</div>
+      <button class="btn btn-primary" onclick="saveTraining()" style="width:100%">Training speichern</button>
     </div>
 
     <!-- Cardio -->
@@ -804,6 +805,7 @@
       <span class="card-title">Kraft-Protokoll</span>
       <button class="btn btn-secondary btn-sm" onclick="exportSport()">📥 CSV Export</button>
     </div>
+    <div class="table-hint">Jede Trainingseinheit als Block mit Dauer und Gesamtvolumen – darunter die Übungen. Einzelwert per Klick löschen, ✕ löscht Übung bzw. ganze Einheit.</div>
     <div class="table-scroll"><table class="data-table">
       <thead><tr><th>Datum</th><th>Übung</th><th>Gewicht</th><th>Sätze</th><th>Wdh.</th><th>Volumen (kg)</th><th></th></tr></thead>
       <tbody id="kraftTable"></tbody>
@@ -1367,7 +1369,7 @@ const VALUE_STORES = {
     },
   },
   sport_kraft: {
-    keep: ['id','date','uebung'],
+    keep: ['id','date','uebung','trainingId','dauer'],
     render: () => renderSport(),
     labels: { gewicht: 'Gewicht', saetze: 'Sätze', wdh: 'Wdh.' },
   },
@@ -1865,6 +1867,7 @@ function addCustomExercise(name, defaults, customKey) {
 
 function renderSport() {
   document.getElementById('kraftDate').value = today();
+  try { const d = JSON.parse(localStorage.getItem(TRAINING_DRAFT_KEY) || '{}'); if(d.dauer) document.getElementById('kraftDauer').value = d.dauer; } catch(e) {}
   document.getElementById('cardioDate').value = today();
   document.getElementById('saunaDate').value = today();
   renderExerciseOptions('kraftList', DEFAULT_KRAFT_EXERCISES, 'custom_kraft_exercises');
@@ -1873,18 +1876,43 @@ function renderSport() {
   const kraft = DB.get('sport_kraft', []);
   const cardio = DB.get('sport_cardio', []);
 
+  renderTrainingRows();
+
+  // Kraft-Protokoll: Übungen zu Trainingseinheiten gruppieren.
+  // Alte Einzeleinträge ohne trainingId werden pro Datum zusammengefasst.
   const kb = document.getElementById('kraftTable');
-  kb.innerHTML = [...kraft].reverse().map(e => {
-    const vol = e.gewicht && e.saetze && e.wdh ? (parseFloat(e.gewicht) * parseInt(e.saetze) * parseInt(e.wdh)).toFixed(0) : '—';
-    return `<tr>
-      <td>${fmtDate(e.date)}</td>
+  const groups = [];
+  kraft.forEach(e => {
+    const key = e.trainingId || 'day-' + e.date;
+    let g = groups.find(x => x.key === key);
+    if(!g) { g = { key, date: e.date, trainingId: e.trainingId, dauer: e.dauer, items: [] }; groups.push(g); }
+    if(e.dauer && !g.dauer) g.dauer = e.dauer;
+    g.items.push(e);
+  });
+  const volOf = e => e.gewicht && e.saetze && e.wdh ? parseFloat(e.gewicht) * parseInt(e.saetze) * parseInt(e.wdh) : 0;
+  kb.innerHTML = groups.reverse().map(g => {
+    const total = g.items.reduce((s,e) => s + volOf(e), 0);
+    const delBtn = g.trainingId ? `<button class="btn btn-danger btn-sm" title="Ganze Einheit löschen" onclick="deleteTraining('${g.trainingId}')" style="padding:3px 8px;font-size:11px">✕</button>` : '';
+    const head = `<tr class="training-head">
+      <td>${fmtDate(g.date)}</td>
+      <td>🏋️ ${g.items.length} Übung${g.items.length===1?'':'en'}${g.dauer ? ` · ⏱ ${g.dauer} min` : ''}</td>
+      <td></td><td></td><td></td>
+      <td>${total ? total.toLocaleString('de-DE') + ' kg' : '—'}</td>
+      <td>${delBtn}</td>
+    </tr>`;
+    const rows = g.items.map(e => {
+      const vol = volOf(e);
+      return `<tr class="training-sub">
+      <td></td>
       <td>${e.uebung}</td>
       <td>${e.gewicht ? sportCell('sport_kraft',e.id,'gewicht',e.gewicht + ' kg') : '—'}</td>
       <td>${e.saetze ? sportCell('sport_kraft',e.id,'saetze',e.saetze) : '—'}</td>
       <td>${e.wdh ? sportCell('sport_kraft',e.id,'wdh',e.wdh) : '—'}</td>
-      <td>${vol !== '—' ? vol + ' kg' : '—'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteKraft('${e.id}')" style="padding:3px 8px;font-size:11px">✕</button></td>
+      <td>${vol ? vol.toLocaleString('de-DE') + ' kg' : '—'}</td>
+      <td><button class="btn btn-danger btn-sm" title="Übung löschen" onclick="deleteKraft('${e.id}')" style="padding:3px 8px;font-size:11px">✕</button></td>
     </tr>`;
+    }).join('');
+    return head + rows;
   }).join('') || '<tr><td colspan="7" class="empty">Noch keine Einträge</td></tr>';
 
   const cb = document.getElementById('cardioTable');
@@ -1924,26 +1952,86 @@ function checkGymHabit(date) {
   }
 }
 
-function saveKraft() {
-  const uebung = document.getElementById('kraftUebung').value.trim();
-  if(!uebung) { toast('Bitte Übung eingeben!'); return; }
-  const entry = {
-    id: Date.now().toString(),
-    date: document.getElementById('kraftDate').value || today(),
-    uebung,
-    gewicht: document.getElementById('kraftGewicht').value,
-    saetze: document.getElementById('kraftSaetze').value,
-    wdh: document.getElementById('kraftWdh').value,
-  };
+// ===== KRAFTTRAINING ALS EINHEIT =====
+// Die Übungszeilen der gerade erfassten Einheit liegen als Entwurf im localStorage
+// (ohne Cloud-Sync), damit ein versehentlicher Reload mitten im Training nichts verliert.
+const TRAINING_DRAFT_KEY = 'training_draft';
+let trainingRows = [];
+try { trainingRows = JSON.parse(localStorage.getItem(TRAINING_DRAFT_KEY) || '{}').rows || []; } catch(e) { trainingRows = []; }
+if(!trainingRows.length) trainingRows = [{ uebung:'', gewicht:'', saetze:'', wdh:'' }];
+
+function updateTrainingDraft() {
+  const dauerEl = document.getElementById('kraftDauer');
+  try { localStorage.setItem(TRAINING_DRAFT_KEY, JSON.stringify({ rows: trainingRows, dauer: dauerEl ? dauerEl.value : '' })); } catch(e) {}
+}
+
+function renderTrainingRows() {
+  const wrap = document.getElementById('trainingRows');
+  if(!wrap) return;
+  wrap.innerHTML = trainingRows.map((r, i) => `<div class="training-row">
+    <div class="training-row-head">
+      <span class="training-row-num">${i+1}.</span>
+      <input type="text" class="form-input" list="kraftList" placeholder="Übung wählen oder neue eingeben…" autocomplete="off" value="${escAttr(r.uebung)}" oninput="setTrainingRow(${i},'uebung',this.value)">
+      <button class="btn btn-danger btn-sm" title="Übung entfernen" onclick="removeTrainingRow(${i})" style="padding:4px 9px;font-size:11px">✕</button>
+    </div>
+    <div class="form-row-3">
+      <div class="form-group"><label class="form-label">Gewicht (kg)</label><input type="number" step="0.5" class="form-input" placeholder="80" value="${escAttr(r.gewicht)}" oninput="setTrainingRow(${i},'gewicht',this.value)"></div>
+      <div class="form-group"><label class="form-label">Sätze</label><input type="number" class="form-input" placeholder="3" value="${escAttr(r.saetze)}" oninput="setTrainingRow(${i},'saetze',this.value)"></div>
+      <div class="form-group"><label class="form-label">Wdh.</label><input type="number" class="form-input" placeholder="10" value="${escAttr(r.wdh)}" oninput="setTrainingRow(${i},'wdh',this.value)"></div>
+    </div>
+  </div>`).join('');
+}
+
+function setTrainingRow(i, field, value) {
+  if(!trainingRows[i]) return;
+  trainingRows[i][field] = value;
+  updateTrainingDraft();
+}
+
+function addTrainingRow() {
+  trainingRows.push({ uebung:'', gewicht:'', saetze:'', wdh:'' });
+  renderTrainingRows();
+  updateTrainingDraft();
+  const inputs = document.querySelectorAll('#trainingRows .training-row-head input');
+  if(inputs.length) inputs[inputs.length-1].focus();
+}
+
+function removeTrainingRow(i) {
+  trainingRows.splice(i, 1);
+  if(!trainingRows.length) trainingRows.push({ uebung:'', gewicht:'', saetze:'', wdh:'' });
+  renderTrainingRows();
+  updateTrainingDraft();
+}
+
+// Speichert die Einheit: jede Übung wird ein eigener sport_kraft-Eintrag (damit die
+// Übungsanalyse weiter funktioniert), verbunden über trainingId + gemeinsame Dauer.
+function saveTraining() {
+  const date = document.getElementById('kraftDate').value || today();
+  const dauer = document.getElementById('kraftDauer').value;
+  const rows = trainingRows.filter(r => r.uebung.trim());
+  if(!rows.length) { toast('Bitte mindestens eine Übung eingeben!'); return; }
+  const trainingId = Date.now().toString();
   const data = DB.get('sport_kraft', []);
-  data.push(entry);
+  rows.forEach((r, i) => {
+    const uebung = r.uebung.trim();
+    data.push({ id: trainingId + '-' + i, trainingId, date, dauer, uebung, gewicht: r.gewicht, saetze: r.saetze, wdh: r.wdh });
+    addCustomExercise(uebung, DEFAULT_KRAFT_EXERCISES, 'custom_kraft_exercises');
+  });
   data.sort((a,b) => a.date.localeCompare(b.date));
   DB.set('sport_kraft', data);
-  addCustomExercise(uebung, DEFAULT_KRAFT_EXERCISES, 'custom_kraft_exercises');
-  ['kraftUebung','kraftGewicht','kraftSaetze','kraftWdh'].forEach(id => document.getElementById(id).value = '');
-  checkGymHabit(entry.date);
+  trainingRows = [{ uebung:'', gewicht:'', saetze:'', wdh:'' }];
+  document.getElementById('kraftDauer').value = '';
+  try { localStorage.removeItem(TRAINING_DRAFT_KEY); } catch(e) {}
+  checkGymHabit(date);
   renderSport();
-  toast('Kraft-Eintrag gespeichert ✓');
+  toast(`Training mit ${rows.length} Übung${rows.length===1?'':'en'} gespeichert ✓`);
+}
+
+function deleteTraining(trainingId) {
+  if(!confirm('Ganze Trainingseinheit löschen?')) return;
+  DB.set('sport_kraft', DB.get('sport_kraft', []).filter(e => e.trainingId !== trainingId));
+  renderSport();
+  toast('Training gelöscht ✓');
 }
 
 function saveCardio() {
@@ -1991,7 +2079,7 @@ function deleteSauna(id) {
 }
 
 function deleteKraft(id) {
-  if(!confirm('Eintrag löschen?')) return;
+  if(!confirm('Übung löschen?')) return;
   DB.set('sport_kraft', DB.get('sport_kraft', []).filter(e => e.id !== id));
   renderSport();
 }
@@ -2004,10 +2092,10 @@ function deleteCardio(id) {
 
 function exportSport() {
   const kraft = DB.get('sport_kraft', []);
-  const csv = ['Datum,Übung,Gewicht (kg),Sätze,Wdh.,Volumen (kg)']
+  const csv = ['Datum,Trainingszeit (min),Übung,Gewicht (kg),Sätze,Wdh.,Volumen (kg)']
     .concat(kraft.map(e => {
       const vol = e.gewicht && e.saetze && e.wdh ? parseFloat(e.gewicht)*parseInt(e.saetze)*parseInt(e.wdh) : '';
-      return `${e.date},"${e.uebung}",${e.gewicht||''},${e.saetze||''},${e.wdh||''},${vol}`;
+      return `${e.date},${e.dauer||''},"${e.uebung}",${e.gewicht||''},${e.saetze||''},${e.wdh||''},${vol}`;
     })).join('\n');
   download('kraft-training.csv', 'text/csv', csv);
 }
