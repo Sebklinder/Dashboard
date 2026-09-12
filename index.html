@@ -61,7 +61,7 @@
   /* Layout */
   .app { display: flex; min-height: 100vh; }
   .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; position: fixed; top: 0; left: 0; height: 100vh; display: flex; flex-direction: column; }
-  .main { margin-left: 220px; padding: 32px; flex: 1; max-width: 1200px; }
+  .main { margin-left: 220px; padding: 32px; flex: 1; max-width: 1200px; min-width: 0; } /* min-width:0 – sonst drücken breite Tabellen das Flex-Kind über den Viewport hinaus */
   .logo { padding: 0 20px 24px; font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
   .logo span { color: var(--text); }
   .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; cursor: pointer; color: var(--muted); transition: all 0.15s; font-size: 14px; border-left: 3px solid transparent; }
@@ -585,6 +585,20 @@
       <button class="btn btn-primary" onclick="saveKcal()" style="width:100%">Speichern</button>
     </div>
 
+    <!-- Meditation -->
+    <div class="card">
+      <div class="card-title">🧘 Meditation – Neuer Eintrag</div>
+      <div class="form-group">
+        <label class="form-label">Datum</label>
+        <input type="date" class="form-input" id="meditDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dauer (Minuten)</label>
+        <input type="number" min="0" step="1" class="form-input" id="healthMedit" placeholder="10">
+      </div>
+      <button class="btn btn-primary" onclick="saveMedit()" style="width:100%">Speichern</button>
+    </div>
+
     <!-- Blutdruck -->
     <div class="card">
       <div class="card-title">🩺 Blutdruck – Neuer Eintrag</div>
@@ -655,7 +669,7 @@
     </div>
     <div class="table-hint">Tipp: Auf einen Wert klicken, um ihn einzeln zu löschen – mit ✕ den ganzen Tag.</div>
     <div class="table-scroll"><table class="data-table">
-      <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Kalorien</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th>Notiz</th><th></th></tr></thead>
+      <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Kalorien</th><th>Meditation</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th>Notiz</th><th></th></tr></thead>
       <tbody id="healthTable"></tbody>
     </table></div>
   </div>
@@ -671,6 +685,10 @@
       <div class="card">
         <div class="card-title">Kalorienzufuhr</div>
         <div class="chart-wrap"><canvas id="chartKcal"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Meditation</div>
+        <div class="chart-wrap"><canvas id="chartMedit"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">Schlafverlauf</div>
@@ -1360,7 +1378,7 @@ function applyRating(el, rating) {
   el.className = 'stat-delta ' + rating.cls;
 }
 function renderHealth() {
-  ['sleepDate','stepsDate','kcalDate','bpDate','weightDate','tempDate','noteDate'].forEach(id=>document.getElementById(id).value = today());
+  ['sleepDate','stepsDate','kcalDate','meditDate','bpDate','weightDate','tempDate','noteDate'].forEach(id=>document.getElementById(id).value = today());
   const data = DB.get('health', []);
 
   // Table
@@ -1375,12 +1393,13 @@ function renderHealth() {
     <td>${d.temp ? cell(d.date,'temp',`<span style="color:${parseFloat(d.temp)>=38 ? 'var(--red)' : 'inherit'}">${d.temp}°</span>`) : '—'}</td>
     <td>${d.steps ? cell(d.date,'steps',d.steps) : '—'}</td>
     <td>${d.kcal ? cell(d.date,'kcal',`<span style="color:${parseInt(d.kcal)>KCAL_GOAL ? 'var(--red)' : 'var(--green)'}">${d.kcal}</span>`) : '—'}</td>
+    <td>${d.medit ? cell(d.date,'medit',d.medit + ' min') : '—'}</td>
     <td>${d.sleepMin ? cell(d.date,'sleepMin',fmtMin(d.sleepMin)) : '—'}</td>
     <td>${d.deepMin ? cell(d.date,'deepMin',fmtMin(d.deepMin)) : '—'}</td>
     <td>${d.remMin ? cell(d.date,'remMin',fmtMin(d.remMin)) : '—'}</td>
     <td style="max-width:180px">${d.note ? cell(d.date,'note',`<span title="${escAttr(d.note)}" style="display:inline-block;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom">${escHtml(d.note)}</span>`) : '—'}</td>
     <td><button class="btn btn-danger btn-sm" title="Ganzen Tag löschen" onclick="deleteHealthEntry('${d.date}')" style="padding:3px 8px;font-size:11px">✕</button></td>
-  </tr>`).join('') || '<tr><td colspan="11" class="empty">Noch keine Einträge</td></tr>';
+  </tr>`).join('') || '<tr><td colspan="12" class="empty">Noch keine Einträge</td></tr>';
 }
 
 const escHtml = (str) => String(str).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -1393,6 +1412,7 @@ const HEALTH_FIELDS = {
   temp:     { label: 'Temperatur',    keys: ['temp'] },
   steps:    { label: 'Schritte',      keys: ['steps'] },
   kcal:     { label: 'Kalorien',      keys: ['kcal'] },
+  medit:    { label: 'Meditation',    keys: ['medit'] },
   sleepMin: { label: 'Schlaf gesamt', keys: ['sleepMin'] },
   deepMin:  { label: 'Tiefschlaf',    keys: ['deepMin'] },
   remMin:   { label: 'REM',           keys: ['remMin'] },
@@ -1571,6 +1591,28 @@ const KCAL_GOAL = 2000;
 
 // Anders als bei den Schritten wird hier auch wieder abgehakt: Wer über dem Ziel liegt,
 // bekommt das Kreuzchen nicht – auch wenn es vorher manuell gesetzt war.
+function saveMedit() {
+  const date = document.getElementById('meditDate').value || today();
+  const entry = saveHealthEntry(date, { medit: document.getElementById('healthMedit').value });
+  document.getElementById('healthMedit').value = '';
+  if(parseInt(entry.medit) > 0) checkMeditHabit(date);
+  renderHealth();
+  toast('Meditation gespeichert ✓');
+}
+
+// Meditations-Habit abhaken, sobald für den Tag Minuten eingetragen sind
+function checkMeditHabit(date) {
+  const habits = DB.get('habits', []);
+  const habit = habits.find(h => /medit|achtsam|mindful/i.test(h.name));
+  if(!habit) return;
+  const log = DB.get('habit_log_' + habit.id, {});
+  if(!log[date]) {
+    log[date] = true;
+    DB.set('habit_log_' + habit.id, log);
+    toast('🧘 Meditations-Habit automatisch abgehakt ✓');
+  }
+}
+
 function checkKcalHabit(date, kcal) {
   const habits = DB.get('habits', []);
   const kcalHabit = habits.find(h => /kalorie|kcal|calorie/i.test(h.name));
@@ -1592,7 +1634,7 @@ function checkKcalHabit(date, kcal) {
 
 function exportHealth() {
   const data = DB.get('health', []);
-  const csv = ['Datum,Gewicht,BP sys,BP dia,Temperatur (°C),Schritte,Kalorien (kcal),Schlaf gesamt (min),Tiefschlaf (min),REM (min),Notiz'].concat(data.map(d=>`${d.date},${d.weight||''},${d.bpSys||''},${d.bpDia||''},${d.temp||''},${d.steps||''},${d.kcal||''},${d.sleepMin||''},${d.deepMin||''},${d.remMin||''},"${d.note||''}"`)).join('\n');
+  const csv = ['Datum,Gewicht,BP sys,BP dia,Temperatur (°C),Schritte,Kalorien (kcal),Meditation (min),Schlaf gesamt (min),Tiefschlaf (min),REM (min),Notiz'].concat(data.map(d=>`${d.date},${d.weight||''},${d.bpSys||''},${d.bpDia||''},${d.temp||''},${d.steps||''},${d.kcal||''},${d.medit||''},${d.sleepMin||''},${d.deepMin||''},${d.remMin||''},"${d.note||''}"`)).join('\n');
   download('gesundheitsdaten.csv', 'text/csv', csv);
 }
 
@@ -1772,6 +1814,18 @@ function renderHealthAnalytics() {
       { label:'Trend', data:calcTrend(kcalData.map(d=>parseInt(d.kcal))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+  });
+
+  // Meditation chart – Minuten pro Tag
+  const meditData = health.filter(d=>d.medit).slice(-30);
+  if(charts.md) charts.md.destroy();
+  charts.md = new Chart(document.getElementById('chartMedit'), {
+    type:'bar',
+    data:{ labels: meditData.map(d=>fmtDate(d.date)), datasets:[
+      { label:'Minuten', data:meditData.map(d=>parseInt(d.medit)), backgroundColor:'rgba(99,102,241,0.7)', borderRadius:3 },
+      { label:'Trend', data:calcTrend(meditData.map(d=>parseInt(d.medit))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+' min'}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 }
 
