@@ -61,7 +61,7 @@
   /* Layout */
   .app { display: flex; min-height: 100vh; }
   .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; position: fixed; top: 0; left: 0; height: 100vh; display: flex; flex-direction: column; }
-  .main { margin-left: 220px; padding: 32px; flex: 1; max-width: 1200px; }
+  .main { margin-left: 220px; padding: 32px; flex: 1; max-width: 1200px; min-width: 0; } /* min-width:0 – sonst drücken breite Tabellen das Flex-Kind über den Viewport hinaus */
   .logo { padding: 0 20px 24px; font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
   .logo span { color: var(--text); }
   .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; cursor: pointer; color: var(--muted); transition: all 0.15s; font-size: 14px; border-left: 3px solid transparent; }
@@ -87,6 +87,7 @@
 
   /* Grid */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-2 > .card { min-width: 0; } /* Tabellen in Karten scrollen, statt die Spalte aufzuweiten */
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
   .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .col-span-2 { grid-column: span 2; }
@@ -378,6 +379,7 @@
   <div class="nav-item" onclick="nav('journal')"><span class="icon">📔</span><span>Journal</span></div>
   <div class="nav-item" onclick="nav('sport')"><span class="icon">🏋️</span><span>Sport</span></div>
   <div class="nav-item" onclick="nav('rezepte')"><span class="icon">🍽️</span><span>Rezepte</span></div>
+  <div class="nav-item" onclick="nav('schiri')"><span class="icon">🏀</span><span>Schiedsrichter</span></div>
   <div class="sidebar-footer">
     <div class="date-display" id="sidebarDate"></div>
     <div id="syncStatus" style="font-size:11px;color:var(--muted);margin-top:4px;">Lädt…</div>
@@ -585,6 +587,20 @@
       <button class="btn btn-primary" onclick="saveKcal()" style="width:100%">Speichern</button>
     </div>
 
+    <!-- Meditation -->
+    <div class="card">
+      <div class="card-title">🧘 Meditation – Neuer Eintrag</div>
+      <div class="form-group">
+        <label class="form-label">Datum</label>
+        <input type="date" class="form-input" id="meditDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dauer (Minuten)</label>
+        <input type="number" min="0" step="1" class="form-input" id="healthMedit" placeholder="10">
+      </div>
+      <button class="btn btn-primary" onclick="saveMedit()" style="width:100%">Speichern</button>
+    </div>
+
     <!-- Blutdruck -->
     <div class="card">
       <div class="card-title">🩺 Blutdruck – Neuer Eintrag</div>
@@ -655,7 +671,7 @@
     </div>
     <div class="table-hint">Tipp: Auf einen Wert klicken, um ihn einzeln zu löschen – mit ✕ den ganzen Tag.</div>
     <div class="table-scroll"><table class="data-table">
-      <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Kalorien</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th>Notiz</th><th></th></tr></thead>
+      <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Kalorien</th><th>Meditation</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th>Notiz</th><th></th></tr></thead>
       <tbody id="healthTable"></tbody>
     </table></div>
   </div>
@@ -671,6 +687,10 @@
       <div class="card">
         <div class="card-title">Kalorienzufuhr</div>
         <div class="chart-wrap"><canvas id="chartKcal"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Meditation</div>
+        <div class="chart-wrap"><canvas id="chartMedit"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">Schlafverlauf</div>
@@ -883,6 +903,65 @@
   <div id="rezepte-abend" class="subpage"><div class="rezept-grid" id="rezeptList-abend"></div></div>
 </div>
 
+<!-- SCHIEDSRICHTER -->
+<div id="page-schiri" class="page">
+  <div class="page-title">Schiedsrichter-Einsätze</div>
+  <div class="page-sub">Spiele, Spielgebühren und Fahrtkosten – nach Jahr sortiert.</div>
+
+  <div class="grid-2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">🏀 Neues Spiel</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Datum</label>
+          <input type="date" class="form-input" id="schiriDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Liga</label>
+          <select class="form-input" id="schiriLigaSelect" onchange="onPickSelect('schiriLiga')"></select>
+          <input type="text" class="form-input" id="schiriLigaNeu" placeholder="Neue Liga (z. B. RLH)" style="display:none;margin-top:8px">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Heim</label>
+          <select class="form-input" id="schiriHeimSelect" onchange="onPickSelect('schiriHeim')"></select>
+          <input type="text" class="form-input" id="schiriHeimNeu" placeholder="Neue Mannschaft" style="display:none;margin-top:8px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gast</label>
+          <select class="form-input" id="schiriGastSelect" onchange="onPickSelect('schiriGast')"></select>
+          <input type="text" class="form-input" id="schiriGastNeu" placeholder="Neue Mannschaft" style="display:none;margin-top:8px">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Spielgebühr (€)</label>
+          <input type="number" min="0" step="0.01" class="form-input" id="schiriGebuehr" placeholder="40">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fahrtkosten (€)</label>
+          <input type="number" min="0" step="0.01" class="form-input" id="schiriFahrt" placeholder="12.50">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSchiri()" style="width:100%">Spiel speichern</button>
+    </div>
+
+    <div class="card">
+      <div class="section-header">
+        <span class="card-title">Jahresübersicht</span>
+        <button class="btn btn-secondary btn-sm" onclick="exportSchiri()">📥 CSV Export</button>
+      </div>
+      <div class="table-scroll"><table class="data-table">
+        <thead><tr><th>Jahr</th><th>Spiele</th><th>Spielgebühr</th><th>Fahrtkosten</th><th>Gesamt</th></tr></thead>
+        <tbody id="schiriYearTable"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div id="schiriYears"></div>
+</div>
+
 </main>
 </div>
 
@@ -894,6 +973,7 @@
   <div class="tab-item" onclick="nav('journal')"><span class="icon">📔</span><span>Journal</span></div>
   <div class="tab-item" onclick="nav('sport')"><span class="icon">🏋️</span><span>Sport</span></div>
   <div class="tab-item" onclick="nav('rezepte')"><span class="icon">🍽️</span><span>Rezepte</span></div>
+  <div class="tab-item" onclick="nav('schiri')"><span class="icon">🏀</span><span>Schiri</span></div>
 </nav>
 
 <!-- Modal: Habit hinzufügen -->
@@ -1035,6 +1115,7 @@ function nav(page) {
   if(page === 'journal') renderJournal();
   if(page === 'sport') renderSport();
   if(page === 'rezepte') renderRezepte();
+  if(page === 'schiri') renderSchiri();
 }
 
 // ===== SUBTABS (Erfassen / Analytics je Seite) =====
@@ -1360,7 +1441,7 @@ function applyRating(el, rating) {
   el.className = 'stat-delta ' + rating.cls;
 }
 function renderHealth() {
-  ['sleepDate','stepsDate','kcalDate','bpDate','weightDate','tempDate','noteDate'].forEach(id=>document.getElementById(id).value = today());
+  ['sleepDate','stepsDate','kcalDate','meditDate','bpDate','weightDate','tempDate','noteDate'].forEach(id=>document.getElementById(id).value = today());
   const data = DB.get('health', []);
 
   // Table
@@ -1375,12 +1456,13 @@ function renderHealth() {
     <td>${d.temp ? cell(d.date,'temp',`<span style="color:${parseFloat(d.temp)>=38 ? 'var(--red)' : 'inherit'}">${d.temp}°</span>`) : '—'}</td>
     <td>${d.steps ? cell(d.date,'steps',d.steps) : '—'}</td>
     <td>${d.kcal ? cell(d.date,'kcal',`<span style="color:${parseInt(d.kcal)>KCAL_GOAL ? 'var(--red)' : 'var(--green)'}">${d.kcal}</span>`) : '—'}</td>
+    <td>${d.medit ? cell(d.date,'medit',d.medit + ' min') : '—'}</td>
     <td>${d.sleepMin ? cell(d.date,'sleepMin',fmtMin(d.sleepMin)) : '—'}</td>
     <td>${d.deepMin ? cell(d.date,'deepMin',fmtMin(d.deepMin)) : '—'}</td>
     <td>${d.remMin ? cell(d.date,'remMin',fmtMin(d.remMin)) : '—'}</td>
     <td style="max-width:180px">${d.note ? cell(d.date,'note',`<span title="${escAttr(d.note)}" style="display:inline-block;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom">${escHtml(d.note)}</span>`) : '—'}</td>
     <td><button class="btn btn-danger btn-sm" title="Ganzen Tag löschen" onclick="deleteHealthEntry('${d.date}')" style="padding:3px 8px;font-size:11px">✕</button></td>
-  </tr>`).join('') || '<tr><td colspan="11" class="empty">Noch keine Einträge</td></tr>';
+  </tr>`).join('') || '<tr><td colspan="12" class="empty">Noch keine Einträge</td></tr>';
 }
 
 const escHtml = (str) => String(str).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -1393,6 +1475,7 @@ const HEALTH_FIELDS = {
   temp:     { label: 'Temperatur',    keys: ['temp'] },
   steps:    { label: 'Schritte',      keys: ['steps'] },
   kcal:     { label: 'Kalorien',      keys: ['kcal'] },
+  medit:    { label: 'Meditation',    keys: ['medit'] },
   sleepMin: { label: 'Schlaf gesamt', keys: ['sleepMin'] },
   deepMin:  { label: 'Tiefschlaf',    keys: ['deepMin'] },
   remMin:   { label: 'REM',           keys: ['remMin'] },
@@ -1571,6 +1654,28 @@ const KCAL_GOAL = 2000;
 
 // Anders als bei den Schritten wird hier auch wieder abgehakt: Wer über dem Ziel liegt,
 // bekommt das Kreuzchen nicht – auch wenn es vorher manuell gesetzt war.
+function saveMedit() {
+  const date = document.getElementById('meditDate').value || today();
+  const entry = saveHealthEntry(date, { medit: document.getElementById('healthMedit').value });
+  document.getElementById('healthMedit').value = '';
+  if(parseInt(entry.medit) > 0) checkMeditHabit(date);
+  renderHealth();
+  toast('Meditation gespeichert ✓');
+}
+
+// Meditations-Habit abhaken, sobald für den Tag Minuten eingetragen sind
+function checkMeditHabit(date) {
+  const habits = DB.get('habits', []);
+  const habit = habits.find(h => /medit|achtsam|mindful/i.test(h.name));
+  if(!habit) return;
+  const log = DB.get('habit_log_' + habit.id, {});
+  if(!log[date]) {
+    log[date] = true;
+    DB.set('habit_log_' + habit.id, log);
+    toast('🧘 Meditations-Habit automatisch abgehakt ✓');
+  }
+}
+
 function checkKcalHabit(date, kcal) {
   const habits = DB.get('habits', []);
   const kcalHabit = habits.find(h => /kalorie|kcal|calorie/i.test(h.name));
@@ -1592,7 +1697,7 @@ function checkKcalHabit(date, kcal) {
 
 function exportHealth() {
   const data = DB.get('health', []);
-  const csv = ['Datum,Gewicht,BP sys,BP dia,Temperatur (°C),Schritte,Kalorien (kcal),Schlaf gesamt (min),Tiefschlaf (min),REM (min),Notiz'].concat(data.map(d=>`${d.date},${d.weight||''},${d.bpSys||''},${d.bpDia||''},${d.temp||''},${d.steps||''},${d.kcal||''},${d.sleepMin||''},${d.deepMin||''},${d.remMin||''},"${d.note||''}"`)).join('\n');
+  const csv = ['Datum,Gewicht,BP sys,BP dia,Temperatur (°C),Schritte,Kalorien (kcal),Meditation (min),Schlaf gesamt (min),Tiefschlaf (min),REM (min),Notiz'].concat(data.map(d=>`${d.date},${d.weight||''},${d.bpSys||''},${d.bpDia||''},${d.temp||''},${d.steps||''},${d.kcal||''},${d.medit||''},${d.sleepMin||''},${d.deepMin||''},${d.remMin||''},"${d.note||''}"`)).join('\n');
   download('gesundheitsdaten.csv', 'text/csv', csv);
 }
 
@@ -1772,6 +1877,18 @@ function renderHealthAnalytics() {
       { label:'Trend', data:calcTrend(kcalData.map(d=>parseInt(d.kcal))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+  });
+
+  // Meditation chart – Minuten pro Tag
+  const meditData = health.filter(d=>d.medit).slice(-30);
+  if(charts.md) charts.md.destroy();
+  charts.md = new Chart(document.getElementById('chartMedit'), {
+    type:'bar',
+    data:{ labels: meditData.map(d=>fmtDate(d.date)), datasets:[
+      { label:'Minuten', data:meditData.map(d=>parseInt(d.medit)), backgroundColor:'rgba(99,102,241,0.7)', borderRadius:3 },
+      { label:'Trend', data:calcTrend(meditData.map(d=>parseInt(d.medit))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+' min'}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 }
 
@@ -2310,6 +2427,140 @@ function seedRezepte() {
   DB.set('rezepte', data);
   localStorage.setItem('rezepte_seed_version', String(REZEPT_SEED_VERSION));
   localStorage.removeItem('rezepte_seeded');
+}
+
+// ===== SCHIEDSRICHTER =====
+// Ein Eintrag je Spiel: { id, date, heim, gast, liga, gebuehr, fahrt } im Store 'schiri_spiele'
+const fmtEur = (v) => (parseFloat(v) || 0).toLocaleString('de-DE', { style:'currency', currency:'EUR' });
+
+// Standard-Ligen; selbst angelegte landen in 'custom_ligen', Mannschaften in 'schiri_teams'
+const DEFAULT_LIGEN = ['LLH','LLD','OLH','OLD','RLH','RLD','JBBL','NBBL','WNBL','2.DBBL'];
+
+function schiriLigen() {
+  const spiele = DB.get('schiri_spiele', []).map(g => g.liga);
+  return [...new Set([...DEFAULT_LIGEN, ...DB.get('custom_ligen', []), ...spiele])].filter(Boolean);
+}
+function schiriTeams() {
+  const spiele = DB.get('schiri_spiele', []).flatMap(g => [g.heim, g.gast]);
+  return [...new Set([...DB.get('schiri_teams', []), ...spiele])].filter(Boolean).sort((a,b) => a.localeCompare(b, 'de'));
+}
+function rememberValue(storeKey, value, defaults = []) {
+  if(!value || defaults.includes(value)) return;
+  const list = DB.get(storeKey, []);
+  if(!list.includes(value)) { list.push(value); DB.set(storeKey, list); }
+}
+
+// Auswahlfeld mit „➕ Neu…"-Option; bei „Neu" erscheint darunter ein Textfeld.
+// base = gemeinsames id-Präfix: <base>Select + <base>Neu
+function renderPickSelect(base, options, selected, placeholder, newLabel) {
+  const sel = document.getElementById(base + 'Select');
+  const known = options.includes(selected);
+  sel.innerHTML = `<option value="" disabled ${!selected ? 'selected' : ''}>${placeholder}</option>`
+    + options.map(o => `<option value="${escAttr(o)}" ${selected === o ? 'selected' : ''}>${escHtml(o)}</option>`).join('')
+    + `<option value="__new__" ${selected === '__new__' || (selected && !known) ? 'selected' : ''}>➕ ${newLabel}</option>`;
+  if(selected && !known && selected !== '__new__') document.getElementById(base + 'Neu').value = selected;
+  onPickSelect(base, true);
+}
+function onPickSelect(base, silent) {
+  const isNew = document.getElementById(base + 'Select').value === '__new__';
+  const neu = document.getElementById(base + 'Neu');
+  neu.style.display = isNew ? '' : 'none';
+  if(isNew && !silent) neu.focus();
+}
+function pickValue(base) {
+  const v = document.getElementById(base + 'Select').value;
+  return (v === '__new__' ? document.getElementById(base + 'Neu').value : v || '').trim();
+}
+
+function saveSchiri() {
+  const heim = pickValue('schiriHeim');
+  const gast = pickValue('schiriGast');
+  const liga = pickValue('schiriLiga');
+  if(!heim || !gast) { toast('Bitte Heim und Gast angeben!'); return; }
+  if(!liga) { toast('Bitte Liga angeben!'); return; }
+  const entry = {
+    id: Date.now().toString(),
+    date: document.getElementById('schiriDate').value || today(),
+    heim, gast, liga,
+    gebuehr: document.getElementById('schiriGebuehr').value,
+    fahrt: document.getElementById('schiriFahrt').value,
+  };
+  const data = DB.get('schiri_spiele', []);
+  data.push(entry);
+  data.sort((a,b) => a.date.localeCompare(b.date));
+  DB.set('schiri_spiele', data);
+  // Neue Liga / Mannschaften merken → künftig im Dropdown
+  rememberValue('custom_ligen', liga, DEFAULT_LIGEN);
+  rememberValue('schiri_teams', heim);
+  rememberValue('schiri_teams', gast);
+  ['schiriGebuehr','schiriFahrt','schiriLigaNeu','schiriHeimNeu','schiriGastNeu'].forEach(id => document.getElementById(id).value = '');
+  checkGymHabit(entry.date); // Spiel gepfiffen = Sport gemacht
+  renderSchiri(liga); // Liga bleibt vorausgewählt – meist mehrere Spiele derselben Liga hintereinander
+  toast('Spiel gespeichert ✓');
+}
+
+function deleteSchiri(id) {
+  if(!confirm('Spiel löschen?')) return;
+  DB.set('schiri_spiele', DB.get('schiri_spiele', []).filter(g => g.id !== id));
+  renderSchiri();
+  toast('Spiel gelöscht ✓');
+}
+
+function renderSchiri(keepLiga) {
+  document.getElementById('schiriDate').value = today();
+  renderPickSelect('schiriLiga', schiriLigen(), keepLiga || '', 'Liga wählen…', 'Neue Liga…');
+  const teams = schiriTeams();
+  renderPickSelect('schiriHeim', teams, '', 'Heim wählen…', 'Neue Mannschaft…');
+  renderPickSelect('schiriGast', teams, '', 'Gast wählen…', 'Neue Mannschaft…');
+  const data = DB.get('schiri_spiele', []);
+  const num = v => parseFloat(v) || 0;
+
+  // Nach Jahr gruppieren, neuestes Jahr zuerst; innerhalb des Jahres neuestes Spiel zuerst
+  const years = {};
+  data.forEach(g => { const y = g.date.slice(0,4); (years[y] = years[y] || []).push(g); });
+  const yearKeys = Object.keys(years).sort((a,b) => b.localeCompare(a));
+  const sumOf = (list, key) => list.reduce((sum, g) => sum + num(g[key]), 0);
+
+  document.getElementById('schiriYearTable').innerHTML = yearKeys.map(y => {
+    const list = years[y];
+    return `<tr>
+      <td><strong>${y}</strong></td>
+      <td>${list.length}</td>
+      <td>${fmtEur(sumOf(list,'gebuehr'))}</td>
+      <td>${fmtEur(sumOf(list,'fahrt'))}</td>
+      <td><strong>${fmtEur(sumOf(list,'gebuehr') + sumOf(list,'fahrt'))}</strong></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" class="empty">Noch keine Spiele</td></tr>';
+
+  document.getElementById('schiriYears').innerHTML = yearKeys.map(y => {
+    const list = [...years[y]].reverse();
+    const geb = sumOf(list,'gebuehr'), fahrt = sumOf(list,'fahrt');
+    return `<div class="card" style="margin-bottom:16px">
+      <div class="section-header">
+        <span class="card-title">${y}</span>
+        <span style="font-size:12px;color:var(--muted)">${list.length} Spiel${list.length===1?'':'e'} · Gebühren ${fmtEur(geb)} · Fahrt ${fmtEur(fahrt)} · <strong style="color:var(--text)">${fmtEur(geb+fahrt)}</strong></span>
+      </div>
+      <div class="table-scroll"><table class="data-table">
+        <thead><tr><th>Datum</th><th>Spielpaarung</th><th>Liga</th><th>Spielgebühr</th><th>Fahrtkosten</th><th>Summe</th><th></th></tr></thead>
+        <tbody>${list.map(g => `<tr>
+          <td>${fmtDate(g.date)}</td>
+          <td>${escHtml(g.heim)} <span style="color:var(--muted)">vs.</span> ${escHtml(g.gast)}</td>
+          <td>${escHtml(g.liga)}</td>
+          <td>${g.gebuehr !== '' && g.gebuehr != null ? fmtEur(g.gebuehr) : '—'}</td>
+          <td>${g.fahrt !== '' && g.fahrt != null ? fmtEur(g.fahrt) : '—'}</td>
+          <td><strong>${fmtEur(num(g.gebuehr) + num(g.fahrt))}</strong></td>
+          <td><button class="btn btn-danger btn-sm" title="Spiel löschen" onclick="deleteSchiri('${g.id}')" style="padding:3px 8px;font-size:11px">✕</button></td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`;
+  }).join('') || '<div class="card"><div class="empty">Noch keine Spiele erfasst.<br>Trage oben dein erstes Spiel ein!</div></div>';
+}
+
+function exportSchiri() {
+  const data = DB.get('schiri_spiele', []);
+  const csv = ['Datum,Heim,Gast,Liga,Spielgebühr (€),Fahrtkosten (€),Summe (€)']
+    .concat(data.map(g => `${g.date},"${g.heim}","${g.gast}","${g.liga}",${g.gebuehr||''},${g.fahrt||''},${((parseFloat(g.gebuehr)||0)+(parseFloat(g.fahrt)||0)).toFixed(2)}`)).join('\n');
+  download('schiedsrichter-spiele.csv', 'text/csv', csv);
 }
 
 function renderRezepte() {
