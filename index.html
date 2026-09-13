@@ -934,7 +934,7 @@
           <input type="text" class="form-input" id="schiriGastNeu" placeholder="Neue Mannschaft" style="display:none;margin-top:8px">
         </div>
       </div>
-      <div class="form-row">
+      <div class="form-row-3">
         <div class="form-group">
           <label class="form-label">Spielgebühr (€)</label>
           <input type="number" min="0" step="0.01" class="form-input" id="schiriGebuehr" placeholder="40">
@@ -943,7 +943,12 @@
           <label class="form-label">Fahrtkosten (€)</label>
           <input type="number" min="0" step="0.01" class="form-input" id="schiriFahrt" placeholder="12.50">
         </div>
+        <div class="form-group">
+          <label class="form-label">Einsatzzeit (min)</label>
+          <input type="number" min="0" step="1" class="form-input" id="schiriDauer" placeholder="90">
+        </div>
       </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Die Einsatzzeit zählt in der Wochenübersicht als Ausdauer-Zeit.</div>
       <button class="btn btn-primary" onclick="saveSchiri()" style="width:100%">Spiel speichern</button>
     </div>
 
@@ -1255,6 +1260,11 @@ function trainingMinutes(from, to) {
     const key = e.trainingId || 'day-' + e.date;
     if(!cseen.has(key)) { cseen.add(key); cardioSessions++; }
     cardio += parseDur(e.min) || 0;
+  });
+  // Schiedsrichter-Einsätze zählen als Ausdauer (ein Spiel = eine Einheit)
+  DB.get('schiri_spiele', []).filter(inRange).forEach(g => {
+    cardioSessions++;
+    cardio += parseFloat(g.dauer) || 0;
   });
   return { kraft, kraftSessions, cardio, cardioSessions, total: kraft + cardio };
 }
@@ -2484,6 +2494,7 @@ function saveSchiri() {
     heim, gast, liga,
     gebuehr: document.getElementById('schiriGebuehr').value,
     fahrt: document.getElementById('schiriFahrt').value,
+    dauer: document.getElementById('schiriDauer').value,
   };
   const data = DB.get('schiri_spiele', []);
   data.push(entry);
@@ -2493,7 +2504,7 @@ function saveSchiri() {
   rememberValue('custom_ligen', liga, DEFAULT_LIGEN);
   rememberValue('schiri_teams', heim);
   rememberValue('schiri_teams', gast);
-  ['schiriGebuehr','schiriFahrt','schiriLigaNeu','schiriHeimNeu','schiriGastNeu'].forEach(id => document.getElementById(id).value = '');
+  ['schiriGebuehr','schiriFahrt','schiriDauer','schiriLigaNeu','schiriHeimNeu','schiriGastNeu'].forEach(id => document.getElementById(id).value = '');
   checkGymHabit(entry.date); // Spiel gepfiffen = Sport gemacht
   renderSchiri(liga); // Liga bleibt vorausgewählt – meist mehrere Spiele derselben Liga hintereinander
   toast('Spiel gespeichert ✓');
@@ -2534,18 +2545,19 @@ function renderSchiri(keepLiga) {
 
   document.getElementById('schiriYears').innerHTML = yearKeys.map(y => {
     const list = [...years[y]].reverse();
-    const geb = sumOf(list,'gebuehr'), fahrt = sumOf(list,'fahrt');
+    const geb = sumOf(list,'gebuehr'), fahrt = sumOf(list,'fahrt'), zeit = sumOf(list,'dauer');
     return `<div class="card" style="margin-bottom:16px">
       <div class="section-header">
         <span class="card-title">${y}</span>
-        <span style="font-size:12px;color:var(--muted)">${list.length} Spiel${list.length===1?'':'e'} · Gebühren ${fmtEur(geb)} · Fahrt ${fmtEur(fahrt)} · <strong style="color:var(--text)">${fmtEur(geb+fahrt)}</strong></span>
+        <span style="font-size:12px;color:var(--muted)">${list.length} Spiel${list.length===1?'':'e'}${zeit ? ` · ⏱ ${fmtDur(zeit)}` : ''} · Gebühren ${fmtEur(geb)} · Fahrt ${fmtEur(fahrt)} · <strong style="color:var(--text)">${fmtEur(geb+fahrt)}</strong></span>
       </div>
       <div class="table-scroll"><table class="data-table">
-        <thead><tr><th>Datum</th><th>Spielpaarung</th><th>Liga</th><th>Spielgebühr</th><th>Fahrtkosten</th><th>Summe</th><th></th></tr></thead>
+        <thead><tr><th>Datum</th><th>Spielpaarung</th><th>Liga</th><th>Einsatzzeit</th><th>Spielgebühr</th><th>Fahrtkosten</th><th>Summe</th><th></th></tr></thead>
         <tbody>${list.map(g => `<tr>
           <td>${fmtDate(g.date)}</td>
           <td>${escHtml(g.heim)} <span style="color:var(--muted)">vs.</span> ${escHtml(g.gast)}</td>
           <td>${escHtml(g.liga)}</td>
+          <td>${g.dauer ? g.dauer + ' min' : '—'}</td>
           <td>${g.gebuehr !== '' && g.gebuehr != null ? fmtEur(g.gebuehr) : '—'}</td>
           <td>${g.fahrt !== '' && g.fahrt != null ? fmtEur(g.fahrt) : '—'}</td>
           <td><strong>${fmtEur(num(g.gebuehr) + num(g.fahrt))}</strong></td>
@@ -2558,8 +2570,8 @@ function renderSchiri(keepLiga) {
 
 function exportSchiri() {
   const data = DB.get('schiri_spiele', []);
-  const csv = ['Datum,Heim,Gast,Liga,Spielgebühr (€),Fahrtkosten (€),Summe (€)']
-    .concat(data.map(g => `${g.date},"${g.heim}","${g.gast}","${g.liga}",${g.gebuehr||''},${g.fahrt||''},${((parseFloat(g.gebuehr)||0)+(parseFloat(g.fahrt)||0)).toFixed(2)}`)).join('\n');
+  const csv = ['Datum,Heim,Gast,Liga,Einsatzzeit (min),Spielgebühr (€),Fahrtkosten (€),Summe (€)']
+    .concat(data.map(g => `${g.date},"${g.heim}","${g.gast}","${g.liga}",${g.dauer||''},${g.gebuehr||''},${g.fahrt||''},${((parseFloat(g.gebuehr)||0)+(parseFloat(g.fahrt)||0)).toFixed(2)}`)).join('\n');
   download('schiedsrichter-spiele.csv', 'text/csv', csv);
 }
 
