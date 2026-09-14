@@ -1240,6 +1240,7 @@ const isoWeek = (dateStr) => {
   const jan4 = new Date(d.getFullYear(), 0, 4);
   return 1 + Math.round(((d - jan4) / 86400000 - 3 + ((jan4.getDay() + 6) % 7)) / 7);
 };
+const fmtNum1 = (n) => n.toLocaleString('de-DE', { maximumFractionDigits: 1 });
 const fmtDur = (min) => min >= 60 ? fmtMin(Math.round(min)) : `${Math.round(min)} min`;
 
 // Trainingsminuten je Kategorie im Zeitraum [from, to].
@@ -1276,24 +1277,32 @@ function renderWeeklyTraining() {
   const prev = trainingMinutes(addDays(from, -7), addDays(from, -1));
   const dm = d => new Date(d + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'});
   document.getElementById('statTrainingWeek').textContent = `KW ${isoWeek(td)} · ${dm(from)}–${dm(to)}`;
-  // Anzahl Einheiten + Ø Dauer je Einheit in dieser Woche
-  const unit = (n, min) => `${n} Einheit${n === 1 ? '' : 'en'} · Ø ${fmtDur(min / n)}`;
-  document.getElementById('statKraftTime').textContent = cur.kraftSessions ? fmtDur(cur.kraft) : '—';
-  document.getElementById('statKraftSessions').textContent = cur.kraftSessions ? unit(cur.kraftSessions, cur.kraft) : 'noch nichts';
-  document.getElementById('statCardioTime').textContent = cur.cardioSessions ? fmtDur(cur.cardio) : '—';
-  document.getElementById('statCardioSessions').textContent = cur.cardioSessions ? unit(cur.cardioSessions, cur.cardio) : 'noch nichts';
-  document.getElementById('statTrainingTotal').textContent = (cur.kraftSessions || cur.cardioSessions) ? fmtDur(cur.total) : '—';
-  // Vergleich zur Vorwoche und zur Durchschnittswoche (je eine Zeile)
-  const cmp = (label, ref) => {
-    const diff = Math.round(cur.total - ref);
+  const avg = averageWeekMinutes(from);
+  // Vergleichszeile: ▲/▼ Differenz zu einem Referenzwert
+  const cmp = (value, label, ref) => {
+    const diff = Math.round(value - ref);
     if(diff > 0) return `<span style="color:var(--green)">▲ +${fmtDur(diff)}</span> ${label}`;
     if(diff < 0) return `<span style="color:var(--red)">▼ −${fmtDur(-diff)}</span> ${label}`;
     return `<span style="color:var(--muted)">=</span> ${label}`;
   };
+  // Je Kachel: Einheiten + Ø je Einheit, dann Vergleich zur Vorwoche und zur Ø-Woche
+  const fill = (timeId, deltaId, key, sessions) => {
+    document.getElementById(timeId).textContent = sessions ? fmtDur(cur[key]) : '—';
+    const lines = [];
+    if(sessions) lines.push(`${sessions} Einheit${sessions === 1 ? '' : 'en'} · Ø ${fmtDur(cur[key] / sessions)}`);
+    else lines.push('noch nichts');
+    if(prev[key] || cur[key]) lines.push(cmp(cur[key], 'Vorwoche', prev[key]));
+    if(avg && (avg[key] || cur[key])) lines.push(cmp(cur[key], `Ø-Woche (${fmtDur(avg[key])} · ${fmtNum1(avg[key + 'Sessions'])} Einh.)`, avg[key]));
+    const el = document.getElementById(deltaId);
+    el.style.color = 'var(--muted)';
+    el.innerHTML = lines.join('<br>');
+  };
+  fill('statKraftTime', 'statKraftSessions', 'kraft', cur.kraftSessions);
+  fill('statCardioTime', 'statCardioSessions', 'cardio', cur.cardioSessions);
+  document.getElementById('statTrainingTotal').textContent = (cur.kraftSessions || cur.cardioSessions) ? fmtDur(cur.total) : '—';
   const lines = [];
-  if(prev.total || cur.total) lines.push(cmp('vs. Vorwoche', prev.total));
-  const avg = averageWeekMinutes(from);
-  if(avg) lines.push(cmp(`vs. Ø-Woche (${fmtDur(avg.avg)}, ${avg.weeks} Wo.)`, avg.avg));
+  if(prev.total || cur.total) lines.push(cmp(cur.total, 'Vorwoche', prev.total));
+  if(avg) lines.push(cmp(cur.total, `Ø-Woche (${fmtDur(avg.total)} · ${fmtNum1(avg.kraftSessions + avg.cardioSessions)} Einh. · ${avg.weeks} Wo.)`, avg.total));
   const delta = document.getElementById('statTrainingDelta');
   delta.style.color = 'var(--muted)';
   delta.innerHTML = lines.join('<br>');
@@ -1305,14 +1314,15 @@ function averageWeekMinutes(currentFrom) {
   const dates = [...DB.get('sport_kraft', []), ...DB.get('sport_cardio', []), ...DB.get('schiri_spiele', [])].map(e => e.date).filter(Boolean).sort();
   if(!dates.length) return null;
   const firstWeek = weekStart(dates[0]);
-  const totals = [];
+  const weeks = [];
   for(let i = 1; i <= 12; i++) {
     const from = addDays(currentFrom, -7 * i);
     if(from < firstWeek) break;
-    totals.push(trainingMinutes(from, addDays(from, 6)).total);
+    weeks.push(trainingMinutes(from, addDays(from, 6)));
   }
-  if(!totals.length) return null;
-  return { avg: totals.reduce((a, b) => a + b, 0) / totals.length, weeks: totals.length };
+  if(!weeks.length) return null;
+  const mean = key => weeks.reduce((a, w) => a + w[key], 0) / weeks.length;
+  return { kraft: mean('kraft'), cardio: mean('cardio'), total: mean('total'), kraftSessions: mean('kraftSessions'), cardioSessions: mean('cardioSessions'), weeks: weeks.length };
 }
 
 // ===== HABITS =====
