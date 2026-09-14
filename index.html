@@ -1283,12 +1283,36 @@ function renderWeeklyTraining() {
   document.getElementById('statCardioTime').textContent = cur.cardioSessions ? fmtDur(cur.cardio) : '—';
   document.getElementById('statCardioSessions').textContent = cur.cardioSessions ? unit(cur.cardioSessions, cur.cardio) : 'noch nichts';
   document.getElementById('statTrainingTotal').textContent = (cur.kraftSessions || cur.cardioSessions) ? fmtDur(cur.total) : '—';
+  // Vergleich zur Vorwoche und zur Durchschnittswoche (je eine Zeile)
+  const cmp = (label, ref) => {
+    const diff = Math.round(cur.total - ref);
+    if(diff > 0) return `<span style="color:var(--green)">▲ +${fmtDur(diff)}</span> ${label}`;
+    if(diff < 0) return `<span style="color:var(--red)">▼ −${fmtDur(-diff)}</span> ${label}`;
+    return `<span style="color:var(--muted)">=</span> ${label}`;
+  };
+  const lines = [];
+  if(prev.total || cur.total) lines.push(cmp('vs. Vorwoche', prev.total));
+  const avg = averageWeekMinutes(from);
+  if(avg) lines.push(cmp(`vs. Ø-Woche (${fmtDur(avg.avg)}, ${avg.weeks} Wo.)`, avg.avg));
   const delta = document.getElementById('statTrainingDelta');
-  const diff = Math.round(cur.total - prev.total);
-  if(!prev.total && !cur.total) { delta.textContent = ''; }
-  else if(diff > 0) { delta.textContent = `▲ +${fmtDur(diff)} vs. Vorwoche`; delta.style.color = 'var(--green)'; }
-  else if(diff < 0) { delta.textContent = `▼ −${fmtDur(-diff)} vs. Vorwoche`; delta.style.color = 'var(--red)'; }
-  else { delta.textContent = '= wie Vorwoche'; delta.style.color = 'var(--muted)'; }
+  delta.style.color = 'var(--muted)';
+  delta.innerHTML = lines.join('<br>');
+}
+
+// Ø-Woche: Mittel der letzten bis zu 12 abgeschlossenen Wochen, gezählt ab der ersten Woche
+// mit Einträgen – Wochen ohne Training zählen dabei als 0, damit der Schnitt ehrlich bleibt.
+function averageWeekMinutes(currentFrom) {
+  const dates = [...DB.get('sport_kraft', []), ...DB.get('sport_cardio', []), ...DB.get('schiri_spiele', [])].map(e => e.date).filter(Boolean).sort();
+  if(!dates.length) return null;
+  const firstWeek = weekStart(dates[0]);
+  const totals = [];
+  for(let i = 1; i <= 12; i++) {
+    const from = addDays(currentFrom, -7 * i);
+    if(from < firstWeek) break;
+    totals.push(trainingMinutes(from, addDays(from, 6)).total);
+  }
+  if(!totals.length) return null;
+  return { avg: totals.reduce((a, b) => a + b, 0) / totals.length, weeks: totals.length };
 }
 
 // ===== HABITS =====
