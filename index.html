@@ -87,7 +87,7 @@
 
   /* Grid */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .grid-2 > .card { min-width: 0; } /* Tabellen in Karten scrollen, statt die Spalte aufzuweiten */
+  .grid-2 > .card, .overview-groups > .card, .overview-bottom > .card { min-width: 0; } /* Tabellen in Karten scrollen, statt die Spalte aufzuweiten */
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
   .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .col-span-2 { grid-column: span 2; }
@@ -195,6 +195,14 @@
   .training-row .form-row-3 { gap: 8px; grid-template-columns: 1fr 1fr 1fr; } /* auch auf schmalen Handys nebeneinander */
   .training-row .form-group { margin-bottom: 0; }
   .training-head td { background: var(--surface2); font-weight: 600; }
+  /* Wochen-Trainingstabelle auf der Übersicht */
+  /* table.-Präfix: schlägt die späteren .data-table-Regeln der Mobil-Breakpoints */
+  table.week-table th, table.week-table td { padding: 6px 6px; font-size: 12px; white-space: nowrap; vertical-align: top; }
+  table.week-table th { font-size: 10px; }
+  table.week-table td:first-child { color: var(--muted); font-size: 11px; }
+  table.week-table tr.cur td { font-weight: 700; font-size: 14px; }
+  table.week-table .cnt { color: var(--muted); font-weight: 500; font-size: 11px; }
+  table.week-table .dlt { display: block; font-size: 10px; margin-top: 1px; }
   .training-sub td:nth-child(2) { padding-left: 24px; }
   .val-del-btn { border: none; background: none; color: var(--muted); cursor: pointer; font-size: 11px; padding: 2px 6px; border-radius: 5px; opacity: 0.45; transition: all 0.15s; }
   .val-del-btn:hover { opacity: 1; color: var(--red); background: rgba(248,113,113,0.15); }
@@ -280,6 +288,11 @@
 
   /* ===== Tablet ===== */
   @media (max-width: 1024px) {
+    /* Wochentabelle kompakter, damit alle vier Spalten ohne Scrollen passen */
+    table.week-table th, table.week-table td { padding: 5px 3px; font-size: 11px; }
+    table.week-table td:first-child { font-size: 10px; }
+    table.week-table tr.cur td { font-size: 12px; }
+    table.week-table .cnt { display: block; font-size: 10px; }
     .main { padding: 24px; }
     .overview-bottom { grid-template-columns: 1fr 1fr; }
     .analytics-grid { grid-template-columns: 1fr; }
@@ -432,23 +445,11 @@
     </div>
     <div class="card">
       <div class="section-header"><span class="card-title">🏋️ Training diese Woche</span><span id="statTrainingWeek" style="font-size:11px;color:var(--muted);white-space:nowrap"></span></div>
-      <div class="stat-group-3">
-        <div class="stat mini">
-          <div class="stat-value" id="statKraftTime" style="color:var(--accent)">—</div>
-          <div class="stat-label">Kraft</div>
-          <div class="stat-delta" id="statKraftSessions"></div>
-        </div>
-        <div class="stat mini">
-          <div class="stat-value" id="statCardioTime" style="color:var(--red)">—</div>
-          <div class="stat-label">Ausdauer</div>
-          <div class="stat-delta" id="statCardioSessions"></div>
-        </div>
-        <div class="stat mini">
-          <div class="stat-value" id="statTrainingTotal" style="color:var(--green)">—</div>
-          <div class="stat-label">Gesamt</div>
-          <div class="stat-delta" id="statTrainingDelta"></div>
-        </div>
-      </div>
+      <div class="table-scroll"><table class="data-table week-table">
+        <thead><tr><th></th><th style="color:var(--accent)">Kraft</th><th style="color:var(--red)">Ausdauer</th><th style="color:var(--green)">Gesamt</th></tr></thead>
+        <tbody id="weeklyTrainingBody"></tbody>
+      </table></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">Zeit · Anzahl Einheiten. Pfeile: diese Woche im Vergleich zur jeweiligen Zeile.</div>
     </div>
   </div>
 
@@ -1275,37 +1276,31 @@ function renderWeeklyTraining() {
   const from = weekStart(td), to = addDays(from, 6);
   const cur = trainingMinutes(from, to);
   const prev = trainingMinutes(addDays(from, -7), addDays(from, -1));
+  const avg = averageWeekMinutes(from);
   const dm = d => new Date(d + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'});
   document.getElementById('statTrainingWeek').textContent = `KW ${isoWeek(td)} · ${dm(from)}–${dm(to)}`;
-  const avg = averageWeekMinutes(from);
-  // Vergleichszeile: ▲/▼ Differenz zu einem Referenzwert
-  const cmp = (value, label, ref) => {
-    const diff = Math.round(value - ref);
-    if(diff > 0) return `<span style="color:var(--green)">▲ +${fmtDur(diff)}</span> ${label}`;
-    if(diff < 0) return `<span style="color:var(--red)">▼ −${fmtDur(-diff)}</span> ${label}`;
-    return `<span style="color:var(--muted)">=</span> ${label}`;
+
+  // Zelle: Zeit · Anzahl Einheiten; in Vergleichszeilen zusätzlich Δ der aktuellen Woche dazu
+  const cell = (min, sessions, refMin) => {
+    if(!min && !sessions) return '<span style="color:var(--muted)">—</span>';
+    let html = `${fmtDur(min)} <span class="cnt">· ${fmtNum1(sessions)}×</span>`;
+    if(refMin !== undefined) {
+      const diff = Math.round(refMin - min);
+      if(diff > 0) html += `<span class="dlt" style="color:var(--green)">▲ +${fmtDur(diff)}</span>`;
+      else if(diff < 0) html += `<span class="dlt" style="color:var(--red)">▼ −${fmtDur(-diff)}</span>`;
+      else html += `<span class="dlt" style="color:var(--muted)">=</span>`;
+    }
+    return html;
   };
-  // Je Kachel: Einheiten + Ø je Einheit, dann Vergleich zur Vorwoche und zur Ø-Woche
-  const fill = (timeId, deltaId, key, sessions) => {
-    document.getElementById(timeId).textContent = sessions ? fmtDur(cur[key]) : '—';
-    const lines = [];
-    if(sessions) lines.push(`${sessions} Einheit${sessions === 1 ? '' : 'en'} · Ø ${fmtDur(cur[key] / sessions)}`);
-    else lines.push('noch nichts');
-    if(prev[key] || cur[key]) lines.push(cmp(cur[key], 'Vorwoche', prev[key]));
-    if(avg && (avg[key] || cur[key])) lines.push(cmp(cur[key], `Ø-Woche (${fmtDur(avg[key])} · ${fmtNum1(avg[key + 'Sessions'])} Einh.)`, avg[key]));
-    const el = document.getElementById(deltaId);
-    el.style.color = 'var(--muted)';
-    el.innerHTML = lines.join('<br>');
-  };
-  fill('statKraftTime', 'statKraftSessions', 'kraft', cur.kraftSessions);
-  fill('statCardioTime', 'statCardioSessions', 'cardio', cur.cardioSessions);
-  document.getElementById('statTrainingTotal').textContent = (cur.kraftSessions || cur.cardioSessions) ? fmtDur(cur.total) : '—';
-  const lines = [];
-  if(prev.total || cur.total) lines.push(cmp(cur.total, 'Vorwoche', prev.total));
-  if(avg) lines.push(cmp(cur.total, `Ø-Woche (${fmtDur(avg.total)} · ${fmtNum1(avg.kraftSessions + avg.cardioSessions)} Einh. · ${avg.weeks} Wo.)`, avg.total));
-  const delta = document.getElementById('statTrainingDelta');
-  delta.style.color = 'var(--muted)';
-  delta.innerHTML = lines.join('<br>');
+  const row = (label, w, isCur, ref) => `<tr class="${isCur ? 'cur' : ''}">
+    <td>${label}</td>
+    <td>${cell(w.kraft, w.kraftSessions, ref && ref.kraft)}</td>
+    <td>${cell(w.cardio, w.cardioSessions, ref && ref.cardio)}</td>
+    <td>${cell(w.total, w.kraftSessions + w.cardioSessions, ref && ref.total)}</td>
+  </tr>`;
+  const rows = [row('Diese Woche', cur, true), row('Vorwoche', prev, false, cur)];
+  if(avg) rows.push(row(`Ø-Woche (${avg.weeks} Wo.)`, avg, false, cur));
+  document.getElementById('weeklyTrainingBody').innerHTML = rows.join('');
 }
 
 // Ø-Woche: Mittel der letzten bis zu 12 abgeschlossenen Wochen, gezählt ab der ersten Woche
