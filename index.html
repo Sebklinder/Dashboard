@@ -202,7 +202,6 @@
   table.week-table td:first-child { color: var(--muted); font-size: 11px; }
   table.week-table tr.cur td { font-weight: 700; font-size: 14px; }
   table.week-table .cnt { color: var(--muted); font-weight: 500; font-size: 11px; }
-  table.week-table .dlt { display: block; font-size: 10px; margin-top: 1px; }
   .training-sub td:nth-child(2) { padding-left: 24px; }
   .val-del-btn { border: none; background: none; color: var(--muted); cursor: pointer; font-size: 11px; padding: 2px 6px; border-radius: 5px; opacity: 0.45; transition: all 0.15s; }
   .val-del-btn:hover { opacity: 1; color: var(--red); background: rgba(248,113,113,0.15); }
@@ -449,7 +448,7 @@
         <thead><tr><th></th><th style="color:var(--accent)">Kraft</th><th style="color:var(--red)">Ausdauer</th><th style="color:var(--green)">Gesamt</th></tr></thead>
         <tbody id="weeklyTrainingBody"></tbody>
       </table></div>
-      <div style="font-size:10px;color:var(--muted);margin-top:6px">Zeit · Anzahl Einheiten. Pfeile: diese Woche im Vergleich zur jeweiligen Zeile.</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">Zeit · Anzahl Einheiten. Ø-Woche = Schnitt der letzten abgeschlossenen Wochen.</div>
     </div>
   </div>
 
@@ -1241,7 +1240,8 @@ const isoWeek = (dateStr) => {
   const jan4 = new Date(d.getFullYear(), 0, 4);
   return 1 + Math.round(((d - jan4) / 86400000 - 3 + ((jan4.getDay() + 6) % 7)) / 7);
 };
-const fmtNum1 = (n) => n.toLocaleString('de-DE', { maximumFractionDigits: 1 });
+// Ø-Einheiten pro Woche: immer mit Nachkommastelle, bis zu zwei (z. B. 1,0× · 1,25×)
+const fmtAvgCount = (n) => n.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
 const fmtDur = (min) => min >= 60 ? fmtMin(Math.round(min)) : `${Math.round(min)} min`;
 
 // Trainingsminuten je Kategorie im Zeitraum [from, to].
@@ -1280,26 +1280,19 @@ function renderWeeklyTraining() {
   const dm = d => new Date(d + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'});
   document.getElementById('statTrainingWeek').textContent = `KW ${isoWeek(td)} · ${dm(from)}–${dm(to)}`;
 
-  // Zelle: Zeit · Anzahl Einheiten; in Vergleichszeilen zusätzlich Δ der aktuellen Woche dazu
-  const cell = (min, sessions, refMin) => {
+  // Zelle: konkrete Zeit · Anzahl Einheiten (Ø-Zeile mit Nachkommastellen)
+  const cell = (min, sessions, isAvg) => {
     if(!min && !sessions) return '<span style="color:var(--muted)">—</span>';
-    let html = `${fmtDur(min)} <span class="cnt">· ${fmtNum1(sessions)}×</span>`;
-    if(refMin !== undefined) {
-      const diff = Math.round(refMin - min);
-      if(diff > 0) html += `<span class="dlt" style="color:var(--green)">▲ +${fmtDur(diff)}</span>`;
-      else if(diff < 0) html += `<span class="dlt" style="color:var(--red)">▼ −${fmtDur(-diff)}</span>`;
-      else html += `<span class="dlt" style="color:var(--muted)">=</span>`;
-    }
-    return html;
+    return `${fmtDur(min)} <span class="cnt">· ${isAvg ? fmtAvgCount(sessions) : sessions}×</span>`;
   };
-  const row = (label, w, isCur, ref) => `<tr class="${isCur ? 'cur' : ''}">
+  const row = (label, w, isCur, isAvg) => `<tr class="${isCur ? 'cur' : ''}">
     <td>${label}</td>
-    <td>${cell(w.kraft, w.kraftSessions, ref && ref.kraft)}</td>
-    <td>${cell(w.cardio, w.cardioSessions, ref && ref.cardio)}</td>
-    <td>${cell(w.total, w.kraftSessions + w.cardioSessions, ref && ref.total)}</td>
+    <td>${cell(w.kraft, w.kraftSessions, isAvg)}</td>
+    <td>${cell(w.cardio, w.cardioSessions, isAvg)}</td>
+    <td>${cell(w.total, w.kraftSessions + w.cardioSessions, isAvg)}</td>
   </tr>`;
-  const rows = [row('Diese Woche', cur, true), row('Vorwoche', prev, false, cur)];
-  if(avg) rows.push(row(`Ø-Woche (${avg.weeks} Wo.)`, avg, false, cur));
+  const rows = [row('Diese Woche', cur, true), row('Vorwoche', prev)];
+  if(avg) rows.push(row(`Ø-Woche (${avg.weeks} Wo.)`, avg, false, true));
   document.getElementById('weeklyTrainingBody').innerHTML = rows.join('');
 }
 
