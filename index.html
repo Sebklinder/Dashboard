@@ -2082,7 +2082,12 @@ function renderSport() {
   renderSessionRows('cardio');
 
   const kraft = DB.get('sport_kraft', []);
-  const cardio = DB.get('sport_cardio', []);
+  // Gepfiffene Spiele mit Einsatzzeit erscheinen zusätzlich im Cardio-Protokoll (nur Anzeige –
+  // die Wochenübersicht zählt sie weiterhin separat über schiri_spiele, um sie nicht doppelt zu zählen).
+  const schiriCardio = DB.get('schiri_spiele', []).filter(g => parseDur(g.dauer) != null).map(g => ({
+    id: 'schiri-' + g.id, trainingId: 'schiri-' + g.id, date: g.date, uebung: 'Basketball', min: g.dauer, km: '', fromSchiri: g.id,
+  }));
+  const cardio = [...DB.get('sport_cardio', []), ...schiriCardio];
 
   // Kraft-Protokoll: Übungen zu Trainingseinheiten gruppieren
   const kb = document.getElementById('kraftTable');
@@ -2118,10 +2123,13 @@ function renderSport() {
   cb.innerHTML = groupSessions(cardio).reverse().map(g => {
     const totalMin = g.items.reduce((sum,e) => sum + (parseDur(e.min) || 0), 0);
     const totalKm = g.items.reduce((sum,e) => sum + (parseFloat(e.km) || 0), 0);
-    const delBtn = g.trainingId ? `<button class="btn btn-danger btn-sm" title="Ganze Einheit löschen" onclick="deleteSession('cardio','${g.trainingId}')" style="padding:3px 8px;font-size:11px">✕</button>` : '';
+    const schiriId = g.items[0] && g.items[0].fromSchiri;
+    const delBtn = schiriId
+      ? `<button class="btn btn-danger btn-sm" title="Spiel bei Schiedsrichter-Einsätze löschen" onclick="deleteSchiri('${schiriId}')" style="padding:3px 8px;font-size:11px">✕</button>`
+      : (g.trainingId ? `<button class="btn btn-danger btn-sm" title="Ganze Einheit löschen" onclick="deleteSession('cardio','${g.trainingId}')" style="padding:3px 8px;font-size:11px">✕</button>` : '');
     const head = `<tr class="training-head">
       <td>${fmtDate(g.date)}</td>
-      <td>🏃 ${g.items.length} Übung${g.items.length===1?'':'en'}</td>
+      <td>${schiriId ? '🏀' : '🏃'} ${g.items.length} Übung${g.items.length===1?'':'en'}</td>
       <td>${totalMin ? fmtMinSec(totalMin) : '—'}</td>
       <td>${totalKm ? totalKm.toFixed(1) + ' km' : '—'}</td>
       <td></td>
@@ -2130,13 +2138,18 @@ function renderSport() {
     const rows = g.items.map(e => {
       const durMin = parseDur(e.min);
       const tempo = durMin && e.km ? fmtMinSec(durMin / parseFloat(e.km)) + ' min/km' : '—';
+      const minCell = durMin == null ? '—' : (e.fromSchiri ? fmtMinSec(durMin) : sportCell('sport_cardio',e.id,'min',fmtMinSec(durMin)));
+      const kmCell = !e.km ? '—' : (e.fromSchiri ? e.km + ' km' : sportCell('sport_cardio',e.id,'km',e.km + ' km'));
+      const rowDelBtn = e.fromSchiri
+        ? `<button class="btn btn-danger btn-sm" title="Spiel bei Schiedsrichter-Einsätze löschen" onclick="deleteSchiri('${e.fromSchiri}')" style="padding:3px 8px;font-size:11px">✕</button>`
+        : `<button class="btn btn-danger btn-sm" title="Übung löschen" onclick="deleteCardio('${e.id}')" style="padding:3px 8px;font-size:11px">✕</button>`;
       return `<tr class="training-sub">
       <td></td>
       <td>${e.uebung}</td>
-      <td>${durMin != null ? sportCell('sport_cardio',e.id,'min',fmtMinSec(durMin)) : '—'}</td>
-      <td>${e.km ? sportCell('sport_cardio',e.id,'km',e.km + ' km') : '—'}</td>
+      <td>${minCell}</td>
+      <td>${kmCell}</td>
       <td>${tempo}</td>
-      <td><button class="btn btn-danger btn-sm" title="Übung löschen" onclick="deleteCardio('${e.id}')" style="padding:3px 8px;font-size:11px">✕</button></td>
+      <td>${rowDelBtn}</td>
     </tr>`;
     }).join('');
     return head + rows;
@@ -2529,6 +2542,7 @@ function saveSchiri() {
   ['schiriGebuehr','schiriFahrt','schiriDauer','schiriLigaNeu','schiriHeimNeu','schiriGastNeu'].forEach(id => document.getElementById(id).value = '');
   checkGymHabit(entry.date); // Spiel gepfiffen = Sport gemacht
   renderSchiri(liga); // Liga bleibt vorausgewählt – meist mehrere Spiele derselben Liga hintereinander
+  renderSport(); // Spiel mit Einsatzzeit taucht auch im Cardio-Protokoll auf
   toast('Spiel gespeichert ✓');
 }
 
@@ -2536,6 +2550,7 @@ function deleteSchiri(id) {
   if(!confirm('Spiel löschen?')) return;
   DB.set('schiri_spiele', DB.get('schiri_spiele', []).filter(g => g.id !== id));
   renderSchiri();
+  renderSport();
   toast('Spiel gelöscht ✓');
 }
 
