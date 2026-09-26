@@ -2331,7 +2331,7 @@ function fmtMinSec(totalMin) {
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
 }
 
-const DEFAULT_KRAFT_EXERCISES = ['Bankdrücken','Schrägbankdrücken','Butterfly','Trizepsdrücken','Bizepscurls','Preacher Curls','Schulterdrücken','Seitheben','Rudern Kabel','Langhantelrudern','Kurzhantel Rudern','Lattziehen','Duales Lattziehen','Hyperextensions','RDLs','Kreuzheben','Kniebeuge','Beinpress','Beinstrecker','Beinbeuger','Wadenheben','Bauchpresse','Kettlebell','Wallballs','Schlichten ziehen','Schlichten schieben','Farmers Walk','Farmers Carry'];
+const DEFAULT_KRAFT_EXERCISES = ['Bankdrücken','Schrägbankdrücken','Butterfly','Trizepsdrücken','Bizepscurls','Preacher Curls','Schulterdrücken','Seitheben','Rudern Kabel','Langhantelrudern','Kurzhantel Rudern','T-Bar Rudern','Lattziehen','Überzieher','Duales Lattziehen','Hyperextensions','RDLs','Kreuzheben','Kniebeuge','Beinpress','Beinstrecker','Beinbeuger','Wadenheben','Bauchpresse','Kettlebell','Wallballs','Schlichten ziehen','Schlichten schieben','Farmers Walk','Farmers Carry'];
 const DEFAULT_CARDIO_EXERCISES = ['Joggen Laufband','Joggen draußen','Basketball','SkiErg','RuderErg','AirBike','Wandern','Radfahren drinnen','Radfahren draußen'];
 
 // Merkt sich neu eingegebene Übungen, damit sie künftig im Dropdown vorgeschlagen werden.
@@ -2476,7 +2476,7 @@ const SESSION_TYPES = {
 // laden die Übungszeilen vor, Gewicht/Sätze/Wdh. bleiben zum Ausfüllen leer.
 const KRAFT_TEMPLATES = {
   push: { label: 'Push-Day', exercises: ['Butterfly','Bankdrücken','Schrägbankdrücken','Trizepsdrücken','Seitheben','Schulterdrücken'] },
-  pull: { label: 'Pull-Day', exercises: ['Lattziehen','Rudern Kabel','Langhantelrudern','Bizepscurls','Hyperextensions'] },
+  pull: { label: 'Pull-Day', exercises: ['Lattziehen','Rudern Kabel','Langhantelrudern','T-Bar Rudern','Bizepscurls','Überzieher','Hyperextensions'] },
   legs: { label: 'Leg-Day', exercises: ['Beinpress','Kniebeuge','RDLs','Kreuzheben','Hyperextensions'] },
 };
 
