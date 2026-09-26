@@ -818,6 +818,13 @@
     <div class="entry-tile" onclick="openModal('saunaModal','saunaMin')"><span class="entry-tile-icon tone-amber"><svg class="i"><use href="#i-flame"/></svg></span><span class="entry-tile-label">Sauna</span></div>
   </div>
 
+  <div class="table-hint" style="margin-bottom:8px">Trainingsvorlagen – Übungen sind vorausgewählt, nur noch Gewicht/Sätze/Wdh. eintragen.</div>
+  <div class="entry-tiles">
+    <div class="entry-tile" onclick="startKraftTemplate('push')"><span class="entry-tile-icon tone-indigo"><svg class="i"><use href="#i-dumbbell"/></svg></span><span class="entry-tile-label">Push-Day</span></div>
+    <div class="entry-tile" onclick="startKraftTemplate('pull')"><span class="entry-tile-icon tone-cyan"><svg class="i"><use href="#i-dumbbell"/></svg></span><span class="entry-tile-label">Pull-Day</span></div>
+    <div class="entry-tile" onclick="startKraftTemplate('legs')"><span class="entry-tile-icon tone-green"><svg class="i"><use href="#i-dumbbell"/></svg></span><span class="entry-tile-label">Leg-Day</span></div>
+  </div>
+
   <!-- Kraft-Protokoll -->
   <div class="card" style="margin-bottom:16px">
     <div class="section-header">
@@ -2324,7 +2331,7 @@ function fmtMinSec(totalMin) {
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
 }
 
-const DEFAULT_KRAFT_EXERCISES = ['Bankdrücken','Schrägbankdrücken','Butterfly','Trizepsdrücken','Bizepscurls','Preacher Curls','Schulterdrücken','Rudern Kabel','Langhantelrudern','Kurzhantel Rudern','Lattziehen','Duales Lattziehen','Hyperextensions','RDLs','Kreuzheben','Beinpress','Beinstrecker','Beinbeuger','Wadenheben','Bauchpresse','Kettlebell','Wallballs','Schlichten ziehen','Schlichten schieben','Farmers Walk','Farmers Carry'];
+const DEFAULT_KRAFT_EXERCISES = ['Bankdrücken','Schrägbankdrücken','Butterfly','Trizepsdrücken','Bizepscurls','Preacher Curls','Schulterdrücken','Seitheben','Rudern Kabel','Langhantelrudern','Kurzhantel Rudern','T-Bar Rudern','Lattziehen','Überzieher','Duales Lattziehen','Hyperextensions','RDLs','Kreuzheben','Kniebeuge','Beinpress','Beinstrecker','Beinbeuger','Wadenheben','Bauchpresse','Kettlebell','Wallballs','Schlichten ziehen','Schlichten schieben','Farmers Walk','Farmers Carry'];
 const DEFAULT_CARDIO_EXERCISES = ['Joggen Laufband','Joggen draußen','Basketball','SkiErg','RuderErg','AirBike','Wandern','Radfahren drinnen','Radfahren draußen'];
 
 // Merkt sich neu eingegebene Übungen, damit sie künftig im Dropdown vorgeschlagen werden.
@@ -2465,6 +2472,23 @@ const SESSION_TYPES = {
     ],
   },
 };
+// Feste Trainingsvorlagen (Push/Pull/Legs) aus den bestehenden Kraft-Übungen –
+// laden die Übungszeilen vor, Gewicht/Sätze/Wdh. bleiben zum Ausfüllen leer.
+const KRAFT_TEMPLATES = {
+  push: { label: 'Push-Day', exercises: ['Butterfly','Bankdrücken','Schrägbankdrücken','Trizepsdrücken','Seitheben','Schulterdrücken'] },
+  pull: { label: 'Pull-Day', exercises: ['Lattziehen','Rudern Kabel','Langhantelrudern','T-Bar Rudern','Bizepscurls','Überzieher','Hyperextensions'] },
+  legs: { label: 'Leg-Day', exercises: ['Beinpress','Kniebeuge','RDLs','Kreuzheben','Hyperextensions'] },
+};
+
+function startKraftTemplate(key) {
+  const tpl = KRAFT_TEMPLATES[key];
+  if(!tpl) return;
+  sessionRows.kraft = tpl.exercises.map(uebung => ({ ...SESSION_TYPES.kraft.emptyRow(), uebung }));
+  renderSessionRows('kraft');
+  updateSessionDraft('kraft');
+  openModal('kraftModal');
+}
+
 const sessionRows = {};
 Object.keys(SESSION_TYPES).forEach(type => {
   const cfg = SESSION_TYPES[type];
