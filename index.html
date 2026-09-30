@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0b0d12">
+<meta name="theme-color" content="#09090b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dashboard">
@@ -15,15 +15,15 @@
 <style>
   /* ===== Design-Tokens ===== */
   :root {
-    --bg: #0b0d12;
-    --surface: #12151c;
-    --surface2: #181c25;
-    --surface3: #1f2430;
-    --border: #232836;
-    --border-strong: #2f3545;
-    --accent: #6d72f6;
-    --accent-hover: #5c61ea;
-    --accent-soft: rgba(109,114,246,0.14);
+    --bg: #09090b;
+    --surface: #111113;
+    --surface2: #17171a;
+    --surface3: #1f1f23;
+    --border: #232326;
+    --border-strong: #303036;
+    --accent: #6e73f5;
+    --accent-hover: #5d62e8;
+    --accent-soft: rgba(110,115,245,0.14);
     --accent2: #22d3ee;
     --green: #34d399;
     --red: #f87171;
@@ -31,23 +31,23 @@
     --green-soft: rgba(52,211,153,0.12);
     --red-soft: rgba(248,113,113,0.12);
     --yellow-soft: rgba(251,191,36,0.12);
-    --text: #e7e9ef;
-    --text-2: #a3aabb;
-    --muted: #6f7789;
-    --radius: 14px;
-    --radius-sm: 9px;
-    --shadow: 0 1px 2px rgba(0,0,0,0.25);
+    --text: #ededef;
+    --text-2: #a1a1aa;
+    --muted: #71717a;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
     --shadow-lg: 0 24px 64px -12px rgba(0,0,0,0.6);
     --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color-scheme: dark;
   }
   :root.light {
-    --bg: #f5f6f8;
+    --bg: #f7f7f8;
     --surface: #ffffff;
-    --surface2: #f8f9fb;
-    --surface3: #eff1f5;
-    --border: #e5e7ec;
-    --border-strong: #d4d8e0;
+    --surface2: #fafafa;
+    --surface3: #f1f1f3;
+    --border: #e7e7ea;
+    --border-strong: #d6d6db;
     --accent: #5b5ff0;
     --accent-hover: #4a4edc;
     --accent-soft: rgba(91,95,240,0.09);
@@ -58,11 +58,11 @@
     --green-soft: rgba(5,150,105,0.09);
     --red-soft: rgba(220,38,38,0.08);
     --yellow-soft: rgba(217,119,6,0.1);
-    --text: #0f172a;
-    --text-2: #475569;
-    --muted: #64748b;
+    --text: #111113;
+    --text-2: #52525b;
+    --muted: #71717a;
     --shadow: 0 1px 2px rgba(15,23,42,0.04), 0 1px 3px rgba(15,23,42,0.04);
-    --shadow-lg: 0 24px 64px -12px rgba(15,23,42,0.25);
+    --shadow-lg: 0 16px 48px -8px rgba(15,23,42,0.07);
     color-scheme: light;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -77,21 +77,22 @@
 
   /* ===== Layout ===== */
   .app { display: flex; min-height: 100vh; }
-  .sidebar { width: 232px; background: var(--surface); border-right: 1px solid var(--border); padding: 20px 12px; position: fixed; top: 0; left: 0; height: 100vh; display: flex; flex-direction: column; z-index: 10; }
-  .main { margin-left: 232px; padding: 36px 40px 48px; flex: 1; max-width: 1280px; min-width: 0; } /* min-width:0 – sonst drücken breite Tabellen das Flex-Kind über den Viewport hinaus */
-  .logo { display: flex; align-items: center; gap: 10px; padding: 2px 8px 20px; font-size: 15px; font-weight: 650; letter-spacing: -0.2px; color: var(--text); }
-  .logo-mark { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), #8b5cf6); color: #fff; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px -2px rgba(109,114,246,0.45); }
+  .sidebar { width: 232px; background: var(--bg); border-right: 1px solid var(--border); padding: 20px 12px; position: fixed; top: 0; left: 0; height: 100vh; display: flex; flex-direction: column; z-index: 10; }
+  .main { margin-left: 232px; padding: 40px clamp(24px, 3vw, 40px) 48px; flex: 1; max-width: 1280px; min-width: 0; } /* min-width:0 – sonst drücken breite Tabellen das Flex-Kind über den Viewport hinaus */
+  .logo { display: flex; align-items: center; gap: 10px; padding: 2px 8px 20px; font-size: 16px; font-weight: 600; letter-spacing: -0.2px; color: var(--text); }
+  .logo-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); color: #fff; display: inline-flex; align-items: center; justify-content: center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 1px 2px rgba(0,0,0,0.06); }
   .logo-mark .i { width: 16px; height: 16px; stroke-width: 2.2; vertical-align: 0; }
-  .nav-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.4px; text-transform: uppercase; padding: 4px 10px 8px; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 2px; cursor: pointer; color: var(--text-2); transition: background 0.15s, color 0.15s; font-size: 14px; font-weight: 500; border-radius: var(--radius-sm); user-select: none; }
-  .nav-item .i { width: 18px; height: 18px; color: var(--muted); transition: color 0.15s; }
+  .nav-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.6px; text-transform: uppercase; padding: 4px 10px 8px; }
+  .nav-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 7px 10px; margin-bottom: 2px; cursor: pointer; color: var(--text-2); font-size: 14px; font-weight: 500; border-radius: var(--radius-sm); user-select: none; }
+  .nav-item .i { width: 18px; height: 18px; color: var(--muted); }
   .nav-item:hover { color: var(--text); background: var(--surface2); }
-  .nav-item.active { color: var(--text); background: var(--surface3); }
+  .nav-item.active { color: var(--text); background: var(--surface2); box-shadow: inset 0 0 0 1px var(--border); }
+  .nav-item.active::before { content: ''; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 2px; border-radius: 0 2px 2px 0; background: var(--accent); }
   .nav-item.active .i { color: var(--accent); }
   .sidebar-footer { margin-top: auto; padding: 14px 8px 0; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
   .sidebar-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
   .date-display { font-size: 12px; color: var(--text-2); font-weight: 500; font-variant-numeric: tabular-nums; }
-  .sync-status { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .sync-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
   .sync-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
   .sync-status.ok::before { background: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
   .sync-status.warn::before { background: var(--yellow); box-shadow: 0 0 0 3px var(--yellow-soft); }
@@ -106,30 +107,38 @@
   /* ===== Pages ===== */
   .page { display: none; }
   .page.active { display: block; }
-  .page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.6px; line-height: 1.2; margin-bottom: 4px; }
-  .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .page-title { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 4px; }
+  .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
 
   /* ===== Cards ===== */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
-  .card-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: -0.1px; margin-bottom: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+  .card-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text); letter-spacing: -0.1px; margin-bottom: 16px; }
+  .card-sub { color: var(--muted); font-weight: 500; font-size: 12px; }
   .card-title .i { color: var(--muted); }
   .section-header .card-title { margin-bottom: 0; }
-  .card-foot { font-size: 11px; color: var(--muted); margin-top: 10px; }
+  .card-foot { font-size: 12px; color: var(--muted); margin-top: 10px; }
 
   /* Grid */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .grid-2 > .card, .overview-groups > .card, .overview-bottom > .card { min-width: 0; } /* Tabellen in Karten scrollen, statt die Spalte aufzuweiten */
+  .grid-2 > .card, .grid-3 > .card, .grid-4 > .card, .analytics-grid > .card, .overview-groups > .card, .overview-bottom > .card { min-width: 0; } /* Tabellen in Karten scrollen, statt die Spalte aufzuweiten */
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 16px; }
   .col-span-2 { grid-column: span 2; }
 
   /* ===== Stat / KPI ===== */
   .stat { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 4px 0; min-width: 0; }
   .stat-label { order: -1; font-size: 12px; color: var(--muted); font-weight: 500; line-height: 1.35; }
-  .stat-value { font-size: 28px; font-weight: 650; letter-spacing: -0.8px; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--text); }
+  .stat-value { font-size: 28px; font-weight: 600; letter-spacing: -0.9px; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--text); }
   .stat-delta { font-size: 12px; font-weight: 500; min-height: 22px; display: inline-flex; align-items: center; }
   .stat-delta:empty { visibility: hidden; }
-  .stat.mini .stat-value { font-size: 24px; }
+  .stat.mini .stat-value { font-size: 26px; }
+  /* Sparklines (Trend der letzten Einträge in den KPI-Karten) */
+  .spark { margin-top: 14px; }
+  .spark:empty { display: none; }
+  .spark svg { display: block; width: 100%; height: 40px; overflow: visible; }
+  .spark-meta { display: flex; justify-content: space-between; gap: 8px; white-space: nowrap; margin-top: 6px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .kpi-card { display: flex; flex-direction: column; }
+  .kpi-card .spark { margin-top: auto; padding-top: 14px; }
   .overview-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .overview-bottom { display: grid; grid-template-columns: 1fr 1fr 1.3fr 1.7fr; gap: 16px; }
   .stat-group-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
@@ -139,25 +148,28 @@
   .down { color: var(--red); }
   .neutral { color: var(--muted); }
   /* Bewertungen als dezente Status-Pills */
-  .rating-good, .rating-warn, .rating-bad { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 550; white-space: nowrap; }
+  .rating-good, .rating-warn, .rating-bad { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; }
   .rating-good::before, .rating-warn::before, .rating-bad::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
   .rating-good { color: var(--green); background: var(--green-soft); }
   .rating-warn { color: var(--yellow); background: var(--yellow-soft); }
   .rating-bad { color: var(--red); background: var(--red-soft); }
 
   /* ===== Buttons ===== */
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: var(--radius-sm); border: 1px solid transparent; cursor: pointer; font-size: 14px; font-weight: 550; line-height: 1; white-space: nowrap; transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: var(--radius-sm); border: 1px solid transparent; cursor: pointer; font-size: 14px; font-weight: 500; line-height: 1; white-space: nowrap; }
   .btn:active { transform: translateY(0.5px); }
-  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.12); }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.12); }
   .btn-primary:hover { background: var(--accent-hover); }
   .btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border-strong); box-shadow: var(--shadow); }
   .btn-secondary:hover { background: var(--surface2); }
   .btn-ghost { background: transparent; color: var(--text-2); }
   .btn-ghost:hover { background: var(--surface2); color: var(--text); }
-  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; gap: 6px; }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 14px; gap: 6px; }
   .btn-danger { background: transparent; color: var(--red); border-color: var(--border-strong); }
   .btn-danger:hover { background: var(--red-soft); border-color: transparent; }
   .btn .i { width: 15px; height: 15px; vertical-align: 0; }
+  /* Trefferfläche: kleine Bedienelemente bekommen eine unsichtbare 44px-Zone */
+  .icon-btn, .habit-check, .val-del-btn, .cell-val { position: relative; }
+  .icon-btn::before, .habit-check::before, .val-del-btn::before, .cell-val::before { content: ''; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
   /* Kompakte Icon-Buttons (Löschen, Entfernen …) */
   .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: none; border-radius: 7px; background: transparent; color: var(--muted); cursor: pointer; transition: background 0.15s, color 0.15s; flex-shrink: 0; }
   .icon-btn .i { width: 15px; height: 15px; vertical-align: 0; }
@@ -165,8 +177,8 @@
 
   /* ===== Forms ===== */
   .form-group { margin-bottom: 16px; }
-  .form-label { display: block; font-size: 13px; font-weight: 550; color: var(--text-2); margin-bottom: 6px; }
-  .form-input { width: 100%; height: 40px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 0 12px; color: var(--text); font-size: 14px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+  .form-label { display: block; font-size: 14px; font-weight: 500; color: var(--text-2); margin-bottom: 6px; }
+  .form-input { width: 100%; height: 40px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 0 12px; color: var(--text); font-size: 14px; outline: none; }
   .form-input:hover { border-color: var(--muted); }
   .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
   .form-input::placeholder { color: var(--muted); opacity: 0.8; }
@@ -178,12 +190,12 @@
   .form-hint { font-size: 12px; color: var(--muted); margin: 4px 0 4px; }
   .unit-row { display: flex; gap: 8px; align-items: center; }
   .unit-row .form-input { flex: 1; }
-  .unit { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .unit { color: var(--muted); font-size: 14px; white-space: nowrap; }
 
   /* Range slider */
   .slider-group { display: flex; align-items: center; gap: 12px; }
   .slider { flex: 1; -webkit-appearance: none; height: 6px; border-radius: 3px; background: var(--surface3); outline: none; }
-  .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; }
+  .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; }
   .slider-value { min-width: 28px; text-align: center; font-weight: 600; font-size: 16px; }
 
   /* ===== Habits ===== */
@@ -193,15 +205,15 @@
   .habit-row.compact { padding: 8px 0; gap: 10px; }
   .habit-row.compact:first-child { padding-top: 0; }
   .habit-emoji { width: 32px; height: 32px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); display: inline-flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-  .habit-row.compact .habit-emoji { width: 26px; height: 26px; font-size: 13px; border-radius: 7px; }
+  .habit-row.compact .habit-emoji { width: 26px; height: 26px; font-size: 14px; border-radius: 7px; }
   .habit-name { flex: 1; font-size: 14px; font-weight: 500; min-width: 0; }
-  .habit-row.compact .habit-name { font-size: 13px; }
+  .habit-row.compact .habit-name { font-size: 14px; }
   .habit-goal { font-size: 12px; color: var(--muted); }
   .habit-streak { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; color: var(--text-2); font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .habit-streak .i { width: 13px; height: 13px; color: #f59e0b; vertical-align: 0; }
   .habit-streak.longest .i { color: var(--accent2); }
   .habit-total { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 28px; text-align: right; }
-  .habit-check { width: 26px; height: 26px; border-radius: 8px; border: 1.5px solid var(--border-strong); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; flex-shrink: 0; background: var(--surface); }
+  .habit-check { width: 26px; height: 26px; border-radius: 8px; border: 1.5px solid var(--border-strong); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: opacity 0.15s, transform 0.15s; flex-shrink: 0; background: var(--surface); }
   .habit-check:hover { border-color: var(--green); }
   .habit-check.done { background: var(--green); border-color: var(--green); }
   .habit-check.done::after { content: ''; width: 12px; height: 12px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat; }
@@ -211,11 +223,11 @@
   .habit-dot { width: 8px; height: 8px; border-radius: 2px; background: var(--surface3); }
   .habit-dot.done { background: var(--green); }
   .habit-dot.today { border: 1px solid var(--accent); }
-  .habit-hist th { text-align: center; padding: 0 3px 10px; font-size: 10.5px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .habit-hist th { text-align: center; padding: 0 3px 10px; font-size: 12px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
   .habit-hist th:first-child { text-align: left; min-width: 150px; padding-left: 0; }
   .habit-hist td { text-align: center; padding: 4px 3px; }
-  .habit-hist td:first-child { text-align: left; padding: 6px 12px 6px 0; font-size: 13px; font-weight: 500; white-space: nowrap; }
-  .habit-day-dot { width: 22px; height: 22px; border-radius: 6px; background: var(--surface3); margin: auto; cursor: pointer; transition: transform 0.1s, opacity 0.1s, background 0.15s; }
+  .habit-hist td:first-child { text-align: left; padding: 6px 12px 6px 0; font-size: 14px; font-weight: 500; white-space: nowrap; }
+  .habit-day-dot { width: 22px; height: 22px; border-radius: 6px; background: var(--surface3); margin: auto; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
   .habit-day-dot.done { background: var(--green); }
   .habit-day-dot.today { box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--accent); }
   .habit-day-dot:hover { opacity: 0.8; transform: scale(1.1); }
@@ -225,25 +237,25 @@
   .journal-entry:first-child { padding-top: 0; }
   .journal-entry:last-child { border-bottom: none; }
   .journal-date { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
-  .journal-mood { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; background: var(--surface2); margin-right: 6px; }
-  .journal-text { font-size: 14px; color: var(--text); line-height: 1.6; margin-top: 8px; }
+  .journal-mood { display: inline-block; font-size: 12px; color: var(--text-2); margin-right: 8px; }
+  .journal-text { max-width: 70ch; font-size: 14px; color: var(--text); line-height: 1.6; margin-top: 8px; }
   .journal-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .tag { font-size: 12px; color: var(--muted); }
 
   /* ===== Tabellen ===== */
-  .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
-  .data-table th { text-align: left; padding: 10px 12px; font-size: 11.5px; color: var(--muted); font-weight: 600; letter-spacing: 0.2px; border-bottom: 1px solid var(--border); background: var(--surface); white-space: nowrap; }
-  .data-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); color: var(--text); white-space: nowrap; }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .data-table th { text-align: left; padding: 10px 12px; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid var(--border); background: var(--surface); white-space: nowrap; }
+  .data-table td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text); white-space: nowrap; }
   .data-table tr:last-child td { border-bottom: none; }
   @media (hover: hover) { .data-table tbody tr:hover td { background: var(--surface2); } }
-  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -20px; padding: 0 8px; }
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -24px; padding: 0 12px; }
   .table-scroll > .data-table th:first-child, .table-scroll > .data-table td:first-child { padding-left: 12px; }
 
   /* Einzelne Werte löschbar machen */
-  .cell-val { display: inline-block; padding: 2px 6px; margin: -2px -6px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+  .cell-val { display: inline-block; padding: 2px 6px; margin: -2px -6px; border-radius: 6px; cursor: pointer; transition: opacity 0.15s, transform 0.15s; }
   @media (hover: hover) {
     .cell-val:hover { background: var(--red-soft); color: var(--red); }
-    .cell-val:hover::after { content: ' \2715'; font-size: 10px; opacity: 0.8; }
+    .cell-val:hover::after { content: ' \2715'; font-size: 12px; opacity: 0.8; }
   }
   .table-hint { font-size: 12px; color: var(--muted); margin: -6px 0 12px; }
 
@@ -256,19 +268,19 @@
   .training-row .form-group { margin-bottom: 0; }
   .training-row .form-label { font-size: 12px; }
   .training-head td { background: var(--surface2); font-weight: 600; }
-  .session-meta { color: var(--muted); font-weight: 500; font-size: 12.5px; }
-  .src-tag { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); margin-right: 6px; vertical-align: 1px; }
+  .session-meta { color: var(--muted); font-weight: 500; font-size: 12px; }
+  .src-tag { display: inline-block; font-size: 12px; font-weight: 500; color: var(--muted); margin-right: 8px; }
   /* Wochen-Trainingstabelle auf der Übersicht */
   /* table.-Präfix: schlägt die späteren .data-table-Regeln der Mobil-Breakpoints */
-  table.week-table th, table.week-table td { padding: 8px 8px; font-size: 13px; white-space: nowrap; vertical-align: top; }
-  table.week-table th { font-size: 11px; background: transparent; }
+  table.week-table th, table.week-table td { padding: 8px 8px; font-size: 14px; white-space: nowrap; vertical-align: top; }
+  table.week-table th { font-size: 12px; background: transparent; text-transform: none; letter-spacing: 0; }
   table.week-table td:first-child { color: var(--muted); font-size: 12px; }
-  table.week-table tr.cur td { font-weight: 650; font-size: 14px; }
+  table.week-table tr.cur td { font-weight: 600; font-size: 14px; }
   table.week-table tr.cur td:first-child { color: var(--text); }
-  table.week-table .cnt { color: var(--muted); font-weight: 500; font-size: 11px; margin-left: 2px; }
+  table.week-table .cnt { color: var(--muted); font-weight: 500; font-size: 12px; margin-left: 2px; }
   .week-dot { display: inline-block; width: 7px; height: 7px; border-radius: 2px; margin-right: 6px; vertical-align: 1px; }
   .training-sub td:nth-child(2) { padding-left: 24px; }
-  .val-del-btn { border: none; background: none; color: var(--muted); cursor: pointer; font-size: 11px; padding: 2px 6px; border-radius: 5px; opacity: 0.45; transition: all 0.15s; }
+  .val-del-btn { border: none; background: none; color: var(--muted); cursor: pointer; font-size: 12px; padding: 2px 6px; border-radius: 5px; opacity: 0.45; transition: opacity 0.15s, transform 0.15s; }
   .val-del-btn:hover { opacity: 1; color: var(--red); background: var(--red-soft); }
 
   /* Chart wrapper */
@@ -277,41 +289,51 @@
 
   /* Mood emojis */
   .mood-picker { display: flex; gap: 8px; margin-top: 6px; }
-  .mood-btn { width: 44px; height: 44px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface2); cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .mood-btn { width: 44px; height: 44px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface2); cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; transition: opacity 0.15s, transform 0.15s; }
   .mood-btn:hover { border-color: var(--accent); }
   .mood-btn.selected { border-color: var(--accent); background: var(--surface); }
 
   /* ===== Toast ===== */
-  .toast { position: fixed; bottom: 24px; right: 24px; display: flex; align-items: center; gap: 10px; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); box-shadow: var(--shadow-lg); padding: 12px 16px 12px 12px; border-radius: 12px; font-weight: 500; font-size: 14px; transform: translateY(12px); opacity: 0; pointer-events: none; transition: transform 0.25s cubic-bezier(.2,.8,.2,1), opacity 0.25s; z-index: 999; max-width: 420px; }
+  .toast { position: fixed; bottom: 24px; right: 24px; display: flex; align-items: center; gap: 10px; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); box-shadow: var(--shadow-lg); padding: 12px 16px 12px 12px; border-radius: 12px; font-weight: 500; font-size: 14px; transform: translateY(12px); opacity: 0; pointer-events: none; transition: transform 0.2s cubic-bezier(.2,.8,.2,1), opacity 0.2s; z-index: 999; max-width: 420px; }
   .toast-icon { width: 22px; height: 22px; border-radius: 50%; background: var(--green-soft); color: var(--green); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .toast-icon .i { width: 13px; height: 13px; stroke-width: 3; vertical-align: 0; }
   .toast.warn .toast-icon { background: var(--yellow-soft); color: var(--yellow); }
   .toast.show { transform: translateY(0); opacity: 1; }
 
   /* ===== Modal ===== */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(5,7,12,0.6); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(5,7,12,0.6); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
   :root.light .modal-overlay { background: rgba(15,23,42,0.35); }
-  .modal-overlay.open { display: flex; animation: fadeIn 0.18s ease; }
-  .modal-overlay.open .modal { animation: modalIn 0.22s cubic-bezier(.2,.8,.2,1); }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease-out; }
+  .modal-overlay.open .modal { animation: modalIn 0.2s cubic-bezier(.2,.8,.2,1); }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes modalIn { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
-  .modal { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 460px; max-width: 100%; max-height: calc(100vh - 40px); overflow-y: auto; box-shadow: var(--shadow-lg); }
-  .modal-title { display: flex; align-items: center; gap: 12px; font-size: 17px; font-weight: 650; letter-spacing: -0.3px; margin-bottom: 22px; padding-right: 36px; }
+  .modal { position: relative; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 14px; padding: 24px; width: 460px; max-width: 100%; max-height: calc(100vh - 40px); overflow-y: auto; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
+  /* Slide-over: Eingabe-Dialoge docken rechts an, die Seite bleibt sichtbar */
+  .modal-overlay:not(.confirm-overlay) { justify-content: flex-end; align-items: stretch; padding: 0; }
+  .modal-overlay:not(.confirm-overlay) .modal { height: 100%; max-height: none; border-radius: 0; border-width: 0 0 0 1px; }
+  .modal-overlay.open:not(.confirm-overlay) .modal { animation: slideIn 0.3s cubic-bezier(.2,.8,.2,1); }
+  @keyframes slideIn { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .modal-overlay:not(.confirm-overlay) .modal-actions { margin-top: auto; border-radius: 0; position: sticky; bottom: -24px; }
+  .confirm-overlay .modal { width: 420px; }
+  .confirm-text { color: var(--text-2); font-size: 14px; }
+  .btn-destructive { background: var(--red); color: #fff; }
+  .btn-destructive:hover { background: color-mix(in srgb, var(--red) 88%, #000); }
+  .modal-title { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 22px; padding-right: 36px; }
   .modal-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .modal-icon .i { width: 18px; height: 18px; vertical-align: 0; }
   .modal-close { position: absolute; top: 18px; right: 18px; width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
   .modal-close:hover { background: var(--surface2); color: var(--text); }
   .modal-close .i { width: 18px; height: 18px; vertical-align: 0; }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin: 24px -24px -24px; padding: 16px 24px; border-top: 1px solid var(--border); background: var(--surface2); border-radius: 0 0 16px 16px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin: 24px -24px -24px; padding: 16px 24px; border-top: 1px solid var(--border); background: var(--surface2); border-radius: 0 0 14px 14px; }
 
   /* Eingabe-Kacheln: Klick öffnet das jeweilige Eingabe-Modal */
-  .entry-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .entry-tile { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; box-shadow: var(--shadow); -webkit-tap-highlight-color: transparent; user-select: none; }
-  .entry-tile:hover { border-color: var(--border-strong); box-shadow: 0 4px 14px -4px rgba(0,0,0,0.25); transform: translateY(-1px); }
+  .entry-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .entry-tile { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: transform 0.15s; box-shadow: var(--shadow); -webkit-tap-highlight-color: transparent; user-select: none; }
+  .entry-tile:hover { border-color: var(--border-strong); background: var(--surface2); }
   .entry-tile:active { transform: scale(0.98); }
-  .entry-tile-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .entry-tile-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .entry-tile-icon .i { width: 18px; height: 18px; vertical-align: 0; }
-  .entry-tile-label { font-size: 13.5px; font-weight: 600; flex: 1; }
+  .entry-tile-label { font-size: 14px; font-weight: 600; flex: 1; }
   .entry-tile::after { content: ''; width: 16px; height: 16px; opacity: 0.5; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236f7789' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='M12 5v14'/%3E%3C/svg%3E") center/contain no-repeat; transition: opacity 0.15s; }
   .entry-tile:hover::after { opacity: 1; }
   /* Kategorie-Farben der Kachel-Icons */
@@ -323,31 +345,33 @@
   .tone-slate { background: var(--surface3); color: var(--text-2); }
 
   /* Section header */
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; flex-wrap: wrap; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 10px; flex-wrap: wrap; }
   .section-title { font-size: 16px; font-weight: 600; }
-  .habit-ratio { font-size: 12px; font-weight: 600; color: var(--green); background: var(--green-soft); padding: 2px 9px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+  .habit-ratio { font-size: 12px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
   .habit-ratio:empty { display: none; }
-  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
   .page-head .page-sub { margin-bottom: 0; }
 
   /* No data */
-  .empty { text-align: center; padding: 36px 16px; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
-  .empty a { color: var(--accent); text-decoration: none; font-weight: 550; }
+  .empty { text-align: center; padding: 36px 16px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+  .empty a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  .data-table td.empty-cell { white-space: normal; position: static; }
 
   /* Analytics */
-  .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 16px; }
 
   /* Subtabs als Segmented Control */
-  .subnav { display: inline-flex; gap: 2px; padding: 3px; margin-bottom: 20px; background: var(--surface3); border-radius: 10px; }
-  .subnav-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 7px 14px; border-radius: 8px; border: none; background: transparent; color: var(--text-2); cursor: pointer; font-size: 13px; font-weight: 550; transition: all 0.15s; }
+  .subnav { display: inline-flex; gap: 2px; padding: 3px; margin-bottom: 20px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; }
+  .subnav-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 7px 14px; border-radius: 8px; border: none; background: transparent; color: var(--text-2); cursor: pointer; font-size: 14px; font-weight: 500; transition: opacity 0.15s, transform 0.15s; }
   .subnav-btn .i { width: 15px; height: 15px; vertical-align: 0; }
   .subnav-btn:hover { color: var(--text); }
-  .subnav-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.2), 0 0 0 1px var(--border); }
+  .subnav-btn.active { background: var(--surface3); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 0 0 1px var(--border-strong); }
+  :root.light .subnav-btn.active { background: var(--surface); }
   .subpage { display: none; }
   .subpage.active { display: block; }
 
   /* Trend-Badges für Trainingsanalyse */
-  .trend-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 600; }
+  .trend-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
   .trend-badge .i { width: 14px; height: 14px; vertical-align: 0; }
   .trend-badge.progress { background: var(--green-soft); color: var(--green); }
   .trend-badge.plateau { background: var(--yellow-soft); color: var(--yellow); }
@@ -357,17 +381,18 @@
   /* ===== Rezeptbuch ===== */
   .rezept-toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
   .rezept-toolbar .form-input { flex: 1; min-width: 180px; }
+  .search-label { font-size: 14px; font-weight: 500; color: var(--text-2); }
   .rezept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
   .rezept-card { display: flex; flex-direction: column; gap: 14px; }
-  .rezept-name { font-size: 16px; font-weight: 650; letter-spacing: -0.2px; line-height: 1.3; }
-  .macro-row { display: flex; flex-wrap: wrap; gap: 6px; }
-  .macro { font-size: 12px; font-weight: 650; padding: 3px 10px; border-radius: 999px; background: var(--surface2); border: 1px solid var(--border); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .rezept-name { font-size: 16px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.3; }
+  .macro-row { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .macro { font-size: 14px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .macro span { color: var(--muted); font-weight: 500; margin-right: 3px; }
   .macro.kcal { color: var(--accent); }
   .macro.protein { color: var(--green); }
   .macro.fett { color: var(--yellow); }
   .macro.kh { color: var(--accent2); }
-  .zutat-list { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+  .zutat-list { list-style: none; margin: 0; padding: 0; font-size: 14px; }
   .zutat-list li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--border); }
   .zutat-list li:last-child { border-bottom: none; }
   .zutat-gramm { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -389,21 +414,14 @@
   @media (max-width: 1280px) {
     /* Wochentabelle kompakter, damit alle vier Spalten ohne Scrollen passen */
     table.week-table th, table.week-table td { padding: 6px 4px; font-size: 12px; }
-    table.week-table td:first-child { font-size: 11px; }
-    table.week-table tr.cur td { font-size: 13px; }
-    table.week-table .cnt { display: block; font-size: 10px; margin-left: 0; }
+    table.week-table td:first-child { font-size: 12px; }
+    table.week-table tr.cur td { font-size: 14px; }
+    table.week-table .cnt { display: block; font-size: 12px; margin-left: 0; }
     .overview-bottom { grid-template-columns: 1fr 1fr; }
   }
 
-  /* ===== Tablet ===== */
-  @media (max-width: 1024px) {
-    .main { padding: 28px 24px 40px; }
-    .analytics-grid { grid-template-columns: 1fr; }
-    .grid-4 { grid-template-columns: 1fr 1fr; }
-  }
-
   /* ===== Smartphone (iPhone & Co.) ===== */
-  @media (max-width: 768px) {
+  @media (max-width: 767.98px) {
     body { padding-bottom: env(safe-area-inset-bottom); }
     .app { display: block; }
 
@@ -413,24 +431,24 @@
     .page-head { margin-bottom: 20px; }
 
     /* Kopfzeile mit Logo + Aktionen */
-    .mobile-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--surface) 85%, transparent); -webkit-backdrop-filter: saturate(180%) blur(16px); backdrop-filter: saturate(180%) blur(16px); border-bottom: 1px solid var(--border); padding: calc(10px + env(safe-area-inset-top)) 16px 10px; }
-    .mobile-header .logo { padding: 0; margin: 0; font-size: 15px; }
+    .mobile-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; position: sticky; top: 0; z-index: 50; background: var(--surface); border-bottom: 1px solid var(--border); padding: calc(10px + env(safe-area-inset-top)) 16px 10px; }
+    .mobile-header .logo { padding: 0; margin: 0; font-size: 16px; }
     .mobile-header .logo-mark { width: 26px; height: 26px; }
     .mobile-actions { display: flex; gap: 6px; }
-    .mobile-actions .btn { width: 38px; height: 38px; padding: 0; }
+    .mobile-actions .btn { padding: 0; }
     .mobile-actions .btn .i { width: 17px; height: 17px; }
     .mobile-sync { margin-top: 2px; }
 
     /* Tab-Leiste unten */
-    .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: saturate(180%) blur(16px); backdrop-filter: saturate(180%) blur(16px); border-top: 1px solid var(--border); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
-    .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px 0 3px; font-size: 10px; font-weight: 550; color: var(--muted); cursor: pointer; border-radius: 8px; -webkit-tap-highlight-color: transparent; min-width: 0; }
+    .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: var(--surface); border-top: 1px solid var(--border); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
+    .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px 0 3px; font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; border-radius: 8px; -webkit-tap-highlight-color: transparent; min-width: 0; }
     .tab-item .i { width: 22px; height: 22px; stroke-width: 1.7; }
     .tab-item span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
     .tab-item.active { color: var(--accent); }
 
     /* Typografie */
     .page-title { font-size: 23px; }
-    .page-sub { font-size: 13px; margin-bottom: 20px; }
+    .page-sub { font-size: 14px; margin-bottom: 20px; }
     .card { padding: 16px; }
     .table-scroll { margin: 0 -16px; padding: 0 4px; }
 
@@ -440,16 +458,17 @@
     .entry-tile { padding: 12px; gap: 10px; }
     .entry-tile::after { display: none; }
     .entry-tile-icon { width: 32px; height: 32px; }
-    .entry-tile-label { font-size: 13px; }
+    .entry-tile-label { font-size: 14px; }
     .col-span-2 { grid-column: auto; }
-    .form-row-3 { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .form-row-3 { grid-template-columns: 1fr; gap: 8px; }
     .stat-group-3 > .stat + .stat, .stat-group-2 > .stat + .stat { padding-left: 12px; }
-    .stat.mini .stat-value { font-size: 21px; }
+    .stat.mini .stat-value { font-size: 20px; }
 
     /* Eingaben: 16px verhindert das Auto-Zoom von iOS */
     .form-input { font-size: 16px; height: 44px; }
-    .btn { height: 42px; }
-    .btn-sm { height: 34px; }
+    .btn, .btn-sm { height: 44px; }
+    .mobile-actions .btn { width: 44px; height: 44px; }
+    .subnav-btn { min-height: 44px; }
     .subnav { display: flex; }
     .subnav-btn { flex: 1; padding: 8px; }
     .mood-btn { width: 40px; height: 40px; font-size: 20px; }
@@ -460,7 +479,7 @@
     .section-header select.form-input { width: 100% !important; min-width: 0 !important; }
 
     /* Tabellen: kompakter, erste Spalte bleibt beim Scrollen stehen */
-    .data-table { font-size: 13px; }
+    .data-table { font-size: 14px; }
     .data-table th { padding: 8px 10px; white-space: nowrap; }
     .data-table td { padding: 10px; white-space: nowrap; }
     .data-table .btn-sm { height: auto; }
@@ -472,6 +491,7 @@
     input[type="date"].form-input { -webkit-appearance: none; appearance: none; display: block; line-height: 44px; }
 
     /* Rezeptbuch */
+    .search-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     .rezept-grid { grid-template-columns: 1fr; gap: 12px; }
     .macro-inputs { grid-template-columns: 1fr 1fr; }
     .zutat-row { grid-template-columns: 1fr 84px 36px; }
@@ -483,7 +503,10 @@
     .modal-overlay { align-items: flex-end; padding: 0; }
     .modal { width: 100%; max-width: 100%; border-radius: 20px 20px 0 0; padding: 20px 16px; max-height: calc(100vh - 40px); border-bottom: none; }
     .modal.modal-wide { width: 100%; }
-    .modal-overlay.open .modal { animation: sheetIn 0.28s cubic-bezier(.2,.8,.2,1); }
+    .modal-overlay.open .modal, .modal-overlay.open:not(.confirm-overlay) .modal { animation: sheetIn 0.3s cubic-bezier(.2,.8,.2,1); }
+    .modal-overlay:not(.confirm-overlay) { align-items: flex-end; }
+    .modal-overlay:not(.confirm-overlay) .modal { height: auto; max-height: calc(100vh - 40px); border-radius: 20px 20px 0 0; border-width: 1px 0 0; }
+    .modal-overlay:not(.confirm-overlay) .modal-actions { bottom: -20px; }
     @keyframes sheetIn { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
     .modal-close { top: 14px; right: 12px; }
     .modal-actions { flex-direction: column-reverse; margin: 20px -16px -20px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border-radius: 0; }
@@ -491,16 +514,21 @@
     .toast { left: 16px; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom)); max-width: none; }
   }
 
-  @media (max-width: 380px) {
-    .stat.mini .stat-value { font-size: 18px; }
-    .stat-label { font-size: 11px; }
-    .form-row-3 { grid-template-columns: 1fr; }
-    .tab-item { font-size: 9px; }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
+
+  /* Tooltip für Icon-Buttons (Hover und Tastaturfokus) */
+  .tip { position: fixed; z-index: 1000; pointer-events: none; background: var(--text); color: var(--bg); font-size: 12px; font-weight: 500; line-height: 1.4; padding: 4px 8px; border-radius: 6px; white-space: nowrap; opacity: 0; transform: translateY(2px); transition: opacity 0.1s, transform 0.1s; }
+  .tip.show { opacity: 1; transform: none; }
+  [role="button"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  /* Feldvalidierung */
+  .field-error { font-size: 12px; color: var(--red); margin-top: 4px; }
+  .form-input[aria-invalid="true"] { border-color: var(--red); }
+  .form-input[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px var(--red-soft); }
+  /* Leere Zustände */
+  .empty-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .empty-text { margin-bottom: 16px; }
 </style>
 </head>
 <body>
@@ -588,8 +616,8 @@
   <div class="page-sub" id="overviewDate"></div>
 
   <div class="overview-groups" style="margin-bottom:16px">
-    <div class="card">
-      <div class="card-title"><svg class="i"><use href="#i-bed"/></svg>Schlaf <span style="color:var(--muted);font-weight:500">Ø letzte 7 Einträge · h:min</span></div>
+    <div class="card kpi-card">
+      <div class="card-title"><svg class="i"><use href="#i-bed"/></svg>Schlaf <span class="card-sub">Ø letzte 7 Einträge · h:min</span></div>
       <div class="stat-group-3">
         <div class="stat mini">
           <div class="stat-value" id="statSleep">—</div>
@@ -607,6 +635,7 @@
           <div class="stat-delta" id="statRemSleepRating"></div>
         </div>
       </div>
+      <div class="spark" id="sparkSleep"></div>
     </div>
     <div class="card">
       <div class="section-header"><span class="card-title"><svg class="i"><use href="#i-dumbbell"/></svg>Training diese Woche</span><span id="statTrainingWeek" style="font-size:12px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums"></span></div>
@@ -619,23 +648,25 @@
   </div>
 
   <div class="overview-bottom" style="margin-bottom:16px">
-    <div class="card">
+    <div class="card kpi-card">
       <div class="card-title"><svg class="i"><use href="#i-steps"/></svg>Schritte</div>
       <div class="stat mini">
         <div class="stat-value" id="statSteps">—</div>
         <div class="stat-label">Ø Schritte</div>
         <div class="stat-delta" id="statStepsRating"></div>
       </div>
+      <div class="spark" id="sparkSteps"></div>
     </div>
-    <div class="card">
+    <div class="card kpi-card">
       <div class="card-title"><svg class="i"><use href="#i-steth"/></svg>Blutdruck</div>
       <div class="stat mini">
         <div class="stat-value" id="statBp">—</div>
         <div class="stat-label">Blutdruck (sys/dia)</div>
         <div class="stat-delta" id="statBpNote"></div>
       </div>
+      <div class="spark" id="sparkBp"></div>
     </div>
-    <div class="card">
+    <div class="card kpi-card">
       <div class="card-title"><svg class="i"><use href="#i-scale"/></svg>Gewicht &amp; BMI</div>
       <div class="stat-group-2">
         <div class="stat mini">
@@ -649,6 +680,7 @@
           <div class="stat-delta" id="statBmiRating"></div>
         </div>
       </div>
+      <div class="spark" id="sparkWeight"></div>
     </div>
     <div class="card">
       <div class="section-header"><span class="card-title"><svg class="i"><use href="#i-habits"/></svg>Heutige Habits</span><span class="habit-ratio" id="overviewHabitsRatio"></span></div>
@@ -706,7 +738,7 @@
   <div class="card">
     <div class="section-header">
       <span class="card-title"><svg class="i"><use href="#i-list"/></svg>Protokoll</span>
-      <button class="btn btn-secondary btn-sm" onclick="exportHealth()"><svg class="i"><use href="#i-download"/></svg>CSV Export</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportHealth()"><svg class="i"><use href="#i-download"/></svg>CSV exportieren</button>
     </div>
     <div class="table-hint">Tipp: Auf einen Wert klicken, um ihn einzeln zu löschen – mit ✕ den ganzen Tag.</div>
     <div class="table-scroll"><table class="data-table">
@@ -765,7 +797,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">1. Was habe ich heute erreicht – was bin ich stolz auf?</label>
-        <textarea class="form-input" id="journalQ1" placeholder="Meine heutigen Erfolge…" style="min-height:80px"></textarea>
+        <textarea class="form-input" id="journalQ1" required placeholder="Meine heutigen Erfolge…" style="min-height:80px"></textarea>
       </div>
       <div class="form-group">
         <label class="form-label">2. Was hat mich heute Energie gekostet?</label>
@@ -793,7 +825,7 @@
     <div class="card" style="max-height:700px; overflow-y:auto">
       <div class="section-header">
         <span class="card-title"><svg class="i"><use href="#i-book"/></svg>Einträge</span>
-        <button class="btn btn-secondary btn-sm" onclick="exportJournal()"><svg class="i"><use href="#i-download"/></svg>Export</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportJournal()"><svg class="i"><use href="#i-download"/></svg>Exportieren</button>
       </div>
       <div id="journalList"></div>
     </div>
@@ -829,7 +861,7 @@
   <div class="card" style="margin-bottom:16px">
     <div class="section-header">
       <span class="card-title"><svg class="i"><use href="#i-dumbbell"/></svg>Kraft-Protokoll</span>
-      <button class="btn btn-secondary btn-sm" onclick="exportSport()"><svg class="i"><use href="#i-download"/></svg>CSV Export</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportSport()"><svg class="i"><use href="#i-download"/></svg>CSV exportieren</button>
     </div>
     <div class="table-hint">Jede Trainingseinheit als Block mit Dauer und Gesamtvolumen – darunter die Übungen. Einzelwert per Klick löschen, ✕ löscht Übung bzw. ganze Einheit.</div>
     <div class="table-scroll"><table class="data-table">
@@ -893,8 +925,9 @@
   </div>
 
   <div class="rezept-toolbar">
+    <label for="rezeptSearch" class="search-label">Suchen</label>
     <input type="search" class="form-input" id="rezeptSearch" placeholder="Rezept oder Zutat suchen…" oninput="renderRezepte()">
-    <button class="btn btn-primary" onclick="openRezeptModal()"><svg class="i"><use href="#i-plus"/></svg>Neues Rezept</button>
+    <button class="btn btn-primary" onclick="openRezeptModal()"><svg class="i"><use href="#i-plus"/></svg>Rezept anlegen</button>
   </div>
 
   <div id="rezepte-fruehstueck" class="subpage active"><div class="rezept-grid" id="rezeptList-fruehstueck"></div></div>
@@ -914,7 +947,7 @@
   <div class="card" style="margin-bottom:16px">
     <div class="section-header">
       <span class="card-title"><svg class="i"><use href="#i-euro"/></svg>Jahresübersicht</span>
-      <button class="btn btn-secondary btn-sm" onclick="exportSchiri()"><svg class="i"><use href="#i-download"/></svg>CSV Export</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportSchiri()"><svg class="i"><use href="#i-download"/></svg>CSV exportieren</button>
     </div>
     <div class="table-scroll"><table class="data-table">
       <thead><tr><th>Jahr</th><th>Spiele</th><th>Spielgebühr</th><th>Fahrtkosten</th><th>Gesamt</th></tr></thead>
@@ -930,9 +963,9 @@
 
 <!-- Tab-Leiste unten (nur Smartphone) -->
 <nav class="tabbar">
-  <div class="tab-item active" onclick="nav('overview')"><svg class="i"><use href="#i-home"/></svg><span>Übersicht</span></div>
+  <div class="tab-item active" onclick="nav('overview')"><svg class="i"><use href="#i-home"/></svg><span>Start</span></div>
   <div class="tab-item" onclick="nav('habits')"><svg class="i"><use href="#i-habits"/></svg><span>Habits</span></div>
-  <div class="tab-item" onclick="nav('health')"><svg class="i"><use href="#i-heart"/></svg><span>Gesundheit</span></div>
+  <div class="tab-item" onclick="nav('health')" aria-label="Gesundheit"><svg class="i"><use href="#i-heart"/></svg><span>Vital</span></div>
   <div class="tab-item" onclick="nav('journal')"><svg class="i"><use href="#i-book"/></svg><span>Journal</span></div>
   <div class="tab-item" onclick="nav('sport')"><svg class="i"><use href="#i-dumbbell"/></svg><span>Sport</span></div>
   <div class="tab-item" onclick="nav('rezepte')"><svg class="i"><use href="#i-utensils"/></svg><span>Rezepte</span></div>
@@ -945,7 +978,7 @@
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-habits"/></svg></span>Habit hinzufügen</div>
     <div class="form-group">
       <label class="form-label">Name</label>
-      <input type="text" class="form-input" id="newHabitName" placeholder="z.B. Meditation, Lesen, Sport">
+      <input type="text" class="form-input" id="newHabitName" required placeholder="z.B. Meditation, Lesen, Sport">
     </div>
     <div class="form-group">
       <label class="form-label">Emoji</label>
@@ -957,7 +990,7 @@
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeHabitModal()">Abbrechen</button>
-      <button class="btn btn-primary" onclick="addHabit()">Hinzufügen</button>
+      <button class="btn btn-primary" onclick="addHabit()">Habit anlegen</button>
     </div>
   </div>
 </div>
@@ -970,7 +1003,7 @@
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Name</label>
-        <input type="text" class="form-input" id="rezeptName" placeholder="z.B. Overnight Oats">
+        <input type="text" class="form-input" id="rezeptName" required placeholder="z.B. Overnight Oats">
       </div>
       <div class="form-group">
         <label class="form-label">Mahlzeit</label>
@@ -985,7 +1018,7 @@
     <div class="form-group">
       <label class="form-label">Zutaten (Gramm)</label>
       <div class="zutat-editor" id="rezeptZutaten"></div>
-      <button type="button" class="btn btn-secondary btn-sm" onclick="addZutatRow()"><svg class="i"><use href="#i-plus"/></svg>Zutat</button>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="addZutatRow()"><svg class="i"><use href="#i-plus"/></svg>Zutat hinzufügen</button>
     </div>
 
     <div class="form-group">
@@ -1062,7 +1095,7 @@
     </div>
     <div class="form-group">
       <label class="form-label">Schritte</label>
-      <input type="number" min="0" class="form-input" id="healthSteps" placeholder="12000">
+      <input type="number" min="0" class="form-input" id="healthSteps" required placeholder="12000">
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('stepsModal')">Abbrechen</button>
@@ -1080,7 +1113,7 @@
     </div>
     <div class="form-group">
       <label class="form-label">Kalorien (kcal)</label>
-      <input type="number" min="0" step="1" class="form-input" id="healthKcal" placeholder="2000">
+      <input type="number" min="0" step="1" class="form-input" id="healthKcal" required placeholder="2000">
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('kcalModal')">Abbrechen</button>
@@ -1098,7 +1131,7 @@
     </div>
     <div class="form-group">
       <label class="form-label">Dauer (Minuten)</label>
-      <input type="number" min="0" step="1" class="form-input" id="healthMedit" placeholder="10">
+      <input type="number" min="0" step="1" class="form-input" id="healthMedit" required placeholder="10">
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('meditModal')">Abbrechen</button>
@@ -1117,11 +1150,11 @@
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Systolisch (mmHg)</label>
-        <input type="number" class="form-input" id="healthBpSys" placeholder="120">
+        <input type="number" class="form-input" id="healthBpSys" required placeholder="120">
       </div>
       <div class="form-group">
         <label class="form-label">Diastolisch (mmHg)</label>
-        <input type="number" class="form-input" id="healthBpDia" placeholder="80">
+        <input type="number" class="form-input" id="healthBpDia" required placeholder="80">
       </div>
     </div>
     <div class="modal-actions">
@@ -1140,7 +1173,7 @@
     </div>
     <div class="form-group">
       <label class="form-label">Gewicht (kg)</label>
-      <input type="number" step="0.1" class="form-input" id="healthWeight" placeholder="75.5">
+      <input type="number" step="0.1" class="form-input" id="healthWeight" required placeholder="75.5">
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('weightModal')">Abbrechen</button>
@@ -1158,7 +1191,7 @@
     </div>
     <div class="form-group">
       <label class="form-label">Temperatur (°C)</label>
-      <input type="number" step="0.1" min="30" max="45" class="form-input" id="healthTemp" placeholder="36.6">
+      <input type="number" step="0.1" min="30" max="45" class="form-input" id="healthTemp" required placeholder="36.6">
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('tempModal')">Abbrechen</button>
@@ -1394,6 +1427,56 @@ function toast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
+// ===== SPARKLINES =====
+// Kleine Flächen-Linie (ohne Achsen) für den Verlauf in KPI-Karten; darunter Zeitraum und Spanne.
+function renderSpark(id, pts, { color, fmt = v => v }) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(pts.length < 2) { el.innerHTML = ''; return; }
+  const vals = pts.map(p => p.v);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const W = 100, H = 40, pad = 3;
+  const x = i => (i / (pts.length - 1)) * W;
+  const y = v => max === min ? H / 2 : pad + (1 - (v - min) / (max - min)) * (H - 2 * pad);
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(2)},${y(p.v).toFixed(2)}`).join('');
+  const gid = 'g-' + id;
+  const short = d => new Date(d + 'T12:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+      <defs><linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" style="stop-color:${color};stop-opacity:0.22"/><stop offset="1" style="stop-color:${color};stop-opacity:0"/></linearGradient></defs>
+      <path d="${line}L${W},${H}L0,${H}Z" fill="url(#${gid})"/>
+      <path d="${line}" fill="none" style="stroke:${color}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div class="spark-meta"><span>seit ${short(pts[0].date)}</span><span>${fmt(min)} – ${fmt(max)}</span></div>`;
+}
+
+// ===== LEERE ZUSTÄNDE =====
+// Überschrift, ein Satz zum Nutzen und – wo sinnvoll – eine direkte Aktion.
+function emptyState(title, text, ctaLabel, ctaJs) {
+  return `<div class="empty"><div class="empty-title">${title}</div><div class="empty-text">${text}</div>${ctaLabel ? `<button type="button" class="btn btn-secondary btn-sm" onclick="${ctaJs.replace(/"/g, '&quot;')}"><svg class="i"><use href="#i-plus"/></svg>${ctaLabel}</button>` : ''}</div>`;
+}
+
+// ===== LÖSCHEN BESTÄTIGEN =====
+// Nennt das betroffene Objekt, destruktiver Button in Rot, Abbrechen hat den Fokus, Escape bricht ab.
+function confirmDelete(title, text, verb) {
+  return new Promise(resolve => {
+    const ov = document.createElement('div');
+    ov.className = 'modal-overlay confirm-overlay open';
+    ov.innerHTML = `<div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="cfTitle" aria-describedby="cfText">
+      <div class="modal-title" id="cfTitle" style="margin-bottom:8px"><span class="modal-icon tone-red"><svg class="i"><use href="#i-trash"/></svg></span>${escHtml(title)}</div>
+      <div class="confirm-text" id="cfText">${escHtml(text || 'Das lässt sich nicht rückgängig machen.')}</div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-act="cancel">Abbrechen</button>
+        <button type="button" class="btn btn-destructive" data-act="ok">${escHtml(verb)}</button>
+      </div></div>`;
+    const done = ok => { document.removeEventListener('keydown', onKey, true); ov.remove(); resolve(ok); };
+    const onKey = e => { if(e.key === 'Escape') { e.stopPropagation(); done(false); } };
+    ov.addEventListener('click', e => { if(e.target === ov) return done(false); const a = e.target.closest('[data-act]'); if(a) done(a.dataset.act === 'ok'); });
+    document.addEventListener('keydown', onKey, true);
+    document.body.appendChild(ov);
+    ov.querySelector('[data-act="cancel"]').focus();
+  });
+}
+
 // ===== OVERVIEW =====
 function renderOverview() {
   const now = new Date();
@@ -1452,11 +1535,18 @@ function renderOverview() {
     weightDeltaEl.className = 'stat-delta';
   }
 
+  // Trendlinien der letzten 14 Einträge
+  const series = (key, parse=parseFloat) => getLast(data.filter(d=>d[key]), 14).map(d=>({ date: d.date, v: parse(d[key]) }));
+  renderSpark('sparkSleep', series('sleepMin', Number), { color: 'var(--accent)', fmt: minToHM });
+  renderSpark('sparkSteps', series('steps', v=>parseInt(v)), { color: 'var(--green)', fmt: v => v.toLocaleString('de-DE') });
+  renderSpark('sparkBp', series('bpSys', v=>parseInt(v)), { color: 'var(--red)', fmt: v => v });
+  renderSpark('sparkWeight', series('weight'), { color: 'var(--accent2)', fmt: v => v.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) });
+
   renderWeeklyTraining();
 
   // Today habits preview
   const oh = document.getElementById('overviewHabits');
-  if(!habits.length) { oh.innerHTML = '<div class="empty">Noch keine Habits angelegt.<br><a href="#" onclick="nav(\'habits\');return false">Jetzt anlegen →</a></div>'; }
+  if(!habits.length) { oh.innerHTML = emptyState('Noch keine Habits', 'Habits machen deine täglichen Routinen hier auf einen Blick abhakbar.', 'Habit anlegen', "nav('habits');openHabitModal()"); }
   else {
     oh.innerHTML = habits.map(h => {
       const log = DB.get('habit_log_' + h.id, {});
@@ -1597,8 +1687,9 @@ function toggleHabit(id) {
   renderHabits();
 }
 
-function deleteHabit(id) {
-  if(!confirm('Habit wirklich löschen?')) return;
+async function deleteHabit(id) {
+  const h = DB.get('habits', []).find(x => x.id === id);
+  if(!await confirmDelete(`Habit „${h ? h.name : ''}“ löschen?`, 'Alle abgehakten Tage dieses Habits gehen verloren.', 'Habit löschen')) return;
   let habits = DB.get('habits', []);
   habits = habits.filter(h => h.id !== id);
   DB.set('habits', habits);
@@ -1642,7 +1733,7 @@ function renderHabits() {
 
   // Today list
   const hl = document.getElementById('habitList');
-  if(!habits.length) { hl.innerHTML = '<div class="empty">Noch keine Habits.<br>Füge deine erste Gewohnheit hinzu!</div>'; }
+  if(!habits.length) { hl.innerHTML = emptyState('Noch keine Habits', 'Lege eine Gewohnheit an, um Serien und Verlauf zu verfolgen.', 'Habit anlegen', 'openHabitModal()'); }
   else {
     hl.innerHTML = habits.map(h => {
       const log = DB.get('habit_log_' + h.id, {});
@@ -1663,7 +1754,7 @@ function renderHabits() {
   // 14-day history grid
   const days14 = Array.from({length:14},(_,i)=>{ const d=new Date(); d.setDate(d.getDate()-13+i); return d.toISOString().split('T')[0]; });
   const hh = document.getElementById('habitHistory');
-  if(!habits.length) { hh.innerHTML = '<div class="empty">Keine Daten</div>'; return; }
+  if(!habits.length) { hh.innerHTML = emptyState('Noch kein Verlauf', 'Sobald du Habits anlegst und abhakst, erscheint hier das 30-Tage-Raster.'); return; }
   hh.innerHTML = `<div class="table-scroll"><table class="habit-hist" style="width:100%;border-collapse:collapse">
     <tr><th>Habit</th>${days14.map(d=>`<th>${new Date(d+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}</th>`).join('')}</tr>
     ${habits.map(h=>{const log=DB.get('habit_log_'+h.id,{});return`<tr><td>${h.emoji||'✦'}&nbsp; ${h.name}</td>${days14.map(d=>`<td><div class="habit-day-dot${log[d]?' done':''}${d===td?' today':''}" title="${fmtDate(d)}" onclick="toggleHabitDay('${h.id}','${d}')"></div></td>`).join('')}</tr>`;}).join('')}
@@ -1754,7 +1845,7 @@ function renderHealth() {
     <td>${d.remMin ? cell(d.date,'remMin',fmtMin(d.remMin)) : '—'}</td>
     <td style="max-width:180px">${d.note ? cell(d.date,'note',`<span title="${escAttr(d.note)}" style="display:inline-block;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom">${escHtml(d.note)}</span>`) : '—'}</td>
     <td><button class="icon-btn" title="Ganzen Tag löschen" onclick="deleteHealthEntry('${d.date}')"><svg class="i"><use href="#i-x"/></svg></button></td>
-  </tr>`).join('') || '<tr><td colspan="12" class="empty">Noch keine Einträge</td></tr>';
+  </tr>`).join('') || `<tr><td class="empty-cell" colspan="12">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
 }
 
 const escHtml = (str) => String(str).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -1776,10 +1867,10 @@ const HEALTH_FIELDS = {
 
 // Löscht einen einzelnen falsch erfassten Wert; bleibt danach nichts mehr
 // übrig, verschwindet der Tageseintrag komplett.
-function deleteHealthValue(date, field) {
+async function deleteHealthValue(date, field) {
   const cfg = HEALTH_FIELDS[field];
   if(!cfg) return;
-  if(!confirm(`${cfg.label} vom ${fmtDate(date)} löschen?`)) return;
+  if(!await confirmDelete(`${cfg.label} vom ${fmtDate(date)} löschen?`, 'Die übrigen Werte dieses Tages bleiben erhalten.', 'Wert löschen')) return;
   const data = DB.get('health', []);
   const idx = data.findIndex(d => d.date === date);
   if(idx < 0) return;
@@ -1824,14 +1915,14 @@ function sportCell(store, id, field, html) {
   return `<span class="cell-val" title="Wert löschen" onclick="deleteValue('${store}','${id}','${field}')">${html}</span>`;
 }
 
-function deleteValue(store, id, field) {
+async function deleteValue(store, id, field) {
   const cfg = VALUE_STORES[store];
   if(!cfg) return;
   const label = cfg.label ? cfg.label(field) : (cfg.labels[field] || 'Wert');
   const data = DB.get(store, []);
   const idx = data.findIndex(e => e.id === id);
   if(idx < 0) return;
-  if(!confirm(`${label} vom ${fmtDate(data[idx].date)} löschen?`)) return;
+  if(!await confirmDelete(`${label} vom ${fmtDate(data[idx].date)} löschen?`, 'Die übrigen Angaben dieses Eintrags bleiben erhalten.', 'Wert löschen')) return;
   const entry = { ...data[idx] };
   delete entry[field];
   const hasValues = Object.keys(entry).some(k => !cfg.keep.includes(k) && entry[k] !== '' && entry[k] != null);
@@ -1841,8 +1932,8 @@ function deleteValue(store, id, field) {
   toast(`${cfg.toastLabel || label} gelöscht ✓`);
 }
 
-function deleteHealthEntry(date) {
-  if(!confirm(`Alle Werte vom ${fmtDate(date)} löschen?`)) return;
+async function deleteHealthEntry(date) {
+  if(!await confirmDelete(`Alle Werte vom ${fmtDate(date)} löschen?`, 'Schlaf, Schritte, Vitalwerte und Notiz dieses Tages werden entfernt.', 'Tag löschen')) return;
   DB.set('health', DB.get('health', []).filter(d => d.date !== date));
   renderHealth();
   toast('Eintrag gelöscht ✓');
@@ -2016,10 +2107,10 @@ function renderJournal() {
   document.getElementById('journalTodayDate').textContent = fmtDate(today());
   const entries = DB.get('journal', []);
   const list = document.getElementById('journalList');
-  if(!entries.length) { list.innerHTML = '<div class="empty">Noch keine Einträge.</div>'; return; }
+  if(!entries.length) { list.innerHTML = emptyState('Noch keine Journal-Einträge', 'Beantworte oben die Fragen des Tages – deine Einträge sammeln sich hier.'); return; }
   list.innerHTML = [...entries].reverse().map(e=>`
     <div class="journal-entry">
-      <div class="journal-date" style="font-size:13px;color:var(--text);font-weight:600">${fmtDate(e.date)}</div>
+      <div class="journal-date" style="font-size:14px;color:var(--text);font-weight:600">${fmtDate(e.date)}</div>
       ${JOURNAL_QUESTIONS.map(q => e[q.id] ? `
         <div style="margin-top:10px">
           <div style="display:flex;align-items:baseline;gap:8px">
@@ -2053,6 +2144,7 @@ function saveJournal() {
   DB.set('journal', entries);
   ['journalQ1','journalQ2','journalQ3','journalQ4','journalQ5','journalQ6'].forEach(id=>document.getElementById(id).value='');
   checkJournalHabit(date);
+  try { localStorage.removeItem('journal_draft'); } catch(e) {}
   renderJournal();
   toast('Tagesreflexion gespeichert ✓');
 }
@@ -2069,8 +2161,9 @@ function checkJournalHabit(date) {
   }
 }
 
-function deleteJournal(id) {
-  if(!confirm('Eintrag löschen?')) return;
+async function deleteJournal(id) {
+  const j = DB.get('journal', []).find(e => e.id === id);
+  if(!await confirmDelete(`Journal-Eintrag vom ${j ? fmtDate(j.date) : ''} löschen?`, 'Alle Antworten dieses Tages werden entfernt.', 'Eintrag löschen')) return;
   let entries = DB.get('journal', []);
   entries = entries.filter(e=>e.id!==id);
   DB.set('journal', entries);
@@ -2110,7 +2203,7 @@ function renderHealthAnalytics() {
       { label:'Ziel 80 kg', data:wd.map(()=>80), borderColor:'rgba(74,222,128,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
       { label:'Trend', data:calcTrend(wd.map(d=>parseFloat(d.weight))), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 
   // BP chart
@@ -2124,7 +2217,7 @@ function renderHealthAnalytics() {
       { label:'Ziel sys. 120', data:bpData.map(()=>120), borderColor:'rgba(248,113,113,0.35)', borderDash:[6,4], pointRadius:2, fill:false },
       { label:'Ziel dia. 80', data:bpData.map(()=>80), borderColor:'rgba(34,211,238,0.35)', borderDash:[6,4], pointRadius:2, fill:false },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{min:50,grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{color:cGrid()},ticks:{color:cTick(),maxTicksLimit:6}} } }
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{min:50,grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{color:cGrid()},ticks:{color:cTick(),maxTicksLimit:6}} } }
   });
 
   // Temperatur chart
@@ -2137,7 +2230,7 @@ function renderHealthAnalytics() {
       { label:'Normal 37°', data:tempData.map(()=>37), borderColor:'rgba(74,222,128,0.5)', borderDash:[6,4], pointRadius:2, fill:false },
       { label:'Fieber 38°', data:tempData.map(()=>38), borderColor:'rgba(248,113,113,0.5)', borderDash:[6,4], pointRadius:2, fill:false },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+'°'}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:6}} } }
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+'°'}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:6}} } }
   });
 
   // Sleep chart
@@ -2150,7 +2243,7 @@ function renderHealthAnalytics() {
       { label:'REM-Schlaf', data:sleepData.map(d=>minToH(d.remMin)||0), backgroundColor:'rgba(74,222,128,0.8)', borderRadius:3, stack:'sleep' },
       { label:'Leichtschlaf', data:sleepData.map(d=>Math.max(0,minToH(d.sleepMin)-(minToH(d.deepMin)||0)-(minToH(d.remMin)||0))), backgroundColor:'rgba(100,116,139,0.5)', borderRadius:3, stack:'sleep' },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{stacked:true,grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+'h'}}, x:{stacked:true,grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{stacked:true,grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+'h'}}, x:{stacked:true,grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 
   // Steps chart
@@ -2163,7 +2256,7 @@ function renderHealthAnalytics() {
       { label:'Ziel 12.000', data:stepsData.map(()=>12000), type:'line', borderColor:'rgba(34,211,238,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
       { label:'Trend', data:calcTrend(stepsData.map(d=>parseInt(d.steps))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 
   // Kcal chart – Balken über dem Ziel rot, darunter grün
@@ -2176,7 +2269,7 @@ function renderHealthAnalytics() {
       { label:'Ziel 2.000', data:kcalData.map(()=>KCAL_GOAL), type:'line', borderColor:'rgba(34,211,238,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
       { label:'Trend', data:calcTrend(kcalData.map(d=>parseInt(d.kcal))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 
   // Meditation chart – Minuten pro Tag
@@ -2188,7 +2281,7 @@ function renderHealthAnalytics() {
       { label:'Minuten', data:meditData.map(d=>parseInt(d.medit)), backgroundColor:'rgba(99,102,241,0.7)', borderRadius:3 },
       { label:'Trend', data:calcTrend(meditData.map(d=>parseInt(d.medit))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+' min'}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+' min'}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 }
 
@@ -2259,7 +2352,7 @@ function renderKraftExerciseAnalytics() {
       { label:'Trend', data:calcTrend(est1rms), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
     options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, plugins:{
-      legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}},
+      legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}},
       // Tooltip am Datenpunkt zeigt zusätzlich Sätze × Wdh und Volumen der Einheit
       tooltip:{ callbacks:{ afterBody: items => {
         const e = entries[items[0].dataIndex];
@@ -2298,7 +2391,7 @@ function renderCardioExerciseAnalytics() {
       { label:'Trend', data:calcTrend(paces), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
     options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, plugins:{
-      legend:{labels:{color:cTick(),boxWidth:12,font:{size:11}}},
+      legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}},
       // Tooltip am Datenpunkt zeigt zusätzlich Dauer und Distanz der Einheit
       tooltip:{ callbacks:{ afterBody: items => {
         const e = entries[items[0].dataIndex];
@@ -2384,7 +2477,7 @@ function renderSport() {
     </tr>`;
     }).join('');
     return head + rows;
-  }).join('') || '<tr><td colspan="7" class="empty">Noch keine Einträge</td></tr>';
+  }).join('') || `<tr><td class="empty-cell" colspan="7">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
 
   // Ausdauer-Protokoll: ebenfalls je Einheit gruppiert
   const cb = document.getElementById('cardioTable');
@@ -2421,7 +2514,7 @@ function renderSport() {
     </tr>`;
     }).join('');
     return head + rows;
-  }).join('') || '<tr><td colspan="6" class="empty">Noch keine Einträge</td></tr>';
+  }).join('') || `<tr><td class="empty-cell" colspan="6">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
 
   const sauna = DB.get('sport_sauna', []);
   const sb = document.getElementById('saunaTable');
@@ -2429,7 +2522,7 @@ function renderSport() {
       <td>${fmtDate(e.date)}</td>
       <td>${e.min || '—'}</td>
       <td><button class="icon-btn" onclick="deleteSauna('${e.id}')"><svg class="i"><use href="#i-x"/></svg></button></td>
-    </tr>`).join('') || '<tr><td colspan="3" class="empty">Noch keine Einträge</td></tr>';
+    </tr>`).join('') || `<tr><td class="empty-cell" colspan="3">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
 }
 
 function checkGymHabit(date) {
@@ -2612,9 +2705,10 @@ function saveSession(type) {
   toast(`${cfg.label} mit ${rows.length} Übung${rows.length===1?'':'en'} gespeichert ✓`);
 }
 
-function deleteSession(type, trainingId) {
-  if(!confirm('Ganze Einheit löschen?')) return;
+async function deleteSession(type, trainingId) {
   const cfg = SESSION_TYPES[type];
+  const rows = DB.get(cfg.store, []).filter(e => e.trainingId === trainingId);
+  if(!await confirmDelete(`${cfg.label} vom ${rows[0] ? fmtDate(rows[0].date) : ''} löschen?`, `Alle ${rows.length} Übung${rows.length === 1 ? '' : 'en'} dieser Einheit werden entfernt.`, 'Einheit löschen')) return;
   DB.set(cfg.store, DB.get(cfg.store, []).filter(e => e.trainingId !== trainingId));
   renderSport();
   toast('Einheit gelöscht ✓');
@@ -2639,20 +2733,23 @@ function saveSauna() {
   toast('Sauna-Eintrag gespeichert ✓');
 }
 
-function deleteSauna(id) {
-  if(!confirm('Eintrag löschen?')) return;
+async function deleteSauna(id) {
+  const e = DB.get('sport_sauna', []).find(x => x.id === id);
+  if(!await confirmDelete(`Sauna-Eintrag vom ${e ? fmtDate(e.date) : ''} löschen?`, '', 'Eintrag löschen')) return;
   DB.set('sport_sauna', DB.get('sport_sauna', []).filter(e => e.id !== id));
   renderSport();
 }
 
-function deleteKraft(id) {
-  if(!confirm('Übung löschen?')) return;
+async function deleteKraft(id) {
+  const e = DB.get('sport_kraft', []).find(x => x.id === id);
+  if(!await confirmDelete(`Übung „${e ? e.uebung : ''}“ vom ${e ? fmtDate(e.date) : ''} löschen?`, 'Die anderen Übungen der Einheit bleiben erhalten.', 'Übung löschen')) return;
   DB.set('sport_kraft', DB.get('sport_kraft', []).filter(e => e.id !== id));
   renderSport();
 }
 
-function deleteCardio(id) {
-  if(!confirm('Eintrag löschen?')) return;
+async function deleteCardio(id) {
+  const e = DB.get('sport_cardio', []).find(x => x.id === id);
+  if(!await confirmDelete(`„${e ? e.uebung : ''}“ vom ${e ? fmtDate(e.date) : ''} löschen?`, '', 'Eintrag löschen')) return;
   DB.set('sport_cardio', DB.get('sport_cardio', []).filter(e => e.id !== id));
   renderSport();
 }
@@ -2834,8 +2931,9 @@ function saveSchiri() {
   toast('Spiel gespeichert ✓');
 }
 
-function deleteSchiri(id) {
-  if(!confirm('Spiel löschen?')) return;
+async function deleteSchiri(id) {
+  const g = DB.get('schiri_spiele', []).find(x => x.id === id);
+  if(!await confirmDelete(`Spiel ${g ? g.heim + ' – ' + g.gast : ''} löschen?`, g ? `Einsatz vom ${fmtDate(g.date)} wird entfernt.` : '', 'Spiel löschen')) return;
   DB.set('schiri_spiele', DB.get('schiri_spiele', []).filter(g => g.id !== id));
   renderSchiri();
   renderSport();
@@ -2866,7 +2964,7 @@ function renderSchiri(keepLiga) {
       <td>${fmtEur(sumOf(list,'fahrt'))}</td>
       <td><strong>${fmtEur(sumOf(list,'gebuehr') + sumOf(list,'fahrt'))}</strong></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="5" class="empty">Noch keine Spiele</td></tr>';
+  }).join('') || `<tr><td class="empty-cell" colspan="5">${emptyState('Noch keine Spiele', 'Erfasse Einsätze unter „Schiedsrichter“.')}</td></tr>`;
 
   document.getElementById('schiriYears').innerHTML = yearKeys.map(y => {
     const list = [...years[y]].reverse();
@@ -2890,7 +2988,7 @@ function renderSchiri(keepLiga) {
         </tr>`).join('')}</tbody>
       </table></div>
     </div>`;
-  }).join('') || '<div class="card"><div class="empty">Noch keine Spiele erfasst.<br>Trage oben dein erstes Spiel ein!</div></div>';
+  }).join('') || '<div class="card">' + emptyState('Noch keine Spiele', 'Erfasste Einsätze erscheinen hier je Liga mit Einsatzzeit.', 'Spiel erfassen', "openModal('schiriModal')") + '</div>';
 }
 
 function exportSchiri() {
@@ -2911,7 +3009,9 @@ function renderRezepte() {
     if(q) list = list.filter(r => r.name.toLowerCase().includes(q) || (r.zutaten||[]).some(z => z.name.toLowerCase().includes(q)));
     list.sort((a,b) => a.name.localeCompare(b.name, 'de'));
     if(!list.length) {
-      el.innerHTML = `<div class="empty" style="grid-column:1/-1">${q ? 'Keine Treffer.' : 'Noch keine Rezepte für ' + REZEPT_KATEGORIEN[kat] + '. Lege dein erstes an!'}</div>`;
+      el.innerHTML = `<div class="card" style="grid-column:1/-1">${q
+        ? emptyState('Keine Treffer', `Kein Rezept oder keine Zutat passt zu „${escHtml(q)}“.`, 'Suche zurücksetzen', "document.getElementById('rezeptSearch').value='';renderRezepte()")
+        : emptyState('Noch keine Rezepte für ' + REZEPT_KATEGORIEN[kat], 'Rezepte mit Nährwerten helfen dir, Mahlzeiten schnell zu planen.', 'Rezept anlegen', 'openRezeptModal()')}</div>`;
       return;
     }
     el.innerHTML = list.map(r => `
@@ -3001,8 +3101,9 @@ function saveRezept() {
   toast(id ? 'Rezept aktualisiert ✓' : 'Rezept gespeichert ✓');
 }
 
-function deleteRezept(id) {
-  if(!confirm('Rezept löschen?')) return;
+async function deleteRezept(id) {
+  const r = DB.get('rezepte', []).find(x => x.id === id);
+  if(!await confirmDelete(`Rezept „${r ? r.name : ''}“ löschen?`, 'Zutaten und Nährwerte werden ebenfalls entfernt.', 'Rezept löschen')) return;
   DB.set('rezepte', DB.get('rezepte', []).filter(r => r.id !== id));
   renderRezepte();
 }
@@ -3039,10 +3140,10 @@ function handleImport(event) {
   const file = event.target.files[0];
   if(!file) return;
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     try {
       const data = JSON.parse(e.target.result);
-      if(!confirm('Alle vorhandenen Daten werden überschrieben. Fortfahren?')) return;
+      if(!await confirmDelete('Alle Daten durch den Import ersetzen?', 'Vorhandene Einträge werden überschrieben. Sichere sie vorher mit „Speichern“.', 'Daten ersetzen')) return;
       if(data.habits) DB.set('habits', data.habits);
       if(data.habitLogs) Object.entries(data.habitLogs).forEach(([id,log])=>DB.set('habit_log_'+id,log));
       if(data.health) DB.set('health', data.health);
@@ -3096,7 +3197,7 @@ document.querySelectorAll('.modal').forEach(m => {
 });
 if(window.Chart) {
   Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
-  Chart.defaults.font.size = 11;
+  Chart.defaults.font.size = 12;
   Chart.defaults.plugins.tooltip.padding = 10;
   Chart.defaults.plugins.tooltip.cornerRadius = 8;
   Chart.defaults.plugins.legend.labels.usePointStyle = true;
@@ -3107,6 +3208,135 @@ if(window.Chart) {
 }
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeAllModals(); });
 document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===e.currentTarget) el.classList.remove('open'); }));
+// ===== BARRIEREFREIHEIT & BEDIENUNG =====
+// Klickbare Nicht-Buttons (Nav, Kacheln, Häkchen …) per Tastatur bedienbar machen,
+// title-Attribute durch echte Tooltips + aria-label ersetzen, Labels mit Feldern verknüpfen.
+let uidSeq = 0;
+function enhance(root) {
+  root.querySelectorAll('[onclick]:not(button):not(a):not(input):not(select):not(textarea):not([role])').forEach(el => {
+    el.setAttribute('role', 'button');
+    if(!el.hasAttribute('tabindex')) el.tabIndex = 0;
+  });
+  root.querySelectorAll('[title]').forEach(el => {
+    if(el.matches('button, [role="button"], .habit-streak, .habit-total')) {
+      el.dataset.tip = el.title;
+      if(!el.hasAttribute('aria-label') && !el.textContent.trim()) el.setAttribute('aria-label', el.title);
+      el.removeAttribute('title');
+    }
+  });
+  root.querySelectorAll('label.form-label:not([for])').forEach(lab => {
+    const ctrl = lab.nextElementSibling && (lab.nextElementSibling.matches('input, select, textarea') ? lab.nextElementSibling : lab.nextElementSibling.querySelector('input, select, textarea'));
+    if(!ctrl) return;
+    if(!ctrl.id) ctrl.id = 'fld-' + (++uidSeq);
+    lab.htmlFor = ctrl.id;
+  });
+}
+enhance(document);
+new MutationObserver(muts => muts.forEach(m => m.addedNodes.forEach(n => { if(n.nodeType === 1) enhance(n.parentNode || n); })))
+  .observe(document.body, { childList: true, subtree: true });
+document.addEventListener('keydown', e => {
+  const el = e.target;
+  if((e.key === 'Enter' || e.key === ' ') && el.getAttribute && el.getAttribute('role') === 'button' && !el.matches('button')) {
+    e.preventDefault(); el.click();
+  }
+});
+
+// Tooltip bei Hover und Tastaturfokus
+const tipEl = document.createElement('div'); tipEl.className = 'tip'; tipEl.setAttribute('role', 'tooltip'); document.body.appendChild(tipEl);
+function showTip(el) {
+  tipEl.textContent = el.dataset.tip;
+  const r = el.getBoundingClientRect();
+  tipEl.classList.add('show');
+  const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+  let top = r.top - h - 8; if(top < 4) top = r.bottom + 8;
+  tipEl.style.top = top + 'px';
+  tipEl.style.left = Math.max(4, Math.min(window.innerWidth - w - 4, r.left + r.width / 2 - w / 2)) + 'px';
+}
+const hideTip = () => tipEl.classList.remove('show');
+document.addEventListener('pointerover', e => { const t = e.target.closest('[data-tip]'); if(t && e.pointerType === 'mouse') showTip(t); });
+document.addEventListener('pointerout', e => { if(e.target.closest('[data-tip]')) hideTip(); });
+document.addEventListener('focusin', e => { const t = e.target.closest && e.target.closest('[data-tip]'); if(t && t.matches(':focus-visible')) showTip(t); else hideTip(); });
+document.addEventListener('focusout', hideTip);
+document.addEventListener('click', hideTip);
+
+// Dialoge: Fokus beim Öffnen hinein, Tab bleibt drin, beim Schließen zurück zum Auslöser
+const overlayTrigger = new WeakMap();
+let lastOutsideFocus = null; // letzter fokussierter Auslöser außerhalb eines Dialogs
+const rememberTrigger = e => {
+  const t = e.target.closest && e.target.closest('button, [role="button"], a, input, select, textarea');
+  if(t && !t.closest('.modal-overlay')) lastOutsideFocus = t;
+};
+['focusin', 'click', 'keydown'].forEach(t => document.addEventListener(t, rememberTrigger, true));
+const focusables = m => [...m.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(x => !x.disabled && x.offsetParent !== null);
+new MutationObserver(muts => muts.forEach(m => {
+  const ov = m.target;
+  if(!ov.classList.contains('modal-overlay')) return;
+  const isOpen = ov.classList.contains('open'), wasOpen = (m.oldValue || '').split(' ').includes('open');
+  if(isOpen && !wasOpen) {
+    overlayTrigger.set(ov, lastOutsideFocus);
+    requestAnimationFrame(() => { if(!ov.contains(document.activeElement)) { const f = focusables(ov.querySelector('.modal')); (f.find(x => !x.classList.contains('modal-close')) || f[0])?.focus(); } });
+  } else if(!isOpen && wasOpen) {
+    const t = overlayTrigger.get(ov); if(t && document.contains(t)) t.focus();
+    ov.querySelectorAll('[aria-invalid]').forEach(clearFieldError);
+  }
+})).observe(document.body, { attributes: true, attributeFilter: ['class'], attributeOldValue: true, subtree: true });
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Tab') return;
+  const ov = [...document.querySelectorAll('.modal-overlay.open')].pop();
+  if(!ov) return;
+  const f = focusables(ov.querySelector('.modal')); if(!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if(!ov.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+  else if(e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
+
+// Validierung: erst beim Verlassen des Feldes, Fehler verschwinden beim Korrigieren;
+// Speichern bleibt klickbar und zeigt fehlende Angaben direkt am Feld.
+const fieldMsg = el => {
+  const lab = document.querySelector(`label[for="${el.id}"]`);
+  return (lab ? lab.textContent.trim() : 'Dieses Feld') + ' eintragen, um zu speichern.';
+};
+function setFieldError(el) {
+  el.setAttribute('aria-invalid', 'true');
+  let msg = document.getElementById(el.id + '-err');
+  if(!msg) { msg = document.createElement('div'); msg.className = 'field-error'; msg.id = el.id + '-err'; el.insertAdjacentElement('afterend', msg); }
+  msg.textContent = fieldMsg(el);
+  el.setAttribute('aria-describedby', msg.id);
+}
+function clearFieldError(el) {
+  el.removeAttribute('aria-invalid');
+  document.getElementById(el.id + '-err')?.remove();
+  el.removeAttribute('aria-describedby');
+}
+document.addEventListener('focusout', e => { const el = e.target; if(el.matches && el.matches('[required]') && !el.value.trim()) setFieldError(el); });
+['focusin', 'input'].forEach(t => document.addEventListener(t, e => { const el = e.target; if(el.matches && el.matches('[required][aria-invalid]')) clearFieldError(el); }));
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.btn-primary');
+  if(!btn) return;
+  const scope = btn.closest('.modal, .card');
+  if(!scope) return;
+  const bad = [...scope.querySelectorAll('[required]')].filter(el => el.offsetParent !== null && !el.value.trim());
+  if(!bad.length) return;
+  e.stopPropagation(); e.preventDefault();
+  bad.forEach(setFieldError);
+  bad[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
+  bad[0].focus({ preventScroll: true });
+}, true);
+
+// Journal-Entwurf: Antworten überleben Reload und Seitenwechsel, bis gespeichert wird
+const JOURNAL_DRAFT = 'journal_draft';
+function restoreJournalDraft() {
+  let d = {}; try { d = JSON.parse(localStorage.getItem(JOURNAL_DRAFT) || '{}'); } catch(e) {}
+  for(let i = 1; i <= 6; i++) { const el = document.getElementById('journalQ' + i); if(el && d['q' + i] && !el.value) el.value = d['q' + i]; }
+}
+document.addEventListener('input', e => {
+  if(!/^journalQ\d$/.test(e.target.id || '')) return;
+  const d = {}; for(let i = 1; i <= 6; i++) d['q' + i] = document.getElementById('journalQ' + i).value;
+  try { localStorage.setItem(JOURNAL_DRAFT, JSON.stringify(d)); } catch(e) {}
+});
+restoreJournalDraft();
+
 pullState().then(renderOverview);
 </script>
 </body>
