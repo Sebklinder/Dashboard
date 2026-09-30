@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0b0d12">
+<meta name="theme-color" content="#09090b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dashboard">
@@ -15,15 +15,15 @@
 <style>
   /* ===== Design-Tokens ===== */
   :root {
-    --bg: #0b0d12;
-    --surface: #12151c;
-    --surface2: #181c25;
-    --surface3: #1f2430;
-    --border: #232836;
-    --border-strong: #2f3545;
-    --accent: #6d72f6;
-    --accent-hover: #5c61ea;
-    --accent-soft: rgba(109,114,246,0.14);
+    --bg: #09090b;
+    --surface: #111113;
+    --surface2: #17171a;
+    --surface3: #1f1f23;
+    --border: #232326;
+    --border-strong: #303036;
+    --accent: #6e73f5;
+    --accent-hover: #5d62e8;
+    --accent-soft: rgba(110,115,245,0.14);
     --accent2: #22d3ee;
     --green: #34d399;
     --red: #f87171;
@@ -31,23 +31,23 @@
     --green-soft: rgba(52,211,153,0.12);
     --red-soft: rgba(248,113,113,0.12);
     --yellow-soft: rgba(251,191,36,0.12);
-    --text: #e7e9ef;
-    --text-2: #a3aabb;
-    --muted: #6f7789;
-    --radius: 14px;
-    --radius-sm: 9px;
-    --shadow: 0 1px 2px rgba(0,0,0,0.25);
+    --text: #ededef;
+    --text-2: #a1a1aa;
+    --muted: #71717a;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.025);
     --shadow-lg: 0 24px 64px -12px rgba(0,0,0,0.6);
     --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color-scheme: dark;
   }
   :root.light {
-    --bg: #f5f6f8;
+    --bg: #f7f7f8;
     --surface: #ffffff;
-    --surface2: #f8f9fb;
-    --surface3: #eff1f5;
-    --border: #e5e7ec;
-    --border-strong: #d4d8e0;
+    --surface2: #fafafa;
+    --surface3: #f1f1f3;
+    --border: #e7e7ea;
+    --border-strong: #d6d6db;
     --accent: #5b5ff0;
     --accent-hover: #4a4edc;
     --accent-soft: rgba(91,95,240,0.09);
@@ -58,9 +58,9 @@
     --green-soft: rgba(5,150,105,0.09);
     --red-soft: rgba(220,38,38,0.08);
     --yellow-soft: rgba(217,119,6,0.1);
-    --text: #0f172a;
-    --text-2: #475569;
-    --muted: #64748b;
+    --text: #111113;
+    --text-2: #52525b;
+    --muted: #71717a;
     --shadow: 0 1px 2px rgba(15,23,42,0.04), 0 1px 3px rgba(15,23,42,0.04);
     --shadow-lg: 0 24px 64px -12px rgba(15,23,42,0.25);
     color-scheme: light;
@@ -77,16 +77,17 @@
 
   /* ===== Layout ===== */
   .app { display: flex; min-height: 100vh; }
-  .sidebar { width: 232px; background: var(--surface); border-right: 1px solid var(--border); padding: 20px 12px; position: fixed; top: 0; left: 0; height: 100vh; display: flex; flex-direction: column; z-index: 10; }
+  .sidebar { width: 232px; background: var(--bg); border-right: 1px solid var(--border); padding: 20px 12px; position: fixed; top: 0; left: 0; height: 100vh; display: flex; flex-direction: column; z-index: 10; }
   .main { margin-left: 232px; padding: 36px 40px 48px; flex: 1; max-width: 1280px; min-width: 0; } /* min-width:0 – sonst drücken breite Tabellen das Flex-Kind über den Viewport hinaus */
   .logo { display: flex; align-items: center; gap: 10px; padding: 2px 8px 20px; font-size: 15px; font-weight: 650; letter-spacing: -0.2px; color: var(--text); }
-  .logo-mark { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), #8b5cf6); color: #fff; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px -2px rgba(109,114,246,0.45); }
+  .logo-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); color: #fff; display: inline-flex; align-items: center; justify-content: center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 1px 2px rgba(0,0,0,0.3); }
   .logo-mark .i { width: 16px; height: 16px; stroke-width: 2.2; vertical-align: 0; }
-  .nav-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.4px; text-transform: uppercase; padding: 4px 10px 8px; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 2px; cursor: pointer; color: var(--text-2); transition: background 0.15s, color 0.15s; font-size: 14px; font-weight: 500; border-radius: var(--radius-sm); user-select: none; }
+  .nav-label { font-size: 10.5px; font-weight: 600; color: var(--muted); letter-spacing: 0.6px; text-transform: uppercase; padding: 4px 10px 8px; }
+  .nav-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 7px 10px; margin-bottom: 2px; cursor: pointer; color: var(--text-2); transition: background 0.15s, color 0.15s; font-size: 14px; font-weight: 500; border-radius: var(--radius-sm); user-select: none; }
   .nav-item .i { width: 18px; height: 18px; color: var(--muted); transition: color 0.15s; }
   .nav-item:hover { color: var(--text); background: var(--surface2); }
-  .nav-item.active { color: var(--text); background: var(--surface3); }
+  .nav-item.active { color: var(--text); background: var(--surface2); box-shadow: inset 0 0 0 1px var(--border); }
+  .nav-item.active::before { content: ''; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 2px; border-radius: 0 2px 2px 0; background: var(--accent); }
   .nav-item.active .i { color: var(--accent); }
   .sidebar-footer { margin-top: auto; padding: 14px 8px 0; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
   .sidebar-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
@@ -106,12 +107,13 @@
   /* ===== Pages ===== */
   .page { display: none; }
   .page.active { display: block; }
-  .page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.6px; line-height: 1.2; margin-bottom: 4px; }
+  .page-title { font-size: 24px; font-weight: 650; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 4px; }
   .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
 
   /* ===== Cards ===== */
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
-  .card-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: -0.1px; margin-bottom: 14px; }
+  .card-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: -0.1px; margin-bottom: 16px; }
+  .card-sub { color: var(--muted); font-weight: 500; font-size: 12px; }
   .card-title .i { color: var(--muted); }
   .section-header .card-title { margin-bottom: 0; }
   .card-foot { font-size: 11px; color: var(--muted); margin-top: 10px; }
@@ -126,10 +128,17 @@
   /* ===== Stat / KPI ===== */
   .stat { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 4px 0; min-width: 0; }
   .stat-label { order: -1; font-size: 12px; color: var(--muted); font-weight: 500; line-height: 1.35; }
-  .stat-value { font-size: 28px; font-weight: 650; letter-spacing: -0.8px; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--text); }
+  .stat-value { font-size: 28px; font-weight: 600; letter-spacing: -0.9px; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--text); }
   .stat-delta { font-size: 12px; font-weight: 500; min-height: 22px; display: inline-flex; align-items: center; }
   .stat-delta:empty { visibility: hidden; }
-  .stat.mini .stat-value { font-size: 24px; }
+  .stat.mini .stat-value { font-size: 26px; }
+  /* Sparklines (Trend der letzten Einträge in den KPI-Karten) */
+  .spark { margin-top: 14px; }
+  .spark:empty { display: none; }
+  .spark svg { display: block; width: 100%; height: 40px; overflow: visible; }
+  .spark-meta { display: flex; justify-content: space-between; gap: 8px; white-space: nowrap; margin-top: 6px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .kpi-card { display: flex; flex-direction: column; }
+  .kpi-card .spark { margin-top: auto; padding-top: 14px; }
   .overview-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .overview-bottom { display: grid; grid-template-columns: 1fr 1fr 1.3fr 1.7fr; gap: 16px; }
   .stat-group-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
@@ -232,7 +241,7 @@
 
   /* ===== Tabellen ===== */
   .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
-  .data-table th { text-align: left; padding: 10px 12px; font-size: 11.5px; color: var(--muted); font-weight: 600; letter-spacing: 0.2px; border-bottom: 1px solid var(--border); background: var(--surface); white-space: nowrap; }
+  .data-table th { text-align: left; padding: 10px 12px; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid var(--border); background: var(--surface); white-space: nowrap; }
   .data-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); color: var(--text); white-space: nowrap; }
   .data-table tr:last-child td { border-bottom: none; }
   @media (hover: hover) { .data-table tbody tr:hover td { background: var(--surface2); } }
@@ -261,7 +270,7 @@
   /* Wochen-Trainingstabelle auf der Übersicht */
   /* table.-Präfix: schlägt die späteren .data-table-Regeln der Mobil-Breakpoints */
   table.week-table th, table.week-table td { padding: 8px 8px; font-size: 13px; white-space: nowrap; vertical-align: top; }
-  table.week-table th { font-size: 11px; background: transparent; }
+  table.week-table th { font-size: 11px; background: transparent; text-transform: none; letter-spacing: 0; }
   table.week-table td:first-child { color: var(--muted); font-size: 12px; }
   table.week-table tr.cur td { font-weight: 650; font-size: 14px; }
   table.week-table tr.cur td:first-child { color: var(--text); }
@@ -295,21 +304,21 @@
   .modal-overlay.open .modal { animation: modalIn 0.22s cubic-bezier(.2,.8,.2,1); }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes modalIn { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
-  .modal { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 460px; max-width: 100%; max-height: calc(100vh - 40px); overflow-y: auto; box-shadow: var(--shadow-lg); }
+  .modal { position: relative; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 14px; padding: 24px; width: 460px; max-width: 100%; max-height: calc(100vh - 40px); overflow-y: auto; box-shadow: var(--shadow-lg); }
   .modal-title { display: flex; align-items: center; gap: 12px; font-size: 17px; font-weight: 650; letter-spacing: -0.3px; margin-bottom: 22px; padding-right: 36px; }
   .modal-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .modal-icon .i { width: 18px; height: 18px; vertical-align: 0; }
   .modal-close { position: absolute; top: 18px; right: 18px; width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
   .modal-close:hover { background: var(--surface2); color: var(--text); }
   .modal-close .i { width: 18px; height: 18px; vertical-align: 0; }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin: 24px -24px -24px; padding: 16px 24px; border-top: 1px solid var(--border); background: var(--surface2); border-radius: 0 0 16px 16px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin: 24px -24px -24px; padding: 16px 24px; border-top: 1px solid var(--border); background: var(--surface2); border-radius: 0 0 14px 14px; }
 
   /* Eingabe-Kacheln: Klick öffnet das jeweilige Eingabe-Modal */
   .entry-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .entry-tile { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; box-shadow: var(--shadow); -webkit-tap-highlight-color: transparent; user-select: none; }
-  .entry-tile:hover { border-color: var(--border-strong); box-shadow: 0 4px 14px -4px rgba(0,0,0,0.25); transform: translateY(-1px); }
+  .entry-tile { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: border-color 0.15s, background 0.15s, transform 0.15s; box-shadow: var(--shadow); -webkit-tap-highlight-color: transparent; user-select: none; }
+  .entry-tile:hover { border-color: var(--border-strong); background: var(--surface2); }
   .entry-tile:active { transform: scale(0.98); }
-  .entry-tile-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .entry-tile-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .entry-tile-icon .i { width: 18px; height: 18px; vertical-align: 0; }
   .entry-tile-label { font-size: 13.5px; font-weight: 600; flex: 1; }
   .entry-tile::after { content: ''; width: 16px; height: 16px; opacity: 0.5; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236f7789' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='M12 5v14'/%3E%3C/svg%3E") center/contain no-repeat; transition: opacity 0.15s; }
@@ -338,11 +347,12 @@
   .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
   /* Subtabs als Segmented Control */
-  .subnav { display: inline-flex; gap: 2px; padding: 3px; margin-bottom: 20px; background: var(--surface3); border-radius: 10px; }
+  .subnav { display: inline-flex; gap: 2px; padding: 3px; margin-bottom: 20px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; }
   .subnav-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 7px 14px; border-radius: 8px; border: none; background: transparent; color: var(--text-2); cursor: pointer; font-size: 13px; font-weight: 550; transition: all 0.15s; }
   .subnav-btn .i { width: 15px; height: 15px; vertical-align: 0; }
   .subnav-btn:hover { color: var(--text); }
-  .subnav-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.2), 0 0 0 1px var(--border); }
+  .subnav-btn.active { background: var(--surface3); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.2), 0 0 0 1px var(--border-strong); }
+  :root.light .subnav-btn.active { background: var(--surface); }
   .subpage { display: none; }
   .subpage.active { display: block; }
 
@@ -588,8 +598,8 @@
   <div class="page-sub" id="overviewDate"></div>
 
   <div class="overview-groups" style="margin-bottom:16px">
-    <div class="card">
-      <div class="card-title"><svg class="i"><use href="#i-bed"/></svg>Schlaf <span style="color:var(--muted);font-weight:500">Ø letzte 7 Einträge · h:min</span></div>
+    <div class="card kpi-card">
+      <div class="card-title"><svg class="i"><use href="#i-bed"/></svg>Schlaf <span class="card-sub">Ø letzte 7 Einträge · h:min</span></div>
       <div class="stat-group-3">
         <div class="stat mini">
           <div class="stat-value" id="statSleep">—</div>
@@ -607,6 +617,7 @@
           <div class="stat-delta" id="statRemSleepRating"></div>
         </div>
       </div>
+      <div class="spark" id="sparkSleep"></div>
     </div>
     <div class="card">
       <div class="section-header"><span class="card-title"><svg class="i"><use href="#i-dumbbell"/></svg>Training diese Woche</span><span id="statTrainingWeek" style="font-size:12px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums"></span></div>
@@ -619,23 +630,25 @@
   </div>
 
   <div class="overview-bottom" style="margin-bottom:16px">
-    <div class="card">
+    <div class="card kpi-card">
       <div class="card-title"><svg class="i"><use href="#i-steps"/></svg>Schritte</div>
       <div class="stat mini">
         <div class="stat-value" id="statSteps">—</div>
         <div class="stat-label">Ø Schritte</div>
         <div class="stat-delta" id="statStepsRating"></div>
       </div>
+      <div class="spark" id="sparkSteps"></div>
     </div>
-    <div class="card">
+    <div class="card kpi-card">
       <div class="card-title"><svg class="i"><use href="#i-steth"/></svg>Blutdruck</div>
       <div class="stat mini">
         <div class="stat-value" id="statBp">—</div>
         <div class="stat-label">Blutdruck (sys/dia)</div>
         <div class="stat-delta" id="statBpNote"></div>
       </div>
+      <div class="spark" id="sparkBp"></div>
     </div>
-    <div class="card">
+    <div class="card kpi-card">
       <div class="card-title"><svg class="i"><use href="#i-scale"/></svg>Gewicht &amp; BMI</div>
       <div class="stat-group-2">
         <div class="stat mini">
@@ -649,6 +662,7 @@
           <div class="stat-delta" id="statBmiRating"></div>
         </div>
       </div>
+      <div class="spark" id="sparkWeight"></div>
     </div>
     <div class="card">
       <div class="section-header"><span class="card-title"><svg class="i"><use href="#i-habits"/></svg>Heutige Habits</span><span class="habit-ratio" id="overviewHabitsRatio"></span></div>
@@ -1394,6 +1408,28 @@ function toast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
+// ===== SPARKLINES =====
+// Kleine Flächen-Linie (ohne Achsen) für den Verlauf in KPI-Karten; darunter Zeitraum und Spanne.
+function renderSpark(id, pts, { color, fmt = v => v }) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(pts.length < 2) { el.innerHTML = ''; return; }
+  const vals = pts.map(p => p.v);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const W = 100, H = 40, pad = 3;
+  const x = i => (i / (pts.length - 1)) * W;
+  const y = v => max === min ? H / 2 : pad + (1 - (v - min) / (max - min)) * (H - 2 * pad);
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(2)},${y(p.v).toFixed(2)}`).join('');
+  const gid = 'g-' + id;
+  const short = d => new Date(d + 'T12:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+      <defs><linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" style="stop-color:${color};stop-opacity:0.22"/><stop offset="1" style="stop-color:${color};stop-opacity:0"/></linearGradient></defs>
+      <path d="${line}L${W},${H}L0,${H}Z" fill="url(#${gid})"/>
+      <path d="${line}" fill="none" style="stroke:${color}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div class="spark-meta"><span>seit ${short(pts[0].date)}</span><span>${fmt(min)} – ${fmt(max)}</span></div>`;
+}
+
 // ===== OVERVIEW =====
 function renderOverview() {
   const now = new Date();
@@ -1451,6 +1487,13 @@ function renderOverview() {
     weightDeltaEl.textContent = '';
     weightDeltaEl.className = 'stat-delta';
   }
+
+  // Trendlinien der letzten 14 Einträge
+  const series = (key, parse=parseFloat) => getLast(data.filter(d=>d[key]), 14).map(d=>({ date: d.date, v: parse(d[key]) }));
+  renderSpark('sparkSleep', series('sleepMin', Number), { color: 'var(--accent)', fmt: minToHM });
+  renderSpark('sparkSteps', series('steps', v=>parseInt(v)), { color: 'var(--green)', fmt: v => v.toLocaleString('de-DE') });
+  renderSpark('sparkBp', series('bpSys', v=>parseInt(v)), { color: 'var(--red)', fmt: v => v });
+  renderSpark('sparkWeight', series('weight'), { color: 'var(--accent2)', fmt: v => v.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) });
 
   renderWeeklyTraining();
 
