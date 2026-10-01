@@ -117,6 +117,13 @@
   .card-title .i { color: var(--muted); }
   .section-header .card-title { margin-bottom: 0; }
   .card-foot { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  /* Drill-down aus Übersichtskarten */
+  .card-link { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; height: 28px; padding: 0 6px 0 8px; border: none; border-radius: 6px; background: transparent; color: var(--muted); font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; position: relative; }
+  .card-link::before { content: ''; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: 44px; transform: translate(-50%, -50%); }
+  .card-link:hover { color: var(--text); background: var(--surface2); }
+  .card-title .card-link .i { width: 14px; height: 14px; color: currentColor; vertical-align: 0; }
+  .as-of { color: var(--muted); font-weight: 400; }
+  .as-of:not(:empty)::before { content: '· '; }
 
   /* Grid */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -463,6 +470,13 @@
     .form-row-3 { grid-template-columns: 1fr; gap: 8px; }
     .stat-group-3 > .stat + .stat, .stat-group-2 > .stat + .stat { padding-left: 12px; }
     .stat.mini .stat-value { font-size: 20px; }
+    /* Übersicht: Heutige Habits (das Abhakbare) direkt unter die Begrüßung */
+    #page-overview.active { display: flex; flex-direction: column; gap: 12px; }
+    #page-overview .page-sub { margin-bottom: 8px; }
+    #page-overview .overview-groups, #page-overview .overview-bottom { display: contents; }
+    #page-overview .page-title, #page-overview .page-sub { order: -2; }
+    #page-overview .overview-habits { order: -1; }
+    .wk-range { display: none; }
 
     /* Eingaben: 16px verhindert das Auto-Zoom von iOS */
     .form-input { font-size: 16px; height: 44px; }
@@ -521,7 +535,7 @@
   /* Tooltip für Icon-Buttons (Hover und Tastaturfokus) */
   .tip { position: fixed; z-index: 1000; pointer-events: none; background: var(--text); color: var(--bg); font-size: 12px; font-weight: 500; line-height: 1.4; padding: 4px 8px; border-radius: 6px; white-space: nowrap; opacity: 0; transform: translateY(2px); transition: opacity 0.1s, transform 0.1s; }
   .tip.show { opacity: 1; transform: none; }
-  [role="button"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  [role="button"]:focus-visible, [role="checkbox"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   /* Feldvalidierung */
   .field-error { font-size: 12px; color: var(--red); margin-top: 4px; }
   .form-input[aria-invalid="true"] { border-color: var(--red); }
@@ -567,6 +581,7 @@
   <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></symbol>
   <symbol id="i-up" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
   <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
   <symbol id="i-euro" viewBox="0 0 24 24"><path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/></symbol>
@@ -617,7 +632,7 @@
 
   <div class="overview-groups" style="margin-bottom:16px">
     <div class="card kpi-card">
-      <div class="card-title"><svg class="i"><use href="#i-bed"/></svg>Schlaf <span class="card-sub">Ø letzte 7 Einträge · h:min</span></div>
+      <div class="card-title"><svg class="i"><use href="#i-bed"/></svg>Schlaf <span class="card-sub">Ø letzte 7 Einträge · h:min</span><button type="button" class="card-link" onclick="openAnalytics('health')" aria-label="Schlaf-Verlauf öffnen">Verlauf<svg class="i"><use href="#i-chevron"/></svg></button></div>
       <div class="stat-group-3">
         <div class="stat mini">
           <div class="stat-value" id="statSleep">—</div>
@@ -638,7 +653,7 @@
       <div class="spark" id="sparkSleep"></div>
     </div>
     <div class="card">
-      <div class="section-header"><span class="card-title"><svg class="i"><use href="#i-dumbbell"/></svg>Training diese Woche</span><span id="statTrainingWeek" style="font-size:12px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums"></span></div>
+      <div class="section-header"><span class="card-title"><svg class="i"><use href="#i-dumbbell"/></svg>Training diese Woche <span class="card-sub" id="statTrainingWeek" style="white-space:nowrap;font-variant-numeric:tabular-nums"></span></span><button type="button" class="card-link" onclick="openAnalytics('sport')" aria-label="Trainings-Analyse öffnen">Analyse<svg class="i"><use href="#i-chevron"/></svg></button></div>
       <div class="table-scroll"><table class="data-table week-table">
         <thead><tr><th></th><th><span class="week-dot" style="background:var(--accent)"></span>Kraft</th><th><span class="week-dot" style="background:var(--red)"></span>Ausdauer</th><th><span class="week-dot" style="background:var(--green)"></span>Gesamt</th></tr></thead>
         <tbody id="weeklyTrainingBody"></tbody>
@@ -649,29 +664,29 @@
 
   <div class="overview-bottom" style="margin-bottom:16px">
     <div class="card kpi-card">
-      <div class="card-title"><svg class="i"><use href="#i-steps"/></svg>Schritte</div>
+      <div class="card-title"><svg class="i"><use href="#i-steps"/></svg>Schritte<button type="button" class="card-link" onclick="openAnalytics('health')" aria-label="Schritte-Verlauf öffnen">Verlauf<svg class="i"><use href="#i-chevron"/></svg></button></div>
       <div class="stat mini">
         <div class="stat-value" id="statSteps">—</div>
-        <div class="stat-label">Ø Schritte</div>
+        <div class="stat-label">Ø letzte 7 Einträge</div>
         <div class="stat-delta" id="statStepsRating"></div>
       </div>
       <div class="spark" id="sparkSteps"></div>
     </div>
     <div class="card kpi-card">
-      <div class="card-title"><svg class="i"><use href="#i-steth"/></svg>Blutdruck</div>
+      <div class="card-title"><svg class="i"><use href="#i-steth"/></svg>Blutdruck<button type="button" class="card-link" onclick="openAnalytics('health')" aria-label="Blutdruck-Verlauf öffnen">Verlauf<svg class="i"><use href="#i-chevron"/></svg></button></div>
       <div class="stat mini">
         <div class="stat-value" id="statBp">—</div>
-        <div class="stat-label">Blutdruck (sys/dia)</div>
+        <div class="stat-label">sys/dia <span class="as-of" id="statBpAsOf"></span></div>
         <div class="stat-delta" id="statBpNote"></div>
       </div>
       <div class="spark" id="sparkBp"></div>
     </div>
     <div class="card kpi-card">
-      <div class="card-title"><svg class="i"><use href="#i-scale"/></svg>Gewicht &amp; BMI</div>
+      <div class="card-title"><svg class="i"><use href="#i-scale"/></svg>Gewicht &amp; BMI<button type="button" class="card-link" onclick="openAnalytics('health')" aria-label="Gewichts-Verlauf öffnen">Verlauf<svg class="i"><use href="#i-chevron"/></svg></button></div>
       <div class="stat-group-2">
         <div class="stat mini">
           <div class="stat-value" id="statWeight">—</div>
-          <div class="stat-label">Gewicht (kg)</div>
+          <div class="stat-label">Gewicht (kg) <span class="as-of" id="statWeightAsOf"></span></div>
           <div class="stat-delta" id="statWeightDelta"></div>
         </div>
         <div class="stat mini">
@@ -682,7 +697,7 @@
       </div>
       <div class="spark" id="sparkWeight"></div>
     </div>
-    <div class="card">
+    <div class="card overview-habits">
       <div class="section-header"><span class="card-title"><svg class="i"><use href="#i-habits"/></svg>Heutige Habits</span><span class="habit-ratio" id="overviewHabitsRatio"></span></div>
       <div id="overviewHabits"></div>
     </div>
@@ -1427,6 +1442,19 @@ function toast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
+// Dezimalzahlen im deutschen Format (82,4 statt 82.4)
+const fmtDec = (v, d = 1) => Number(v).toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d });
+// Aktualität eines Einzelwerts: „heute“, „gestern“ oder Datum
+function asOf(date) {
+  const diff = Math.round((new Date(today() + 'T12:00:00') - new Date(date + 'T12:00:00')) / 86400000);
+  return diff <= 0 ? 'heute' : diff === 1 ? 'gestern' : new Date(date + 'T12:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+}
+// Von einer Übersichtskarte direkt in die passende Analyse springen
+function openAnalytics(page) {
+  nav(page);
+  switchSubtab(page, 'analytics', document.querySelectorAll(`#page-${page} .subnav-btn`)[1]);
+}
+
 // ===== SPARKLINES =====
 // Kleine Flächen-Linie (ohne Achsen) für den Verlauf in KPI-Karten; darunter Zeitraum und Spanne.
 function renderSpark(id, pts, { color, fmt = v => v }) {
@@ -1446,7 +1474,7 @@ function renderSpark(id, pts, { color, fmt = v => v }) {
       <path d="${line}L${W},${H}L0,${H}Z" fill="url(#${gid})"/>
       <path d="${line}" fill="none" style="stroke:${color}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
     </svg>
-    <div class="spark-meta"><span>seit ${short(pts[0].date)}</span><span>${fmt(min)} – ${fmt(max)}</span></div>`;
+    <div class="spark-meta"><span>${short(pts[0].date)} – ${pts[pts.length-1].date === today() ? 'heute' : short(pts[pts.length-1].date)}</span><span>${fmt(min)} – ${fmt(max)}</span></div>`;
 }
 
 // ===== LEERE ZUSTÄNDE =====
@@ -1502,7 +1530,9 @@ function renderOverview() {
   const prevWeight = data.filter(d=>d.weight).slice(-2,-1)[0];
   const lastBp = data.filter(d=>d.bpSys&&d.bpDia).pop();
 
-  document.getElementById('statWeight').textContent = lastWeight?.weight || '—';
+  document.getElementById('statWeight').textContent = lastWeight ? fmtDec(lastWeight.weight) : '—';
+  document.getElementById('statWeightAsOf').textContent = lastWeight ? asOf(lastWeight.date) : '';
+  document.getElementById('statBpAsOf').textContent = lastBp ? asOf(lastBp.date) : '';
   document.getElementById('statSleep').textContent = sleepAvgMin ? minToHM(sleepAvgMin) : '—';
   applyRating(document.getElementById('statSleepRating'), sleepAvgMin ? sleepDurationRating(sleepAvgMin/60) : null);
 
@@ -1517,22 +1547,25 @@ function renderOverview() {
   document.getElementById('statBp').textContent = lastBp ? `${lastBp.bpSys}/${lastBp.bpDia}` : '—';
   applyRating(document.getElementById('statBpNote'), lastBp ? bpCategory(parseInt(lastBp.bpSys), parseInt(lastBp.bpDia)) : null);
 
-  const stepsAvg = Math.round(avg(data.filter(d=>d.steps).map(d=>parseInt(d.steps)))) || 0;
+  const stepsAvg = Math.round(avg(getLast(data.filter(d=>d.steps), 7).map(d=>parseInt(d.steps)))) || 0;
   document.getElementById('statSteps').textContent = stepsAvg ? stepsAvg.toLocaleString('de-DE') : '—';
   applyRating(document.getElementById('statStepsRating'), stepsAvg ? stepsRating(stepsAvg) : null);
 
   const bmi = lastWeight ? parseFloat(lastWeight.weight) / (HEIGHT_M*HEIGHT_M) : null;
-  document.getElementById('statBmi').textContent = bmi ? bmi.toFixed(1) : '—';
+  document.getElementById('statBmi').textContent = bmi ? fmtDec(bmi) : '—';
   applyRating(document.getElementById('statBmiRating'), bmi ? bmiRating(bmi) : null);
 
   const weightDeltaEl = document.getElementById('statWeightDelta');
   if(lastWeight && prevWeight) {
-    const diff = (parseFloat(lastWeight.weight) - parseFloat(prevWeight.weight)).toFixed(1);
-    weightDeltaEl.textContent = (diff > 0 ? '↑ +' : diff < 0 ? '↓ ' : '± ') + diff + ' kg';
-    weightDeltaEl.className = 'stat-delta ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : 'neutral');
+    // Neutral eingefärbt: ob Zu- oder Abnahme gut ist, hängt vom Ziel ab – Grün/Rot würde hier werten.
+    const diff = Math.round((parseFloat(lastWeight.weight) - parseFloat(prevWeight.weight)) * 10) / 10;
+    weightDeltaEl.textContent = (diff > 0 ? '↑ +' : diff < 0 ? '↓ −' : '± ') + fmtDec(Math.abs(diff)) + ' kg';
+    weightDeltaEl.dataset.tip = 'Veränderung zur vorherigen Messung';
+    weightDeltaEl.className = 'stat-delta neutral';
   } else {
     weightDeltaEl.textContent = '';
     weightDeltaEl.className = 'stat-delta';
+    delete weightDeltaEl.dataset.tip;
   }
 
   // Trendlinien der letzten 14 Einträge
@@ -1540,7 +1573,7 @@ function renderOverview() {
   renderSpark('sparkSleep', series('sleepMin', Number), { color: 'var(--accent)', fmt: minToHM });
   renderSpark('sparkSteps', series('steps', v=>parseInt(v)), { color: 'var(--green)', fmt: v => v.toLocaleString('de-DE') });
   renderSpark('sparkBp', series('bpSys', v=>parseInt(v)), { color: 'var(--red)', fmt: v => v });
-  renderSpark('sparkWeight', series('weight'), { color: 'var(--accent2)', fmt: v => v.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) });
+  renderSpark('sparkWeight', series('weight'), { color: 'var(--accent2)', fmt: fmtDec });
 
   renderWeeklyTraining();
 
@@ -1558,7 +1591,7 @@ function renderOverview() {
         <span class="habit-name">${h.name}</span>
         <span class="habit-streak" title="Aktuelle Serie"><svg class="i"><use href="#i-flame"/></svg>${streak}</span>
         <span class="habit-streak longest" title="Längste Serie"><svg class="i"><use href="#i-trophy"/></svg>${longest}</span>
-        <div class="habit-check sm ${done?'done':''}" onclick="toggleHabitFromOverview('${h.id}')"></div>
+        <div class="habit-check sm ${done?'done':''}" role="checkbox" tabindex="0" aria-checked="${done?'true':'false'}" aria-label="${escHtml(h.name)} heute erledigt" data-habit="${h.id}" onclick="toggleHabitFromOverview('${h.id}')"></div>
       </div>`;
     }).join('');
   }
@@ -1570,6 +1603,8 @@ function toggleHabitFromOverview(id) {
   log[td] = !log[td];
   DB.set('habit_log_' + id, log);
   renderOverview();
+  // Neu gerendert → Fokus zurück auf dasselbe Häkchen (Tastaturbedienung)
+  document.querySelector(`#overviewHabits [data-habit="${id}"]`)?.focus();
 }
 
 // ===== TRAININGSZEIT PRO WOCHE (Übersicht) =====
@@ -1619,7 +1654,7 @@ function renderWeeklyTraining() {
   const prev = trainingMinutes(addDays(from, -7), addDays(from, -1));
   const avg = averageWeekMinutes(from);
   const dm = d => new Date(d + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'});
-  document.getElementById('statTrainingWeek').textContent = `KW ${isoWeek(td)} · ${dm(from)}–${dm(to)}`;
+  document.getElementById('statTrainingWeek').innerHTML = `KW ${isoWeek(td)}<span class="wk-range"> · ${dm(from)}–${dm(to)}</span>`;
 
   // Zelle: konkrete Zeit · Anzahl Einheiten (Ø-Zeile mit Nachkommastellen)
   const cell = (min, sessions, isAvg) => {
@@ -3236,7 +3271,7 @@ new MutationObserver(muts => muts.forEach(m => m.addedNodes.forEach(n => { if(n.
   .observe(document.body, { childList: true, subtree: true });
 document.addEventListener('keydown', e => {
   const el = e.target;
-  if((e.key === 'Enter' || e.key === ' ') && el.getAttribute && el.getAttribute('role') === 'button' && !el.matches('button')) {
+  if((e.key === 'Enter' || e.key === ' ') && el.getAttribute && ['button', 'checkbox'].includes(el.getAttribute('role')) && !el.matches('button, input')) {
     e.preventDefault(); el.click();
   }
 });
