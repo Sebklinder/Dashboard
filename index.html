@@ -452,6 +452,12 @@
     .tab-item .i { width: 22px; height: 22px; stroke-width: 1.7; }
     .tab-item span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
     .tab-item.active { color: var(--accent); }
+    /* Start: mittig, als hervorgehobener runder Button über der Leiste */
+    .tab-home.active { font-weight: 600; }
+    .tab-home .tab-home-btn { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; margin-top: -24px; border-radius: 50%; background: var(--accent); color: #fff; box-shadow: 0 0 0 5px var(--surface), 0 6px 16px -4px color-mix(in srgb, var(--accent) 55%, transparent); transition: transform 0.15s, background 0.15s; }
+    .tab-home .tab-home-btn .i { width: 22px; height: 22px; stroke-width: 2; }
+    .tab-home:active .tab-home-btn { transform: scale(0.94); }
+    .tab-home:not(.active) .tab-home-btn { background: var(--accent-soft); color: var(--accent); box-shadow: 0 0 0 5px var(--surface), inset 0 0 0 1.5px var(--accent); }
 
     /* Typografie */
     .page-title { font-size: 23px; }
@@ -978,10 +984,10 @@
 
 <!-- Tab-Leiste unten (nur Smartphone) -->
 <nav class="tabbar">
-  <div class="tab-item active" onclick="nav('overview')"><svg class="i"><use href="#i-home"/></svg><span>Start</span></div>
   <div class="tab-item" onclick="nav('habits')"><svg class="i"><use href="#i-habits"/></svg><span>Habits</span></div>
   <div class="tab-item" onclick="nav('health')" aria-label="Gesundheit"><svg class="i"><use href="#i-heart"/></svg><span>Vital</span></div>
   <div class="tab-item" onclick="nav('journal')"><svg class="i"><use href="#i-book"/></svg><span>Journal</span></div>
+  <div class="tab-item tab-home active" onclick="nav('overview')"><span class="tab-home-btn"><svg class="i"><use href="#i-home"/></svg></span><span>Start</span></div>
   <div class="tab-item" onclick="nav('sport')"><svg class="i"><use href="#i-dumbbell"/></svg><span>Sport</span></div>
   <div class="tab-item" onclick="nav('rezepte')"><svg class="i"><use href="#i-utensils"/></svg><span>Rezepte</span></div>
   <div class="tab-item" onclick="nav('schiri')"><svg class="i"><use href="#i-ball"/></svg><span>Schiri</span></div>
