@@ -139,6 +139,8 @@
   .stat-delta { font-size: 12px; font-weight: 500; min-height: 22px; display: inline-flex; align-items: center; }
   .stat-delta:empty { visibility: hidden; }
   .stat.mini .stat-value { font-size: 26px; }
+  .stat-sub { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.3; }
+  .stat-sub:empty { display: none; }
   /* Sparklines (Trend der letzten Einträge in den KPI-Karten) */
   .spark { margin-top: 14px; }
   .spark:empty { display: none; }
@@ -632,20 +634,23 @@
 
   <div class="overview-groups" style="margin-bottom:16px">
     <div class="card kpi-card">
-      <div class="card-title"><svg class="i"><use href="#i-bed"/></svg>Schlaf <span class="card-sub">Ø letzte 7 Einträge · h:min</span><button type="button" class="card-link" onclick="openAnalytics('health')" aria-label="Schlaf-Verlauf öffnen">Verlauf<svg class="i"><use href="#i-chevron"/></svg></button></div>
+      <div class="card-title"><svg class="i"><use href="#i-bed"/></svg>Schlaf <span class="card-sub">Ø aller Einträge · h:min</span><button type="button" class="card-link" onclick="openAnalytics('health')" aria-label="Schlaf-Verlauf öffnen">Verlauf<svg class="i"><use href="#i-chevron"/></svg></button></div>
       <div class="stat-group-3">
         <div class="stat mini">
           <div class="stat-value" id="statSleep">—</div>
+          <div class="stat-sub" id="statSleep7"></div>
           <div class="stat-label">Gesamt</div>
           <div class="stat-delta" id="statSleepRating"></div>
         </div>
         <div class="stat mini">
           <div class="stat-value" id="statDeepSleep">—</div>
+          <div class="stat-sub" id="statDeepSleep7"></div>
           <div class="stat-label">Tiefschlaf</div>
           <div class="stat-delta" id="statDeepSleepRating"></div>
         </div>
         <div class="stat mini">
           <div class="stat-value" id="statRemSleep">—</div>
+          <div class="stat-sub" id="statRemSleep7"></div>
           <div class="stat-label">REM</div>
           <div class="stat-delta" id="statRemSleepRating"></div>
         </div>
@@ -667,7 +672,8 @@
       <div class="card-title"><svg class="i"><use href="#i-steps"/></svg>Schritte<button type="button" class="card-link" onclick="openAnalytics('health')" aria-label="Schritte-Verlauf öffnen">Verlauf<svg class="i"><use href="#i-chevron"/></svg></button></div>
       <div class="stat mini">
         <div class="stat-value" id="statSteps">—</div>
-        <div class="stat-label">Ø letzte 7 Einträge</div>
+          <div class="stat-sub" id="statSteps7"></div>
+        <div class="stat-label">Ø aller Einträge</div>
         <div class="stat-delta" id="statStepsRating"></div>
       </div>
       <div class="spark" id="sparkSteps"></div>
@@ -676,7 +682,8 @@
       <div class="card-title"><svg class="i"><use href="#i-steth"/></svg>Blutdruck<button type="button" class="card-link" onclick="openAnalytics('health')" aria-label="Blutdruck-Verlauf öffnen">Verlauf<svg class="i"><use href="#i-chevron"/></svg></button></div>
       <div class="stat mini">
         <div class="stat-value" id="statBp">—</div>
-        <div class="stat-label">sys/dia <span class="as-of" id="statBpAsOf"></span></div>
+          <div class="stat-sub" id="statBp7"></div>
+        <div class="stat-label">Ø sys/dia <span class="as-of" id="statBpAsOf"></span></div>
         <div class="stat-delta" id="statBpNote"></div>
       </div>
       <div class="spark" id="sparkBp"></div>
@@ -1522,17 +1529,24 @@ function renderOverview() {
   document.getElementById('overviewHabitsRatio').textContent = habits.length ? `${completedToday.length}/${habits.length}` : '';
 
   // Vitaldaten-Stats
-  const last7 = getLast(data, 7);
-  const sleepAvgMin = Math.round(avg(last7.filter(d=>d.sleepMin).map(d=>d.sleepMin))) || 0;
-  const deepAvgMin  = Math.round(avg(last7.filter(d=>d.deepMin).map(d=>d.deepMin))) || 0;
-  const remAvgMin   = Math.round(avg(last7.filter(d=>d.remMin).map(d=>d.remMin))) || 0;
+  // Durchschnitte über alle vorhandenen Einträge, darunter klein der Ø der letzten 7
+  const avg7 = (key, parse=Number) => { const v = getLast(data.filter(d=>d[key]), 7).map(d=>parse(d[key])); return v.length ? Math.round(avg(v)) : 0; };
+  const set7 = (id, txt) => { document.getElementById(id).textContent = txt ? `Ø letzte 7: ${txt}` : ''; };
+  const sleepAvgMin = Math.round(avg(data.filter(d=>d.sleepMin).map(d=>Number(d.sleepMin)))) || 0;
+  const deepAvgMin  = Math.round(avg(data.filter(d=>d.deepMin).map(d=>Number(d.deepMin)))) || 0;
+  const remAvgMin   = Math.round(avg(data.filter(d=>d.remMin).map(d=>Number(d.remMin)))) || 0;
   const lastWeight = data.filter(d=>d.weight).pop();
   const prevWeight = data.filter(d=>d.weight).slice(-2,-1)[0];
-  const lastBp = data.filter(d=>d.bpSys&&d.bpDia).pop();
+  const bpAll = data.filter(d=>d.bpSys&&d.bpDia);
+  const bpSysAvg = Math.round(avg(bpAll.map(d=>parseInt(d.bpSys)))) || 0;
+  const bpDiaAvg = Math.round(avg(bpAll.map(d=>parseInt(d.bpDia)))) || 0;
 
   document.getElementById('statWeight').textContent = lastWeight ? fmtDec(lastWeight.weight) : '—';
   document.getElementById('statWeightAsOf').textContent = lastWeight ? asOf(lastWeight.date) : '';
-  document.getElementById('statBpAsOf').textContent = lastBp ? asOf(lastBp.date) : '';
+  document.getElementById('statBpAsOf').textContent = bpAll.length ? `${bpAll.length} Messungen` : '';
+  set7('statSleep7', avg7('sleepMin') ? minToHM(avg7('sleepMin')) : '');
+  set7('statDeepSleep7', avg7('deepMin') ? minToHM(avg7('deepMin')) : '');
+  set7('statRemSleep7', avg7('remMin') ? minToHM(avg7('remMin')) : '');
   document.getElementById('statSleep').textContent = sleepAvgMin ? minToHM(sleepAvgMin) : '—';
   applyRating(document.getElementById('statSleepRating'), sleepAvgMin ? sleepDurationRating(sleepAvgMin/60) : null);
 
@@ -1544,10 +1558,13 @@ function renderOverview() {
   const remPct = (remAvgMin && sleepAvgMin) ? Math.round(remAvgMin/sleepAvgMin*100) : null;
   applyRating(document.getElementById('statRemSleepRating'), remPct!=null ? sleepShareRating(remPct,'rem') : null);
 
-  document.getElementById('statBp').textContent = lastBp ? `${lastBp.bpSys}/${lastBp.bpDia}` : '—';
-  applyRating(document.getElementById('statBpNote'), lastBp ? bpCategory(parseInt(lastBp.bpSys), parseInt(lastBp.bpDia)) : null);
+  const bpSys7 = avg7('bpSys', parseInt), bpDia7 = avg7('bpDia', parseInt);
+  set7('statBp7', bpSys7 ? `${bpSys7}/${bpDia7}` : '');
+  document.getElementById('statBp').textContent = bpAll.length ? `${bpSysAvg}/${bpDiaAvg}` : '—';
+  applyRating(document.getElementById('statBpNote'), bpAll.length ? bpCategory(bpSysAvg, bpDiaAvg) : null);
 
-  const stepsAvg = Math.round(avg(getLast(data.filter(d=>d.steps), 7).map(d=>parseInt(d.steps)))) || 0;
+  const stepsAvg = Math.round(avg(data.filter(d=>d.steps).map(d=>parseInt(d.steps)))) || 0;
+  set7('statSteps7', avg7('steps', parseInt) ? avg7('steps', parseInt).toLocaleString('de-DE') : '');
   document.getElementById('statSteps').textContent = stepsAvg ? stepsAvg.toLocaleString('de-DE') : '—';
   applyRating(document.getElementById('statStepsRating'), stepsAvg ? stepsRating(stepsAvg) : null);
 
