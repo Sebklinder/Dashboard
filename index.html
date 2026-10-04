@@ -977,6 +977,17 @@
     </table></div>
   </div>
 
+  <div class="card" style="margin-bottom:16px">
+    <div class="section-header">
+      <span class="card-title"><svg class="i"><use href="#i-ball"/></svg>Spiele je Liga</span>
+    </div>
+    <div class="table-scroll"><table class="data-table">
+      <thead id="schiriLigaHead"></thead>
+      <tbody id="schiriLigaTable"></tbody>
+    </table></div>
+    <div class="card-foot">Regio = RLH/RLD · BVS = Landes- und Oberliga (LL/OL).</div>
+  </div>
+
   <div id="schiriYears"></div>
 </div>
 
@@ -2992,6 +3003,17 @@ async function deleteSchiri(id) {
   toast('Spiel gelöscht ✓');
 }
 
+// Ligen für die Übersicht zusammenfassen: JBBL/NBBL · 2.DBBL · Regio (RL…) · BVS (LL…/OL…)
+const SCHIRI_GRUPPEN = ['JBBL/NBBL', '2.DBBL', 'Regio', 'BVS', 'Sonstige'];
+function schiriGruppe(liga) {
+  const l = String(liga || '').toUpperCase().replace(/\s/g, '');
+  if(l === 'JBBL' || l === 'NBBL') return 'JBBL/NBBL';
+  if(l.includes('DBBL')) return '2.DBBL';
+  if(l.startsWith('RL') || l.startsWith('REGIO')) return 'Regio';
+  if(l.startsWith('LL') || l.startsWith('OL') || l.startsWith('BVS')) return 'BVS';
+  return 'Sonstige';
+}
+
 function renderSchiri(keepLiga) {
   document.getElementById('schiriDate').value = today();
   renderPickSelect('schiriLiga', schiriLigen(), keepLiga || '', 'Liga wählen…', 'Neue Liga…');
@@ -3017,6 +3039,18 @@ function renderSchiri(keepLiga) {
       <td><strong>${fmtEur(sumOf(list,'gebuehr') + sumOf(list,'fahrt'))}</strong></td>
     </tr>`;
   }).join('') || `<tr><td class="empty-cell" colspan="5">${emptyState('Noch keine Spiele', 'Erfasse Einsätze unter „Schiedsrichter“.')}</td></tr>`;
+
+  // Spiele je Liga-Gruppe, pro Jahr und gesamt
+  const groupCols = SCHIRI_GRUPPEN.filter(gr => gr !== 'Sonstige' || data.some(g => schiriGruppe(g.liga) === 'Sonstige'));
+  const countRow = (label, list, strong) => {
+    const cnt = {}; list.forEach(g => { const gr = schiriGruppe(g.liga); cnt[gr] = (cnt[gr] || 0) + 1; });
+    const c = v => strong ? `<strong>${v}</strong>` : v;
+    return `<tr><td>${c(label)}</td>${groupCols.map(gr => `<td>${cnt[gr] ? c(cnt[gr]) : '—'}</td>`).join('')}<td>${c(list.length)}</td></tr>`;
+  };
+  document.getElementById('schiriLigaHead').innerHTML = `<tr><th>Jahr</th>${groupCols.map(gr => `<th>${gr}</th>`).join('')}<th>Gesamt</th></tr>`;
+  document.getElementById('schiriLigaTable').innerHTML = data.length
+    ? yearKeys.map(y => countRow(y, years[y], false)).join('') + (yearKeys.length > 1 ? countRow('Gesamt', data, true) : '')
+    : `<tr><td class="empty-cell" colspan="${groupCols.length + 2}">${emptyState('Noch keine Spiele', 'Erfasste Einsätze werden hier nach Liga gezählt.')}</td></tr>`;
 
   document.getElementById('schiriYears').innerHTML = yearKeys.map(y => {
     const list = [...years[y]].reverse();
