@@ -1453,7 +1453,8 @@ async function pushState() {
       if (k === 'theme') continue; // rein lokale UI-Einstellung, nicht syncen
       snapshot[k] = localStorage.getItem(k);
     }
-    await fetch('/api/state', { method: 'POST', body: JSON.stringify(snapshot) });
+    const res = await fetch('/api/state', { method: 'POST', body: JSON.stringify(snapshot) });
+    if(!res.ok) throw new Error('HTTP ' + res.status); // abgelehnte Speicherung nicht als Erfolg melden
     setSyncStatus('Synchronisiert · ' + new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}), 'ok');
   } catch (e) {
     setSyncStatus('Sync fehlgeschlagen', 'warn');
@@ -1462,6 +1463,7 @@ async function pushState() {
 async function pullState() {
   try {
     const res = await fetch('/api/state');
+    if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
     setSyncStatus('Aktuell · ' + new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}), 'ok');
