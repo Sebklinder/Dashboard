@@ -405,7 +405,7 @@
   .subnav-secondary { background: transparent; border: none; padding: 0; gap: 4px; margin-bottom: 16px; }
   .subnav-secondary .subnav-btn { padding: 6px 12px; font-size: 13px; border: 1px solid var(--border); border-radius: 999px; }
   .subnav-secondary .subnav-btn.active { background: var(--accent-soft); color: var(--accent); box-shadow: none; border-color: transparent; }
-  @media (max-width: 480px) { #page-ernaehrung > .subnav .subnav-btn .i { display: none; } #page-ernaehrung > .subnav .subnav-btn { padding: 8px 4px; } }
+  @media (max-width: 480px) { #page-ernaehrung > .subnav .subnav-btn .i, .subnav-secondary .subnav-btn .i { display: none; } #page-ernaehrung > .subnav .subnav-btn { padding: 8px 4px; } .subnav-secondary .subnav-btn { padding: 6px 4px; min-width: 0; } }
   .subnav-btn:hover { color: var(--text); }
   .subnav-btn.active { background: var(--surface3); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 0 0 1px var(--border-strong); }
   :root.light .subnav-btn.active { background: var(--surface); }
@@ -475,6 +475,10 @@
   .zutat-list li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--border); }
   .zutat-list li:last-child { border-bottom: none; }
   .zutat-gramm { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .rezept-dd { display: flex; flex-wrap: wrap; gap: 6px; }
+  .dd-chip { --c: hsl(var(--h) 60% 62%); display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 500; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
+  :root.light .dd-chip { --c: hsl(var(--h) 55% 36%); }
+  .dd-chip b { font-weight: 700; font-variant-numeric: tabular-nums; }
   .rezept-actions { display: flex; gap: 8px; margin-top: auto; justify-content: flex-end; padding-top: 4px; align-items: center; }
   .zutat-row { display: grid; grid-template-columns: 1fr 96px 36px; gap: 8px; margin-bottom: 8px; align-items: center; }
   .zutat-row .btn-remove { width: 36px; height: 40px; padding: 0; justify-content: center; font-size: 16px; line-height: 1; }
@@ -1025,6 +1029,7 @@
     <button class="subnav-btn active" onclick="switchSubtab('rezepte','fruehstueck',this)"><svg class="i"><use href="#i-sunrise"/></svg>Frühstück</button>
     <button class="subnav-btn" onclick="switchSubtab('rezepte','mittag',this)"><svg class="i"><use href="#i-sun"/></svg>Mittagessen</button>
     <button class="subnav-btn" onclick="switchSubtab('rezepte','abend',this)"><svg class="i"><use href="#i-moon"/></svg>Abendessen</button>
+    <button class="subnav-btn" onclick="switchSubtab('rezepte','snack',this)"><svg class="i"><use href="#i-leaf"/></svg>Snacks</button>
   </div>
 
   <div class="rezept-toolbar">
@@ -1036,6 +1041,7 @@
   <div id="rezepte-fruehstueck" class="subpage active"><div class="rezept-grid" id="rezeptList-fruehstueck"></div></div>
   <div id="rezepte-mittag" class="subpage"><div class="rezept-grid" id="rezeptList-mittag"></div></div>
   <div id="rezepte-abend" class="subpage"><div class="rezept-grid" id="rezeptList-abend"></div></div>
+  <div id="rezepte-snack" class="subpage"><div class="rezept-grid" id="rezeptList-snack"></div></div>
   </div>
 </div>
 
@@ -1123,6 +1129,7 @@
           <option value="fruehstueck">Frühstück</option>
           <option value="mittag">Mittagessen</option>
           <option value="abend">Abendessen</option>
+          <option value="snack">Snacks</option>
         </select>
       </div>
     </div>
@@ -3078,85 +3085,151 @@ function exportSport() {
 }
 
 // ===== REZEPTBUCH =====
-const REZEPT_KATEGORIEN = { fruehstueck: 'Frühstück', mittag: 'Mittagessen', abend: 'Abendessen' };
+const REZEPT_KATEGORIEN = { fruehstueck: 'Frühstück', mittag: 'Mittagessen', abend: 'Abendessen', snack: 'Snacks' };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtNum = (v, unit='') => (v === '' || v == null || isNaN(v)) ? '—' : (Math.round(v*10)/10).toLocaleString('de-DE') + unit;
 
-// Startbestand aus dem Wochenernährungsplan – wird einmalig angelegt, wenn noch keine Rezepte existieren
+// Startbestand aus dem Wochenernährungsplan – wird einmalig angelegt, wenn noch keine Rezepte existieren.
+// v: Seed-Version, in der das Rezept dazukam. Seit v3 auf Daily Dozen abgestimmt (Blattgrün, Beeren, Leinsamen, Kurkuma, Vollkorn).
 const DEFAULT_REZEPTE = [
+  // ---- Wochenplan 1 ----
   // Frühstück
-  { name: 'Shake Banane-Blaubeere mit Leinsamen', category: 'fruehstueck', kcal: 341, protein: 41, kh: 26, fett: 8.5,
-    zutaten: [['Fettarme Milch (1,5%)', 200], ['Eiweißpulver (Whey Isolat)', 40], ['Banane', 30], ['Heidelbeeren', 30], ['Leinsamen (gemahlen)', 10]] },
-  { name: 'Shake Apfel-Chia', category: 'fruehstueck', kcal: 319, protein: 40.5, kh: 23, fett: 7.5,
-    zutaten: [['Fettarme Milch (1,5%)', 200], ['Eiweißpulver (Whey Isolat)', 40], ['Apfel', 50], ['Chia-Samen', 10]] },
-  { name: 'Körniger-Frischkäse-Bowl mit Chia', category: 'fruehstueck', kcal: 294, protein: 26.5, kh: 22.5, fett: 12,
-    zutaten: [['Körniger Frischkäse', 200], ['Heidelbeeren', 40], ['Banane', 30], ['Chia-Samen', 10]] },
+  { name: 'Shake Banane-Blaubeere mit Leinsamen', category: 'fruehstueck', kcal: 365, protein: 42, kh: 29.5, fett: 9,
+    zutaten: [['Fettarme Milch (1,5%)', 200], ['Eiweißpulver (Whey Isolat)', 40], ['Banane', 30], ['Heidelbeeren', 75], ['Leinsamen (gemahlen)', 10], ['Babyspinat', 30]] },
+  { name: 'Shake Apfel-Chia', category: 'fruehstueck', kcal: 409, protein: 43.5, kh: 29, fett: 12,
+    zutaten: [['Fettarme Milch (1,5%)', 200], ['Eiweißpulver (Whey Isolat)', 40], ['Apfel', 50], ['Chia-Samen', 10], ['Heidelbeeren', 75], ['Leinsamen (gemahlen)', 10], ['Babyspinat', 30]] },
+  { name: 'Körniger-Frischkäse-Bowl mit Chia', category: 'fruehstueck', kcal: 428, protein: 30, kh: 26.5, fett: 22.5,
+    zutaten: [['Körniger Frischkäse', 200], ['Heidelbeeren', 75], ['Banane', 30], ['Chia-Samen', 10], ['Leinsamen (gemahlen)', 10], ['Walnüsse', 10]] },
   // Mittagessen
-  { name: 'Thunfisch-Kichererbsen-Paprika-Bowl', category: 'mittag', kcal: 577, protein: 70, kh: 49.5, fett: 11,
-    zutaten: [['Thunfisch (Dose, abgetropft)', 215], ['Kichererbsen (Dose, abgetropft)', 90], ['Brokkoli', 145], ['Paprika', 50], ['Rote Zwiebel', 30], ['Reis (Vollkorn, gekocht)', 65], ['Olivenöl', 5]] },
-  { name: 'Blumenkohl-Kichererbsen-Paprika-Salat mit Feta', category: 'mittag', kcal: 553, protein: 27, kh: 54.5, fett: 25,
-    zutaten: [['Blumenkohl', 230], ['Kichererbsen (Dose, abgetropft)', 120], ['Feta', 75], ['Paprika', 55], ['Rote Zwiebel', 35], ['Reis (Vollkorn, gekocht)', 45], ['Olivenöl', 5]] },
-  { name: 'Kichererbsen-Blumenkohl-Paprika-Curry', category: 'mittag', kcal: 519, protein: 22.5, kh: 69, fett: 17,
-    zutaten: [['Kichererbsen (Dose, abgetropft)', 165], ['Blumenkohl', 205], ['Paprika', 50], ['Reis (Vollkorn, gekocht)', 70], ['Rote Zwiebel', 25], ['Cashews', 15], ['Olivenöl', 5]] },
-  { name: 'Linsen-Tofu-Paprika-Bowl', category: 'mittag', kcal: 568, protein: 40, kh: 63, fett: 18.5,
-    zutaten: [['Tofu (fest)', 145], ['Linsen (gekocht/Dose)', 125], ['Reis (Vollkorn, gekocht)', 75], ['Brokkoli', 145], ['Paprika', 50], ['Rote Zwiebel', 30], ['Olivenöl', 5]] },
+  { name: 'Thunfisch-Kichererbsen-Paprika-Bowl', category: 'mittag', kcal: 602, protein: 70.5, kh: 55, fett: 11,
+    zutaten: [['Thunfisch (Dose, abgetropft)', 215], ['Kichererbsen (Dose, abgetropft)', 90], ['Brokkoli', 100], ['Paprika', 50], ['Rote Zwiebel', 30], ['Reis (Vollkorn, gekocht)', 90], ['Olivenöl', 5], ['Babyspinat', 60]] },
+  { name: 'Blumenkohl-Kichererbsen-Paprika-Salat mit Feta', category: 'mittag', kcal: 606, protein: 28, kh: 65.5, fett: 25.5,
+    zutaten: [['Blumenkohl', 180], ['Kichererbsen (Dose, abgetropft)', 120], ['Feta', 75], ['Paprika', 55], ['Rote Zwiebel', 35], ['Reis (Vollkorn, gekocht)', 90], ['Olivenöl', 5], ['Rucola', 40]] },
+  { name: 'Kichererbsen-Blumenkohl-Paprika-Curry', category: 'mittag', kcal: 546, protein: 23.5, kh: 74, fett: 17.5,
+    zutaten: [['Kichererbsen (Dose, abgetropft)', 165], ['Blumenkohl', 160], ['Paprika', 50], ['Reis (Vollkorn, gekocht)', 90], ['Rote Zwiebel', 25], ['Cashews', 15], ['Olivenöl', 5], ['Babyspinat', 60], ['Kurkuma (gemahlen)', 1]] },
+  { name: 'Linsen-Tofu-Paprika-Bowl', category: 'mittag', kcal: 588, protein: 40.5, kh: 66.5, fett: 19,
+    zutaten: [['Tofu (fest)', 145], ['Linsen (gekocht/Dose)', 125], ['Reis (Vollkorn, gekocht)', 90], ['Brokkoli', 110], ['Paprika', 50], ['Rote Zwiebel', 30], ['Olivenöl', 5], ['Babyspinat', 60], ['Kurkuma (gemahlen)', 1]] },
   // Abendessen
-  { name: 'Lachs mit Blumenkohl, Tomate & Kartoffeln', category: 'abend', kcal: 579, protein: 49.5, kh: 38, fett: 25.5,
-    zutaten: [['Lachsfilet (gegart)', 190], ['Blumenkohl', 215], ['Tomate', 50], ['Kartoffel (gekocht)', 125], ['Rote Zwiebel', 30]] },
-  { name: 'Gebratener Tofu mit Brokkoli, Tomate & Kartoffeln', category: 'abend', kcal: 605, protein: 44.5, kh: 56.5, fett: 24,
-    zutaten: [['Tofu (fest)', 225], ['Brokkoli', 225], ['Tomate', 50], ['Kartoffel (gekocht)', 155], ['Rote Zwiebel', 35], ['Olivenöl', 5]] },
-  { name: 'Tofu-Caprese mit Mini-Mozzarella & Tomate', category: 'abend', kcal: 643, protein: 45.5, kh: 42.5, fett: 34,
-    zutaten: [['Tofu (fest)', 160], ['Mini-Mozzarella', 80], ['Tomate', 50], ['Brokkoli', 135], ['Rote Zwiebel', 25], ['Kartoffel (gekocht)', 115], ['Olivenöl', 5]] },
-  { name: 'Thunfisch-Ofengemüse mit Tomate & Kartoffeln', category: 'abend', kcal: 578, protein: 67.5, kh: 60, fett: 8.5,
-    zutaten: [['Thunfisch (Dose, abgetropft)', 210], ['Blumenkohl', 170], ['Brokkoli', 170], ['Tomate', 50], ['Kartoffel (gekocht)', 190], ['Rote Zwiebel', 35], ['Olivenöl', 5]] },
-
+  { name: 'Lachs mit Blumenkohl, Tomate & Kartoffeln', category: 'abend', kcal: 615, protein: 54.5, kh: 39, fett: 26,
+    zutaten: [['Lachsfilet (gegart)', 190], ['Blumenkohl', 160], ['Tomate', 50], ['Kartoffel (gekocht)', 60], ['Rote Zwiebel', 30], ['Babyspinat', 60], ['Weiße Bohnen (Dose, abgetropft)', 90]] },
+  { name: 'Gebratener Tofu mit Brokkoli, Tomate & Kartoffeln', category: 'abend', kcal: 597, protein: 43.5, kh: 55.5, fett: 24,
+    zutaten: [['Tofu (fest)', 225], ['Brokkoli', 160], ['Tomate', 50], ['Kartoffel (gekocht)', 155], ['Rote Zwiebel', 35], ['Olivenöl', 5], ['Babyspinat', 60], ['Kurkuma (gemahlen)', 1]] },
+  { name: 'Tofu-Caprese mit Mini-Mozzarella & Tomate', category: 'abend', kcal: 653, protein: 46.5, kh: 43.5, fett: 34.5,
+    zutaten: [['Tofu (fest)', 160], ['Mini-Mozzarella', 80], ['Tomate', 50], ['Brokkoli', 135], ['Rote Zwiebel', 25], ['Kartoffel (gekocht)', 115], ['Olivenöl', 5], ['Rucola', 40]] },
+  { name: 'Thunfisch-Ofengemüse mit Tomate & Kartoffeln', category: 'abend', kcal: 598, protein: 72.5, kh: 57, fett: 9,
+    zutaten: [['Thunfisch (Dose, abgetropft)', 210], ['Blumenkohl', 170], ['Brokkoli', 170], ['Tomate', 50], ['Kartoffel (gekocht)', 90], ['Rote Zwiebel', 35], ['Olivenöl', 5], ['Weiße Bohnen (Dose, abgetropft)', 90], ['Babyspinat', 40]] },
   // ---- Wochenplan 2 ----
   // Frühstück
-  { name: 'Blaubeer-Chia-Pudding', category: 'fruehstueck', kcal: 337, protein: 37.5, kh: 26, fett: 10,
-    zutaten: [['Fettarme Milch (1,5%)', 165], ['Eiweißpulver (Whey Isolat)', 35], ['Chia-Samen', 20], ['Heidelbeeren', 55]] },
-  { name: 'Tofu-Beeren-Smoothie', category: 'fruehstueck', kcal: 344, protein: 24, kh: 30.5, fett: 15.5,
-    zutaten: [['Tofu (fest)', 105], ['Fettarme Milch (1,5%)', 160], ['Banane', 45], ['Heidelbeeren', 45], ['Leinsamen (gemahlen)', 10]] },
-  { name: 'Frischkäse-Apfel-Bowl mit Cashew', category: 'fruehstueck', kcal: 332, protein: 29.5, kh: 20, fett: 16,
-    zutaten: [['Körniger Frischkäse', 220], ['Apfel', 65], ['Cashews', 15]] },
-  { name: 'Chia-Pudding Apfel-Zimt', category: 'fruehstueck', kcal: 319, protein: 33, kh: 27, fett: 9.5,
-    zutaten: [['Fettarme Milch (1,5%)', 160], ['Eiweißpulver (Whey Isolat)', 30], ['Chia-Samen', 20], ['Apfel', 65]] },
-  { name: 'Skyr-Bowl mit Apfel-Zimt & Leinsamen', category: 'fruehstueck', kcal: 255, protein: 31, kh: 23, fett: 5,
-    zutaten: [['Griechischer Joghurt (0,2%)', 290], ['Apfel', 70], ['Leinsamen (gemahlen)', 10]] },
+  { name: 'Blaubeer-Chia-Pudding', category: 'fruehstueck', kcal: 399, protein: 39.5, kh: 27.5, fett: 14.5, v: 2,
+    zutaten: [['Fettarme Milch (1,5%)', 165], ['Eiweißpulver (Whey Isolat)', 35], ['Chia-Samen', 20], ['Heidelbeeren', 75], ['Leinsamen (gemahlen)', 10]] },
+  { name: 'Tofu-Beeren-Smoothie', category: 'fruehstueck', kcal: 362, protein: 25, kh: 33, fett: 16, v: 2,
+    zutaten: [['Tofu (fest)', 105], ['Fettarme Milch (1,5%)', 160], ['Banane', 45], ['Heidelbeeren', 75], ['Leinsamen (gemahlen)', 10], ['Babyspinat', 30]] },
+  { name: 'Frischkäse-Apfel-Bowl mit Cashew', category: 'fruehstueck', kcal: 446, protein: 32, kh: 32, fett: 21, v: 2,
+    zutaten: [['Körniger Frischkäse', 220], ['Apfel', 120], ['Cashews', 15], ['Heidelbeeren', 75], ['Leinsamen (gemahlen)', 10]] },
+  { name: 'Chia-Pudding Apfel-Zimt', category: 'fruehstueck', kcal: 401, protein: 35, kh: 33.5, fett: 14, v: 2,
+    zutaten: [['Fettarme Milch (1,5%)', 160], ['Eiweißpulver (Whey Isolat)', 30], ['Chia-Samen', 20], ['Apfel', 120], ['Leinsamen (gemahlen)', 10]] },
+  { name: 'Skyr-Bowl mit Apfel-Zimt & Leinsamen', category: 'fruehstueck', kcal: 458, protein: 36.5, kh: 47.5, fett: 13.5, v: 2,
+    zutaten: [['Griechischer Joghurt (0,2%)', 290], ['Apfel', 120], ['Leinsamen (gemahlen)', 10], ['Haferflocken', 30], ['Walnüsse', 10]] },
   // Mittagessen
-  { name: 'Linsen-Reis-Bowl mit Paprika & Tomate', category: 'mittag', kcal: 566, protein: 29.5, kh: 85.5, fett: 14,
-    zutaten: [['Linsen (gekocht/Dose)', 255], ['Reis (Vollkorn, gekocht)', 75], ['Paprika', 75], ['Tomate', 75], ['Rote Zwiebel', 35], ['Cashews', 15], ['Olivenöl', 5]] },
-  { name: 'Kichererbsen-Ofengemüse mit Feta', category: 'mittag', kcal: 580, protein: 30, kh: 58, fett: 24.5,
-    zutaten: [['Kichererbsen (Dose, abgetropft)', 200], ['Blumenkohl', 200], ['Paprika', 80], ['Rote Zwiebel', 30], ['Feta', 65], ['Olivenöl', 5]] },
-  { name: 'Tofu-Brokkoli-Paprika-Bowl mit Reis', category: 'mittag', kcal: 573, protein: 42.5, kh: 47.5, fett: 25,
-    zutaten: [['Tofu (fest)', 225], ['Brokkoli', 180], ['Paprika', 75], ['Rote Zwiebel', 35], ['Reis (Vollkorn, gekocht)', 85], ['Olivenöl', 5]] },
-  { name: 'Mozzarella-Tomate-Kichererbsen-Salat', category: 'mittag', kcal: 557, protein: 32.5, kh: 41.5, fett: 29,
-    zutaten: [['Mini-Mozzarella', 105], ['Tomate', 150], ['Kichererbsen (Dose, abgetropft)', 150], ['Rote Zwiebel', 30], ['Olivenöl', 5]] },
-  { name: 'Kichererbsen-Curry-Bowl', category: 'mittag', kcal: 607, protein: 28, kh: 92.5, fett: 13,
-    zutaten: [['Kichererbsen (Dose, abgetropft)', 250], ['Blumenkohl', 215], ['Paprika', 80], ['Reis (Vollkorn, gekocht)', 100], ['Rote Zwiebel', 35], ['Olivenöl (+ Currypulver)', 5]] },
+  { name: 'Linsen-Reis-Bowl mit Paprika & Tomate', category: 'mittag', kcal: 598, protein: 31.5, kh: 90, fett: 14.5, v: 2,
+    zutaten: [['Linsen (gekocht/Dose)', 255], ['Reis (Vollkorn, gekocht)', 90], ['Paprika', 75], ['Tomate', 75], ['Rote Zwiebel', 35], ['Cashews', 15], ['Olivenöl', 5], ['Babyspinat', 60], ['Kurkuma (gemahlen)', 1]] },
+  { name: 'Kichererbsen-Ofengemüse mit Feta', category: 'mittag', kcal: 582, protein: 30, kh: 58.5, fett: 24.5, v: 2,
+    zutaten: [['Kichererbsen (Dose, abgetropft)', 200], ['Blumenkohl', 150], ['Paprika', 80], ['Rote Zwiebel', 30], ['Feta', 65], ['Olivenöl', 5], ['Rucola', 40], ['Kurkuma (gemahlen)', 1]] },
+  { name: 'Tofu-Brokkoli-Paprika-Bowl mit Reis', category: 'mittag', kcal: 572, protein: 42.5, kh: 48, fett: 25, v: 2,
+    zutaten: [['Tofu (fest)', 225], ['Brokkoli', 130], ['Paprika', 75], ['Rote Zwiebel', 35], ['Reis (Vollkorn, gekocht)', 90], ['Olivenöl', 5], ['Babyspinat', 60]] },
+  { name: 'Mozzarella-Tomate-Kichererbsen-Salat', category: 'mittag', kcal: 576, protein: 34, kh: 43.5, fett: 29.5, v: 2,
+    zutaten: [['Mini-Mozzarella', 105], ['Tomate', 150], ['Kichererbsen (Dose, abgetropft)', 150], ['Rote Zwiebel', 30], ['Olivenöl', 5], ['Rucola', 40], ['Radieschen', 60]] },
+  { name: 'Kichererbsen-Curry-Bowl', category: 'mittag', kcal: 605, protein: 28, kh: 91.5, fett: 13, v: 2,
+    zutaten: [['Kichererbsen (Dose, abgetropft)', 250], ['Blumenkohl', 160], ['Paprika', 80], ['Reis (Vollkorn, gekocht)', 100], ['Rote Zwiebel', 35], ['Olivenöl (+ Currypulver)', 5], ['Babyspinat', 60]] },
   // Abendessen
-  { name: 'Tofu-Kichererbsen-Pfanne mit Blumenkohl', category: 'abend', kcal: 578, protein: 45, kh: 43.5, fett: 25,
-    zutaten: [['Tofu (fest)', 200], ['Kichererbsen (Dose, abgetropft)', 125], ['Blumenkohl', 235], ['Rote Zwiebel', 35], ['Olivenöl', 5]] },
-  { name: 'Thunfisch-Kartoffel-Paprika-Salat', category: 'abend', kcal: 565, protein: 67, kh: 56, fett: 8,
-    zutaten: [['Thunfisch (Dose, abgetropft)', 235], ['Kartoffel (gekocht)', 235], ['Paprika', 90], ['Rote Zwiebel', 40], ['Olivenöl', 5]] },
-  { name: 'Linsen-Curry mit Kartoffeln', category: 'abend', kcal: 582, protein: 29.5, kh: 105, fett: 6.5,
-    zutaten: [['Linsen (gekocht/Dose)', 265], ['Kartoffel (gekocht)', 225], ['Rote Zwiebel', 40], ['Paprika', 60], ['Olivenöl (+ Currypulver)', 5]] },
-  { name: 'Kichererbsen-Pfanne mit Paprika & Feta', category: 'abend', kcal: 598, protein: 27.5, kh: 67, fett: 23.5,
-    zutaten: [['Kichererbsen (Dose, abgetropft)', 190], ['Paprika', 70], ['Rote Zwiebel', 25], ['Feta', 65], ['Kartoffel (gekocht)', 100], ['Olivenöl', 5]] },
-  { name: 'Lachs mit Tomate-Paprika & Reis', category: 'abend', kcal: 620, protein: 46.5, kh: 38, fett: 31,
-    zutaten: [['Lachsfilet (gegart)', 190], ['Tomate', 105], ['Paprika', 75], ['Rote Zwiebel', 25], ['Reis (Vollkorn, gekocht)', 105], ['Olivenöl', 5]] },
-  { name: 'Mozzarella-Gemüse-Auflauf', category: 'abend', kcal: 580, protein: 30.5, kh: 53, fett: 29,
-    zutaten: [['Mini-Mozzarella', 120], ['Blumenkohl', 220], ['Tomate', 85], ['Kartoffel (gekocht)', 175], ['Rote Zwiebel', 25], ['Olivenöl', 5]] },
+  { name: 'Tofu-Kichererbsen-Pfanne mit Blumenkohl', category: 'abend', kcal: 579, protein: 45.5, kh: 43, fett: 25, v: 2,
+    zutaten: [['Tofu (fest)', 200], ['Kichererbsen (Dose, abgetropft)', 125], ['Blumenkohl', 180], ['Rote Zwiebel', 35], ['Olivenöl', 5], ['Babyspinat', 60], ['Kurkuma (gemahlen)', 1]] },
+  { name: 'Thunfisch-Kartoffel-Paprika-Salat', category: 'abend', kcal: 607, protein: 73, kh: 56, fett: 8.5, v: 2,
+    zutaten: [['Thunfisch (Dose, abgetropft)', 235], ['Kartoffel (gekocht)', 135], ['Paprika', 90], ['Rote Zwiebel', 40], ['Olivenöl', 5], ['Weiße Bohnen (Dose, abgetropft)', 100], ['Rucola', 40], ['Radieschen', 60]] },
+  { name: 'Linsen-Curry mit Kartoffeln', category: 'abend', kcal: 592, protein: 31, kh: 105.5, fett: 6.5, v: 2,
+    zutaten: [['Linsen (gekocht/Dose)', 265], ['Kartoffel (gekocht)', 225], ['Rote Zwiebel', 40], ['Paprika', 60], ['Olivenöl (+ Currypulver)', 5], ['Babyspinat', 60]] },
+  { name: 'Kichererbsen-Pfanne mit Paprika & Feta', category: 'abend', kcal: 632, protein: 31, kh: 69.5, fett: 24, v: 2,
+    zutaten: [['Kichererbsen (Dose, abgetropft)', 190], ['Paprika', 70], ['Rote Zwiebel', 25], ['Feta', 65], ['Kartoffel (gekocht)', 100], ['Olivenöl', 5], ['Babyspinat', 60], ['Brokkoli', 60], ['Kurkuma (gemahlen)', 1]] },
+  { name: 'Lachs mit Tomate-Paprika & Reis', category: 'abend', kcal: 651, protein: 50, kh: 40, fett: 31.5, v: 2,
+    zutaten: [['Lachsfilet (gegart)', 190], ['Tomate', 105], ['Paprika', 75], ['Rote Zwiebel', 25], ['Reis (Vollkorn, gekocht)', 105], ['Olivenöl', 5], ['Babyspinat', 60], ['Brokkoli', 60]] },
+  { name: 'Mozzarella-Gemüse-Auflauf', category: 'abend', kcal: 590, protein: 32, kh: 53.5, fett: 29, v: 2,
+    zutaten: [['Mini-Mozzarella', 120], ['Blumenkohl', 220], ['Tomate', 85], ['Kartoffel (gekocht)', 175], ['Rote Zwiebel', 25], ['Olivenöl', 5], ['Babyspinat', 60]] },
+  // ---- Daily-Dozen-Ergänzungen ----
+  // Frühstück
+  { name: 'Overnight Oats mit Beeren, Walnuss & Leinsamen', category: 'fruehstueck', kcal: 532, protein: 38.5, kh: 44.5, fett: 20, v: 3,
+    zutaten: [['Haferflocken', 50], ['Fettarme Milch (1,5%)', 150], ['Eiweißpulver (Whey Isolat)', 25], ['Heidelbeeren', 75], ['Walnüsse', 15], ['Leinsamen (gemahlen)', 10]] },
+  { name: 'Vollkornbrot mit Hummus, Hüttenkäse & Tomate', category: 'fruehstueck', kcal: 402, protein: 23, kh: 40, fett: 14.5, v: 3,
+    zutaten: [['Vollkornbrot', 80], ['Hummus', 50], ['Körniger Frischkäse', 100], ['Tomate', 80], ['Babyspinat', 30]] },
+  // Mittagessen
+  { name: 'Schwarze-Bohnen-Quinoa-Bowl mit Mango', category: 'mittag', kcal: 527, protein: 26, kh: 70, fett: 12, v: 3,
+    zutaten: [['Quinoa (gekocht)', 150], ['Schwarze Bohnen (Dose, abgetropft)', 150], ['Babyspinat', 60], ['Rotkohl', 60], ['Paprika', 80], ['Mango', 80], ['Kürbiskerne', 15], ['Kurkuma (gemahlen)', 1]] },
+  // Abendessen
+  { name: 'Vollkornnudeln mit Linsen-Bolognese & Spinat', category: 'abend', kcal: 577, protein: 27.5, kh: 78.5, fett: 14.5, v: 3,
+    zutaten: [['Vollkornnudeln (gekocht)', 150], ['Linsen (gekocht/Dose)', 150], ['Passierte Tomaten', 200], ['Babyspinat', 60], ['Rote Zwiebel', 40], ['Walnüsse', 10], ['Olivenöl', 5]] },
+  { name: 'Ofen-Süßkartoffel mit Kidneybohnen, Brokkoli & Joghurt', category: 'abend', kcal: 504, protein: 35.5, kh: 73.5, fett: 2, v: 3,
+    zutaten: [['Süßkartoffel (gegart)', 250], ['Kidneybohnen (Dose, abgetropft)', 150], ['Brokkoli', 120], ['Babyspinat', 30], ['Griechischer Joghurt (0,2%)', 150], ['Kurkuma (gemahlen)', 1]] },
+  // Snacks
+  { name: 'Apfel mit Mandelmus & Zimt', category: 'snack', kcal: 171, protein: 3.5, kh: 18, fett: 9, v: 3,
+    zutaten: [['Apfel', 150], ['Mandelmus', 15]] },
+  { name: 'Beeren-Skyr mit Leinsamen', category: 'snack', kcal: 200, protein: 23, kh: 12, fett: 5, v: 3,
+    zutaten: [['Griechischer Joghurt (0,2%)', 200], ['Himbeeren', 75], ['Leinsamen (gemahlen)', 10]] },
+  { name: 'Obstteller mit Walnüssen', category: 'snack', kcal: 222, protein: 3.5, kh: 27, fett: 10, v: 3,
+    zutaten: [['Birne', 120], ['Orange', 120], ['Walnüsse', 15]] },
 ];
 
+// Für Daily Dozen überarbeitete Standard-Rezepte: ursprüngliche Zutatenliste je Name.
+// Nur Rezepte, die noch genau so gespeichert sind (also nicht selbst bearbeitet), werden aktualisiert.
+const REZEPT_UPGRADES_V3 = {
+  'Shake Banane-Blaubeere mit Leinsamen': 'Fettarme Milch (1,5%):200|Eiweißpulver (Whey Isolat):40|Banane:30|Heidelbeeren:30|Leinsamen (gemahlen):10',
+  'Shake Apfel-Chia': 'Fettarme Milch (1,5%):200|Eiweißpulver (Whey Isolat):40|Apfel:50|Chia-Samen:10',
+  'Körniger-Frischkäse-Bowl mit Chia': 'Körniger Frischkäse:200|Heidelbeeren:40|Banane:30|Chia-Samen:10',
+  'Thunfisch-Kichererbsen-Paprika-Bowl': 'Thunfisch (Dose, abgetropft):215|Kichererbsen (Dose, abgetropft):90|Brokkoli:145|Paprika:50|Rote Zwiebel:30|Reis (Vollkorn, gekocht):65|Olivenöl:5',
+  'Blumenkohl-Kichererbsen-Paprika-Salat mit Feta': 'Blumenkohl:230|Kichererbsen (Dose, abgetropft):120|Feta:75|Paprika:55|Rote Zwiebel:35|Reis (Vollkorn, gekocht):45|Olivenöl:5',
+  'Kichererbsen-Blumenkohl-Paprika-Curry': 'Kichererbsen (Dose, abgetropft):165|Blumenkohl:205|Paprika:50|Reis (Vollkorn, gekocht):70|Rote Zwiebel:25|Cashews:15|Olivenöl:5',
+  'Linsen-Tofu-Paprika-Bowl': 'Tofu (fest):145|Linsen (gekocht/Dose):125|Reis (Vollkorn, gekocht):75|Brokkoli:145|Paprika:50|Rote Zwiebel:30|Olivenöl:5',
+  'Lachs mit Blumenkohl, Tomate & Kartoffeln': 'Lachsfilet (gegart):190|Blumenkohl:215|Tomate:50|Kartoffel (gekocht):125|Rote Zwiebel:30',
+  'Gebratener Tofu mit Brokkoli, Tomate & Kartoffeln': 'Tofu (fest):225|Brokkoli:225|Tomate:50|Kartoffel (gekocht):155|Rote Zwiebel:35|Olivenöl:5',
+  'Tofu-Caprese mit Mini-Mozzarella & Tomate': 'Tofu (fest):160|Mini-Mozzarella:80|Tomate:50|Brokkoli:135|Rote Zwiebel:25|Kartoffel (gekocht):115|Olivenöl:5',
+  'Thunfisch-Ofengemüse mit Tomate & Kartoffeln': 'Thunfisch (Dose, abgetropft):210|Blumenkohl:170|Brokkoli:170|Tomate:50|Kartoffel (gekocht):190|Rote Zwiebel:35|Olivenöl:5',
+  'Blaubeer-Chia-Pudding': 'Fettarme Milch (1,5%):165|Eiweißpulver (Whey Isolat):35|Chia-Samen:20|Heidelbeeren:55',
+  'Tofu-Beeren-Smoothie': 'Tofu (fest):105|Fettarme Milch (1,5%):160|Banane:45|Heidelbeeren:45|Leinsamen (gemahlen):10',
+  'Frischkäse-Apfel-Bowl mit Cashew': 'Körniger Frischkäse:220|Apfel:65|Cashews:15',
+  'Chia-Pudding Apfel-Zimt': 'Fettarme Milch (1,5%):160|Eiweißpulver (Whey Isolat):30|Chia-Samen:20|Apfel:65',
+  'Skyr-Bowl mit Apfel-Zimt & Leinsamen': 'Griechischer Joghurt (0,2%):290|Apfel:70|Leinsamen (gemahlen):10',
+  'Linsen-Reis-Bowl mit Paprika & Tomate': 'Linsen (gekocht/Dose):255|Reis (Vollkorn, gekocht):75|Paprika:75|Tomate:75|Rote Zwiebel:35|Cashews:15|Olivenöl:5',
+  'Kichererbsen-Ofengemüse mit Feta': 'Kichererbsen (Dose, abgetropft):200|Blumenkohl:200|Paprika:80|Rote Zwiebel:30|Feta:65|Olivenöl:5',
+  'Tofu-Brokkoli-Paprika-Bowl mit Reis': 'Tofu (fest):225|Brokkoli:180|Paprika:75|Rote Zwiebel:35|Reis (Vollkorn, gekocht):85|Olivenöl:5',
+  'Mozzarella-Tomate-Kichererbsen-Salat': 'Mini-Mozzarella:105|Tomate:150|Kichererbsen (Dose, abgetropft):150|Rote Zwiebel:30|Olivenöl:5',
+  'Kichererbsen-Curry-Bowl': 'Kichererbsen (Dose, abgetropft):250|Blumenkohl:215|Paprika:80|Reis (Vollkorn, gekocht):100|Rote Zwiebel:35|Olivenöl (+ Currypulver):5',
+  'Tofu-Kichererbsen-Pfanne mit Blumenkohl': 'Tofu (fest):200|Kichererbsen (Dose, abgetropft):125|Blumenkohl:235|Rote Zwiebel:35|Olivenöl:5',
+  'Thunfisch-Kartoffel-Paprika-Salat': 'Thunfisch (Dose, abgetropft):235|Kartoffel (gekocht):235|Paprika:90|Rote Zwiebel:40|Olivenöl:5',
+  'Linsen-Curry mit Kartoffeln': 'Linsen (gekocht/Dose):265|Kartoffel (gekocht):225|Rote Zwiebel:40|Paprika:60|Olivenöl (+ Currypulver):5',
+  'Kichererbsen-Pfanne mit Paprika & Feta': 'Kichererbsen (Dose, abgetropft):190|Paprika:70|Rote Zwiebel:25|Feta:65|Kartoffel (gekocht):100|Olivenöl:5',
+  'Lachs mit Tomate-Paprika & Reis': 'Lachsfilet (gegart):190|Tomate:105|Paprika:75|Rote Zwiebel:25|Reis (Vollkorn, gekocht):105|Olivenöl:5',
+  'Mozzarella-Gemüse-Auflauf': 'Mini-Mozzarella:120|Blumenkohl:220|Tomate:85|Kartoffel (gekocht):175|Rote Zwiebel:25|Olivenöl:5',
+};
+
 // Version hochzählen, wenn neue Standard-Rezepte ergänzt werden – fehlende werden dann nachgetragen
-const REZEPT_SEED_VERSION = 2;
+const REZEPT_SEED_VERSION = 3;
+const zutatenSig = zutaten => (zutaten || []).map(z => `${z.name}:${z.gramm}`).join('|');
 function seedRezepte() {
   const done = parseInt(localStorage.getItem('rezepte_seed_version') || (localStorage.getItem('rezepte_seeded') ? '1' : '0'), 10);
   if(done >= REZEPT_SEED_VERSION) return;
   const data = DB.get('rezepte', []);
+  // v3: Standard-Rezepte auf Daily Dozen umstellen – aber nur, wenn sie nicht selbst bearbeitet wurden
+  if(done >= 1 && done < 3) {
+    data.forEach(r => {
+      const orig = REZEPT_UPGRADES_V3[r.name];
+      const neu = DEFAULT_REZEPTE.find(d => d.name === r.name);
+      if(!orig || !neu || zutatenSig(r.zutaten) !== orig) return;
+      Object.assign(r, { zutaten: neu.zutaten.map(([name, gramm]) => ({ name, gramm })), kcal: neu.kcal, protein: neu.protein, fett: neu.fett, kh: neu.kh, updated: today() });
+    });
+  }
   const have = new Set(data.map(r => r.name.trim().toLowerCase()));
   const stamp = Date.now();
   DEFAULT_REZEPTE.forEach((r, i) => {
+    // Nur Rezepte aus neueren Versionen nachtragen – bewusst gelöschte ältere bleiben gelöscht
+    if(done && (r.v || 1) <= done) return;
     if(have.has(r.name.toLowerCase())) return;
     data.push({
       id: 'seed_' + (stamp + i),
@@ -3387,6 +3460,52 @@ function exportSchiri() {
   download('schiedsrichter-spiele.csv', 'text/csv', csv);
 }
 
+// Daily-Dozen-Portionen eines Rezepts aus den Zutaten: Schlüsselwort → Kategorie, Gramm je Portion (0 = ein Häkchen, egal wie viel)
+const DD_ZUTATEN = [
+  ['lein','lein',10], ['kurkuma','kraeuter',0], ['curry','kraeuter',0],
+  ['tofu','bohnen',85], ['tempeh','bohnen',85], ['hummus','bohnen',60], ['edamame','bohnen',80],
+  ['kichererbse','bohnen',90], ['linse','bohnen',90], ['bohne','bohnen',90], ['erbse','bohnen',80],
+  ['heidelbeer','beeren',75], ['himbeer','beeren',75], ['brombeer','beeren',75], ['erdbeer','beeren',75], ['johannisbeer','beeren',75], ['beeren','beeren',75],
+  ['spinat','blatt',30], ['mangold','blatt',30], ['grünkohl','blatt',30], ['rucola','blatt',30], ['feldsalat','blatt',30], ['römersalat','blatt',30],
+  ['brokkoli','kreuz',60], ['blumenkohl','kreuz',60], ['rosenkohl','kreuz',60], ['kohl','kreuz',60], ['pak choi','kreuz',60], ['radieschen','kreuz',60],
+  ['haferflocken','vollkorn',40], ['vollkornbrot','vollkorn',40], ['vollkorn','vollkorn',90], ['quinoa','vollkorn',90], ['buchweizen','vollkorn',90], ['hirse','vollkorn',90],
+  ['waln','nuesse',30], ['mandel','nuesse',30], ['cashew','nuesse',30], ['haseln','nuesse',30], ['chia','nuesse',30], ['kürbiskern','nuesse',30], ['sonnenblumenkern','nuesse',30], ['sesam','nuesse',30],
+  ['apfel','fruechte',120], ['banane','fruechte',110], ['birne','fruechte',120], ['orange','fruechte',120], ['kiwi','fruechte',75], ['mango','fruechte',80],
+  ['paprika','gemuese',80], ['tomate','gemuese',80], ['zwiebel','gemuese',80], ['karotte','gemuese',80], ['möhre','gemuese',80], ['zucchini','gemuese',80], ['pilz','gemuese',80], ['champignon','gemuese',80], ['süßkartoffel','gemuese',80], ['gurke','gemuese',80],
+];
+const DD_KURZ = { bohnen: 'Hülsenfrüchte', beeren: 'Beeren', fruechte: 'Obst', kreuz: 'Kreuzblütler', blatt: 'Blattgrün', gemuese: 'Gemüse', lein: 'Leinsamen', nuesse: 'Nüsse', kraeuter: 'Kurkuma', vollkorn: 'Vollkorn' };
+function rezeptDD(r) {
+  const sum = {};
+  (r.zutaten || []).forEach(z => {
+    const n = String(z.name).toLowerCase();
+    const rule = DD_ZUTATEN.find(([kw]) => n.includes(kw));
+    if(!rule) return;
+    const [, k, por] = rule;
+    sum[k] = por ? (sum[k] || 0) + (parseFloat(z.gramm) || 0) / por : Math.max(sum[k] || 0, 1);
+  });
+  const out = {};
+  DD_GROUPS.forEach(g => { const v = sum[g.k]; if(v >= 0.5) out[g.k] = Math.max(1, Math.round(v)); });
+  return out;
+}
+// Portionen eines Rezepts für heute im Daily Dozen abhaken (gedeckelt auf das Tagesziel)
+function rezeptGegessen(id) {
+  const r = DB.get('rezepte', []).find(x => x.id === id);
+  if(!r) return;
+  const portions = rezeptDD(r), day = ddToday();
+  const all = DB.get(DD_KEY, {});
+  const cur = Object.assign({}, all[day] || {});
+  const added = [];
+  DD_GROUPS.forEach(g => {
+    const n = portions[g.k]; if(!n) return;
+    const before = Math.min(Number(cur[g.k]) || 0, g.max), after = Math.min(before + n, g.max);
+    if(after > before) { cur[g.k] = after; added.push(`${DD_KURZ[g.k]} +${after - before}`); }
+  });
+  if(!added.length) { toast('Daily Dozen: diese Kategorien sind heute schon voll ✓'); return; }
+  all[day] = cur;
+  DB.set(DD_KEY, all);
+  toast('Daily Dozen: ' + added.join(', ') + ' ✓');
+}
+
 function renderRezepte() {
   seedRezepte();
   const all = DB.get('rezepte', []);
@@ -3412,10 +3531,13 @@ function renderRezepte() {
           <div class="macro fett"><span>Fett</span>${fmtNum(r.fett,' g')}</div>
           <div class="macro kh"><span>KH</span>${fmtNum(r.kh,' g')}</div>
         </div>
+        ${(() => { const d = rezeptDD(r); const keys = DD_GROUPS.filter(g => d[g.k]);
+          return keys.length ? `<div class="rezept-dd" aria-label="Daily Dozen">${keys.map(g => `<span class="dd-chip" style="--h:${g.h}">${DD_KURZ[g.k]}${d[g.k] > 1 ? ` <b>${d[g.k]}</b>` : ''}</span>`).join('')}</div>` : ''; })()}
         <ul class="zutat-list">
           ${(r.zutaten||[]).map(z => `<li><span>${esc(z.name)}</span><span class="zutat-gramm">${fmtNum(z.gramm,' g')}</span></li>`).join('') || '<li><span style="color:var(--muted)">Keine Zutaten</span></li>'}
         </ul>
         <div class="rezept-actions">
+          ${Object.keys(rezeptDD(r)).length ? `<button class="btn btn-secondary btn-sm" onclick="rezeptGegessen('${r.id}')" title="Portionen dieses Rezepts heute im Daily Dozen abhaken"><svg class="i"><use href="#i-check"/></svg>Gegessen</button>` : ''}
           <button class="btn btn-secondary btn-sm" onclick="openRezeptModal('${r.id}')"><svg class="i"><use href="#i-pencil"/></svg>Bearbeiten</button>
           <button class="icon-btn" title="Rezept löschen" onclick="deleteRezept('${r.id}')"><svg class="i"><use href="#i-trash"/></svg></button>
         </div>
