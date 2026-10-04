@@ -141,6 +141,22 @@
   .stat.mini .stat-value { font-size: 26px; }
   .stat-sub { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.3; }
   .stat-sub:empty { display: none; }
+  /* Schiri: Spiele je Liga */
+  .liga-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .liga-tile { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .liga-tile-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--text-2); white-space: nowrap; }
+  .liga-tile-value { font-size: 26px; font-weight: 600; letter-spacing: -0.8px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .liga-tile-pct { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .liga-tile.is-zero .liga-tile-value { color: var(--muted); }
+  .liga-dot { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+  .liga-rows { display: flex; flex-direction: column; gap: 10px; }
+  .liga-row { display: grid; grid-template-columns: 52px 1fr 36px; align-items: center; gap: 12px; font-variant-numeric: tabular-nums; }
+  .liga-row-year { font-size: 13px; font-weight: 600; }
+  .liga-row-total { font-size: 13px; font-weight: 600; text-align: right; }
+  .liga-bar { display: flex; height: 24px; border-radius: 6px; overflow: hidden; background: var(--surface3); gap: 2px; }
+  .liga-seg { display: flex; align-items: center; justify-content: center; min-width: 4px; font-size: 11px; font-weight: 600; color: #0b0b0d; overflow: hidden; white-space: nowrap; }
+  :root.light .liga-seg { color: #fff; }
+  .liga-row-head { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
   /* Sparklines (Trend der letzten Einträge in den KPI-Karten) */
   .spark { margin-top: 14px; }
   .spark:empty { display: none; }
@@ -981,10 +997,7 @@
     <div class="section-header">
       <span class="card-title"><svg class="i"><use href="#i-ball"/></svg>Spiele je Liga</span>
     </div>
-    <div class="table-scroll"><table class="data-table">
-      <thead id="schiriLigaHead"></thead>
-      <tbody id="schiriLigaTable"></tbody>
-    </table></div>
+    <div id="schiriLiga"></div>
     <div class="card-foot">Regio = RLH/RLD · BVS = Landes- und Oberliga (LL/OL).</div>
   </div>
 
@@ -3005,6 +3018,7 @@ async function deleteSchiri(id) {
 
 // Ligen für die Übersicht zusammenfassen: JBBL/NBBL · 2.DBBL · Regio (RL…) · BVS (LL…/OL…)
 const SCHIRI_GRUPPEN = ['JBBL/NBBL', '2.DBBL', 'Regio', 'BVS', 'Sonstige'];
+const SCHIRI_FARBEN = { 'JBBL/NBBL': 'var(--accent)', '2.DBBL': 'var(--accent2)', 'Regio': 'var(--green)', 'BVS': 'var(--yellow)', 'Sonstige': 'var(--muted)' };
 function schiriGruppe(liga) {
   const l = String(liga || '').toUpperCase().replace(/\s/g, '');
   if(l === 'JBBL' || l === 'NBBL') return 'JBBL/NBBL';
@@ -3040,17 +3054,35 @@ function renderSchiri(keepLiga) {
     </tr>`;
   }).join('') || `<tr><td class="empty-cell" colspan="5">${emptyState('Noch keine Spiele', 'Erfasse Einsätze unter „Schiedsrichter“.')}</td></tr>`;
 
-  // Spiele je Liga-Gruppe, pro Jahr und gesamt
+  // Spiele je Liga-Gruppe: Kacheln (gesamt) + gestapelter Balken je Jahr
   const groupCols = SCHIRI_GRUPPEN.filter(gr => gr !== 'Sonstige' || data.some(g => schiriGruppe(g.liga) === 'Sonstige'));
-  const countRow = (label, list, strong) => {
-    const cnt = {}; list.forEach(g => { const gr = schiriGruppe(g.liga); cnt[gr] = (cnt[gr] || 0) + 1; });
-    const c = v => strong ? `<strong>${v}</strong>` : v;
-    return `<tr><td>${c(label)}</td>${groupCols.map(gr => `<td>${cnt[gr] ? c(cnt[gr]) : '—'}</td>`).join('')}<td>${c(list.length)}</td></tr>`;
-  };
-  document.getElementById('schiriLigaHead').innerHTML = `<tr><th>Jahr</th>${groupCols.map(gr => `<th>${gr}</th>`).join('')}<th>Gesamt</th></tr>`;
-  document.getElementById('schiriLigaTable').innerHTML = data.length
-    ? yearKeys.map(y => countRow(y, years[y], false)).join('') + (yearKeys.length > 1 ? countRow('Gesamt', data, true) : '')
-    : `<tr><td class="empty-cell" colspan="${groupCols.length + 2}">${emptyState('Noch keine Spiele', 'Erfasste Einsätze werden hier nach Liga gezählt.')}</td></tr>`;
+  const countBy = list => { const c = {}; list.forEach(g => { const gr = schiriGruppe(g.liga); c[gr] = (c[gr] || 0) + 1; }); return c; };
+  const pct = (n, total) => Math.round(n / total * 100);
+  const ligaEl = document.getElementById('schiriLiga');
+  if(!data.length) {
+    ligaEl.innerHTML = emptyState('Noch keine Spiele', 'Erfasste Einsätze werden hier nach Liga gezählt.');
+  } else {
+    const all = countBy(data);
+    const tiles = groupCols.map(gr => `<div class="liga-tile${all[gr] ? '' : ' is-zero'}">
+        <span class="liga-tile-label"><span class="liga-dot" style="background:${SCHIRI_FARBEN[gr]}"></span>${gr}</span>
+        <span class="liga-tile-value">${all[gr] || 0}</span>
+        <span class="liga-tile-pct">${all[gr] ? pct(all[gr], data.length) + ' % aller Spiele' : 'noch keine'}</span>
+      </div>`).join('');
+    const bars = yearKeys.map(y => {
+      const list = years[y], c = countBy(list);
+      const segs = groupCols.filter(gr => c[gr]).map(gr => {
+        const w = c[gr] / list.length * 100;
+        return `<span class="liga-seg" style="flex:${c[gr]} 1 0;background:${SCHIRI_FARBEN[gr]}" title="${gr}: ${c[gr]} Spiel${c[gr]===1?'':'e'} (${Math.round(w)} %)">${w >= 8 ? c[gr] : ''}</span>`;
+      }).join('');
+      const label = groupCols.filter(gr => c[gr]).map(gr => `${gr} ${c[gr]}`).join(', ');
+      return `<div class="liga-row"><span class="liga-row-year">${y}</span><div class="liga-bar" role="img" aria-label="${y}: ${label}">${segs}</div><span class="liga-row-total">${list.length}</span></div>`;
+    }).join('');
+    ligaEl.innerHTML = `<div class="liga-tiles">${tiles}</div>
+      <div class="liga-rows">
+        <div class="liga-row liga-row-head"><span>Saison</span><span>Verteilung</span><span style="text-align:right">Spiele</span></div>
+        ${bars}
+      </div>`;
+  }
 
   document.getElementById('schiriYears').innerHTML = yearKeys.map(y => {
     const list = [...years[y]].reverse();
