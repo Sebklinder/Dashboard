@@ -150,7 +150,7 @@
   .liga-tile.is-zero .liga-tile-value { color: var(--muted); }
   .liga-dot { width: 8px; height: 8px; border-radius: 2px; flex: none; }
   .liga-rows { display: flex; flex-direction: column; gap: 10px; }
-  .liga-row { display: grid; grid-template-columns: 52px 1fr 36px; align-items: center; gap: 12px; font-variant-numeric: tabular-nums; }
+  .liga-row { display: grid; grid-template-columns: 64px 1fr 36px; align-items: center; gap: 12px; font-variant-numeric: tabular-nums; }
   .liga-row-year { font-size: 13px; font-weight: 600; }
   .liga-row-total { font-size: 13px; font-weight: 600; text-align: right; }
   .liga-bar { display: flex; height: 24px; border-radius: 6px; overflow: hidden; background: var(--surface3); gap: 2px; }
@@ -3442,33 +3442,37 @@ function schiriGruppe(liga) {
   return 'Sonstige';
 }
 
-let schiriSaison = null; // gewähltes Jahr ('2026' …) oder 'alle'; null = neuestes Jahr mit Spielen
+// Saison läuft vom 1. Juli bis 30. Juni; Schlüssel = Startjahr ('2026' = Saison 2026/27)
+let schiriSaison = null; // gewählte Saison oder 'alle'; null = neueste Saison mit Spielen
+const saisonOf = date => { const y = +date.slice(0,4); return String(+date.slice(5,7) >= 7 ? y : y - 1); };
+const saisonLabel = s => s === 'alle' ? 'Gesamt' : `${s}/${String(+s + 1).slice(2)}`;
 const schiriSumme = g => (parseFloat(g.gebuehr) || 0) + (parseFloat(g.fahrt) || 0);
-const schiriInSaison = (g, s) => s === 'alle' || g.date.startsWith(s);
+const schiriInSaison = (g, s) => s === 'alle' || saisonOf(g.date) === s;
 const MONATE_KURZ = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
 
 function setSchiriSaison(s) { schiriSaison = s; renderSchiri(); }
 
 function renderSchiri() {
   const data = DB.get('schiri_spiele', []);
-  const years = [...new Set(data.map(g => g.date.slice(0,4)))].sort((a,b) => b.localeCompare(a));
-  if(!schiriSaison || (schiriSaison !== 'alle' && !years.includes(schiriSaison))) schiriSaison = years[0] || String(new Date().getFullYear());
+  const years = [...new Set(data.map(g => saisonOf(g.date)))].sort((a,b) => b.localeCompare(a));
+  if(!schiriSaison || (schiriSaison !== 'alle' && !years.includes(schiriSaison))) schiriSaison = years[0] || saisonOf(today());
   const saison = schiriSaison;
   const list = data.filter(g => schiriInSaison(g, saison));
 
   // Saison-Chips
   document.getElementById('schiriSaisons').innerHTML = years.length ? [...years, 'alle'].map(y =>
-    `<button type="button" role="tab" class="season-chip${y === saison ? ' active' : ''}" aria-selected="${y === saison}" onclick="setSchiriSaison('${y}')">${y === 'alle' ? 'Gesamt' : y}</button>`).join('') : '';
+    `<button type="button" role="tab" class="season-chip${y === saison ? ' active' : ''}" aria-selected="${y === saison}" onclick="setSchiriSaison('${y}')">${saisonLabel(y)}</button>`).join('') : '';
 
-  // Kennzahlen; im laufenden Jahr Vergleich mit dem Vorjahr bis zum gleichen Datum, sonst ganzes Vorjahr
+  // Kennzahlen; in der laufenden Saison Vergleich mit der Vorsaison bis zum gleichen Datum, sonst ganze Vorsaison
   const sum = (l, f) => l.reduce((a, g) => a + f(g), 0);
   const total = sum(list, schiriSumme), geb = sum(list, g => parseFloat(g.gebuehr) || 0), fahrt = sum(list, g => parseFloat(g.fahrt) || 0);
   const zeit = sum(list, g => parseFloat(g.dauer) || 0);
   let prev = null, prevLabel = '';
   if(saison !== 'alle' && years.includes(String(+saison - 1))) {
-    const py = String(+saison - 1), isCur = saison === today().slice(0,4), cut = today().slice(5);
-    prev = data.filter(g => g.date.startsWith(py) && (!isCur || g.date.slice(5) <= cut));
-    prevLabel = isCur ? `Vorjahr bis ${fmtDate(py + '-' + cut).slice(0,6)}` : `Vorjahr`;
+    const py = String(+saison - 1), isCur = saison === saisonOf(today());
+    const cut = (+today().slice(0,4) - 1) + today().slice(4); // heute vor einem Jahr
+    prev = data.filter(g => saisonOf(g.date) === py && (!isCur || g.date <= cut));
+    prevLabel = isCur ? `Vorsaison bis ${fmtDate(cut).slice(0,6)}` : 'Vorsaison';
   }
   const delta = (cur, before, fmt) => {
     if(prev === null) return '';
@@ -3500,13 +3504,13 @@ function renderSchiri() {
         <span class="liga-tile-pct">${cs[gr] ? pct(cs[gr], list.length) + ' %' : '—'}</span>
       </div>`).join('');
     const bars = years.map(y => {
-      const l = data.filter(g => g.date.startsWith(y)), c = countBy(l);
+      const l = data.filter(g => saisonOf(g.date) === y), c = countBy(l);
       const segs = groupCols.filter(gr => c[gr]).map(gr => {
         const w = c[gr] / l.length * 100;
         return `<span class="liga-seg" style="flex:${c[gr]} 1 0;background:${SCHIRI_FARBEN[gr]}" title="${gr}: ${c[gr]} Spiel${c[gr]===1?'':'e'} (${Math.round(w)} %)">${w >= 10 ? c[gr] : ''}</span>`;
       }).join('');
       const label = groupCols.filter(gr => c[gr]).map(gr => `${gr} ${c[gr]}`).join(', ');
-      return `<div class="liga-row${y === saison ? ' sel' : ''}"><span class="liga-row-year">${y}</span><div class="liga-bar" role="img" aria-label="${y}: ${label}">${segs}</div><span class="liga-row-total">${l.length}</span></div>`;
+      return `<div class="liga-row${y === saison ? ' sel' : ''}"><span class="liga-row-year">${saisonLabel(y)}</span><div class="liga-bar" role="img" aria-label="Saison ${saisonLabel(y)}: ${label}">${segs}</div><span class="liga-row-total">${l.length}</span></div>`;
     }).join('');
     ligaEl.innerHTML = `<div class="liga-tiles">${tiles}</div><div class="liga-rows">${bars}</div>`;
   }
