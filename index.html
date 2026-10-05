@@ -213,6 +213,12 @@
   .kollege-name { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
   .kollege-meta { font-size: 12px; color: var(--muted); margin-top: 1px; }
   .kollege-ligen { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .kollegen-more { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .kollegen-more-title { font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 8px; }
+  .kollegen-mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px 16px; }
+  .kollege-mini { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; padding: 4px 0; min-width: 0; }
+  .kollege-mini-name { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kollege-mini-count { font-weight: 600; font-variant-numeric: tabular-nums; }
   .kollege-count { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }
   .kollege-count b { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .kollege-count span { font-size: 11px; color: var(--muted); }
@@ -3508,7 +3514,9 @@ function renderSchiri() {
   const ohne = list.filter(g => !g.kollege).length;
   document.getElementById('schiriKollegenSub').textContent = kRows.length && ohne ? `${ohne} ohne Angabe` : '';
   const initialen = n => n.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-  document.getElementById('schiriKollegen').innerHTML = kRows.length ? `<div class="kollegen-list">${kRows.map(([name, l]) => {
+  // Top 3 ausführlich, alle weiteren kompakt darunter
+  const kollegeMini = ([name, l]) => `<div class="kollege-mini"><span class="kollege-mini-name">${escHtml(name)}</span><span class="kollege-mini-count">${l.length}×</span></div>`;
+  document.getElementById('schiriKollegen').innerHTML = kRows.length ? `<div class="kollegen-list">${kRows.slice(0, 3).map(([name, l]) => {
       const last = l.reduce((a, g) => g.date > a ? g.date : a, '');
       const ligen = [...new Set(l.map(g => g.liga))].sort((a,b) => SCHIRI_GRUPPEN.indexOf(schiriGruppe(a)) - SCHIRI_GRUPPEN.indexOf(schiriGruppe(b)) || a.localeCompare(b));
       return `<div class="kollege-row">
@@ -3520,7 +3528,7 @@ function renderSchiri() {
         </div>
         <div class="kollege-count"><b>${l.length}</b><span>Spiel${l.length === 1 ? '' : 'e'}</span></div>
       </div>`;
-    }).join('')}</div>`
+    }).join('')}</div>${kRows.length > 3 ? `<div class="kollegen-more"><div class="kollegen-more-title">Weitere Kollegen</div><div class="kollegen-mini-grid">${kRows.slice(3).map(kollegeMini).join('')}</div></div>` : ''}`
     : emptyState('Noch keine Kollegen erfasst', 'Trag beim Spiel ein, mit wem du gepfiffen hast – hier siehst du dann, wie oft.');
 
   renderSchiriSpiele();
