@@ -166,6 +166,8 @@
   .schiri-note.good .schiri-note-label { color: var(--green); }
   .schiri-note.bad .schiri-note-label { color: var(--yellow); }
   .schiri-note.next .schiri-note-label { color: var(--accent); }
+  .schiri-note.video .schiri-note-label { color: var(--accent2); }
+  .schiri-note a { color: var(--accent2); overflow-wrap: anywhere; }
   @media (max-width: 600px) { .schiri-note { flex-direction: column; gap: 0; } }
   .liga-row-head { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
   /* Sparklines (Trend der letzten Einträge in den KPI-Karten) */
@@ -658,6 +660,7 @@
   <symbol id="i-up" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/></symbol>
   <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3"/></symbol>
   <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
   <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
@@ -1418,6 +1421,10 @@
       <label class="form-label" for="schiriNotizTipp">Tipps fürs nächste Spiel</label>
       <textarea class="form-input" id="schiriNotizTipp" placeholder="z. B. früher in Position, mehr mit Partner absprechen…" style="min-height:72px"></textarea>
     </div>
+    <div class="form-group">
+      <label class="form-label" for="schiriNotizVideo">Video</label>
+      <textarea class="form-input" id="schiriNotizVideo" placeholder="Link zum Spielvideo und/oder Szenen, z. B. 2. Viertel 4:30 Block/Charge" style="min-height:72px"></textarea>
+    </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('schiriNotizModal')">Abbrechen</button>
       <button class="btn btn-primary" onclick="saveSchiriNotiz()">Notizen speichern</button>
@@ -1477,6 +1484,10 @@
     <div class="form-group">
       <label class="form-label" for="schiriTipp">Tipps fürs nächste Spiel <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
       <textarea class="form-input" id="schiriTipp" placeholder="z. B. früher in Position, mehr mit Partner absprechen…" style="min-height:64px"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="schiriVideo">Video <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea class="form-input" id="schiriVideo" placeholder="Link zum Spielvideo und/oder Szenen, z. B. 2. Viertel 4:30 Block/Charge" style="min-height:64px"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('schiriModal')">Abbrechen</button>
@@ -3303,6 +3314,7 @@ function saveSchiri() {
     gut: document.getElementById('schiriGut').value.trim(),
     schlecht: document.getElementById('schiriSchlecht').value.trim(),
     tipp: document.getElementById('schiriTipp').value.trim(),
+    video: document.getElementById('schiriVideo').value.trim(),
   };
   const data = DB.get('schiri_spiele', []);
   data.push(entry);
@@ -3312,7 +3324,7 @@ function saveSchiri() {
   rememberValue('custom_ligen', liga, DEFAULT_LIGEN);
   rememberValue('schiri_teams', heim);
   rememberValue('schiri_teams', gast);
-  ['schiriGebuehr','schiriFahrt','schiriDauer','schiriLigaNeu','schiriHeimNeu','schiriGastNeu','schiriGut','schiriSchlecht','schiriTipp'].forEach(id => document.getElementById(id).value = '');
+  ['schiriGebuehr','schiriFahrt','schiriDauer','schiriLigaNeu','schiriHeimNeu','schiriGastNeu','schiriGut','schiriSchlecht','schiriTipp','schiriVideo'].forEach(id => document.getElementById(id).value = '');
   checkGymHabit(entry.date); // Spiel gepfiffen = Sport gemacht
   renderSchiri(liga); // Liga bleibt vorausgewählt – meist mehrere Spiele derselben Liga hintereinander
   renderSport(); // Spiel mit Einsatzzeit taucht auch im Cardio-Protokoll auf
@@ -3321,7 +3333,9 @@ function saveSchiri() {
 }
 
 // Notizen (lief gut / nicht gut / Tipps) nachträglich zu einem Spiel erfassen oder ändern
-const SCHIRI_NOTIZ_FELDER = ['gut', 'schlecht', 'tipp'];
+const SCHIRI_NOTIZ_FELDER = ['gut', 'schlecht', 'tipp', 'video'];
+// Video-Notiz: Links (http/https) klickbar machen, Rest als Text
+const linkify = t => escHtml(t).replace(/https?:\/\/[^\s<"']+/g, u => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
 const notizFeldId = k => 'schiriNotiz' + k[0].toUpperCase() + k.slice(1);
 const hasSchiriNotiz = g => SCHIRI_NOTIZ_FELDER.some(k => g[k]);
 function openSchiriNotiz(id) {
@@ -3445,6 +3459,7 @@ function renderSchiri(keepLiga) {
           ${g.gut ? `<div class="schiri-note good"><span class="schiri-note-label"><svg class="i"><use href="#i-check"/></svg>Lief gut</span><span>${escHtml(g.gut)}</span></div>` : ''}
           ${g.schlecht ? `<div class="schiri-note bad"><span class="schiri-note-label"><svg class="i"><use href="#i-alert"/></svg>Lief nicht gut</span><span>${escHtml(g.schlecht)}</span></div>` : ''}
           ${g.tipp ? `<div class="schiri-note next"><span class="schiri-note-label"><svg class="i"><use href="#i-right"/></svg>Nächstes Mal</span><span>${escHtml(g.tipp)}</span></div>` : ''}
+          ${g.video ? `<div class="schiri-note video"><span class="schiri-note-label"><svg class="i"><use href="#i-play"/></svg>Video</span><span>${linkify(g.video)}</span></div>` : ''}
         </div></td></tr>` : ''}`).join('')}</tbody>
       </table></div>
     </div>`;
@@ -3455,8 +3470,8 @@ function renderSchiri(keepLiga) {
 const csvText = v => `"${String(v || '').replace(/"/g, '""')}"`;
 function exportSchiri() {
   const data = DB.get('schiri_spiele', []);
-  const csv = ['Datum,Heim,Gast,Liga,Einsatzzeit (min),Spielgebühr (€),Fahrtkosten (€),Summe (€),Lief gut,Lief nicht gut,Tipps nächstes Spiel']
-    .concat(data.map(g => `${g.date},"${g.heim}","${g.gast}","${g.liga}",${g.dauer||''},${g.gebuehr||''},${g.fahrt||''},${((parseFloat(g.gebuehr)||0)+(parseFloat(g.fahrt)||0)).toFixed(2)},${csvText(g.gut)},${csvText(g.schlecht)},${csvText(g.tipp)}`)).join('\n');
+  const csv = ['Datum,Heim,Gast,Liga,Einsatzzeit (min),Spielgebühr (€),Fahrtkosten (€),Summe (€),Lief gut,Lief nicht gut,Tipps nächstes Spiel,Video']
+    .concat(data.map(g => `${g.date},"${g.heim}","${g.gast}","${g.liga}",${g.dauer||''},${g.gebuehr||''},${g.fahrt||''},${((parseFloat(g.gebuehr)||0)+(parseFloat(g.fahrt)||0)).toFixed(2)},${csvText(g.gut)},${csvText(g.schlecht)},${csvText(g.tipp)},${csvText(g.video)}`)).join('\n');
   download('schiedsrichter-spiele.csv', 'text/csv', csv);
 }
 
