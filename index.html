@@ -1256,7 +1256,7 @@
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-bed"/></svg></span>Schlaf – Neuer Eintrag</div>
     <div class="form-group">
       <label class="form-label">Datum</label>
-      <input type="date" class="form-input" id="sleepDate">
+      <input type="date" class="form-input" id="sleepDate" onchange="fillHealthNote('sleep')">
     </div>
     <div class="form-group">
       <label class="form-label">Schlaf gesamt</label>
@@ -1280,8 +1280,8 @@
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label" for="sleepNote">Notiz <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-      <textarea class="form-input" id="sleepNote" placeholder="z. B. Besonderheiten, Umstände, Befinden…" style="min-height:64px"></textarea>
+      <label class="form-label" for="sleepNote">Notiz zum Tag <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea class="form-input" id="sleepNote" placeholder="Wie war der Tag körperlich?" style="min-height:64px"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('sleepModal')">Abbrechen</button>
@@ -1295,15 +1295,15 @@
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-steps"/></svg></span>Schritte – Neuer Eintrag</div>
     <div class="form-group">
       <label class="form-label">Datum</label>
-      <input type="date" class="form-input" id="stepsDate">
+      <input type="date" class="form-input" id="stepsDate" onchange="fillHealthNote('steps')">
     </div>
     <div class="form-group">
       <label class="form-label">Schritte</label>
       <input type="number" min="0" class="form-input" id="healthSteps" required placeholder="12000">
     </div>
     <div class="form-group">
-      <label class="form-label" for="stepsNote">Notiz <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-      <textarea class="form-input" id="stepsNote" placeholder="z. B. Besonderheiten, Umstände, Befinden…" style="min-height:64px"></textarea>
+      <label class="form-label" for="stepsNote">Notiz zum Tag <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea class="form-input" id="stepsNote" placeholder="Wie war der Tag körperlich?" style="min-height:64px"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('stepsModal')">Abbrechen</button>
@@ -1317,15 +1317,15 @@
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-utensils"/></svg></span>Kalorienzufuhr – Neuer Eintrag</div>
     <div class="form-group">
       <label class="form-label">Datum</label>
-      <input type="date" class="form-input" id="kcalDate">
+      <input type="date" class="form-input" id="kcalDate" onchange="fillHealthNote('kcal')">
     </div>
     <div class="form-group">
       <label class="form-label">Kalorien (kcal)</label>
       <input type="number" min="0" step="1" class="form-input" id="healthKcal" required placeholder="2000">
     </div>
     <div class="form-group">
-      <label class="form-label" for="kcalNote">Notiz <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-      <textarea class="form-input" id="kcalNote" placeholder="z. B. Besonderheiten, Umstände, Befinden…" style="min-height:64px"></textarea>
+      <label class="form-label" for="kcalNote">Notiz zum Tag <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea class="form-input" id="kcalNote" placeholder="Wie war der Tag körperlich?" style="min-height:64px"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('kcalModal')">Abbrechen</button>
@@ -1339,15 +1339,15 @@
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-leaf"/></svg></span>Meditation – Neuer Eintrag</div>
     <div class="form-group">
       <label class="form-label">Datum</label>
-      <input type="date" class="form-input" id="meditDate">
+      <input type="date" class="form-input" id="meditDate" onchange="fillHealthNote('medit')">
     </div>
     <div class="form-group">
       <label class="form-label">Dauer (Minuten)</label>
       <input type="number" min="0" step="1" class="form-input" id="healthMedit" required placeholder="10">
     </div>
     <div class="form-group">
-      <label class="form-label" for="meditNote">Notiz <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-      <textarea class="form-input" id="meditNote" placeholder="z. B. Besonderheiten, Umstände, Befinden…" style="min-height:64px"></textarea>
+      <label class="form-label" for="meditNote">Notiz zum Tag <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea class="form-input" id="meditNote" placeholder="Wie war der Tag körperlich?" style="min-height:64px"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('meditModal')">Abbrechen</button>
@@ -1361,7 +1361,7 @@
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-steth"/></svg></span>Blutdruck – Neuer Eintrag</div>
     <div class="form-group">
       <label class="form-label">Datum</label>
-      <input type="date" class="form-input" id="bpDate">
+      <input type="date" class="form-input" id="bpDate" onchange="fillHealthNote('bp')">
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -1374,8 +1374,8 @@
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label" for="bpNote">Notiz <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-      <textarea class="form-input" id="bpNote" placeholder="z. B. Besonderheiten, Umstände, Befinden…" style="min-height:64px"></textarea>
+      <label class="form-label" for="bpNote">Notiz zum Tag <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea class="form-input" id="bpNote" placeholder="Wie war der Tag körperlich?" style="min-height:64px"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('bpModal')">Abbrechen</button>
@@ -1389,15 +1389,15 @@
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-scale"/></svg></span>Gewicht – Neuer Eintrag</div>
     <div class="form-group">
       <label class="form-label">Datum</label>
-      <input type="date" class="form-input" id="weightDate">
+      <input type="date" class="form-input" id="weightDate" onchange="fillHealthNote('weight')">
     </div>
     <div class="form-group">
       <label class="form-label">Gewicht (kg)</label>
       <input type="number" step="0.1" class="form-input" id="healthWeight" required placeholder="75.5">
     </div>
     <div class="form-group">
-      <label class="form-label" for="weightNote">Notiz <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-      <textarea class="form-input" id="weightNote" placeholder="z. B. Besonderheiten, Umstände, Befinden…" style="min-height:64px"></textarea>
+      <label class="form-label" for="weightNote">Notiz zum Tag <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea class="form-input" id="weightNote" placeholder="Wie war der Tag körperlich?" style="min-height:64px"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('weightModal')">Abbrechen</button>
@@ -1411,15 +1411,15 @@
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-thermo"/></svg></span>Körpertemperatur – Neuer Eintrag</div>
     <div class="form-group">
       <label class="form-label">Datum</label>
-      <input type="date" class="form-input" id="tempDate">
+      <input type="date" class="form-input" id="tempDate" onchange="fillHealthNote('temp')">
     </div>
     <div class="form-group">
       <label class="form-label">Temperatur (°C)</label>
       <input type="number" step="0.1" min="30" max="45" class="form-input" id="healthTemp" required placeholder="36.6">
     </div>
     <div class="form-group">
-      <label class="form-label" for="tempNote">Notiz <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-      <textarea class="form-input" id="tempNote" placeholder="z. B. Besonderheiten, Umstände, Befinden…" style="min-height:64px"></textarea>
+      <label class="form-label" for="tempNote">Notiz zum Tag <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea class="form-input" id="tempNote" placeholder="Wie war der Tag körperlich?" style="min-height:64px"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('tempModal')">Abbrechen</button>
@@ -2220,8 +2220,15 @@ function applyRating(el, rating) {
   el.innerHTML = `<span class="${rating.cls}">${rating.label}</span>`;
   el.className = 'stat-delta';
 }
+// Jedes Erfassungsformular zeigt die Notiz des Tageseintrags zum gewählten Datum
+const HEALTH_FORMS = ['sleep','steps','kcal','medit','bp','weight','temp'];
+function fillHealthNote(m) {
+  const date = document.getElementById(m + 'Date').value;
+  const entry = DB.get('health', []).find(d => d.date === date);
+  document.getElementById(m + 'Note').value = entry?.note || '';
+}
 function renderHealth() {
-  ['sleepDate','stepsDate','kcalDate','meditDate','bpDate','weightDate','tempDate'].forEach(id=>document.getElementById(id).value = today());
+  HEALTH_FORMS.forEach(m => { document.getElementById(m + 'Date').value = today(); fillHealthNote(m); });
   const data = DB.get('health', []);
 
   // Table
@@ -2344,9 +2351,9 @@ function saveHealthEntry(date, fields) {
   const idx = data.findIndex(d=>d.date===date);
   const entry = idx>=0 ? { ...data[idx] } : { date };
   Object.entries(fields).forEach(([k,v]) => {
-    if(v === '' || v === null) return;
-    // Notizen werden angehängt, damit mehrere Notizen am selben Tag erhalten bleiben
-    entry[k] = (k === 'note' && entry.note) ? `${entry.note}\n${v}` : v;
+    // Notiz gehört zum ganzen Tag: wird ersetzt, ein geleertes Feld entfernt sie
+    if(k === 'note') { if(v) entry.note = v; else delete entry.note; return; }
+    if(v !== '' && v !== null) entry[k] = v;
   });
   entry.date = date;
   if(idx>=0) data[idx] = entry; else data.push(entry);
@@ -2355,13 +2362,8 @@ function saveHealthEntry(date, fields) {
   return entry;
 }
 
-// Liest das optionale Notizfeld eines Modals, leert es und versieht den Text mit der Kategorie
-function takeNote(id, label) {
-  const el = document.getElementById(id);
-  const v = el.value.trim();
-  el.value = '';
-  return v ? `${label}: ${v}` : '';
-}
+// Liest das Notizfeld eines Formulars (Notiz des Tageseintrags)
+const takeNote = id => document.getElementById(id).value.trim();
 
 function saveSleep() {
   const date = document.getElementById('sleepDate').value || today();
@@ -2369,7 +2371,7 @@ function saveSleep() {
     sleepMin: toMin('healthSleepH','healthSleepM'),
     deepMin: toMin('healthDeepH','healthDeepM'),
     remMin: toMin('healthRemH','healthRemM'),
-    note: takeNote('sleepNote','Schlaf'),
+    note: takeNote('sleepNote'),
   });
   ['healthSleepH','healthSleepM','healthDeepH','healthDeepM','healthRemH','healthRemM'].forEach(id=>document.getElementById(id).value='');
   renderHealth();
@@ -2379,7 +2381,7 @@ function saveSleep() {
 
 function saveSteps() {
   const date = document.getElementById('stepsDate').value || today();
-  const entry = saveHealthEntry(date, { steps: document.getElementById('healthSteps').value, note: takeNote('stepsNote','Schritte') });
+  const entry = saveHealthEntry(date, { steps: document.getElementById('healthSteps').value, note: takeNote('stepsNote') });
   document.getElementById('healthSteps').value = '';
   if(entry.steps) checkStepsHabit(date, parseInt(entry.steps));
   renderHealth();
@@ -2389,7 +2391,7 @@ function saveSteps() {
 
 function saveKcal() {
   const date = document.getElementById('kcalDate').value || today();
-  const entry = saveHealthEntry(date, { kcal: document.getElementById('healthKcal').value, note: takeNote('kcalNote','Kalorien') });
+  const entry = saveHealthEntry(date, { kcal: document.getElementById('healthKcal').value, note: takeNote('kcalNote') });
   document.getElementById('healthKcal').value = '';
   if(entry.kcal) checkKcalHabit(date, parseInt(entry.kcal));
   renderHealth();
@@ -2402,7 +2404,7 @@ function saveBp() {
   saveHealthEntry(date, {
     bpSys: document.getElementById('healthBpSys').value,
     bpDia: document.getElementById('healthBpDia').value,
-    note: takeNote('bpNote','Blutdruck'),
+    note: takeNote('bpNote'),
   });
   ['healthBpSys','healthBpDia'].forEach(id=>document.getElementById(id).value='');
   renderHealth();
@@ -2412,7 +2414,7 @@ function saveBp() {
 
 function saveWeight() {
   const date = document.getElementById('weightDate').value || today();
-  saveHealthEntry(date, { weight: document.getElementById('healthWeight').value, note: takeNote('weightNote','Gewicht') });
+  saveHealthEntry(date, { weight: document.getElementById('healthWeight').value, note: takeNote('weightNote') });
   document.getElementById('healthWeight').value = '';
   renderHealth();
   closeModal('weightModal');
@@ -2421,7 +2423,7 @@ function saveWeight() {
 
 function saveTemp() {
   const date = document.getElementById('tempDate').value || today();
-  saveHealthEntry(date, { temp: document.getElementById('healthTemp').value, note: takeNote('tempNote','Temperatur') });
+  saveHealthEntry(date, { temp: document.getElementById('healthTemp').value, note: takeNote('tempNote') });
   document.getElementById('healthTemp').value = '';
   renderHealth();
   closeModal('tempModal');
@@ -2448,7 +2450,7 @@ const KCAL_GOAL = 2000;
 // bekommt das Kreuzchen nicht – auch wenn es vorher manuell gesetzt war.
 function saveMedit() {
   const date = document.getElementById('meditDate').value || today();
-  const entry = saveHealthEntry(date, { medit: document.getElementById('healthMedit').value, note: takeNote('meditNote','Meditation') });
+  const entry = saveHealthEntry(date, { medit: document.getElementById('healthMedit').value, note: takeNote('meditNote') });
   document.getElementById('healthMedit').value = '';
   if(parseInt(entry.medit) > 0) checkMeditHabit(date);
   renderHealth();
