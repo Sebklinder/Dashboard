@@ -117,6 +117,26 @@
   .card-title .i { color: var(--muted); }
   .section-header .card-title { margin-bottom: 0; }
   .card-foot { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  /* Wochenrückblick (montags oben auf der Übersicht) */
+  .review-link { display: inline-flex; align-items: center; gap: 6px; margin: -8px 0 16px; padding: 4px 8px 4px 6px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-2); font-size: 12px; font-weight: 500; cursor: pointer; }
+  .review-link .i { width: 14px; height: 14px; vertical-align: 0; }
+  .review-link:hover { color: var(--text); border-color: var(--border-strong); }
+  .review-link[hidden], .week-review[hidden] { display: none; }
+  .week-review { margin-bottom: 16px; }
+  .week-review-nav { margin-left: auto; display: flex; gap: 2px; }
+  .week-review-nav .icon-btn:hover { background: var(--surface2); color: var(--text); }
+  .week-review-nav .icon-btn:disabled { opacity: .35; cursor: default; background: transparent; }
+  .wr-summary { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); }
+  .wr-line { display: flex; gap: 12px; align-items: baseline; font-size: 13px; line-height: 1.5; color: var(--text-2); }
+  .wr-line b { flex: none; width: 128px; font-size: 12px; font-weight: 600; }
+  .wr-line.good b { color: var(--green); }
+  .wr-line.watch b { color: var(--yellow); }
+  @media (max-width: 600px) { .wr-line { flex-direction: column; gap: 0; } }
+  table.week-table .wr-sub { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); font-weight: 400; }
+  table.week-table td.wr-label { color: var(--text-2); font-size: 13px; font-weight: 600; }
+  .wr-delta { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .wr-delta.better { color: var(--green); }
+  .wr-delta.worse { color: var(--yellow); }
   /* Drill-down aus Übersichtskarten */
   .card-link { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; height: 28px; padding: 0 6px 0 8px; border: none; border-radius: 6px; background: transparent; color: var(--muted); font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; position: relative; }
   .card-link::before { content: ''; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: 44px; transform: translate(-50%, -50%); }
@@ -785,6 +805,20 @@
 <div id="page-overview" class="page active">
   <div class="page-title" id="overviewGreeting">Guten Morgen</div>
   <div class="page-sub" id="overviewDate"></div>
+  <button type="button" class="review-link" id="weekReviewLink" onclick="toggleWeekReview(true)" hidden><svg class="i"><use href="#i-chart"/></svg><span id="weekReviewLinkLabel">Wochenrückblick ansehen</span><svg class="i"><use href="#i-chevron"/></svg></button>
+
+  <div class="card week-review" id="weekReview" hidden>
+    <div class="section-header">
+      <span class="card-title"><svg class="i"><use href="#i-chart"/></svg>Wochenrückblick <span class="card-sub" id="weekReviewRange" style="white-space:nowrap;font-variant-numeric:tabular-nums"></span></span>
+      <div class="week-review-nav">
+        <button type="button" class="icon-btn" aria-label="Vorherige Woche" onclick="shiftWeekReview(1)"><svg class="i"><use href="#i-chevron-left"/></svg></button>
+        <button type="button" class="icon-btn" id="weekReviewNext" aria-label="Nächste Woche" onclick="shiftWeekReview(-1)"><svg class="i"><use href="#i-chevron"/></svg></button>
+        <button type="button" class="icon-btn" aria-label="Wochenrückblick ausblenden" title="Ausblenden" onclick="toggleWeekReview(false)"><svg class="i"><use href="#i-x"/></svg></button>
+      </div>
+    </div>
+    <div id="weekReviewBody"></div>
+    <div class="card-foot">Mittelwerte der Woche (Mo–So) im Vergleich zur Woche davor. Training: Kraft, Ausdauer und Schiedsrichter-Einsätze.</div>
+  </div>
 
   <div class="overview-groups" style="margin-bottom:16px">
     <div class="card kpi-card">
@@ -1873,6 +1907,7 @@ function renderOverview() {
   renderSpark('sparkWeight', series('weight'), { color: 'var(--accent2)', fmt: fmtDec });
 
   renderWeeklyTraining();
+  renderWeekReview();
 
   // Today habits preview
   const oh = document.getElementById('overviewHabits');
@@ -1942,6 +1977,107 @@ function trainingMinutes(from, to) {
     cardio += parseFloat(g.dauer) || 0;
   });
   return { kraft, kraftSessions, cardio, cardioSessions, total: kraft + cardio };
+}
+
+// ===== WOCHENRÜCKBLICK (montags oben auf der Übersicht) =====
+// Offset 0 = letzte abgeschlossene Woche (Mo–So); höhere Werte = weiter zurück
+let weekReviewOffset = 0;
+let weekReviewOpen = null; // null = Standard: montags offen, sonst zu
+const mean = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+
+function weekStats(from) {
+  const to = addDays(from, 6);
+  const days = DB.get('health', []).filter(d => d.date >= from && d.date <= to);
+  const vals = key => days.filter(d => d[key]).map(d => parseFloat(d[key])).filter(v => !isNaN(v));
+  const bp = days.filter(d => d.bpSys && d.bpDia);
+  const steps = vals('steps');
+  return {
+    from, to,
+    training: trainingMinutes(from, to),
+    weight: mean(vals('weight')), weightN: vals('weight').length,
+    bpSys: mean(bp.map(d => parseInt(d.bpSys))), bpDia: mean(bp.map(d => parseInt(d.bpDia))), bpN: bp.length,
+    steps: mean(steps), stepsN: steps.length, stepsGoal: steps.filter(v => v >= 12000).length,
+    sleep: mean(vals('sleepMin')), deep: mean(vals('deepMin')), rem: mean(vals('remMin')), sleepN: vals('sleepMin').length,
+  };
+}
+
+function toggleWeekReview(open) {
+  weekReviewOpen = open;
+  if(open) weekReviewOffset = 0;
+  renderWeekReview();
+}
+function shiftWeekReview(step) {
+  weekReviewOffset = Math.max(0, weekReviewOffset + step);
+  renderWeekReview();
+}
+
+function renderWeekReview() {
+  const td = today();
+  const open = weekReviewOpen ?? (new Date().getDay() === 1);
+  const from = addDays(weekStart(td), -7 * (weekReviewOffset + 1));
+  const cur = weekStats(from), prev = weekStats(addDays(from, -7));
+  const dm = d => new Date(d + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'});
+  document.getElementById('weekReview').hidden = !open;
+  document.getElementById('weekReviewLink').hidden = open;
+  document.getElementById('weekReviewLinkLabel').textContent = `Wochenrückblick KW ${isoWeek(addDays(weekStart(td), -7))} ansehen`;
+  if(!open) return;
+  document.getElementById('weekReviewRange').innerHTML = `KW ${isoWeek(from)}<span class="wk-range"> · ${dm(from)}–${dm(cur.to)}</span>`;
+  document.getElementById('weekReviewNext').disabled = weekReviewOffset === 0;
+
+  // Veränderung zur Vorwoche; dir: +1 = mehr ist besser, -1 = weniger ist besser, 0 = neutral
+  const delta = (a, b, fmt, dir) => {
+    if(a == null || b == null) return '<span class="wr-delta">—</span>';
+    const d = a - b;
+    if(Math.abs(d) < 0.05) return '<span class="wr-delta">± 0</span>';
+    const cls = dir === 0 ? '' : (d * dir > 0 ? ' better' : ' worse');
+    return `<span class="wr-delta${cls}">${d > 0 ? '+' : '−'}${fmt(Math.abs(d))}</span>`;
+  };
+  const muted = '<span style="color:var(--muted)">—</span>';
+  const chip = r => r ? `<span class="${r.cls}">${r.label}</span>` : muted;
+  const t = cur.training, tp = prev.training;
+  const sessions = w => w.kraftSessions + w.cardioSessions;
+  const trainingRating = t.total >= 150 ? {label:'WHO-Ziel erreicht', cls:'rating-good'} : t.total > 0 ? {label:'Unter 150 min', cls:'rating-warn'} : {label:'Kein Training', cls:'rating-bad'};
+  const bmi = cur.weight ? cur.weight / (HEIGHT_M * HEIGHT_M) : null;
+
+  const rows = [
+    { key: 'Training', rating: trainingRating,
+      cur: t.total || sessions(t) ? `${fmtDur(t.total)} · ${sessions(t)}×<span class="wr-sub">Kraft ${fmtDur(t.kraft)} · Ausdauer ${fmtDur(t.cardio)}</span>` : muted,
+      prev: tp.total || sessions(tp) ? `${fmtDur(tp.total)} · ${sessions(tp)}×` : muted,
+      delta: delta(t.total, tp.total, fmtDur, 1) },
+    { key: 'Gewicht', rating: bmi ? bmiRating(bmi) : null,
+      cur: cur.weight ? `${fmtDec(cur.weight)} kg<span class="wr-sub">BMI ${fmtDec(bmi)} · ${cur.weightN}× gemessen</span>` : muted,
+      prev: prev.weight ? `${fmtDec(prev.weight)} kg` : muted,
+      delta: delta(cur.weight, prev.weight, v => fmtDec(v) + ' kg', 0) },
+    { key: 'Blutdruck', rating: cur.bpN ? bpCategory(cur.bpSys, cur.bpDia) : null,
+      cur: cur.bpN ? `${Math.round(cur.bpSys)}/${Math.round(cur.bpDia)}<span class="wr-sub">${cur.bpN}× gemessen</span>` : muted,
+      prev: prev.bpN ? `${Math.round(prev.bpSys)}/${Math.round(prev.bpDia)}` : muted,
+      delta: cur.bpN && prev.bpN ? `${delta(cur.bpSys, prev.bpSys, v => Math.round(v), -1)} <span class="wr-delta">/</span> ${delta(cur.bpDia, prev.bpDia, v => Math.round(v), -1)}` : '<span class="wr-delta">—</span>' },
+    { key: 'Schritte', rating: cur.stepsN ? stepsRating(cur.steps) : null,
+      cur: cur.stepsN ? `${Math.round(cur.steps).toLocaleString('de-DE')}<span class="wr-sub">Ø/Tag · Ziel an ${cur.stepsGoal} von ${cur.stepsN} Tagen</span>` : muted,
+      prev: prev.stepsN ? Math.round(prev.steps).toLocaleString('de-DE') : muted,
+      delta: delta(cur.steps, prev.steps, v => Math.round(v).toLocaleString('de-DE'), 1) },
+    { key: 'Schlaf', rating: cur.sleepN ? sleepDurationRating(cur.sleep / 60) : null,
+      cur: cur.sleepN ? `${minToHM(cur.sleep)} h<span class="wr-sub">Tief ${cur.deep ? minToHM(cur.deep) : '—'} · REM ${cur.rem ? minToHM(cur.rem) : '—'}</span>` : muted,
+      prev: prev.sleepN ? `${minToHM(prev.sleep)} h` : muted,
+      delta: delta(cur.sleep, prev.sleep, v => minToHM(v) + ' h', 0) },
+  ];
+
+  const hasData = t.total || sessions(t) || cur.weightN || cur.bpN || cur.stepsN || cur.sleepN;
+  if(!hasData) {
+    document.getElementById('weekReviewBody').innerHTML = emptyState('Keine Daten in dieser Woche', 'Für diese Woche sind weder Training noch Vitalwerte erfasst.');
+    return;
+  }
+  // Fazit: was gut lief, was im Blick bleiben sollte
+  const good = rows.filter(r => r.rating?.cls === 'rating-good').map(r => r.key);
+  const watch = rows.filter(r => r.rating && r.rating.cls !== 'rating-good').map(r => `${r.key} (${r.rating.label})`);
+  const summary = (good.length ? `<div class="wr-line good"><b>Lief gut</b><span>${good.join(', ')}</span></div>` : '')
+    + (watch.length ? `<div class="wr-line watch"><b>Im Blick behalten</b><span>${watch.join(', ')}</span></div>` : '');
+
+  document.getElementById('weekReviewBody').innerHTML = (summary ? `<div class="wr-summary">${summary}</div>` : '')
+    + `<div class="table-scroll"><table class="data-table week-table">
+      <thead><tr><th></th><th>KW ${isoWeek(from)}</th><th>Vorwoche</th><th>Veränderung</th><th>Bewertung</th></tr></thead>
+      <tbody>${rows.map(r => `<tr><td class="wr-label">${r.key}</td><td>${r.cur}</td><td>${r.prev}</td><td>${r.delta}</td><td>${chip(r.rating)}</td></tr>`).join('')}</tbody>
+    </table></div>`;
 }
 
 function renderWeeklyTraining() {
