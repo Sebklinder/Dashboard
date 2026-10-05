@@ -156,16 +156,75 @@
   .liga-bar { display: flex; height: 24px; border-radius: 6px; overflow: hidden; background: var(--surface3); gap: 2px; }
   .liga-seg { display: flex; align-items: center; justify-content: center; min-width: 4px; font-size: 11px; font-weight: 600; color: #0b0b0d; overflow: hidden; white-space: nowrap; }
   :root.light .liga-seg { color: #fff; }
-  .icon-btn.has-note { color: var(--accent); }
-  .data-table tr:has(+ .schiri-note-row) td { border-bottom: none; }
-  .schiri-note-row td { padding-top: 0 !important; }
-  .schiri-notes { display: flex; flex-direction: column; gap: 6px; padding: 2px 0 6px; white-space: normal; }
+  /* Schiedsrichter-Seite */
+  #page-schiri .page-head { margin-bottom: 20px; }
+  .games-head .search-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .page-actions { display: flex; gap: 8px; }
+  .season-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .season-chips:empty { display: none; }
+  .season-chip { min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--text-2); font-size: 13px; font-weight: 500; cursor: pointer; font-variant-numeric: tabular-nums; }
+  .season-chip:hover { color: var(--text); border-color: var(--border-strong); }
+  .season-chip.active { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+  .schiri-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .schiri-kpis .kpi { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .kpi-label { font-size: 12px; font-weight: 500; color: var(--muted); }
+  .kpi-value { font-size: 26px; font-weight: 600; letter-spacing: -0.8px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .kpi-note, .kpi-delta { font-size: 12px; color: var(--muted); line-height: 1.4; font-variant-numeric: tabular-nums; }
+  .kpi-delta.up { color: var(--green); }
+  .kpi-delta.down { color: var(--text-2); }
+  .schiri-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .schiri-grid > .card { min-width: 0; }
+  .liga-row.sel .liga-row-year { color: var(--accent); }
+  .schiri-grid .liga-tiles { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+  .schiri-grid .liga-tile { padding: 10px 12px; }
+  .games-head { flex-wrap: wrap; gap: 12px; }
+  .games-search { width: min(100%, 280px); height: 36px; }
+  .games-month { display: flex; justify-content: space-between; gap: 12px; padding: 16px 0 8px; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+  .games-month:first-child { padding-top: 0; }
+  .game { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; column-gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .game:last-child { border-bottom: none; }
+  .game-date { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 44px; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border); line-height: 1; }
+  .game-date b { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .game-date span { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; margin-top: 3px; }
+  .game-teams { font-size: 14px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+  .game-teams span { color: var(--muted); font-weight: 400; }
+  .game-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; margin-top: 4px; font-size: 12px; color: var(--muted); }
+  .game-meta .dot { opacity: .6; }
+  .liga-chip { --c: var(--muted); display: inline-flex; padding: 1px 7px; border-radius: 6px; font-size: 11px; font-weight: 600; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
+  :root.light .liga-chip { color: color-mix(in srgb, var(--c) 72%, #000); }
+  .game-side { display: flex; align-items: center; gap: 6px; }
+  .game-sum { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; margin-right: 4px; }
+  .game-actions { display: flex; }
+  .game .schiri-notes { grid-column: 2 / -1; margin-top: 10px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); }
+  @media (max-width: 900px) { .schiri-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .schiri-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) {
+    .page-actions { width: 100%; } .page-actions .btn-primary { flex: 1; }
+    .games-search { width: 100%; }
+    .game { grid-template-columns: 44px minmax(0, 1fr); row-gap: 6px; }
+    .game-side { grid-column: 2; justify-content: space-between; }
+    .game .schiri-notes { grid-column: 1 / -1; }
+    .kpi-value { font-size: 22px; }
+  }
+  .kollegen-list { display: flex; flex-direction: column; }
+  .kollege-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .kollege-row:first-child { padding-top: 0; }
+  .kollege-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .kollege-avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: .02em; }
+  .kollege-name { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+  .kollege-meta { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .kollege-ligen { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .kollege-count { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }
+  .kollege-count b { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .kollege-count span { font-size: 11px; color: var(--muted); }
+  .schiri-notes { display: flex; flex-direction: column; gap: 6px; white-space: normal; }
   .schiri-note { display: flex; gap: 12px; align-items: baseline; font-size: 13px; line-height: 1.5; color: var(--text-2); white-space: pre-line; }
   .schiri-note-label { display: inline-flex; align-items: center; gap: 5px; flex: none; width: 112px; font-size: 12px; font-weight: 600; white-space: nowrap; }
   .schiri-note-label .i { width: 13px; height: 13px; }
   .schiri-note.good .schiri-note-label { color: var(--green); }
   .schiri-note.bad .schiri-note-label { color: var(--yellow); }
   .schiri-note.next .schiri-note-label { color: var(--accent); }
+  .schiri-note.video .schiri-note-label { color: var(--accent2); }
+  .schiri-note a { color: var(--accent2); overflow-wrap: anywhere; }
   @media (max-width: 600px) { .schiri-note { flex-direction: column; gap: 0; } }
   .liga-row-head { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
   /* Sparklines (Trend der letzten Einträge in den KPI-Karten) */
@@ -658,6 +717,7 @@
   <symbol id="i-up" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/></symbol>
   <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3"/></symbol>
   <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
   <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
@@ -1047,33 +1107,45 @@
 
 <!-- SCHIEDSRICHTER -->
 <div id="page-schiri" class="page">
-  <div class="page-title">Schiedsrichter-Einsätze</div>
-  <div class="page-sub">Spiele, Spielgebühren und Fahrtkosten – nach Jahr sortiert.</div>
-
-  <div class="entry-tiles">
-    <div class="entry-tile" onclick="openModal('schiriModal')"><span class="entry-tile-icon tone-amber"><svg class="i"><use href="#i-ball"/></svg></span><span class="entry-tile-label">Neues Spiel</span></div>
-  </div>
-
-  <div class="card" style="margin-bottom:16px">
-    <div class="section-header">
-      <span class="card-title"><svg class="i"><use href="#i-euro"/></svg>Jahresübersicht</span>
-      <button class="btn btn-secondary btn-sm" onclick="exportSchiri()"><svg class="i"><use href="#i-download"/></svg>CSV exportieren</button>
+  <div class="page-head">
+    <div>
+      <div class="page-title">Schiedsrichter</div>
+      <div class="page-sub">Einsätze, Einnahmen und Entwicklung je Saison.</div>
     </div>
-    <div class="table-scroll"><table class="data-table">
-      <thead><tr><th>Jahr</th><th>Spiele</th><th>Spielgebühr</th><th>Fahrtkosten</th><th>Gesamt</th></tr></thead>
-      <tbody id="schiriYearTable"></tbody>
-    </table></div>
-  </div>
-
-  <div class="card" style="margin-bottom:16px">
-    <div class="section-header">
-      <span class="card-title"><svg class="i"><use href="#i-ball"/></svg>Spiele je Liga</span>
+    <div class="page-actions">
+      <button class="btn btn-secondary" onclick="exportSchiri()" title="Alle Spiele als CSV exportieren"><svg class="i"><use href="#i-download"/></svg>CSV</button>
+      <button class="btn btn-primary" onclick="openSchiriModal()"><svg class="i"><use href="#i-plus"/></svg>Neues Spiel</button>
     </div>
-    <div id="schiriLiga"></div>
-    <div class="card-foot">Regio = RLH/RLD · BVS = Landes- und Oberliga (LL/OL).</div>
   </div>
 
-  <div id="schiriYears"></div>
+  <div class="season-chips" id="schiriSaisons" role="tablist" aria-label="Saison wählen"></div>
+  <div class="schiri-kpis" id="schiriKpis"></div>
+
+  <div class="schiri-grid">
+    <div class="card">
+      <div class="section-header">
+        <span class="card-title"><svg class="i"><use href="#i-ball"/></svg>Spiele je Liga</span>
+      </div>
+      <div id="schiriLiga"></div>
+      <div class="card-foot">Regio = RLH/RLD · BVS = Landes- und Oberliga (LL/OL).</div>
+    </div>
+    <div class="card">
+      <div class="section-header">
+        <span class="card-title"><svg class="i"><use href="#i-habits"/></svg>Kollegen</span>
+        <span class="card-sub" id="schiriKollegenSub"></span>
+      </div>
+      <div id="schiriKollegen"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-header games-head">
+      <span class="card-title"><svg class="i"><use href="#i-list"/></svg>Spiele <span class="card-sub" id="schiriSpieleSub"></span></span>
+      <label for="schiriSuche" class="search-label">Spiele durchsuchen</label>
+      <input type="search" class="form-input games-search" id="schiriSuche" placeholder="Mannschaft, Liga, Kollege, Notiz…" oninput="renderSchiriSpiele()">
+    </div>
+    <div id="schiriSpiele"></div>
+  </div>
 </div>
 
 </main>
@@ -1401,33 +1473,10 @@
 </div>
 
 <!-- Eingabe-Modal: Schiedsrichter -->
-<div class="modal-overlay" id="schiriNotizModal">
-  <div class="modal">
-    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-note"/></svg></span>Notizen zum Spiel</div>
-    <div class="form-hint" id="schiriNotizSpiel" style="margin-top:-8px;margin-bottom:16px"></div>
-    <input type="hidden" id="schiriNotizId">
-    <div class="form-group">
-      <label class="form-label" for="schiriNotizGut">Was lief gut?</label>
-      <textarea class="form-input" id="schiriNotizGut" placeholder="z. B. Stellungsspiel, Kommunikation im Team…" style="min-height:72px"></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="schiriNotizSchlecht">Was lief nicht gut?</label>
-      <textarea class="form-input" id="schiriNotizSchlecht" placeholder="z. B. Foul-Entscheidungen, Zeitmanagement…" style="min-height:72px"></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="schiriNotizTipp">Tipps fürs nächste Spiel</label>
-      <textarea class="form-input" id="schiriNotizTipp" placeholder="z. B. früher in Position, mehr mit Partner absprechen…" style="min-height:72px"></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal('schiriNotizModal')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveSchiriNotiz()">Notizen speichern</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="schiriModal">
   <div class="modal modal-wide">
-    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-ball"/></svg></span>Neues Spiel</div>
+    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-ball"/></svg></span><span id="schiriModalTitle">Neues Spiel</span></div>
+    <input type="hidden" id="schiriEditId">
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Datum</label>
@@ -1450,6 +1499,11 @@
         <select class="form-input" id="schiriGastSelect" onchange="onPickSelect('schiriGast')"></select>
         <input type="text" class="form-input" id="schiriGastNeu" placeholder="Neue Mannschaft" style="display:none;margin-top:8px">
       </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kollege <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <select class="form-input" id="schiriKollegeSelect" onchange="onPickSelect('schiriKollege')"></select>
+      <input type="text" class="form-input" id="schiriKollegeNeu" placeholder="Name des Kollegen" style="display:none;margin-top:8px">
     </div>
     <div class="form-row-3">
       <div class="form-group">
@@ -1478,9 +1532,13 @@
       <label class="form-label" for="schiriTipp">Tipps fürs nächste Spiel <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
       <textarea class="form-input" id="schiriTipp" placeholder="z. B. früher in Position, mehr mit Partner absprechen…" style="min-height:64px"></textarea>
     </div>
+    <div class="form-group">
+      <label class="form-label" for="schiriVideo">Video <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea class="form-input" id="schiriVideo" placeholder="Link zum Spielvideo und/oder Szenen, z. B. 2. Viertel 4:30 Block/Charge" style="min-height:64px"></textarea>
+    </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('schiriModal')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveSchiri()">Spiel speichern</button>
+      <button class="btn btn-primary" id="schiriSaveBtn" onclick="saveSchiri()">Spiel speichern</button>
     </div>
   </div>
 </div>
@@ -3255,6 +3313,10 @@ function schiriLigen() {
   const spiele = DB.get('schiri_spiele', []).map(g => g.liga);
   return [...new Set([...DEFAULT_LIGEN, ...DB.get('custom_ligen', []), ...spiele])].filter(Boolean);
 }
+function schiriKollegen() {
+  const spiele = DB.get('schiri_spiele', []).map(g => g.kollege);
+  return [...new Set([...DB.get('schiri_kollegen', []), ...spiele])].filter(Boolean).sort((a,b) => a.localeCompare(b, 'de'));
+}
 function schiriTeams() {
   const spiele = DB.get('schiri_spiele', []).flatMap(g => [g.heim, g.gast]);
   return [...new Set([...DB.get('schiri_teams', []), ...spiele])].filter(Boolean).sort((a,b) => a.localeCompare(b, 'de'));
@@ -3293,56 +3355,60 @@ function saveSchiri() {
   const liga = pickValue('schiriLiga');
   if(!heim || !gast) { toast('Bitte Heim und Gast angeben!'); return; }
   if(!liga) { toast('Bitte Liga angeben!'); return; }
+  const editId = document.getElementById('schiriEditId').value;
+  const kollege = pickValue('schiriKollege');
   const entry = {
-    id: Date.now().toString(),
+    id: editId || Date.now().toString(),
     date: document.getElementById('schiriDate').value || today(),
-    heim, gast, liga,
+    heim, gast, liga, kollege,
     gebuehr: document.getElementById('schiriGebuehr').value,
     fahrt: document.getElementById('schiriFahrt').value,
     dauer: document.getElementById('schiriDauer').value,
     gut: document.getElementById('schiriGut').value.trim(),
     schlecht: document.getElementById('schiriSchlecht').value.trim(),
     tipp: document.getElementById('schiriTipp').value.trim(),
+    video: document.getElementById('schiriVideo').value.trim(),
   };
   const data = DB.get('schiri_spiele', []);
-  data.push(entry);
+  const idx = editId ? data.findIndex(g => g.id === editId) : -1;
+  if(idx >= 0) data[idx] = { ...data[idx], ...entry }; else data.push(entry);
   data.sort((a,b) => a.date.localeCompare(b.date));
   DB.set('schiri_spiele', data);
   // Neue Liga / Mannschaften merken → künftig im Dropdown
   rememberValue('custom_ligen', liga, DEFAULT_LIGEN);
   rememberValue('schiri_teams', heim);
   rememberValue('schiri_teams', gast);
-  ['schiriGebuehr','schiriFahrt','schiriDauer','schiriLigaNeu','schiriHeimNeu','schiriGastNeu','schiriGut','schiriSchlecht','schiriTipp'].forEach(id => document.getElementById(id).value = '');
-  checkGymHabit(entry.date); // Spiel gepfiffen = Sport gemacht
-  renderSchiri(liga); // Liga bleibt vorausgewählt – meist mehrere Spiele derselben Liga hintereinander
+  rememberValue('schiri_kollegen', kollege);
+  if(!editId) { schiriLetzteLiga = liga; checkGymHabit(entry.date); } // Spiel gepfiffen = Sport gemacht
+  renderSchiri();
   renderSport(); // Spiel mit Einsatzzeit taucht auch im Cardio-Protokoll auf
   closeModal('schiriModal');
-  toast('Spiel gespeichert ✓');
+  toast(editId ? 'Spiel aktualisiert ✓' : 'Spiel gespeichert ✓');
 }
 
-// Notizen (lief gut / nicht gut / Tipps) nachträglich zu einem Spiel erfassen oder ändern
-const SCHIRI_NOTIZ_FELDER = ['gut', 'schlecht', 'tipp'];
-const notizFeldId = k => 'schiriNotiz' + k[0].toUpperCase() + k.slice(1);
+const SCHIRI_NOTIZ_FELDER = ['gut', 'schlecht', 'tipp', 'video'];
+// Video-Notiz: Links (http/https) klickbar machen, Rest als Text
+const linkify = t => escHtml(t).replace(/https?:\/\/[^\s<"']+/g, u => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
 const hasSchiriNotiz = g => SCHIRI_NOTIZ_FELDER.some(k => g[k]);
-function openSchiriNotiz(id) {
-  const g = DB.get('schiri_spiele', []).find(x => x.id === id);
-  if(!g) return;
-  document.getElementById('schiriNotizId').value = id;
-  document.getElementById('schiriNotizSpiel').textContent = `${fmtDate(g.date)} · ${g.heim} vs. ${g.gast} · ${g.liga}`;
-  SCHIRI_NOTIZ_FELDER.forEach(k => document.getElementById(notizFeldId(k)).value = g[k] || '');
-  openModal('schiriNotizModal', 'schiriNotizGut');
-}
+const SCHIRI_TEXTFELDER = { gebuehr: 'schiriGebuehr', fahrt: 'schiriFahrt', dauer: 'schiriDauer', gut: 'schiriGut', schlecht: 'schiriSchlecht', tipp: 'schiriTipp', video: 'schiriVideo' };
+let schiriLetzteLiga = ''; // neue Spiele: zuletzt genutzte Liga vorauswählen – meist mehrere Spiele derselben Liga hintereinander
 
-function saveSchiriNotiz() {
-  const id = document.getElementById('schiriNotizId').value;
-  const data = DB.get('schiri_spiele', []);
-  const g = data.find(x => x.id === id);
-  if(!g) return;
-  SCHIRI_NOTIZ_FELDER.forEach(k => g[k] = document.getElementById(notizFeldId(k)).value.trim());
-  DB.set('schiri_spiele', data);
-  renderSchiri();
-  closeModal('schiriNotizModal');
-  toast('Notizen gespeichert ✓');
+// Spiel-Dialog: ohne id leer für ein neues Spiel, mit id befüllt zum Bearbeiten
+function openSchiriModal(id) {
+  const g = id ? DB.get('schiri_spiele', []).find(x => x.id === id) : null;
+  document.getElementById('schiriEditId').value = g ? g.id : '';
+  document.getElementById('schiriModalTitle').textContent = g ? 'Spiel bearbeiten' : 'Neues Spiel';
+  document.getElementById('schiriSaveBtn').textContent = g ? 'Änderungen speichern' : 'Spiel speichern';
+  document.getElementById('schiriDate').value = g ? g.date : today();
+  ['schiriLigaNeu','schiriHeimNeu','schiriGastNeu','schiriKollegeNeu'].forEach(f => document.getElementById(f).value = '');
+  renderPickSelect('schiriLiga', schiriLigen(), g ? g.liga : schiriLetzteLiga, 'Liga wählen…', 'Neue Liga…');
+  const teams = schiriTeams();
+  renderPickSelect('schiriHeim', teams, g ? g.heim : '', 'Heim wählen…', 'Neue Mannschaft…');
+  renderPickSelect('schiriGast', teams, g ? g.gast : '', 'Gast wählen…', 'Neue Mannschaft…');
+  renderPickSelect('schiriKollege', schiriKollegen(), g ? (g.kollege || '') : '', 'Kein Kollege', 'Neuer Kollege…');
+  document.querySelector('#schiriKollegeSelect option[value=""]').disabled = false; // „Kein Kollege“ bleibt wählbar
+  Object.entries(SCHIRI_TEXTFELDER).forEach(([k, f]) => document.getElementById(f).value = g ? (g[k] ?? '') : '');
+  openModal('schiriModal');
 }
 
 async function deleteSchiri(id) {
@@ -3366,97 +3432,160 @@ function schiriGruppe(liga) {
   return 'Sonstige';
 }
 
-function renderSchiri(keepLiga) {
-  document.getElementById('schiriDate').value = today();
-  renderPickSelect('schiriLiga', schiriLigen(), keepLiga || '', 'Liga wählen…', 'Neue Liga…');
-  const teams = schiriTeams();
-  renderPickSelect('schiriHeim', teams, '', 'Heim wählen…', 'Neue Mannschaft…');
-  renderPickSelect('schiriGast', teams, '', 'Gast wählen…', 'Neue Mannschaft…');
+let schiriSaison = null; // gewähltes Jahr ('2026' …) oder 'alle'; null = neuestes Jahr mit Spielen
+const schiriSumme = g => (parseFloat(g.gebuehr) || 0) + (parseFloat(g.fahrt) || 0);
+const schiriInSaison = (g, s) => s === 'alle' || g.date.startsWith(s);
+const MONATE_KURZ = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+
+function setSchiriSaison(s) { schiriSaison = s; renderSchiri(); }
+
+function renderSchiri() {
   const data = DB.get('schiri_spiele', []);
-  const num = v => parseFloat(v) || 0;
+  const years = [...new Set(data.map(g => g.date.slice(0,4)))].sort((a,b) => b.localeCompare(a));
+  if(!schiriSaison || (schiriSaison !== 'alle' && !years.includes(schiriSaison))) schiriSaison = years[0] || String(new Date().getFullYear());
+  const saison = schiriSaison;
+  const list = data.filter(g => schiriInSaison(g, saison));
 
-  // Nach Jahr gruppieren, neuestes Jahr zuerst; innerhalb des Jahres neuestes Spiel zuerst
-  const years = {};
-  data.forEach(g => { const y = g.date.slice(0,4); (years[y] = years[y] || []).push(g); });
-  const yearKeys = Object.keys(years).sort((a,b) => b.localeCompare(a));
-  const sumOf = (list, key) => list.reduce((sum, g) => sum + num(g[key]), 0);
+  // Saison-Chips
+  document.getElementById('schiriSaisons').innerHTML = years.length ? [...years, 'alle'].map(y =>
+    `<button type="button" role="tab" class="season-chip${y === saison ? ' active' : ''}" aria-selected="${y === saison}" onclick="setSchiriSaison('${y}')">${y === 'alle' ? 'Gesamt' : y}</button>`).join('') : '';
 
-  document.getElementById('schiriYearTable').innerHTML = yearKeys.map(y => {
-    const list = years[y];
-    return `<tr>
-      <td><strong>${y}</strong></td>
-      <td>${list.length}</td>
-      <td>${fmtEur(sumOf(list,'gebuehr'))}</td>
-      <td>${fmtEur(sumOf(list,'fahrt'))}</td>
-      <td><strong>${fmtEur(sumOf(list,'gebuehr') + sumOf(list,'fahrt'))}</strong></td>
-    </tr>`;
-  }).join('') || `<tr><td class="empty-cell" colspan="5">${emptyState('Noch keine Spiele', 'Erfasse Einsätze unter „Schiedsrichter“.')}</td></tr>`;
+  // Kennzahlen; im laufenden Jahr Vergleich mit dem Vorjahr bis zum gleichen Datum, sonst ganzes Vorjahr
+  const sum = (l, f) => l.reduce((a, g) => a + f(g), 0);
+  const total = sum(list, schiriSumme), geb = sum(list, g => parseFloat(g.gebuehr) || 0), fahrt = sum(list, g => parseFloat(g.fahrt) || 0);
+  const zeit = sum(list, g => parseFloat(g.dauer) || 0);
+  let prev = null, prevLabel = '';
+  if(saison !== 'alle' && years.includes(String(+saison - 1))) {
+    const py = String(+saison - 1), isCur = saison === today().slice(0,4), cut = today().slice(5);
+    prev = data.filter(g => g.date.startsWith(py) && (!isCur || g.date.slice(5) <= cut));
+    prevLabel = isCur ? `Vorjahr bis ${fmtDate(py + '-' + cut).slice(0,6)}` : `Vorjahr`;
+  }
+  const delta = (cur, before, fmt) => {
+    if(prev === null) return '';
+    const d = cur - before;
+    if(Math.abs(d) < 0.005) return `<span class="kpi-delta">± 0 · ${prevLabel}</span>`;
+    return `<span class="kpi-delta ${d > 0 ? 'up' : 'down'}">${d > 0 ? '↑ +' : '↓ −'}${fmt(Math.abs(d))} · ${prevLabel}</span>`;
+  };
+  const prevTotal = prev ? sum(prev, schiriSumme) : 0;
+  const kpi = (label, value, sub) => `<div class="card kpi"><div class="kpi-label">${label}</div><div class="kpi-value">${value}</div>${sub || ''}</div>`;
+  document.getElementById('schiriKpis').innerHTML = [
+    kpi('Spiele', list.length, delta(list.length, prev ? prev.length : 0, v => v)),
+    kpi('Einnahmen', fmtEur(total), `<span class="kpi-note">Gebühren ${fmtEur(geb)} · Fahrt ${fmtEur(fahrt)}</span>` + delta(total, prevTotal, fmtEur)),
+    kpi('Ø pro Spiel', list.length ? fmtEur(total / list.length) : '—', '<span class="kpi-note">inkl. Fahrtkosten</span>'),
+    kpi('Einsatzzeit', zeit ? fmtDur(zeit) : '—', `<span class="kpi-note">${list.filter(g => g.dauer).length} von ${list.length} Spielen erfasst</span>`),
+  ].join('');
 
-  // Spiele je Liga-Gruppe: Kacheln (gesamt) + gestapelter Balken je Jahr
+  // Spiele je Liga: Kacheln für die gewählte Saison, Balken je Saison für den Verlauf
   const groupCols = SCHIRI_GRUPPEN.filter(gr => gr !== 'Sonstige' || data.some(g => schiriGruppe(g.liga) === 'Sonstige'));
-  const countBy = list => { const c = {}; list.forEach(g => { const gr = schiriGruppe(g.liga); c[gr] = (c[gr] || 0) + 1; }); return c; };
-  const pct = (n, total) => Math.round(n / total * 100);
+  const countBy = l => { const c = {}; l.forEach(g => { const gr = schiriGruppe(g.liga); c[gr] = (c[gr] || 0) + 1; }); return c; };
+  const pct = (n, t) => Math.round(n / t * 100);
   const ligaEl = document.getElementById('schiriLiga');
   if(!data.length) {
     ligaEl.innerHTML = emptyState('Noch keine Spiele', 'Erfasste Einsätze werden hier nach Liga gezählt.');
   } else {
-    const all = countBy(data);
-    const tiles = groupCols.map(gr => `<div class="liga-tile${all[gr] ? '' : ' is-zero'}">
+    const cs = countBy(list);
+    const tiles = groupCols.map(gr => `<div class="liga-tile${cs[gr] ? '' : ' is-zero'}">
         <span class="liga-tile-label"><span class="liga-dot" style="background:${SCHIRI_FARBEN[gr]}"></span>${gr}</span>
-        <span class="liga-tile-value">${all[gr] || 0}</span>
-        <span class="liga-tile-pct">${all[gr] ? pct(all[gr], data.length) + ' % aller Spiele' : 'noch keine'}</span>
+        <span class="liga-tile-value">${cs[gr] || 0}</span>
+        <span class="liga-tile-pct">${cs[gr] ? pct(cs[gr], list.length) + ' %' : '—'}</span>
       </div>`).join('');
-    const bars = yearKeys.map(y => {
-      const list = years[y], c = countBy(list);
+    const bars = years.map(y => {
+      const l = data.filter(g => g.date.startsWith(y)), c = countBy(l);
       const segs = groupCols.filter(gr => c[gr]).map(gr => {
-        const w = c[gr] / list.length * 100;
-        return `<span class="liga-seg" style="flex:${c[gr]} 1 0;background:${SCHIRI_FARBEN[gr]}" title="${gr}: ${c[gr]} Spiel${c[gr]===1?'':'e'} (${Math.round(w)} %)">${w >= 8 ? c[gr] : ''}</span>`;
+        const w = c[gr] / l.length * 100;
+        return `<span class="liga-seg" style="flex:${c[gr]} 1 0;background:${SCHIRI_FARBEN[gr]}" title="${gr}: ${c[gr]} Spiel${c[gr]===1?'':'e'} (${Math.round(w)} %)">${w >= 10 ? c[gr] : ''}</span>`;
       }).join('');
       const label = groupCols.filter(gr => c[gr]).map(gr => `${gr} ${c[gr]}`).join(', ');
-      return `<div class="liga-row"><span class="liga-row-year">${y}</span><div class="liga-bar" role="img" aria-label="${y}: ${label}">${segs}</div><span class="liga-row-total">${list.length}</span></div>`;
+      return `<div class="liga-row${y === saison ? ' sel' : ''}"><span class="liga-row-year">${y}</span><div class="liga-bar" role="img" aria-label="${y}: ${label}">${segs}</div><span class="liga-row-total">${l.length}</span></div>`;
     }).join('');
-    ligaEl.innerHTML = `<div class="liga-tiles">${tiles}</div>
-      <div class="liga-rows">
-        <div class="liga-row liga-row-head"><span>Saison</span><span>Verteilung</span><span style="text-align:right">Spiele</span></div>
-        ${bars}
-      </div>`;
+    ligaEl.innerHTML = `<div class="liga-tiles">${tiles}</div><div class="liga-rows">${bars}</div>`;
   }
 
-  document.getElementById('schiriYears').innerHTML = yearKeys.map(y => {
-    const list = [...years[y]].reverse();
-    const geb = sumOf(list,'gebuehr'), fahrt = sumOf(list,'fahrt'), zeit = sumOf(list,'dauer');
-    return `<div class="card" style="margin-bottom:16px">
-      <div class="section-header">
-        <span class="card-title"><svg class="i"><use href="#i-ball"/></svg>Saison ${y}</span>
-        <span style="font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums">${list.length} Spiel${list.length===1?'':'e'}${zeit ? ` · ${fmtDur(zeit)}` : ''} · Gebühren ${fmtEur(geb)} · Fahrt ${fmtEur(fahrt)} · <strong style="color:var(--text)">${fmtEur(geb+fahrt)}</strong></span>
-      </div>
-      <div class="table-scroll"><table class="data-table">
-        <thead><tr><th>Datum</th><th>Spielpaarung</th><th>Liga</th><th>Einsatzzeit</th><th>Spielgebühr</th><th>Fahrtkosten</th><th>Summe</th><th></th></tr></thead>
-        <tbody>${list.map(g => `<tr>
-          <td>${fmtDate(g.date)}</td>
-          <td>${escHtml(g.heim)} <span style="color:var(--muted)">vs.</span> ${escHtml(g.gast)}</td>
-          <td>${escHtml(g.liga)}</td>
-          <td>${g.dauer ? g.dauer + ' min' : '—'}</td>
-          <td>${g.gebuehr !== '' && g.gebuehr != null ? fmtEur(g.gebuehr) : '—'}</td>
-          <td>${g.fahrt !== '' && g.fahrt != null ? fmtEur(g.fahrt) : '—'}</td>
-          <td><strong>${fmtEur(num(g.gebuehr) + num(g.fahrt))}</strong></td>
-          <td style="white-space:nowrap"><button class="icon-btn${hasSchiriNotiz(g) ? ' has-note' : ''}" title="${hasSchiriNotiz(g) ? 'Notizen bearbeiten' : 'Notizen hinzufügen'}" aria-label="Notizen zum Spiel" onclick="openSchiriNotiz('${g.id}')"><svg class="i"><use href="#i-note"/></svg></button><button class="icon-btn" title="Spiel löschen" aria-label="Spiel löschen" onclick="deleteSchiri('${g.id}')"><svg class="i"><use href="#i-x"/></svg></button></td>
-        </tr>${hasSchiriNotiz(g) ? `<tr class="schiri-note-row"><td colspan="8"><div class="schiri-notes">
-          ${g.gut ? `<div class="schiri-note good"><span class="schiri-note-label"><svg class="i"><use href="#i-check"/></svg>Lief gut</span><span>${escHtml(g.gut)}</span></div>` : ''}
-          ${g.schlecht ? `<div class="schiri-note bad"><span class="schiri-note-label"><svg class="i"><use href="#i-alert"/></svg>Lief nicht gut</span><span>${escHtml(g.schlecht)}</span></div>` : ''}
-          ${g.tipp ? `<div class="schiri-note next"><span class="schiri-note-label"><svg class="i"><use href="#i-right"/></svg>Nächstes Mal</span><span>${escHtml(g.tipp)}</span></div>` : ''}
-        </div></td></tr>` : ''}`).join('')}</tbody>
-      </table></div>
-    </div>`;
-  }).join('') || '<div class="card">' + emptyState('Noch keine Spiele', 'Erfasste Einsätze erscheinen hier je Liga mit Einsatzzeit.', 'Spiel erfassen', "openModal('schiriModal')") + '</div>';
+  // Kollegen der gewählten Saison
+  const kollegen = {};
+  list.forEach(g => { if(g.kollege) (kollegen[g.kollege] = kollegen[g.kollege] || []).push(g); });
+  const kRows = Object.entries(kollegen).sort((a,b) => b[1].length - a[1].length || a[0].localeCompare(b[0], 'de'));
+  const ohne = list.filter(g => !g.kollege).length;
+  document.getElementById('schiriKollegenSub').textContent = kRows.length && ohne ? `${ohne} ohne Angabe` : '';
+  const initialen = n => n.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  document.getElementById('schiriKollegen').innerHTML = kRows.length ? `<div class="kollegen-list">${kRows.map(([name, l]) => {
+      const last = l.reduce((a, g) => g.date > a ? g.date : a, '');
+      const ligen = [...new Set(l.map(g => g.liga))].sort((a,b) => SCHIRI_GRUPPEN.indexOf(schiriGruppe(a)) - SCHIRI_GRUPPEN.indexOf(schiriGruppe(b)) || a.localeCompare(b));
+      return `<div class="kollege-row">
+        <span class="kollege-avatar" aria-hidden="true">${escHtml(initialen(name))}</span>
+        <div class="kollege-main">
+          <div class="kollege-name">${escHtml(name)}</div>
+          <div class="kollege-meta">zuletzt ${fmtDate(last)}</div>
+          <div class="kollege-ligen">${ligen.map(lg => `<span class="liga-chip" style="--c:${SCHIRI_FARBEN[schiriGruppe(lg)]}">${escHtml(lg)}</span>`).join('')}</div>
+        </div>
+        <div class="kollege-count"><b>${l.length}</b><span>Spiel${l.length === 1 ? '' : 'e'}</span></div>
+      </div>`;
+    }).join('')}</div>`
+    : emptyState('Noch keine Kollegen erfasst', 'Trag beim Spiel ein, mit wem du gepfiffen hast – hier siehst du dann, wie oft.');
+
+  renderSchiriSpiele();
 }
 
-// Freitext für CSV: in Anführungszeichen, innere Anführungszeichen verdoppelt
-const csvText = v => `"${String(v || '').replace(/"/g, '""')}"`;
+// Spielliste der gewählten Saison als Karten, nach Monat gruppiert, mit Suche
+function renderSchiriSpiele() {
+  const data = DB.get('schiri_spiele', []);
+  const q = (document.getElementById('schiriSuche')?.value || '').trim().toLowerCase();
+  let list = data.filter(g => schiriInSaison(g, schiriSaison || 'alle'));
+  if(q) list = list.filter(g => [g.heim, g.gast, g.liga, g.kollege, g.gut, g.schlecht, g.tipp, g.video].some(v => String(v || '').toLowerCase().includes(q)));
+  list = [...list].sort((a,b) => b.date.localeCompare(a.date));
+  document.getElementById('schiriSpieleSub').textContent = list.length ? `${list.length}` : '';
+  const el = document.getElementById('schiriSpiele');
+  if(!list.length) {
+    el.innerHTML = q
+      ? emptyState('Keine Treffer', `Kein Spiel passt zu „${escHtml(q)}“.`, 'Suche zurücksetzen', "document.getElementById('schiriSuche').value='';renderSchiriSpiele()")
+      : emptyState('Noch keine Spiele', 'Erfasste Einsätze erscheinen hier mit Liga, Kollege und Notizen.', 'Spiel erfassen', 'openSchiriModal()');
+    return;
+  }
+  const groups = [];
+  list.forEach(g => {
+    const key = g.date.slice(0,7);
+    if(!groups.length || groups[groups.length-1].key !== key) groups.push({ key, items: [] });
+    groups[groups.length-1].items.push(g);
+  });
+  const note = (cls, icon, label, html) => `<div class="schiri-note ${cls}"><span class="schiri-note-label"><svg class="i"><use href="#i-${icon}"/></svg>${label}</span><span>${html}</span></div>`;
+  el.innerHTML = groups.map(({ key, items }) => {
+    const monat = new Date(key + '-15T12:00:00').toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+    const mSum = items.reduce((a, g) => a + schiriSumme(g), 0);
+    return `<div class="games-month"><span>${monat}</span><span>${items.length} Spiel${items.length === 1 ? '' : 'e'} · ${fmtEur(mSum)}</span></div>
+      ${items.map(g => {
+        const d = new Date(g.date + 'T12:00:00');
+        const gr = schiriGruppe(g.liga);
+        const meta = [`<span class="liga-chip" style="--c:${SCHIRI_FARBEN[gr]}">${escHtml(g.liga)}</span>`];
+        if(g.dauer) meta.push(`${escHtml(g.dauer)} min`);
+        if(g.kollege) meta.push(`mit ${escHtml(g.kollege)}`);
+        const notes = (g.gut ? note('good', 'check', 'Lief gut', escHtml(g.gut)) : '')
+          + (g.schlecht ? note('bad', 'alert', 'Lief nicht gut', escHtml(g.schlecht)) : '')
+          + (g.tipp ? note('next', 'right', 'Nächstes Mal', escHtml(g.tipp)) : '')
+          + (g.video ? note('video', 'play', 'Video', linkify(g.video)) : '');
+        const kosten = [g.gebuehr !== '' && g.gebuehr != null ? `Gebühr ${fmtEur(g.gebuehr)}` : '', parseFloat(g.fahrt) ? `Fahrt ${fmtEur(g.fahrt)}` : ''].filter(Boolean).join(' · ');
+        return `<div class="game">
+          <div class="game-date" aria-label="${fmtDate(g.date)}"><b>${d.getDate()}</b><span>${MONATE_KURZ[d.getMonth()]}</span></div>
+          <div class="game-main">
+            <div class="game-teams">${escHtml(g.heim)} <span>vs.</span> ${escHtml(g.gast)}</div>
+            <div class="game-meta">${meta.join('<span class="dot">·</span>')}</div>
+          </div>
+          <div class="game-side">
+            <div class="game-sum" title="${kosten}">${fmtEur(schiriSumme(g))}</div>
+            <div class="game-actions">
+              <button class="icon-btn" title="Spiel bearbeiten" aria-label="Spiel bearbeiten" onclick="openSchiriModal('${g.id}')"><svg class="i"><use href="#i-pencil"/></svg></button>
+              <button class="icon-btn" title="Spiel löschen" aria-label="Spiel löschen" onclick="deleteSchiri('${g.id}')"><svg class="i"><use href="#i-trash"/></svg></button>
+            </div>
+          </div>
+          ${notes ? `<div class="schiri-notes">${notes}</div>` : ''}
+        </div>`;
+      }).join('')}`;
+  }).join('');
+}
+
 function exportSchiri() {
   const data = DB.get('schiri_spiele', []);
-  const csv = ['Datum,Heim,Gast,Liga,Einsatzzeit (min),Spielgebühr (€),Fahrtkosten (€),Summe (€),Lief gut,Lief nicht gut,Tipps nächstes Spiel']
-    .concat(data.map(g => `${g.date},"${g.heim}","${g.gast}","${g.liga}",${g.dauer||''},${g.gebuehr||''},${g.fahrt||''},${((parseFloat(g.gebuehr)||0)+(parseFloat(g.fahrt)||0)).toFixed(2)},${csvText(g.gut)},${csvText(g.schlecht)},${csvText(g.tipp)}`)).join('\n');
+  const csv = ['Datum,Heim,Gast,Liga,Kollege,Einsatzzeit (min),Spielgebühr (€),Fahrtkosten (€),Summe (€),Lief gut,Lief nicht gut,Tipps nächstes Spiel,Video']
+    .concat(data.map(g => `${g.date},"${g.heim}","${g.gast}","${g.liga}",${csvText(g.kollege)},${g.dauer||''},${g.gebuehr||''},${g.fahrt||''},${((parseFloat(g.gebuehr)||0)+(parseFloat(g.fahrt)||0)).toFixed(2)},${csvText(g.gut)},${csvText(g.schlecht)},${csvText(g.tipp)},${csvText(g.video)}`)).join('\n');
   download('schiedsrichter-spiele.csv', 'text/csv', csv);
 }
 
