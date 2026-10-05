@@ -205,23 +205,20 @@
     .game .schiri-notes { grid-column: 1 / -1; }
     .kpi-value { font-size: 22px; }
   }
-  .kollegen-list { display: flex; flex-direction: column; }
-  .kollege-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
-  .kollege-row:first-child { padding-top: 0; }
-  .kollege-row:last-child { border-bottom: none; padding-bottom: 0; }
-  .kollege-avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: .02em; }
+  .kollegen-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .kollege-tile { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 14px 10px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); min-width: 0; }
+  .kollege-avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: .02em; margin-bottom: 6px; }
   .kollege-name { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
   .kollege-meta { font-size: 12px; color: var(--muted); margin-top: 1px; }
-  .kollege-ligen { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .kollege-ligen { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: 8px; }
   .kollegen-more { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
   .kollegen-more-title { font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 8px; }
   .kollegen-mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px 16px; }
   .kollege-mini { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; padding: 4px 0; min-width: 0; }
   .kollege-mini-name { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .kollege-mini-count { font-weight: 600; font-variant-numeric: tabular-nums; }
-  .kollege-count { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }
-  .kollege-count b { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
-  .kollege-count span { font-size: 11px; color: var(--muted); }
+  .kollege-count { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .kollege-count b { font-size: 22px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
   .schiri-notes { display: flex; flex-direction: column; gap: 6px; white-space: normal; }
   .schiri-note { display: flex; gap: 12px; align-items: baseline; font-size: 13px; line-height: 1.5; color: var(--text-2); white-space: pre-line; }
   .schiri-note-label { display: inline-flex; align-items: center; gap: 5px; flex: none; width: 112px; font-size: 12px; font-weight: 600; white-space: nowrap; }
@@ -3519,14 +3516,12 @@ function renderSchiri() {
   document.getElementById('schiriKollegen').innerHTML = kRows.length ? `<div class="kollegen-list">${kRows.slice(0, 3).map(([name, l]) => {
       const last = l.reduce((a, g) => g.date > a ? g.date : a, '');
       const ligen = [...new Set(l.map(g => g.liga))].sort((a,b) => SCHIRI_GRUPPEN.indexOf(schiriGruppe(a)) - SCHIRI_GRUPPEN.indexOf(schiriGruppe(b)) || a.localeCompare(b));
-      return `<div class="kollege-row">
+      return `<div class="kollege-tile">
         <span class="kollege-avatar" aria-hidden="true">${escHtml(initialen(name))}</span>
-        <div class="kollege-main">
-          <div class="kollege-name">${escHtml(name)}</div>
-          <div class="kollege-meta">zuletzt ${fmtDate(last)}</div>
-          <div class="kollege-ligen">${ligen.map(lg => `<span class="liga-chip" style="--c:${SCHIRI_FARBEN[schiriGruppe(lg)]}">${escHtml(lg)}</span>`).join('')}</div>
-        </div>
-        <div class="kollege-count"><b>${l.length}</b><span>Spiel${l.length === 1 ? '' : 'e'}</span></div>
+        <div class="kollege-name">${escHtml(name)}</div>
+        <div class="kollege-count"><b>${l.length}</b> Spiel${l.length === 1 ? '' : 'e'}</div>
+        <div class="kollege-meta">zuletzt ${fmtDate(last)}</div>
+        <div class="kollege-ligen">${ligen.map(lg => `<span class="liga-chip" style="--c:${SCHIRI_FARBEN[schiriGruppe(lg)]}">${escHtml(lg)}</span>`).join('')}</div>
       </div>`;
     }).join('')}</div>${kRows.length > 3 ? `<div class="kollegen-more"><div class="kollegen-more-title">Weitere Kollegen</div><div class="kollegen-mini-grid">${kRows.slice(3).map(kollegeMini).join('')}</div></div>` : ''}`
     : emptyState('Noch keine Kollegen erfasst', 'Trag beim Spiel ein, mit wem du gepfiffen hast – hier siehst du dann, wie oft.');
