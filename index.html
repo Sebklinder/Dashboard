@@ -365,7 +365,7 @@
   .table-hint { font-size: 12px; color: var(--muted); margin: -6px 0 12px; }
   /* Gesundheits-Protokoll: Aktionen und Tagesnotiz unter der Zeile (wie bei den Spielen) */
   .health-actions { display: flex; justify-content: flex-end; }
-  .icon-btn.note-btn:hover { background: var(--accent-soft); color: var(--accent); }
+  .icon-btn.note-btn:hover, .icon-btn.edit-btn:hover { background: var(--accent-soft); color: var(--accent); }
   .icon-btn.note-btn.has-note { color: var(--accent); }
   .data-table tr:has(+ .health-note-row) td { border-bottom: none; }
   .data-table .health-note-row td { padding-top: 0; white-space: normal; }
@@ -915,7 +915,7 @@
       <span class="card-title"><svg class="i"><use href="#i-list"/></svg>Protokoll</span>
       <button class="btn btn-secondary btn-sm" onclick="exportHealth()"><svg class="i"><use href="#i-download"/></svg>CSV exportieren</button>
     </div>
-    <div class="table-hint">Tipp: Auf einen Wert klicken, um ihn einzeln zu löschen – mit ✕ den ganzen Tag. Über das Notiz-Symbol eine Tagesnotiz hinzufügen.</div>
+    <div class="table-hint">Tipp: Mit dem Stift einen Tag bearbeiten, über das Notiz-Symbol eine Tagesnotiz hinzufügen, mit ✕ den ganzen Tag löschen. Ein Klick auf einen Wert löscht ihn einzeln.</div>
     <div class="table-scroll"><table class="data-table">
       <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Kalorien</th><th>Meditation</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th></th></tr></thead>
       <tbody id="healthTable"></tbody>
@@ -1291,6 +1291,76 @@
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('sleepModal')">Abbrechen</button>
       <button class="btn btn-primary" onclick="saveSleep()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="healthEditModal">
+  <div class="modal">
+    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-pencil"/></svg></span><span>Tag bearbeiten <span id="heDateLabel" style="color:var(--muted);font-weight:500"></span></span></div>
+    <div class="form-hint" style="margin-top:-4px;margin-bottom:16px">Leere Felder werden beim Speichern entfernt.</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="heWeight">Gewicht (kg)</label>
+        <input type="number" step="0.1" class="form-input" id="heWeight" placeholder="–">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="heTemp">Temperatur (°C)</label>
+        <input type="number" step="0.1" min="30" max="45" class="form-input" id="heTemp" placeholder="–">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="heBpSys">Systolisch (mmHg)</label>
+        <input type="number" class="form-input" id="heBpSys" placeholder="–">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="heBpDia">Diastolisch (mmHg)</label>
+        <input type="number" class="form-input" id="heBpDia" placeholder="–">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="heSteps">Schritte</label>
+        <input type="number" min="0" class="form-input" id="heSteps" placeholder="–">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="heKcal">Kalorien (kcal)</label>
+        <input type="number" min="0" step="1" class="form-input" id="heKcal" placeholder="–">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="heMedit">Meditation (Minuten)</label>
+      <input type="number" min="0" step="1" class="form-input" id="heMedit" placeholder="–">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Schlaf gesamt</label>
+      <div class="unit-row">
+        <input type="number" min="0" max="16" class="form-input" id="heSleepH" placeholder="–"><span class="unit">h</span>
+        <input type="number" min="0" max="59" class="form-input" id="heSleepM" placeholder="–"><span class="unit">min</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tiefschlaf</label>
+      <div class="unit-row">
+        <input type="number" min="0" max="8" class="form-input" id="heDeepH" placeholder="–"><span class="unit">h</span>
+        <input type="number" min="0" max="59" class="form-input" id="heDeepM" placeholder="–"><span class="unit">min</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">REM-Schlaf</label>
+      <div class="unit-row">
+        <input type="number" min="0" max="8" class="form-input" id="heRemH" placeholder="–"><span class="unit">h</span>
+        <input type="number" min="0" max="59" class="form-input" id="heRemM" placeholder="–"><span class="unit">min</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="heNote">Tagesnotiz</label>
+      <textarea class="form-input" id="heNote" placeholder="Wie war der Tag körperlich?" style="min-height:64px"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('healthEditModal')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveHealthEdit()">Speichern</button>
     </div>
   </div>
 </div>
@@ -2236,6 +2306,7 @@ function renderHealth() {
     <td>${d.deepMin ? cell(d.date,'deepMin',fmtMin(d.deepMin)) : '—'}</td>
     <td>${d.remMin ? cell(d.date,'remMin',fmtMin(d.remMin)) : '—'}</td>
     <td><div class="health-actions">
+      <button class="icon-btn edit-btn" title="Tag bearbeiten" aria-label="Tag bearbeiten" onclick="openHealthEdit('${d.date}')"><svg class="i"><use href="#i-pencil"/></svg></button>
       <button class="icon-btn note-btn${d.note ? ' has-note' : ''}" title="${d.note ? 'Notiz bearbeiten' : 'Notiz hinzufügen'}" aria-label="${d.note ? 'Notiz bearbeiten' : 'Notiz hinzufügen'}" onclick="openHealthNote('${d.date}')"><svg class="i"><use href="#i-note"/></svg></button>
       <button class="icon-btn" title="Ganzen Tag löschen" aria-label="Ganzen Tag löschen" onclick="deleteHealthEntry('${d.date}')"><svg class="i"><use href="#i-x"/></svg></button>
     </div></td>
@@ -2409,6 +2480,38 @@ function saveTemp() {
   renderHealth();
   closeModal('tempModal');
   toast('Temperatur gespeichert ✓');
+}
+
+// Ganzen Tageseintrag bearbeiten (wie "Spiel bearbeiten" bei den Schiedsrichter-Spielen)
+const HEALTH_EDIT_FIELDS = { weight: 'heWeight', temp: 'heTemp', bpSys: 'heBpSys', bpDia: 'heBpDia', steps: 'heSteps', kcal: 'heKcal', medit: 'heMedit', note: 'heNote' };
+const HEALTH_EDIT_DURATIONS = { sleepMin: 'heSleep', deepMin: 'heDeep', remMin: 'heRem' };
+let healthEditDate = null;
+function openHealthEdit(date) {
+  healthEditDate = date;
+  const entry = DB.get('health', []).find(d => d.date === date) || {};
+  document.getElementById('heDateLabel').textContent = fmtDate(date);
+  Object.entries(HEALTH_EDIT_FIELDS).forEach(([k, id]) => document.getElementById(id).value = entry[k] ?? '');
+  Object.entries(HEALTH_EDIT_DURATIONS).forEach(([k, id]) => {
+    const min = parseInt(entry[k]) || 0;
+    document.getElementById(id + 'H').value = min ? Math.floor(min / 60) : '';
+    document.getElementById(id + 'M').value = min ? min % 60 : '';
+  });
+  openModal('healthEditModal', 'heWeight');
+}
+function saveHealthEdit() {
+  const data = DB.get('health', []);
+  const entry = data.find(d => d.date === healthEditDate);
+  if(!entry) return closeModal('healthEditModal');
+  const set = (k, v) => { if(v === '' || v === null) delete entry[k]; else entry[k] = v; };
+  Object.entries(HEALTH_EDIT_FIELDS).forEach(([k, id]) => set(k, document.getElementById(id).value.trim()));
+  Object.entries(HEALTH_EDIT_DURATIONS).forEach(([k, id]) => set(k, toMin(id + 'H', id + 'M')));
+  DB.set('health', data);
+  if(entry.steps) checkStepsHabit(entry.date, parseInt(entry.steps));
+  if(entry.kcal) checkKcalHabit(entry.date, parseInt(entry.kcal));
+  if(parseInt(entry.medit) > 0) checkMeditHabit(entry.date);
+  renderHealth();
+  closeModal('healthEditModal');
+  toast('Tag gespeichert ✓');
 }
 
 // Tagesnotiz: gehört zum ganzen Tageseintrag, wird über das Notiz-Symbol im Protokoll bearbeitet
