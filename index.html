@@ -268,10 +268,6 @@
   .overview-bottom { display: grid; grid-template-columns: 1fr 1fr 1.3fr 1.7fr; gap: 16px; }
   .stat-group-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
   .stat-group-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; }
-  .tracker-stats { margin: 4px 0 16px; }
-  .tracker-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-  .tracker-actions .btn { text-decoration: none; }
-  #trackerCharts { margin-top: 16px; }
   .stat-group-3 > .stat + .stat, .stat-group-2 > .stat + .stat { border-left: 1px solid var(--border); padding-left: 16px; }
   .up { color: var(--green); }
   .down { color: var(--red); }
@@ -558,6 +554,62 @@
   .dd-day.sel .dd-day-bar { outline: 2px solid var(--accent); outline-offset: 2px; }
   @media (max-width: 640px) { .dd-list { padding: 0 16px; } .dd-num { font-size: 32px; } }
 
+  /* ===== Ernährung → Tracker (Kalorien, Gewicht, Fasten) ===== */
+  .ern-sum-goal { background: none; border: none; padding: 0; font: inherit; color: var(--muted); cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
+  .ern-sum-goal:hover { color: var(--accent); }
+  .dd-progress.over b { background: var(--red); }
+  .ern-macros { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .ern-meals { padding: 8px 24px; margin-bottom: 16px; }
+  .ern-meal { padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .ern-meal:last-child { border-bottom: none; }
+  .ern-meal-head { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+  .ern-meal-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; flex: 1; min-width: 0; }
+  .ern-meal-name .i { color: var(--muted); }
+  .ern-kcal { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--text-2); white-space: nowrap; }
+  .ern-add { width: 44px; height: 44px; margin-right: -10px; border: none; background: none; color: var(--accent); cursor: pointer; border-radius: 8px; display: grid; place-items: center; }
+  .ern-add:hover { background: var(--accent-soft); }
+  .ern-item { display: flex; align-items: center; gap: 4px; border-top: 1px dashed var(--border); }
+  .ern-item-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 10px 0; border: none; background: none; color: var(--text); text-align: left; font: inherit; cursor: pointer; }
+  .ern-item-main:hover .ern-item-name { color: var(--accent); }
+  .ern-item-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .ern-item-name { font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
+  .ern-item-sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ern-item .icon-btn { width: 44px; height: 44px; margin-right: -10px; }
+  .tracker-side { margin-bottom: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .ern-copy { width: 44px; height: 44px; border: none; background: none; color: var(--muted); cursor: pointer; border-radius: 8px; display: grid; place-items: center; }
+  .ern-copy:hover { background: var(--accent-soft); color: var(--accent); }
+  .ern-water-bar b { background: var(--accent2); }
+  .ern-water-btns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  .ern-water-btns .btn { padding: 0 8px; }
+  .food-own-btn { margin-top: 8px; }
+  .food-hit-row { display: flex; align-items: center; gap: 4px; }
+  .food-hit-row .food-hit { flex: 1; min-width: 0; }
+  .food-hit-row .icon-btn { width: 40px; height: 40px; }
+  .ern-fast-time { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .ern-fast-meta { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+  .ern-fast-goals { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .ern-chip { min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-2); font: inherit; font-size: 14px; cursor: pointer; font-variant-numeric: tabular-nums; }
+  .ern-chip.on { background: var(--accent-soft); color: var(--accent); border-color: transparent; font-weight: 600; }
+  .ern-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+  .ern-row .form-group { flex: 1; min-width: 160px; margin-bottom: 0; }
+  .ern-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .ern-history { list-style: none; margin: 16px 0 0; padding: 0; font-size: 14px; }
+  .ern-history li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--border); }
+  .ern-history li > span:first-child { flex: 1; min-width: 0; color: var(--text-2); }
+  .ern-history b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ern-history .icon-btn { width: 36px; height: 36px; }
+  .ern-weight-now { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .food-results { display: flex; flex-direction: column; margin-top: 8px; max-height: 240px; overflow-y: auto; overflow-x: hidden; }
+  .food-hit > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+  .food-results:empty { display: none; }
+  .food-group { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; padding: 8px 0 4px; }
+  .food-hit { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 6px 10px; border: none; border-radius: var(--radius-sm); background: none; color: var(--text); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+  .food-hit:hover, .food-hit:focus-visible { background: var(--surface2); }
+  .food-hit small { display: block; color: var(--muted); font-size: 12px; }
+  .food-hit-kcal { color: var(--text-2); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .food-status { font-size: 12px; color: var(--muted); padding: 8px 0; }
+  @media (max-width: 640px) { .ern-meals { padding: 4px 16px; } }
+
   /* Trend-Badges für Trainingsanalyse */
   .trend-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
   .trend-badge .i { width: 14px; height: 14px; vertical-align: 0; }
@@ -760,6 +812,8 @@
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5S5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
   <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></symbol>
   <symbol id="i-list" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol>
   <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
@@ -1127,7 +1181,7 @@
 <!-- ERNÄHRUNG: Daily Dozen · 21 Optimierungen · Rezepte -->
 <div id="page-ernaehrung" class="page">
   <div class="page-title">Ernährung</div>
-  <div class="page-sub">Kalorien, Gewicht und Fasten, Daily Dozen, 21 Optimierungen und dein Rezeptbuch.</div>
+  <div class="page-sub">Kalorien, Wasser, Gewicht und Fasten, Daily Dozen, 21 Optimierungen und dein Rezeptbuch.</div>
 
   <div class="subnav">
     <button class="subnav-btn active" onclick="switchSubtab('ernaehrung','tracker',this)"><svg class="i"><use href="#i-utensils"/></svg>Tracker</button>
@@ -1137,33 +1191,11 @@
   </div>
 
   <div id="ernaehrung-tracker" class="subpage active">
-    <div class="card">
-      <div class="section-header">
-        <span class="card-title"><svg class="i"><use href="#i-utensils"/></svg>Heute</span>
-        <span class="as-of" id="trackerAsOf"></span>
-      </div>
-      <div class="stat-group-3 tracker-stats">
-        <div class="stat mini">
-          <div class="stat-value" id="trackerKcal">—</div>
-          <div class="stat-label">Kalorien gegessen</div>
-          <div class="stat-delta" id="trackerKcalGoal"></div>
-        </div>
-        <div class="stat mini">
-          <div class="stat-value" id="trackerWeight">—</div>
-          <div class="stat-label">Gewicht (kg) <span class="as-of" id="trackerWeightAsOf"></span></div>
-          <div class="stat-delta" id="trackerWeightDelta"></div>
-        </div>
-        <div class="stat mini">
-          <div class="stat-value" id="trackerFasting">—</div>
-          <div class="stat-label">Letztes Fasten</div>
-          <div class="stat-delta" id="trackerFastingNote"></div>
-        </div>
-      </div>
-      <div class="tracker-actions">
-        <a class="btn btn-primary" href="kalorien/#/diary"><svg class="i"><use href="#i-plus"/></svg>Essen eintragen</a>
-        <a class="btn btn-secondary" href="kalorien/#/fasting"><svg class="i"><use href="#i-timer"/></svg>Fasten</a>
-        <a class="btn btn-secondary" href="kalorien/#/analysis"><svg class="i"><use href="#i-chart"/></svg>Auswertung</a>
-      </div>
+    <div id="trackerDay"></div>
+    <div class="analytics-grid tracker-side">
+      <div class="card" id="trackerWaterCard"></div>
+      <div class="card" id="trackerFast"></div>
+      <div class="card" id="trackerWeightCard"></div>
     </div>
     <div class="analytics-grid" id="trackerCharts">
       <div class="card">
@@ -1177,7 +1209,6 @@
         <div class="chart-caption" id="trackerWeightCaption"></div>
       </div>
     </div>
-    <div id="trackerEmpty"></div>
   </div>
 
   <div id="ernaehrung-dozen" class="subpage"><div id="ddDozenList"></div></div>
@@ -1336,6 +1367,160 @@
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeRezeptModal()">Abbrechen</button>
       <button class="btn btn-primary" onclick="saveRezept()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ernährung → Tracker: Essen eintragen / bearbeiten -->
+<div class="modal-overlay" id="foodModal">
+  <div class="modal modal-wide">
+    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-utensils"/></svg></span><span id="foodModalTitle">Essen eintragen</span></div>
+    <input type="hidden" id="foodId">
+    <div class="form-group">
+      <label class="form-label" for="foodSearch">Suchen</label>
+      <input type="search" class="form-input" id="foodSearch" placeholder="Lebensmittel, Marke oder eigenes Rezept…" oninput="foodSearchInput()" autocomplete="off">
+      <div class="food-results" id="foodResults" aria-live="polite"></div>
+      <button type="button" class="btn btn-secondary btn-sm food-own-btn" onclick="openOwnFood()"><svg class="i"><use href="#i-plus"/></svg>Eigenes Lebensmittel anlegen</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="foodName">Name</label>
+        <input type="text" class="form-input" id="foodName" placeholder="z.B. Apfel">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="foodMeal">Mahlzeit</label>
+        <select class="form-input" id="foodMeal">
+          <option value="fruehstueck">Frühstück</option>
+          <option value="mittag">Mittagessen</option>
+          <option value="abend">Abendessen</option>
+          <option value="snack">Snacks</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" id="foodAmountGroup" hidden>
+      <label class="form-label" for="foodAmount" id="foodAmountLabel">Menge (g)</label>
+      <input type="number" min="0" step="any" class="form-input" id="foodAmount" oninput="foodRecalc()">
+      <div class="form-hint" id="foodPer"></div>
+    </div>
+    <div class="form-group">
+      <div class="macro-inputs">
+        <div class="form-group">
+          <label class="form-label" for="foodKcal">kcal</label>
+          <input type="number" min="0" step="1" class="form-input" id="foodKcal" placeholder="250">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="foodProtein">Protein (g)</label>
+          <input type="number" min="0" step="0.1" class="form-input" id="foodProtein" placeholder="–">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="foodFett">Fett (g)</label>
+          <input type="number" min="0" step="0.1" class="form-input" id="foodFett" placeholder="–">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="foodKh">KH (g)</label>
+          <input type="number" min="0" step="0.1" class="form-input" id="foodKh" placeholder="–">
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('foodModal')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveFood()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="ernGoalModal">
+  <div class="modal">
+    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-flame"/></svg></span>Tagesziele</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="ernGoalInput">Kalorien (kcal)</label>
+        <input type="number" min="500" step="50" class="form-input" id="ernGoalInput">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="ernWaterGoalInput">Wasser (Liter)</label>
+        <input type="number" min="0.5" max="6" step="0.25" class="form-input" id="ernWaterGoalInput">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('ernGoalModal')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveErnGoal()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="ownFoodModal">
+  <div class="modal modal-wide">
+    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-utensils"/></svg></span><span id="ownFoodTitle">Eigenes Lebensmittel</span></div>
+    <input type="hidden" id="ownFoodId">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="ownFoodName">Name</label>
+        <input type="text" class="form-input" id="ownFoodName" placeholder="z.B. Mamas Linsensuppe">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="ownFoodUnit">Angaben je</label>
+        <select class="form-input" id="ownFoodUnit">
+          <option value="g">100 g</option>
+          <option value="ml">100 ml</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="macro-inputs">
+        <div class="form-group">
+          <label class="form-label" for="ownFoodKcal">kcal</label>
+          <input type="number" min="0" step="1" class="form-input" id="ownFoodKcal" placeholder="120">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ownFoodProtein">Protein (g)</label>
+          <input type="number" min="0" step="0.1" class="form-input" id="ownFoodProtein" placeholder="–">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ownFoodFett">Fett (g)</label>
+          <input type="number" min="0" step="0.1" class="form-input" id="ownFoodFett" placeholder="–">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ownFoodKh">KH (g)</label>
+          <input type="number" min="0" step="0.1" class="form-input" id="ownFoodKh" placeholder="–">
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="ownFoodPortion">Übliche Portion (optional)</label>
+      <input type="number" min="0" step="1" class="form-input" id="ownFoodPortion" placeholder="z.B. 250">
+      <div class="form-hint">Wird beim Eintragen als Menge vorgeschlagen.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-destructive" id="ownFoodDelete" onclick="deleteOwnFood()" style="margin-right:auto">Löschen</button>
+      <button class="btn btn-secondary" onclick="closeModal('ownFoodModal')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveOwnFood()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="copyMealModal">
+  <div class="modal">
+    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-copy"/></svg></span>Mahlzeit kopieren</div>
+    <div class="confirm-text" id="copyMealText"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="copyMealDate">Auf Tag</label>
+        <input type="date" class="form-input" id="copyMealDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="copyMealTarget">Als</label>
+        <select class="form-input" id="copyMealTarget">
+          <option value="fruehstueck">Frühstück</option>
+          <option value="mittag">Mittagessen</option>
+          <option value="abend">Abendessen</option>
+          <option value="snack">Snacks</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('copyMealModal')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="copyMeal()">Kopieren</button>
     </div>
   </div>
 </div>
@@ -1675,32 +1860,6 @@ const DB = {
   set: (key, val) => { localStorage.setItem(key, JSON.stringify(val)); queueSync(); },
 };
 
-// ===== ERNÄHRUNG: Tageswerte aus der Kalorien-&-Fasten-App (/kalorien/) =====
-// Die App schreibt je Tag { date, kcal, goal, weight?, fastingHours?, fastingReached? } in `ernaehrung_daily`.
-// Ältere, früher unter Gesundheit erfasste Werte (health.kcal / health.weight) gelten weiter, wo die App nichts hat.
-const NUTRITION_APP = 'kalorien/';
-function nutritionDays() {
-  const byDate = {};
-  DB.get('health', []).forEach(h => {
-    if(!h.kcal && !h.weight) return;
-    const e = byDate[h.date] = { date: h.date };
-    if(h.kcal) e.kcal = parseInt(h.kcal);
-    if(h.weight) e.weight = parseFloat(String(h.weight).replace(',', '.'));
-  });
-  DB.get('ernaehrung_daily', []).forEach(d => {
-    const e = byDate[d.date] = { ...(byDate[d.date] || { date: d.date }) };
-    if(d.kcal > 0) e.kcal = d.kcal;
-    if(d.weight) e.weight = d.weight;
-    if(d.goal) e.goal = d.goal;
-    if(d.fastingHours) { e.fastingHours = d.fastingHours; e.fastingReached = d.fastingReached; }
-    e.fromApp = true;
-  });
-  return Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
-}
-function openTracker() {
-  nav('ernaehrung');
-}
-
 // ===== CLOUD SYNC (Cloudflare KV) =====
 let syncTimer = null;
 function queueSync() {
@@ -1758,7 +1917,7 @@ function nav(page) {
   if(page === 'health') renderHealth();
   if(page === 'journal') renderJournal();
   if(page === 'sport') renderSport();
-  if(page === 'ernaehrung') { ddView = ddToday(); renderTracker(); }
+  if(page === 'ernaehrung') { ddView = ernView = ddToday(); renderTracker(); }
   if(page === 'schiri') renderSchiri();
 }
 
@@ -2411,6 +2570,527 @@ function renderDD(kind) {
     <div class="card"><div class="card-title"><svg class="i"><use href="#i-chart"/></svg>Letzte 7 Tage</div><div class="dd-week">${week}</div></div>`;
 }
 
+// ===== ERNÄHRUNG → TRACKER: Mahlzeiten, Gewicht und Fasten =====
+// ern_log:    { 'YYYY-MM-DD': [{ id, meal, name, kcal, protein?, fett?, kh?, amount?, unit?, base? }] }
+//             base = Nährwerte je `per` Einheit (100 g oder 1 Portion), damit sich die Menge später ändern lässt
+// ern_weight: { 'YYYY-MM-DD': kg }
+// ern_fasts:  [{ id, start, end?, goal }] – Zeiten als ISO-String, ohne end läuft das Fasten gerade
+// ern_goal:   Kalorien-Tagesziel
+// ern_water:  { 'YYYY-MM-DD': ml }, Ziel in ern_water_goal (ml)
+// ern_foods:  eigene Lebensmittel [{ id, name, unit: 'g'|'ml', kcal, protein?, fett?, kh?, portion? }] – Werte je 100 g/ml
+const ERN_MEALS = [
+  { k: 'fruehstueck', n: 'Frühstück', icon: 'i-sunrise' },
+  { k: 'mittag', n: 'Mittagessen', icon: 'i-sun' },
+  { k: 'abend', n: 'Abendessen', icon: 'i-moon' },
+  { k: 'snack', n: 'Snacks', icon: 'i-leaf' },
+];
+const ERN_MACROS = [['protein', 'Protein'], ['fett', 'Fett'], ['kh', 'KH']];
+const FAST_GOALS = [12, 14, 16, 18, 20, 24];
+const ernGoal = () => Number(DB.get('ern_goal', KCAL_GOAL)) || KCAL_GOAL;
+const ernWaterGoal = () => Number(DB.get('ern_water_goal', 2500)) || 2500;
+// Nährwerte je 100 g/ml oder je Portion
+const ernPer100 = base => base.unit === 'g' || base.unit === 'ml';
+const ernPerLabel = base => ernPer100(base) ? '100 ' + base.unit : 'Portion';
+const fmtL = ml => fmtDec(ml / 1000, ml % 100 ? 2 : 1).replace(/,?0+$/, m => m.startsWith(',') ? '' : m) + ' l';
+const ernDay = day => DB.get('ern_log', {})[day] || [];
+const ernSum = (list, key) => list.reduce((s, e) => s + (Number(e[key]) || 0), 0);
+const ernFastHours = f => ((f.end ? new Date(f.end) : new Date()) - new Date(f.start)) / 3600000;
+const ernHM = h => { const m = Math.max(0, Math.floor(h * 60)); return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
+const ernTime = iso => new Date(iso).toLocaleString('de-DE', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+// datetime-local braucht lokale Zeit ohne Zeitzone
+const ernLocalInput = d => ddLocalKey(d) + 'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+let ernView = ddToday();
+let ernFastGoal = 16;
+
+// Tageswerte für Übersicht, Wochenrückblick, Habit und Diagramme.
+// Ältere, früher unter Gesundheit erfasste Werte (health.kcal / health.weight) gelten weiter, wo der Tracker nichts hat.
+function nutritionDays() {
+  const byDate = {};
+  const at = d => byDate[d] || (byDate[d] = { date: d });
+  DB.get('health', []).forEach(h => {
+    if(h.kcal) at(h.date).kcal = parseInt(h.kcal);
+    if(h.weight) at(h.date).weight = parseFloat(String(h.weight).replace(',', '.'));
+  });
+  Object.entries(DB.get('ern_log', {})).forEach(([d, list]) => { if(list.length) { const e = at(d); e.kcal = Math.round(ernSum(list, 'kcal')); e.tracked = true; } });
+  Object.entries(DB.get('ern_weight', {})).forEach(([d, kg]) => { if(kg) at(d).weight = Number(kg); });
+  DB.get('ern_fasts', []).filter(f => f.end).forEach(f => {
+    const e = at(ddLocalKey(new Date(f.end))), h = ernFastHours(f);
+    if(!(e.fastingHours >= h)) { e.fastingHours = h; e.fastingReached = h >= f.goal; }
+  });
+  return Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+}
+function openTracker() { nav('ernaehrung'); }
+
+function renderTracker() {
+  renderTrackerDay();
+  renderWaterCard();
+  renderFast();
+  renderWeightCard();
+  renderTrackerCharts();
+}
+
+function renderTrackerDay() {
+  const tk = ddToday(), list = ernDay(ernView), goal = ernGoal();
+  const kcal = Math.round(ernSum(list, 'kcal')), left = goal - kcal;
+  const label = new Date(ernView + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+  const macros = ERN_MACROS.map(([k, n]) => `<span class="macro ${k}"><span>${n}</span>${fmtNum(ernSum(list, k))} g</span>`).join('');
+  const meals = ERN_MEALS.map(m => {
+    const items = list.filter(e => e.meal === m.k);
+    const rows = items.map(e => {
+      const sub = [e.amount ? `${fmtNum(e.amount)} ${e.unit === 'g' || e.unit === 'ml' ? e.unit : (e.amount == 1 ? 'Portion' : 'Portionen')}` : '', ...ERN_MACROS.filter(([k]) => e[k]).map(([k, n]) => `${n} ${fmtNum(e[k])} g`)].filter(Boolean).join(' · ');
+      return `<div class="ern-item">
+        <button type="button" class="ern-item-main" onclick="openFoodModal('${m.k}','${e.id}')" aria-label="${escAttr(e.name)} bearbeiten">
+          <span class="ern-item-text"><span class="ern-item-name">${escHtml(e.name)}</span>${sub ? `<span class="ern-item-sub">${sub}</span>` : ''}</span>
+          <span class="ern-kcal">${Math.round(e.kcal).toLocaleString('de-DE')} kcal</span>
+        </button>
+        <button type="button" class="icon-btn" aria-label="${escAttr(e.name)} löschen" onclick="deleteFood('${e.id}')"><svg class="i"><use href="#i-trash"/></svg></button>
+      </div>`;
+    }).join('');
+    return `<div class="ern-meal">
+      <div class="ern-meal-head">
+        <span class="ern-meal-name"><svg class="i"><use href="#${m.icon}"/></svg>${m.n}</span>
+        ${items.length ? `<span class="ern-kcal">${Math.round(ernSum(items, 'kcal')).toLocaleString('de-DE')} kcal</span>
+        <button type="button" class="ern-copy" aria-label="${m.n} kopieren" title="Auf einen anderen Tag kopieren" onclick="openCopyMeal('${m.k}')"><svg class="i"><use href="#i-copy"/></svg></button>` : ''}
+        <button type="button" class="ern-add" style="${items.length ? 'margin-left:-8px' : ''}" aria-label="${m.n}: Essen eintragen" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg></button>
+      </div>${rows}</div>`;
+  }).join('');
+  document.getElementById('trackerDay').innerHTML = `
+    <div class="card dd-head">
+      <div class="dd-nav">
+        <button type="button" class="icon-btn" aria-label="Vorheriger Tag" onclick="ernGo(-1)"><svg class="i"><use href="#i-chevron-left"/></svg></button>
+        <div class="dd-date">${ernView === tk ? 'Heute, ' : ''}${label}</div>
+        <button type="button" class="icon-btn" aria-label="Nächster Tag" ${ernView >= tk ? 'disabled' : ''} onclick="ernGo(1)"><svg class="i"><use href="#i-chevron"/></svg></button>
+      </div>
+      <div class="dd-sum">
+        <span class="dd-num">${kcal.toLocaleString('de-DE')}</span>
+        <span class="dd-of">von <button type="button" class="ern-sum-goal" onclick="openErnGoal()" aria-label="Kalorienziel ändern, aktuell ${goal} kcal">${goal.toLocaleString('de-DE')} kcal</button></span>
+        <span class="${left >= 0 ? 'rating-good' : 'rating-bad'}">${left >= 0 ? `noch ${left.toLocaleString('de-DE')}` : `${(-left).toLocaleString('de-DE')} über Ziel`}</span>
+        ${ernView !== tk ? `<button type="button" class="btn btn-secondary btn-sm" onclick="ernGo(0)">Heute anzeigen</button>` : `<button type="button" class="btn btn-primary btn-sm" onclick="openFoodModal()"><svg class="i"><use href="#i-plus"/></svg>Essen eintragen</button>`}
+      </div>
+      <div class="dd-progress${left < 0 ? ' over' : ''}" role="progressbar" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${kcal}"><b style="width:${Math.min(100, Math.round(kcal / goal * 100))}%"></b></div>
+      <div class="ern-macros">${macros}</div>
+    </div>
+    <div class="card ern-meals">${meals}</div>`;
+}
+function ernGo(n) {
+  const nk = n === 0 ? ddToday() : ddShift(ernView, n);
+  if(nk > ddToday()) return;
+  ernView = nk;
+  renderTrackerDay();
+  renderWaterCard();
+  renderWeightCard();
+}
+
+// ---- Kalorienziel ----
+function openErnGoal(focus) {
+  document.getElementById('ernGoalInput').value = ernGoal();
+  document.getElementById('ernWaterGoalInput').value = ernWaterGoal() / 1000;
+  openModal('ernGoalModal', focus || 'ernGoalInput');
+}
+function saveErnGoal() {
+  const v = parseInt(document.getElementById('ernGoalInput').value);
+  const w = Math.round(parseFloat(document.getElementById('ernWaterGoalInput').value) * 1000);
+  if(!(v >= 500)) { toast('Bitte ein Kalorienziel ab 500 kcal eingeben'); return; }
+  if(!(w >= 500 && w <= 6000)) { toast('Bitte ein Wasserziel zwischen 0,5 und 6 Litern eingeben'); return; }
+  DB.set('ern_goal', v);
+  DB.set('ern_water_goal', w);
+  closeModal('ernGoalModal');
+  syncKcalHabitFromNutrition();
+  renderTracker();
+  toast('Tagesziele gespeichert ✓');
+}
+
+// ---- Wasser ----
+function renderWaterCard() {
+  const ml = DB.get('ern_water', {})[ernView] || 0, goal = ernWaterGoal();
+  const dayLabel = ernView === ddToday() ? 'heute' : new Date(ernView + 'T12:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+  document.getElementById('trackerWaterCard').innerHTML = `<div class="card-title"><svg class="i"><use href="#i-drop"/></svg>Wasser ${dayLabel}</div>
+    <div class="ern-weight-now"><span class="dd-num">${fmtL(ml)}</span><span class="dd-of">von <button type="button" class="ern-sum-goal" onclick="openErnGoal('ernWaterGoalInput')" aria-label="Wasserziel ändern, aktuell ${fmtL(goal)}">${fmtL(goal)}</button></span>${ml >= goal ? '<span class="rating-good">Ziel erreicht</span>' : ''}</div>
+    <div class="dd-progress ern-water-bar" role="progressbar" aria-label="Wasser" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${ml}"><b style="width:${Math.min(100, Math.round(ml / goal * 100))}%"></b></div>
+    <div class="ern-water-btns">
+      <button type="button" class="btn btn-secondary" onclick="addWater(250)" aria-label="Glas, 250 ml hinzufügen" title="Glas">+ 250 ml</button>
+      <button type="button" class="btn btn-secondary" onclick="addWater(500)" aria-label="Flasche, 500 ml hinzufügen" title="Flasche">+ 500 ml</button>
+      <button type="button" class="btn btn-secondary" onclick="addWater(-250)" ${ml ? '' : 'disabled'} aria-label="250 ml abziehen">− 250 ml</button>
+    </div>`;
+}
+function addWater(delta) {
+  const all = DB.get('ern_water', {});
+  const before = all[ernView] || 0, ml = Math.max(0, before + delta), goal = ernWaterGoal();
+  if(ml) all[ernView] = ml; else delete all[ernView];
+  DB.set('ern_water', all);
+  // Ziel geschafft → in den 21 Optimierungen „Genug trinken“ abhaken (nur setzen, nie zurücknehmen)
+  if(before < goal && ml >= goal) {
+    const dd = DB.get(DD_KEY, {});
+    if(!(dd[ernView] || {}).t_trinken) { dd[ernView] = { ...(dd[ernView] || {}), t_trinken: 1 }; DB.set(DD_KEY, dd); }
+    toast('Wasserziel erreicht – „Genug trinken“ abgehakt ✓');
+  }
+  renderWaterCard();
+}
+
+// ---- Mahlzeit kopieren ----
+let copyMealFrom = null;
+function openCopyMeal(meal) {
+  const items = ernDay(ernView).filter(e => e.meal === meal);
+  if(!items.length) return;
+  copyMealFrom = { day: ernView, meal };
+  const tk = ddToday(), m = ERN_MEALS.find(x => x.k === meal);
+  const from = new Date(ernView + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'long' });
+  document.getElementById('copyMealText').textContent = `${m.n} vom ${from}: ${items.length} ${items.length === 1 ? 'Eintrag' : 'Einträge'}, ${Math.round(ernSum(items, 'kcal')).toLocaleString('de-DE')} kcal`;
+  const dateEl = document.getElementById('copyMealDate');
+  dateEl.max = tk;
+  dateEl.value = ernView < tk ? tk : ddShift(tk, -1);
+  document.getElementById('copyMealTarget').value = meal;
+  openModal('copyMealModal', 'copyMealDate');
+}
+function copyMeal() {
+  if(!copyMealFrom) return;
+  const day = document.getElementById('copyMealDate').value, meal = document.getElementById('copyMealTarget').value;
+  if(!day || day > ddToday()) { toast('Bitte einen Tag bis heute wählen'); return; }
+  if(day === copyMealFrom.day && meal === copyMealFrom.meal) { toast('Bitte einen anderen Tag oder eine andere Mahlzeit wählen'); return; }
+  const log = DB.get('ern_log', {});
+  const copies = (log[copyMealFrom.day] || []).filter(e => e.meal === copyMealFrom.meal)
+    .map((e, i) => ({ ...e, id: Date.now().toString(36) + i + Math.random().toString(36).slice(2, 5), meal }));
+  log[day] = [...(log[day] || []), ...copies];
+  DB.set('ern_log', log);
+  closeModal('copyMealModal');
+  ernView = day;
+  syncKcalHabitFromNutrition();
+  renderTracker();
+  toast(`${copies.length} ${copies.length === 1 ? 'Eintrag' : 'Einträge'} kopiert ✓`);
+}
+
+// ---- Eigene Lebensmittel ----
+const ownFoodBase = f => {
+  const base = { per: 100, unit: f.unit, kcal: f.kcal, default: f.portion || 100 };
+  ERN_MACROS.forEach(([k]) => { if(f[k] != null) base[k] = f[k]; });
+  return base;
+};
+function openOwnFood(id) {
+  const f = id ? DB.get('ern_foods', []).find(x => x.id === id) : null;
+  document.getElementById('ownFoodTitle').textContent = f ? 'Eigenes Lebensmittel bearbeiten' : 'Eigenes Lebensmittel';
+  document.getElementById('ownFoodId').value = f?.id || '';
+  document.getElementById('ownFoodName').value = f?.name || document.getElementById('foodSearch').value.trim() || document.getElementById('foodName').value.trim();
+  document.getElementById('ownFoodUnit').value = f?.unit || 'g';
+  ['Kcal', 'Protein', 'Fett', 'Kh'].forEach(k => document.getElementById('ownFood' + k).value = f?.[k.toLowerCase()] ?? '');
+  document.getElementById('ownFoodPortion').value = f?.portion ?? '';
+  document.getElementById('ownFoodDelete').style.display = f ? '' : 'none';
+  openModal('ownFoodModal', 'ownFoodName');
+}
+function saveOwnFood() {
+  const name = document.getElementById('ownFoodName').value.trim();
+  const kcal = document.getElementById('ownFoodKcal').value;
+  if(!name || kcal === '' || !(+kcal >= 0)) { toast('Bitte Name und kcal je 100 g/ml angeben'); return; }
+  const id = document.getElementById('ownFoodId').value;
+  const f = { id: id || 'f' + Date.now().toString(36), name, unit: document.getElementById('ownFoodUnit').value, kcal: Math.round(+kcal * 10) / 10 };
+  ERN_MACROS.forEach(([k, n]) => { const v = document.getElementById('ownFood' + (k === 'kh' ? 'Kh' : k[0].toUpperCase() + k.slice(1))).value; if(v !== '') f[k] = Math.round(+v * 10) / 10; });
+  const portion = parseFloat(document.getElementById('ownFoodPortion').value);
+  if(portion > 0) f.portion = portion;
+  const foods = DB.get('ern_foods', []);
+  const idx = foods.findIndex(x => x.id === f.id);
+  if(idx >= 0) foods[idx] = f; else foods.push(f);
+  DB.set('ern_foods', foods);
+  closeModal('ownFoodModal');
+  // Neu angelegt → direkt zum Eintragen übernehmen
+  if(idx < 0) {
+    foodHits = [{ name: f.name, base: ownFoodBase(f) }];
+    pickFood(0);
+  } else renderFoodResults(document.getElementById('foodSearch').value);
+  toast(idx >= 0 ? 'Lebensmittel gespeichert ✓' : `${name} angelegt ✓`);
+}
+async function deleteOwnFood() {
+  const id = document.getElementById('ownFoodId').value;
+  const f = DB.get('ern_foods', []).find(x => x.id === id);
+  if(!f || !await confirmDelete(`${f.name} löschen?`, 'Bereits eingetragene Mahlzeiten bleiben erhalten.', 'Löschen')) return;
+  DB.set('ern_foods', DB.get('ern_foods', []).filter(x => x.id !== id));
+  closeModal('ownFoodModal');
+  renderFoodResults(document.getElementById('foodSearch').value);
+  toast('Lebensmittel gelöscht ✓');
+}
+
+// ---- Essen eintragen: Suche in eigenen Rezepten, zuletzt Gegessenem und Open Food Facts ----
+let foodBase = null;      // gewählte Nährwerte je `per` Einheit
+let foodHits = [];        // aktuelle Trefferliste
+let foodSearchTimer = null, foodAbort = null;
+const FOOD_FIELDS = { kcal: 'foodKcal', protein: 'foodProtein', fett: 'foodFett', kh: 'foodKh' };
+
+function openFoodModal(meal, id) {
+  const e = id ? ernDay(ernView).find(x => x.id === id) : null;
+  const hour = new Date().getHours();
+  document.getElementById('foodModalTitle').textContent = e ? 'Eintrag bearbeiten' : 'Essen eintragen';
+  document.getElementById('foodId').value = e ? e.id : '';
+  document.getElementById('foodMeal').value = e?.meal || meal || (hour < 11 ? 'fruehstueck' : hour < 15 ? 'mittag' : hour < 18 ? 'snack' : 'abend');
+  document.getElementById('foodName').value = e?.name || '';
+  Object.entries(FOOD_FIELDS).forEach(([k, f]) => document.getElementById(f).value = e?.[k] ?? '');
+  document.getElementById('foodSearch').value = '';
+  setFoodBase(e?.base || null, e?.amount);
+  renderFoodResults('');
+  openModal('foodModal', e ? 'foodName' : 'foodSearch');
+}
+function setFoodBase(base, amount) {
+  foodBase = base;
+  document.getElementById('foodAmountGroup').hidden = !base;
+  if(!base) return;
+  const isG = ernPer100(base);
+  document.getElementById('foodAmountLabel').textContent = isG ? `Menge (${base.unit})` : 'Portionen';
+  document.getElementById('foodAmount').step = isG ? '1' : '0.5';
+  document.getElementById('foodAmount').value = amount ?? base.default ?? (isG ? 100 : 1);
+  document.getElementById('foodPer').textContent = `${fmtNum(base.kcal)} kcal${ERN_MACROS.filter(([k]) => base[k] != null).map(([k, n]) => ` · ${n} ${fmtNum(base[k])} g`).join('')} je ${ernPerLabel(base)}`;
+}
+function foodRecalc() {
+  if(!foodBase) return;
+  const f = (parseFloat(document.getElementById('foodAmount').value) || 0) / foodBase.per;
+  Object.entries(FOOD_FIELDS).forEach(([k, id]) => {
+    if(foodBase[k] == null) return;
+    document.getElementById(id).value = k === 'kcal' ? Math.round(foodBase[k] * f) : Math.round(foodBase[k] * f * 10) / 10;
+  });
+}
+function pickFood(i) {
+  const h = foodHits[i];
+  if(!h) return;
+  document.getElementById('foodName').value = h.name;
+  if(h.meal) document.getElementById('foodMeal').value = h.meal;
+  Object.values(FOOD_FIELDS).forEach(id => document.getElementById(id).value = '');
+  setFoodBase(h.base);
+  foodRecalc();
+  document.getElementById('foodSearch').value = '';
+  renderFoodResults('');
+  document.getElementById('foodAmount').focus();
+  document.getElementById('foodAmount').select();
+}
+// Zuletzt Gegessenes (60 Tage), je Name nur der jüngste Eintrag
+function ernRecent() {
+  const log = DB.get('ern_log', {}), seen = new Set(), out = [];
+  const from = ddShift(ddToday(), -60);
+  Object.keys(log).filter(d => d >= from).sort().reverse().forEach(d => [...log[d]].reverse().forEach(e => {
+    const key = e.name.toLowerCase();
+    if(seen.has(key)) return;
+    seen.add(key);
+    const base = e.base || { per: 1, unit: 'portion', kcal: e.kcal, protein: e.protein, fett: e.fett, kh: e.kh, default: 1 };
+    out.push({ name: e.name, meal: e.meal, base: { ...base, default: e.amount ?? base.default } });
+  }));
+  return out;
+}
+function foodHitHtml(h, i) {
+  const hit = `<button type="button" class="food-hit" onclick="pickFood(${i})"><span>${escHtml(h.name)}${h.sub ? `<small>${escHtml(h.sub)}</small>` : ''}</span><span class="food-hit-kcal">${fmtNum(h.base.kcal)} kcal / ${ernPerLabel(h.base)}</span></button>`;
+  return h.ownId ? `<div class="food-hit-row">${hit}<button type="button" class="icon-btn edit-btn" aria-label="${escAttr(h.name)} bearbeiten" onclick="openOwnFood('${h.ownId}')"><svg class="i"><use href="#i-pencil"/></svg></button></div>` : hit;
+}
+function renderFoodResults(q, remote) {
+  const ql = q.trim().toLowerCase();
+  const match = n => !ql || n.toLowerCase().includes(ql);
+  const own = DB.get('ern_foods', []).filter(f => match(f.name)).sort((a, b) => a.name.localeCompare(b.name, 'de')).slice(0, ql ? 8 : 6)
+    .map(f => ({ name: f.name, ownId: f.id, sub: f.portion ? `Portion ${fmtNum(f.portion)} ${f.unit}` : '', base: ownFoodBase(f) }));
+  const ownNames = new Set(DB.get('ern_foods', []).map(f => f.name.toLowerCase()));
+  const recent = ernRecent().filter(h => match(h.name) && !ownNames.has(h.name.toLowerCase())).slice(0, ql ? 6 : 8);
+  const rezepte = ql ? DB.get('rezepte', []).filter(r => r.kcal && match(r.name)).slice(0, 6).map(r => ({
+    name: r.name, meal: ERN_MEALS.some(m => m.k === r.category) ? r.category : null, sub: 'Eigenes Rezept',
+    base: { per: 1, unit: 'portion', kcal: +r.kcal, protein: r.protein === '' ? null : +r.protein, fett: r.fett === '' ? null : +r.fett, kh: r.kh === '' ? null : +r.kh, default: 1 },
+  })) : [];
+  foodHits = [...own, ...recent, ...rezepte, ...(remote?.hits || [])];
+  let i = 0, html = '';
+  const group = (title, list) => { if(list.length) html += `<div class="food-group">${title}</div>` + list.map(h => foodHitHtml(h, i++)).join(''); };
+  group('Eigene Lebensmittel', own);
+  group('Zuletzt gegessen', recent);
+  group('Deine Rezepte', rezepte);
+  if(remote?.hits?.length) group('Open Food Facts', remote.hits);
+  if(remote?.status) html += `<div class="food-status">${remote.status}</div>`;
+  document.getElementById('foodResults').innerHTML = html;
+}
+function foodSearchInput() {
+  const q = document.getElementById('foodSearch').value;
+  clearTimeout(foodSearchTimer);
+  if(foodAbort) foodAbort.abort();
+  if(q.trim().length < 3) { renderFoodResults(q); return; }
+  renderFoodResults(q, { status: 'Suche bei Open Food Facts …' });
+  foodSearchTimer = setTimeout(() => searchOFF(q), 450);
+}
+async function searchOFF(q) {
+  const ctrl = foodAbort = new AbortController();
+  const fields = 'product_name,product_name_de,brands,nutriments,serving_quantity';
+  const path = `/cgi/search.pl?search_terms=${encodeURIComponent(q.trim())}&search_simple=1&action=process&json=1&page_size=20&lc=de&sort_by=unique_scans_n&fields=${fields}`;
+  try {
+    // Die Suche von Open Food Facts ist zeitweise überlastet (503) – dann den zweiten Server und nach kurzer Pause noch einmal versuchen
+    let data = null;
+    for(const [i, host] of ['https://de.openfoodfacts.org', 'https://world.openfoodfacts.org', 'https://de.openfoodfacts.org'].entries()) {
+      if(i === 2) await new Promise(r => setTimeout(r, 1500));
+      if(ctrl.signal.aborted) return;
+      try {
+        const res = await fetch(host + path, { signal: ctrl.signal });
+        if(res.ok) { data = await res.json(); break; }
+      } catch(e) { if(e.name === 'AbortError') throw e; }
+    }
+    if(!data) throw new Error('nicht erreichbar');
+    const num = v => v === '' || v == null || isNaN(v) ? null : Math.round(Number(v) * 10) / 10;
+    const hits = (data.products || []).map(p => {
+      const n = p.nutriments || {};
+      const kcal = num(n['energy-kcal_100g'] ?? (n['energy_100g'] != null ? n['energy_100g'] / 4.184 : null));
+      const name = (p.product_name_de || p.product_name || '').trim();
+      if(!name || kcal == null) return null;
+      return { name, sub: (p.brands || '').split(',')[0].trim(), base: { per: 100, unit: 'g', kcal, protein: num(n.proteins_100g), fett: num(n.fat_100g), kh: num(n.carbohydrates_100g), default: num(p.serving_quantity) || 100 } };
+    }).filter(Boolean).slice(0, 12);
+    if(document.getElementById('foodSearch').value !== q) return;
+    renderFoodResults(q, { hits, status: hits.length ? '' : 'Bei Open Food Facts nichts gefunden – trag die Werte einfach unten ein.' });
+  } catch(e) {
+    if(e.name === 'AbortError') return;
+    renderFoodResults(q, { status: 'Open Food Facts gerade nicht erreichbar – trag die Werte einfach unten ein.' });
+  }
+}
+function saveFood() {
+  const name = document.getElementById('foodName').value.trim();
+  const kcalRaw = document.getElementById('foodKcal').value;
+  if(!name || kcalRaw === '' || !(+kcalRaw >= 0)) { toast('Bitte Name und Kalorien angeben'); return; }
+  const id = document.getElementById('foodId').value;
+  const entry = { id: id || Date.now().toString(36) + Math.random().toString(36).slice(2, 6), meal: document.getElementById('foodMeal').value, name, kcal: Math.round(+kcalRaw) };
+  ERN_MACROS.forEach(([k]) => { const v = document.getElementById(FOOD_FIELDS[k]).value; if(v !== '') entry[k] = Math.round(+v * 10) / 10; });
+  if(foodBase) {
+    const amount = parseFloat(document.getElementById('foodAmount').value);
+    if(amount > 0) { entry.amount = amount; entry.unit = foodBase.unit; entry.base = foodBase; }
+  }
+  const log = DB.get('ern_log', {});
+  const list = [...(log[ernView] || [])];
+  const idx = list.findIndex(e => e.id === entry.id);
+  if(idx >= 0) list[idx] = entry; else list.push(entry);
+  log[ernView] = list;
+  DB.set('ern_log', log);
+  closeModal('foodModal');
+  syncKcalHabitFromNutrition();
+  renderTrackerDay();
+  renderTrackerCharts();
+  toast(idx >= 0 ? 'Eintrag gespeichert ✓' : `${name} eingetragen ✓`);
+}
+async function deleteFood(id) {
+  const log = DB.get('ern_log', {});
+  const e = (log[ernView] || []).find(x => x.id === id);
+  if(!e || !await confirmDelete(`${e.name} löschen?`, `${Math.round(e.kcal)} kcal werden aus dem Tag entfernt.`, 'Löschen')) return;
+  log[ernView] = log[ernView].filter(x => x.id !== id);
+  if(!log[ernView].length) delete log[ernView];
+  DB.set('ern_log', log);
+  syncKcalHabitFromNutrition();
+  renderTrackerDay();
+  renderTrackerCharts();
+  toast('Eintrag gelöscht ✓');
+}
+// Rezept aus dem Rezeptbuch als Portion in den Tracker übernehmen (heute)
+function logRezept(r) {
+  const log = DB.get('ern_log', {}), day = ddToday();
+  const base = { per: 1, unit: 'portion', kcal: +r.kcal, default: 1 };
+  ERN_MACROS.forEach(([k]) => { if(r[k] !== '' && r[k] != null) base[k] = +r[k]; });
+  const entry = { id: Date.now().toString(36), meal: ERN_MEALS.some(m => m.k === r.category) ? r.category : 'snack', name: r.name, kcal: Math.round(base.kcal), amount: 1, unit: 'portion', base };
+  ERN_MACROS.forEach(([k]) => { if(base[k] != null) entry[k] = base[k]; });
+  log[day] = [...(log[day] || []), entry];
+  DB.set('ern_log', log);
+  syncKcalHabitFromNutrition();
+}
+
+// ---- Fasten ----
+const ernActiveFast = () => DB.get('ern_fasts', []).find(f => !f.end);
+function renderFast() {
+  const el = document.getElementById('trackerFast');
+  const active = ernActiveFast();
+  const done = DB.get('ern_fasts', []).filter(f => f.end).slice(-5).reverse();
+  const history = done.length ? `<ul class="ern-history">${done.map(f => { const h = ernFastHours(f), ok = h >= f.goal;
+    return `<li><span>${ernTime(f.start)} – ${ernTime(f.end)}</span><b>${ernHM(h)} h</b><span class="${ok ? 'rating-good' : 'rating-warn'}">${ok ? 'Ziel' : `von ${f.goal} h`}</span><button type="button" class="icon-btn" aria-label="Fasten vom ${ernTime(f.start)} löschen" onclick="deleteFast('${f.id}')"><svg class="i"><use href="#i-trash"/></svg></button></li>`; }).join('')}</ul>` : '';
+  if(active) {
+    const h = ernFastHours(active), endAt = new Date(new Date(active.start).getTime() + active.goal * 3600000);
+    el.innerHTML = `<div class="card-title"><svg class="i"><use href="#i-timer"/></svg>Fasten läuft</div>
+      <div class="ern-fast-time"><span class="dd-num" id="fastElapsed">${ernHM(h)}</span><span class="dd-of">von ${active.goal} h</span></div>
+      <div class="dd-progress" role="progressbar" aria-label="Fastenfortschritt" aria-valuemin="0" aria-valuemax="${active.goal}" aria-valuenow="${Math.floor(h)}"><b id="fastBar" style="width:${Math.min(100, h / active.goal * 100).toFixed(1)}%"></b></div>
+      <div class="ern-fast-meta" id="fastMeta">${h >= active.goal ? 'Ziel erreicht – du kannst das Fasten beenden, wann du willst.' : `Ziel erreicht ${ernTime(endAt.toISOString())} Uhr`}</div>
+      <div class="ern-row" style="margin-top:12px">
+        <div class="form-group"><label class="form-label" for="fastStart">Beginn</label><input type="datetime-local" class="form-input" id="fastStart" value="${ernLocalInput(new Date(active.start))}" max="${ernLocalInput(new Date())}" onchange="setFastStart(this.value)"></div>
+      </div>
+      <div class="ern-actions">
+        <button type="button" class="btn btn-primary" onclick="endFast()"><svg class="i"><use href="#i-check"/></svg>Fasten beenden</button>
+        <button type="button" class="btn btn-secondary" onclick="cancelFast()">Verwerfen</button>
+      </div>${history}`;
+    return;
+  }
+  el.innerHTML = `<div class="card-title"><svg class="i"><use href="#i-timer"/></svg>Fasten</div>
+    <div class="form-label" id="fastGoalLabel">Ziel</div>
+    <div class="ern-fast-goals" role="group" aria-labelledby="fastGoalLabel">${FAST_GOALS.map(g => `<button type="button" class="ern-chip${g === ernFastGoal ? ' on' : ''}" aria-pressed="${g === ernFastGoal}" onclick="ernFastGoal=${g};renderFast()">${g} h</button>`).join('')}</div>
+    <div class="ern-row">
+      <div class="form-group"><label class="form-label" for="fastStart">Beginn (letzte Mahlzeit)</label><input type="datetime-local" class="form-input" id="fastStart" value="${ernLocalInput(new Date())}" max="${ernLocalInput(new Date())}"></div>
+      <button type="button" class="btn btn-primary" onclick="startFast()"><svg class="i"><use href="#i-timer"/></svg>Fasten starten</button>
+    </div>${history || '<div class="ern-fast-meta">Noch kein Fasten erfasst.</div>'}`;
+}
+function startFast() {
+  const v = document.getElementById('fastStart').value;
+  const start = v ? new Date(v) : new Date();
+  if(start > new Date()) { toast('Der Beginn darf nicht in der Zukunft liegen'); return; }
+  const fasts = DB.get('ern_fasts', []).filter(f => f.end);
+  fasts.push({ id: Date.now().toString(36), start: start.toISOString(), goal: ernFastGoal });
+  DB.set('ern_fasts', fasts);
+  renderFast();
+  toast(`Fasten gestartet – Ziel ${ernFastGoal} h ✓`);
+}
+function setFastStart(v) {
+  const start = new Date(v);
+  if(!v || isNaN(start) || start > new Date()) { toast('Der Beginn darf nicht in der Zukunft liegen'); renderFast(); return; }
+  DB.set('ern_fasts', DB.get('ern_fasts', []).map(f => f.end ? f : { ...f, start: start.toISOString() }));
+  renderFast();
+}
+function endFast() {
+  const fasts = DB.get('ern_fasts', []);
+  const f = fasts.find(x => !x.end);
+  if(!f) return;
+  f.end = new Date().toISOString();
+  DB.set('ern_fasts', fasts);
+  const h = ernFastHours(f);
+  renderFast();
+  renderTrackerCharts();
+  toast(h >= f.goal ? `${ernHM(h)} h gefastet – Ziel erreicht ✓` : `${ernHM(h)} h gefastet – Fasten beendet ✓`);
+}
+async function cancelFast() {
+  if(!await confirmDelete('Laufendes Fasten verwerfen?', 'Es wird nicht im Verlauf gespeichert.', 'Verwerfen')) return;
+  DB.set('ern_fasts', DB.get('ern_fasts', []).filter(f => f.end));
+  renderFast();
+}
+async function deleteFast(id) {
+  if(!await confirmDelete('Fasten löschen?', 'Der Eintrag verschwindet aus dem Verlauf.', 'Löschen')) return;
+  DB.set('ern_fasts', DB.get('ern_fasts', []).filter(f => f.id !== id));
+  renderFast();
+  toast('Fasten gelöscht ✓');
+}
+// Laufende Uhr: nur Zahlen und Balken aktualisieren, damit ein offenes Eingabefeld nicht zurückspringt
+setInterval(() => {
+  const active = ernActiveFast(), el = document.getElementById('fastElapsed');
+  if(!active || !el || !document.getElementById('ernaehrung-tracker').offsetParent) return;
+  const h = ernFastHours(active);
+  el.textContent = ernHM(h);
+  document.getElementById('fastBar').style.width = Math.min(100, h / active.goal * 100).toFixed(1) + '%';
+  if(h >= active.goal) document.getElementById('fastMeta').textContent = 'Ziel erreicht – du kannst das Fasten beenden, wann du willst.';
+}, 30000);
+
+// ---- Gewicht ----
+function renderWeightCard() {
+  const weights = nutritionDays().filter(d => d.weight);
+  const lastW = weights[weights.length - 1], prevW = weights[weights.length - 2];
+  const dayW = DB.get('ern_weight', {})[ernView];
+  const wd = lastW && prevW ? Math.round((lastW.weight - prevW.weight) * 10) / 10 : null;
+  const dayLabel = ernView === ddToday() ? 'heute' : new Date(ernView + 'T12:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+  document.getElementById('trackerWeightCard').innerHTML = `<div class="card-title"><svg class="i"><use href="#i-scale"/></svg>Gewicht</div>
+    <div class="ern-weight-now"><span class="dd-num">${lastW ? fmtDec(lastW.weight) : '—'}</span><span class="dd-of">kg${lastW ? ` · ${asOf(lastW.date)}` : ''}</span>${wd == null ? '' : `<span class="dd-of">${wd > 0 ? '↑ +' : wd < 0 ? '↓ −' : '± '}${fmtDec(Math.abs(wd))} kg</span>`}</div>
+    <div class="ern-row">
+      <div class="form-group"><label class="form-label" for="ernWeightInput">Gewicht ${dayLabel} (kg)</label><input type="number" step="0.1" min="20" class="form-input" id="ernWeightInput" value="${dayW ?? ''}" placeholder="${lastW ? fmtDec(lastW.weight).replace(',', '.') : '75.5'}" onkeydown="if(event.key==='Enter')saveErnWeight()"></div>
+      <button type="button" class="btn btn-secondary" onclick="saveErnWeight()"><svg class="i"><use href="#i-save"/></svg>Speichern</button>
+    </div>`;
+}
+function saveErnWeight() {
+  const raw = document.getElementById('ernWeightInput').value;
+  const all = DB.get('ern_weight', {});
+  if(raw === '') {
+    if(all[ernView] == null) { toast('Bitte ein Gewicht eingeben'); return; }
+    delete all[ernView];
+  } else {
+    const kg = Math.round(parseFloat(raw) * 10) / 10;
+    if(!(kg >= 20 && kg <= 400)) { toast('Bitte ein gültiges Gewicht eingeben'); return; }
+    all[ernView] = kg;
+  }
+  DB.set('ern_weight', all);
+  renderWeightCard();
+  renderTrackerCharts();
+  toast(raw === '' ? 'Gewicht entfernt ✓' : 'Gewicht gespeichert ✓');
+}
+
 // ===== HEALTH =====
 const toMin = (hId, mId) => {
   const h = parseInt(document.getElementById(hId).value)||0;
@@ -2738,38 +3418,19 @@ function checkMeditHabit(date) {
   }
 }
 
-// Tageswerte aus der App aufs Kalorien-Habit übertragen (letzte 14 Tage, ohne Meldungen)
+// Kalorien aus dem Tracker aufs Kalorien-Habit übertragen (letzte 14 Tage, ohne Meldungen)
 function syncKcalHabitFromNutrition() {
   const habit = DB.get('habits', []).find(h => /kalorie|kcal|calorie/i.test(h.name));
   if(!habit) return;
-  const from = addDays(today(), -13);
+  const from = ddShift(ddToday(), -13), goal = ernGoal();
   const log = DB.get('habit_log_' + habit.id, {});
   let changed = false;
-  DB.get('ernaehrung_daily', []).filter(d => d.date >= from && d.kcal > 0).forEach(d => {
-    const ok = d.kcal <= KCAL_GOAL;
+  nutritionDays().filter(d => d.tracked && d.date >= from).forEach(d => {
+    const ok = d.kcal <= goal;
     if(ok && !log[d.date]) { log[d.date] = true; changed = true; }
     else if(!ok && log[d.date]) { delete log[d.date]; changed = true; }
   });
   if(changed) DB.set('habit_log_' + habit.id, log);
-}
-
-function checkKcalHabit(date, kcal) {
-  const habits = DB.get('habits', []);
-  const kcalHabit = habits.find(h => /kalorie|kcal|calorie/i.test(h.name));
-  if(!kcalHabit) return;
-  const log = DB.get('habit_log_' + kcalHabit.id, {});
-  const ok = kcal <= KCAL_GOAL;
-  if(ok && !log[date]) {
-    log[date] = true;
-    DB.set('habit_log_' + kcalHabit.id, log);
-    toast('🍽️ Kalorien-Habit automatisch abgehakt ✓');
-  } else if(!ok && log[date]) {
-    delete log[date];
-    DB.set('habit_log_' + kcalHabit.id, log);
-    toast(`🍽️ Über ${KCAL_GOAL.toLocaleString('de-DE')} kcal – Kalorien-Habit für den Tag zurückgesetzt`);
-  } else if(!ok) {
-    toast(`🍽️ Über ${KCAL_GOAL.toLocaleString('de-DE')} kcal – Kalorien-Habit heute nicht erfüllt`);
-  }
 }
 
 function exportHealth() {
@@ -2876,41 +3537,18 @@ function calcTrend(values) {
 let charts = {};
 
 // Gesundheits-Analytics (Unterseite von Gesundheit)
-// ===== ERNÄHRUNG → TRACKER =====
-function renderTracker() {
+// ===== ERNÄHRUNG → TRACKER: Diagramme =====
+function renderTrackerCharts() {
   const days = nutritionDays();
-  const td = today();
-  const todayEntry = days.find(d => d.date === td);
-  const goal = todayEntry?.goal || KCAL_GOAL;
-  document.getElementById('trackerKcal').textContent = todayEntry?.kcal ? todayEntry.kcal.toLocaleString('de-DE') : '—';
-  const kcalNote = document.getElementById('trackerKcalGoal');
-  if(todayEntry?.kcal) {
-    const left = goal - todayEntry.kcal;
-    kcalNote.innerHTML = `<span class="${left >= 0 ? 'rating-good' : 'rating-bad'}">${left >= 0 ? `${left.toLocaleString('de-DE')} übrig` : `${(-left).toLocaleString('de-DE')} über Ziel`}</span>`;
-  } else kcalNote.textContent = `Ziel ${goal.toLocaleString('de-DE')} kcal`;
-
   const weights = days.filter(d => d.weight);
-  const lastW = weights[weights.length - 1], prevW = weights[weights.length - 2];
-  document.getElementById('trackerWeight').textContent = lastW ? fmtDec(lastW.weight) : '—';
-  document.getElementById('trackerWeightAsOf').textContent = lastW ? asOf(lastW.date) : '';
-  const wd = lastW && prevW ? Math.round((lastW.weight - prevW.weight) * 10) / 10 : null;
-  document.getElementById('trackerWeightDelta').textContent = wd == null ? '' : (wd > 0 ? '↑ +' : wd < 0 ? '↓ −' : '± ') + fmtDec(Math.abs(wd)) + ' kg';
-
-  const fasts = days.filter(d => d.fastingHours);
-  const lastF = fasts[fasts.length - 1];
-  document.getElementById('trackerFasting').textContent = lastF ? fmtDec(lastF.fastingHours) + ' h' : '—';
-  document.getElementById('trackerFastingNote').innerHTML = lastF ? `<span class="${lastF.fastingReached ? 'rating-good' : 'rating-warn'}">${lastF.fastingReached ? 'Ziel erreicht' : 'vor dem Ziel beendet'}</span> · ${asOf(lastF.date)}` : '';
-  const latest = days.filter(d => d.fromApp).pop();
-  document.getElementById('trackerAsOf').textContent = latest ? `zuletzt aktualisiert: ${asOf(latest.date)}` : '';
-
+  const lastW = weights[weights.length - 1];
   const hasData = days.some(d => d.kcal || d.weight);
   document.getElementById('trackerCharts').hidden = !hasData;
-  document.getElementById('trackerEmpty').innerHTML = hasData ? '' : emptyState('Noch keine Werte', 'Trag dein Essen in der Kalorien-&-Fasten-App ein – Kalorien, Gewicht und Fasten erscheinen dann hier.', 'App öffnen', "location.href='" + NUTRITION_APP + "#/diary'");
   if(!hasData) return;
 
   // Kalorien: letzte 30 Tage, Balken über dem Tagesziel rot
   const kcalData = getLast(days.filter(d => d.kcal), 30);
-  const goalOf = d => d.goal || KCAL_GOAL;
+  const goalOf = () => ernGoal();
   if(charts.nk) charts.nk.destroy();
   charts.nk = new Chart(document.getElementById('chartNutritionKcal'), {
     type:'bar',
@@ -4088,6 +4726,7 @@ function rezeptDD(r) {
 function rezeptGegessen(id) {
   const r = DB.get('rezepte', []).find(x => x.id === id);
   if(!r) return;
+  if(r.kcal) logRezept(r);
   const portions = rezeptDD(r), day = ddToday();
   const all = DB.get(DD_KEY, {});
   const cur = Object.assign({}, all[day] || {});
@@ -4097,10 +4736,9 @@ function rezeptGegessen(id) {
     const before = Math.min(Number(cur[g.k]) || 0, g.max), after = Math.min(before + n, g.max);
     if(after > before) { cur[g.k] = after; added.push(`${DD_KURZ[g.k]} +${after - before}`); }
   });
-  if(!added.length) { toast('Daily Dozen: diese Kategorien sind heute schon voll ✓'); return; }
-  all[day] = cur;
-  DB.set(DD_KEY, all);
-  toast('Daily Dozen: ' + added.join(', ') + ' ✓');
+  if(added.length) { all[day] = cur; DB.set(DD_KEY, all); }
+  const parts = [r.kcal ? `${Math.round(r.kcal)} kcal eingetragen` : '', added.length ? 'Daily Dozen: ' + added.join(', ') : ''].filter(Boolean);
+  toast((parts.length ? parts.join(' · ') : 'Daily Dozen: diese Kategorien sind heute schon voll') + ' ✓');
 }
 
 function renderRezepte() {
@@ -4134,7 +4772,7 @@ function renderRezepte() {
           ${(r.zutaten||[]).map(z => `<li><span>${esc(z.name)}</span><span class="zutat-gramm">${fmtNum(z.gramm,' g')}</span></li>`).join('') || '<li><span style="color:var(--muted)">Keine Zutaten</span></li>'}
         </ul>
         <div class="rezept-actions">
-          ${Object.keys(rezeptDD(r)).length ? `<button class="btn btn-secondary btn-sm" onclick="rezeptGegessen('${r.id}')" title="Portionen dieses Rezepts heute im Daily Dozen abhaken"><svg class="i"><use href="#i-check"/></svg>Gegessen</button>` : ''}
+          ${r.kcal || Object.keys(rezeptDD(r)).length ? `<button class="btn btn-secondary btn-sm" onclick="rezeptGegessen('${r.id}')" title="Heute im Tracker eintragen und im Daily Dozen abhaken"><svg class="i"><use href="#i-check"/></svg>Gegessen</button>` : ''}
           <button class="btn btn-secondary btn-sm" onclick="openRezeptModal('${r.id}')"><svg class="i"><use href="#i-pencil"/></svg>Bearbeiten</button>
           <button class="icon-btn" title="Rezept löschen" onclick="deleteRezept('${r.id}')"><svg class="i"><use href="#i-trash"/></svg></button>
         </div>
@@ -4238,6 +4876,13 @@ function exportAll() {
     journal: DB.get('journal', []),
     rezepte: DB.get('rezepte', []),
     dd_days: DB.get('dd_days', {}),
+    ern_log: DB.get('ern_log', {}),
+    ern_weight: DB.get('ern_weight', {}),
+    ern_fasts: DB.get('ern_fasts', []),
+    ern_goal: DB.get('ern_goal', null),
+    ern_water: DB.get('ern_water', {}),
+    ern_water_goal: DB.get('ern_water_goal', null),
+    ern_foods: DB.get('ern_foods', []),
   };
   download('dashboard-backup-' + today() + '.json', 'application/json', JSON.stringify(all,null,2));
   toast('Export erfolgreich ✓');
@@ -4262,6 +4907,7 @@ function handleImport(event) {
       if(data.journal) DB.set('journal', data.journal);
       if(data.rezepte) DB.set('rezepte', data.rezepte);
       if(data.dd_days) DB.set('dd_days', data.dd_days);
+      ['ern_log', 'ern_weight', 'ern_fasts', 'ern_goal', 'ern_water', 'ern_water_goal', 'ern_foods'].forEach(k => { if(data[k] != null) DB.set(k, data[k]); });
       clearTimeout(syncTimer);
       pushState().then(() => { toast('Import erfolgreich ✓'); setTimeout(() => location.reload(), 600); });
     } catch(err) { alert('Fehler beim Importieren: ' + err.message); }
@@ -4451,7 +5097,7 @@ restoreJournalDraft();
 pullState().then(() => {
   syncKcalHabitFromNutrition();
   renderOverview();
-  // Direktlink, z. B. aus der Kalorien-App zurück: …/#ernaehrung
+  // Direktlink auf eine Seite, z. B. …/#ernaehrung
   const page = location.hash.slice(1);
   if(page && page !== 'overview' && document.getElementById('page-' + page)) nav(page);
 });
