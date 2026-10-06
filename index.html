@@ -268,6 +268,10 @@
   .overview-bottom { display: grid; grid-template-columns: 1fr 1fr 1.3fr 1.7fr; gap: 16px; }
   .stat-group-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
   .stat-group-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; }
+  .tracker-stats { margin: 4px 0 16px; }
+  .tracker-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tracker-actions .btn { text-decoration: none; }
+  #trackerCharts { margin-top: 16px; }
   .stat-group-3 > .stat + .stat, .stat-group-2 > .stat + .stat { border-left: 1px solid var(--border); padding-left: 16px; }
   .up { color: var(--green); }
   .down { color: var(--red); }
@@ -884,7 +888,7 @@
       <div class="spark" id="sparkBp"></div>
     </div>
     <div class="card kpi-card">
-      <div class="card-title"><svg class="i"><use href="#i-scale"/></svg>Gewicht &amp; BMI<button type="button" class="card-link" onclick="openAnalytics('health')" aria-label="Gewichts-Verlauf öffnen">Verlauf<svg class="i"><use href="#i-chevron"/></svg></button></div>
+      <div class="card-title"><svg class="i"><use href="#i-scale"/></svg>Gewicht &amp; BMI<button type="button" class="card-link" onclick="openTracker()" aria-label="Gewichts-Verlauf unter Ernährung öffnen">Verlauf<svg class="i"><use href="#i-chevron"/></svg></button></div>
       <div class="stat-group-2">
         <div class="stat mini">
           <div class="stat-value" id="statWeight">—</div>
@@ -944,12 +948,11 @@
   <div class="entry-tiles">
     <div class="entry-tile" onclick="openModal('sleepModal','healthSleepH')"><span class="entry-tile-icon tone-indigo"><svg class="i"><use href="#i-bed"/></svg></span><span class="entry-tile-label">Schlaf</span></div>
     <div class="entry-tile" onclick="openModal('stepsModal','healthSteps')"><span class="entry-tile-icon tone-green"><svg class="i"><use href="#i-steps"/></svg></span><span class="entry-tile-label">Schritte</span></div>
-    <div class="entry-tile" onclick="openModal('kcalModal','healthKcal')"><span class="entry-tile-icon tone-amber"><svg class="i"><use href="#i-utensils"/></svg></span><span class="entry-tile-label">Kalorien</span></div>
     <div class="entry-tile" onclick="openModal('meditModal','healthMedit')"><span class="entry-tile-icon tone-green"><svg class="i"><use href="#i-leaf"/></svg></span><span class="entry-tile-label">Meditation</span></div>
     <div class="entry-tile" onclick="openModal('bpModal','healthBpSys')"><span class="entry-tile-icon tone-red"><svg class="i"><use href="#i-steth"/></svg></span><span class="entry-tile-label">Blutdruck</span></div>
-    <div class="entry-tile" onclick="openModal('weightModal','healthWeight')"><span class="entry-tile-icon tone-cyan"><svg class="i"><use href="#i-scale"/></svg></span><span class="entry-tile-label">Gewicht</span></div>
     <div class="entry-tile" onclick="openModal('tempModal','healthTemp')"><span class="entry-tile-icon tone-red"><svg class="i"><use href="#i-thermo"/></svg></span><span class="entry-tile-label">Temperatur</span></div>
   </div>
+  <div class="table-hint" style="margin:-4px 0 16px">Kalorien und Gewicht erfasst du jetzt unter <a href="#ernaehrung" onclick="event.preventDefault();openTracker()">Ernährung → Tracker</a>.</div>
 
   <div class="card">
     <div class="section-header">
@@ -958,7 +961,7 @@
     </div>
     <div class="table-hint">Tipp: Mit dem Stift einen Tag bearbeiten, über das Notiz-Symbol eine Tagesnotiz hinzufügen, mit ✕ den ganzen Tag löschen. Ein Klick auf einen Wert löscht ihn einzeln.</div>
     <div class="table-scroll"><table class="data-table">
-      <thead><tr><th>Datum</th><th>Gewicht</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Kalorien</th><th>Meditation</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th></th></tr></thead>
+      <thead><tr><th>Datum</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Meditation</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th></th></tr></thead>
       <tbody id="healthTable"></tbody>
     </table></div>
   </div>
@@ -976,16 +979,8 @@
         <div class="chart-wrap"><canvas id="chartSteps"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">Gewichtsverlauf (gesamt)</div>
-        <div class="chart-wrap"><canvas id="chartWeightFull"></canvas></div>
-      </div>
-      <div class="card">
         <div class="card-title">Blutdruckverlauf</div>
         <div class="chart-wrap"><canvas id="chartBp"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Kalorienzufuhr</div>
-        <div class="chart-wrap"><canvas id="chartKcal"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">Körpertemperatur</div>
@@ -1132,15 +1127,60 @@
 <!-- ERNÄHRUNG: Daily Dozen · 21 Optimierungen · Rezepte -->
 <div id="page-ernaehrung" class="page">
   <div class="page-title">Ernährung</div>
-  <div class="page-sub">Daily Dozen, 21 Optimierungen und dein Rezeptbuch.</div>
+  <div class="page-sub">Kalorien, Gewicht und Fasten, Daily Dozen, 21 Optimierungen und dein Rezeptbuch.</div>
 
   <div class="subnav">
-    <button class="subnav-btn active" onclick="switchSubtab('ernaehrung','dozen',this)"><svg class="i"><use href="#i-leaf"/></svg>Daily Dozen</button>
+    <button class="subnav-btn active" onclick="switchSubtab('ernaehrung','tracker',this)"><svg class="i"><use href="#i-utensils"/></svg>Tracker</button>
+    <button class="subnav-btn" onclick="switchSubtab('ernaehrung','dozen',this)"><svg class="i"><use href="#i-leaf"/></svg>Daily Dozen</button>
     <button class="subnav-btn" onclick="switchSubtab('ernaehrung','tweaks',this)"><svg class="i"><use href="#i-check"/></svg>21 Optimierungen</button>
     <button class="subnav-btn" onclick="switchSubtab('ernaehrung','rezepte',this)"><svg class="i"><use href="#i-book"/></svg>Rezepte</button>
   </div>
 
-  <div id="ernaehrung-dozen" class="subpage active"><div id="ddDozenList"></div></div>
+  <div id="ernaehrung-tracker" class="subpage active">
+    <div class="card">
+      <div class="section-header">
+        <span class="card-title"><svg class="i"><use href="#i-utensils"/></svg>Heute</span>
+        <span class="as-of" id="trackerAsOf"></span>
+      </div>
+      <div class="stat-group-3 tracker-stats">
+        <div class="stat mini">
+          <div class="stat-value" id="trackerKcal">—</div>
+          <div class="stat-label">Kalorien gegessen</div>
+          <div class="stat-delta" id="trackerKcalGoal"></div>
+        </div>
+        <div class="stat mini">
+          <div class="stat-value" id="trackerWeight">—</div>
+          <div class="stat-label">Gewicht (kg) <span class="as-of" id="trackerWeightAsOf"></span></div>
+          <div class="stat-delta" id="trackerWeightDelta"></div>
+        </div>
+        <div class="stat mini">
+          <div class="stat-value" id="trackerFasting">—</div>
+          <div class="stat-label">Letztes Fasten</div>
+          <div class="stat-delta" id="trackerFastingNote"></div>
+        </div>
+      </div>
+      <div class="tracker-actions">
+        <a class="btn btn-primary" href="kalorien/#/diary"><svg class="i"><use href="#i-plus"/></svg>Essen eintragen</a>
+        <a class="btn btn-secondary" href="kalorien/#/fasting"><svg class="i"><use href="#i-timer"/></svg>Fasten</a>
+        <a class="btn btn-secondary" href="kalorien/#/analysis"><svg class="i"><use href="#i-chart"/></svg>Auswertung</a>
+      </div>
+    </div>
+    <div class="analytics-grid" id="trackerCharts">
+      <div class="card">
+        <div class="card-title">Kalorienzufuhr (30 Tage)</div>
+        <div class="chart-wrap"><canvas id="chartNutritionKcal" aria-label="Kalorien der letzten 30 Tage"></canvas></div>
+        <div class="chart-caption" id="trackerKcalCaption"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Gewichtsverlauf (gesamt)</div>
+        <div class="chart-wrap"><canvas id="chartNutritionWeight" aria-label="Gewichtsverlauf"></canvas></div>
+        <div class="chart-caption" id="trackerWeightCaption"></div>
+      </div>
+    </div>
+    <div id="trackerEmpty"></div>
+  </div>
+
+  <div id="ernaehrung-dozen" class="subpage"><div id="ddDozenList"></div></div>
   <div id="ernaehrung-tweaks" class="subpage"><div id="ddTweaksList"></div></div>
 
   <div id="ernaehrung-rezepte" class="subpage">
@@ -1342,10 +1382,6 @@
     <div class="form-hint" style="margin-top:-4px;margin-bottom:16px">Leere Felder werden beim Speichern entfernt.</div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label" for="heWeight">Gewicht (kg)</label>
-        <input type="number" step="0.1" class="form-input" id="heWeight" placeholder="–">
-      </div>
-      <div class="form-group">
         <label class="form-label" for="heTemp">Temperatur (°C)</label>
         <input type="number" step="0.1" min="30" max="45" class="form-input" id="heTemp" placeholder="–">
       </div>
@@ -1364,10 +1400,6 @@
       <div class="form-group">
         <label class="form-label" for="heSteps">Schritte</label>
         <input type="number" min="0" class="form-input" id="heSteps" placeholder="–">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="heKcal">Kalorien (kcal)</label>
-        <input type="number" min="0" step="1" class="form-input" id="heKcal" placeholder="–">
       </div>
     </div>
     <div class="form-group">
@@ -1438,24 +1470,6 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="kcalModal">
-  <div class="modal">
-    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-utensils"/></svg></span>Kalorienzufuhr – Neuer Eintrag</div>
-    <div class="form-group">
-      <label class="form-label">Datum</label>
-      <input type="date" class="form-input" id="kcalDate">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Kalorien (kcal)</label>
-      <input type="number" min="0" step="1" class="form-input" id="healthKcal" required placeholder="2000">
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal('kcalModal')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveKcal()">Speichern</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="meditModal">
   <div class="modal">
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-leaf"/></svg></span>Meditation – Neuer Eintrag</div>
@@ -1494,24 +1508,6 @@
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('bpModal')">Abbrechen</button>
       <button class="btn btn-primary" onclick="saveBp()">Speichern</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="weightModal">
-  <div class="modal">
-    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-scale"/></svg></span>Gewicht – Neuer Eintrag</div>
-    <div class="form-group">
-      <label class="form-label">Datum</label>
-      <input type="date" class="form-input" id="weightDate">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Gewicht (kg)</label>
-      <input type="number" step="0.1" class="form-input" id="healthWeight" required placeholder="75.5">
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal('weightModal')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveWeight()">Speichern</button>
     </div>
   </div>
 </div>
@@ -1679,6 +1675,32 @@ const DB = {
   set: (key, val) => { localStorage.setItem(key, JSON.stringify(val)); queueSync(); },
 };
 
+// ===== ERNÄHRUNG: Tageswerte aus der Kalorien-&-Fasten-App (/kalorien/) =====
+// Die App schreibt je Tag { date, kcal, goal, weight?, fastingHours?, fastingReached? } in `ernaehrung_daily`.
+// Ältere, früher unter Gesundheit erfasste Werte (health.kcal / health.weight) gelten weiter, wo die App nichts hat.
+const NUTRITION_APP = 'kalorien/';
+function nutritionDays() {
+  const byDate = {};
+  DB.get('health', []).forEach(h => {
+    if(!h.kcal && !h.weight) return;
+    const e = byDate[h.date] = { date: h.date };
+    if(h.kcal) e.kcal = parseInt(h.kcal);
+    if(h.weight) e.weight = parseFloat(String(h.weight).replace(',', '.'));
+  });
+  DB.get('ernaehrung_daily', []).forEach(d => {
+    const e = byDate[d.date] = { ...(byDate[d.date] || { date: d.date }) };
+    if(d.kcal > 0) e.kcal = d.kcal;
+    if(d.weight) e.weight = d.weight;
+    if(d.goal) e.goal = d.goal;
+    if(d.fastingHours) { e.fastingHours = d.fastingHours; e.fastingReached = d.fastingReached; }
+    e.fromApp = true;
+  });
+  return Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+}
+function openTracker() {
+  nav('ernaehrung');
+}
+
 // ===== CLOUD SYNC (Cloudflare KV) =====
 let syncTimer = null;
 function queueSync() {
@@ -1736,7 +1758,7 @@ function nav(page) {
   if(page === 'health') renderHealth();
   if(page === 'journal') renderJournal();
   if(page === 'sport') renderSport();
-  if(page === 'ernaehrung') { ddView = ddToday(); renderDD('dozen'); }
+  if(page === 'ernaehrung') { ddView = ddToday(); renderTracker(); }
   if(page === 'schiri') renderSchiri();
 }
 
@@ -1754,7 +1776,7 @@ function switchSubtab(page, tab, btn) {
   btn.classList.add('active');
   if(page === 'health' && tab === 'analytics') renderHealthAnalytics();
   if(page === 'sport' && tab === 'analytics') renderSportAnalytics();
-  if(page === 'ernaehrung') { if(tab === 'rezepte') renderRezepte(); else renderDD(tab); }
+  if(page === 'ernaehrung') { if(tab === 'tracker') renderTracker(); else if(tab === 'rezepte') renderRezepte(); else renderDD(tab); }
 }
 
 // ===== TOAST =====
@@ -1858,8 +1880,9 @@ function renderOverview() {
   const sleepAvgMin = Math.round(avg(data.filter(d=>d.sleepMin).map(d=>Number(d.sleepMin)))) || 0;
   const deepAvgMin  = Math.round(avg(data.filter(d=>d.deepMin).map(d=>Number(d.deepMin)))) || 0;
   const remAvgMin   = Math.round(avg(data.filter(d=>d.remMin).map(d=>Number(d.remMin)))) || 0;
-  const lastWeight = data.filter(d=>d.weight).pop();
-  const prevWeight = data.filter(d=>d.weight).slice(-2,-1)[0];
+  const weights = nutritionDays().filter(d=>d.weight);
+  const lastWeight = weights[weights.length - 1];
+  const prevWeight = weights[weights.length - 2];
   const bpAll = data.filter(d=>d.bpSys&&d.bpDia);
   const bpSysAvg = Math.round(avg(bpAll.map(d=>parseInt(d.bpSys)))) || 0;
   const bpDiaAvg = Math.round(avg(bpAll.map(d=>parseInt(d.bpDia)))) || 0;
@@ -1913,7 +1936,7 @@ function renderOverview() {
   renderSpark('sparkSleep', series('sleepMin', Number), { color: 'var(--accent)', fmt: minToHM });
   renderSpark('sparkSteps', series('steps', v=>parseInt(v)), { color: 'var(--green)', fmt: v => v.toLocaleString('de-DE') });
   renderSpark('sparkBp', series('bpSys', v=>parseInt(v)), { color: 'var(--red)', fmt: v => v });
-  renderSpark('sparkWeight', series('weight'), { color: 'var(--accent2)', fmt: fmtDec });
+  renderSpark('sparkWeight', getLast(weights, 14).map(d=>({ date: d.date, v: d.weight })), { color: 'var(--accent2)', fmt: fmtDec });
 
   renderWeeklyTraining();
   renderWeekReview();
@@ -1998,12 +2021,13 @@ function weekStats(from) {
   const to = addDays(from, 6);
   const days = DB.get('health', []).filter(d => d.date >= from && d.date <= to);
   const vals = key => days.filter(d => d[key]).map(d => parseFloat(d[key])).filter(v => !isNaN(v));
+  const wVals = nutritionDays().filter(d => d.weight && d.date >= from && d.date <= to).map(d => d.weight);
   const bp = days.filter(d => d.bpSys && d.bpDia);
   const steps = vals('steps');
   return {
     from, to,
     training: trainingMinutes(from, to),
-    weight: mean(vals('weight')), weightN: vals('weight').length,
+    weight: mean(wVals), weightN: wVals.length,
     bpSys: mean(bp.map(d => parseInt(d.bpSys))), bpDia: mean(bp.map(d => parseInt(d.bpDia))), bpN: bp.length,
     steps: mean(steps), stepsN: steps.length, stepsGoal: steps.filter(v => v >= 12000).length,
     sleep: mean(vals('sleepMin')), deep: mean(vals('deepMin')), rem: mean(vals('remMin')), sleepN: vals('sleepMin').length,
@@ -2443,21 +2467,21 @@ function applyRating(el, rating) {
   el.className = 'stat-delta';
 }
 function renderHealth() {
-  ['sleepDate','stepsDate','kcalDate','meditDate','bpDate','weightDate','tempDate'].forEach(id=>document.getElementById(id).value = today());
+  ['sleepDate','stepsDate','meditDate','bpDate','tempDate'].forEach(id=>document.getElementById(id).value = today());
   const data = DB.get('health', []);
 
   // Table
   const tbody = document.getElementById('healthTable');
-  const rows = [...data].reverse().slice(0,20);
+  // Gewicht/Kalorien gehören jetzt zu Ernährung → Tage nur mit diesen Werten hier ausblenden
+  const VITAL_KEYS = ['bpSys','temp','steps','medit','sleepMin','deepMin','remMin','note'];
+  const rows = [...data].filter(d => VITAL_KEYS.some(k => d[k])).reverse().slice(0,20);
   // Einzelwert-Zelle: Klick löscht genau diesen Wert
   const cell = (date, field, html) => `<span class="cell-val" title="Wert löschen" onclick="deleteHealthValue('${date}','${field}')">${html}</span>`;
   tbody.innerHTML = rows.map(d=>`<tr>
     <td>${fmtDate(d.date)}</td>
-    <td>${d.weight ? cell(d.date,'weight',d.weight) : '—'}</td>
     <td>${d.bpSys&&d.bpDia ? cell(d.date,'bp',`<span style="color:var(--red)">${d.bpSys}</span>/<span style="color:var(--accent2)">${d.bpDia}</span>`) : '—'}</td>
     <td>${d.temp ? cell(d.date,'temp',`<span style="color:${parseFloat(d.temp)>=38 ? 'var(--red)' : 'inherit'}">${d.temp}°</span>`) : '—'}</td>
     <td>${d.steps ? cell(d.date,'steps',d.steps) : '—'}</td>
-    <td>${d.kcal ? cell(d.date,'kcal',`<span style="color:${parseInt(d.kcal)>KCAL_GOAL ? 'var(--red)' : 'var(--green)'}">${d.kcal}</span>`) : '—'}</td>
     <td>${d.medit ? cell(d.date,'medit',d.medit + ' min') : '—'}</td>
     <td>${d.sleepMin ? cell(d.date,'sleepMin',fmtMin(d.sleepMin)) : '—'}</td>
     <td>${d.deepMin ? cell(d.date,'deepMin',fmtMin(d.deepMin)) : '—'}</td>
@@ -2467,7 +2491,7 @@ function renderHealth() {
       <button class="icon-btn note-btn${d.note ? ' has-note' : ''}" title="${d.note ? 'Notiz bearbeiten' : 'Notiz hinzufügen'}" aria-label="${d.note ? 'Notiz bearbeiten' : 'Notiz hinzufügen'}" onclick="openHealthNote('${d.date}')"><svg class="i"><use href="#i-note"/></svg></button>
       <button class="icon-btn" title="Ganzen Tag löschen" aria-label="Ganzen Tag löschen" onclick="deleteHealthEntry('${d.date}')"><svg class="i"><use href="#i-x"/></svg></button>
     </div></td>
-  </tr>${d.note ? `<tr class="health-note-row"><td colspan="11"><div class="schiri-notes"><div class="schiri-note day"><span class="schiri-note-label"><svg class="i"><use href="#i-note"/></svg>Tagesnotiz</span><span>${escHtml(d.note)}</span></div></div></td></tr>` : ''}`).join('') || `<tr><td class="empty-cell" colspan="11">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
+  </tr>${d.note ? `<tr class="health-note-row"><td colspan="9"><div class="schiri-notes"><div class="schiri-note day"><span class="schiri-note-label"><svg class="i"><use href="#i-note"/></svg>Tagesnotiz</span><span>${escHtml(d.note)}</span></div></div></td></tr>` : ''}`).join('') || `<tr><td class="empty-cell" colspan="9">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
 }
 
 const escHtml = (str) => String(str).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -2599,16 +2623,6 @@ function saveSteps() {
   toast('Schritte gespeichert ✓');
 }
 
-function saveKcal() {
-  const date = document.getElementById('kcalDate').value || today();
-  const entry = saveHealthEntry(date, { kcal: document.getElementById('healthKcal').value });
-  document.getElementById('healthKcal').value = '';
-  if(entry.kcal) checkKcalHabit(date, parseInt(entry.kcal));
-  renderHealth();
-  closeModal('kcalModal');
-  toast('Kalorien gespeichert ✓');
-}
-
 function saveBp() {
   const date = document.getElementById('bpDate').value || today();
   saveHealthEntry(date, {
@@ -2621,15 +2635,6 @@ function saveBp() {
   toast('Blutdruck gespeichert ✓');
 }
 
-function saveWeight() {
-  const date = document.getElementById('weightDate').value || today();
-  saveHealthEntry(date, { weight: document.getElementById('healthWeight').value });
-  document.getElementById('healthWeight').value = '';
-  renderHealth();
-  closeModal('weightModal');
-  toast('Gewicht gespeichert ✓');
-}
-
 function saveTemp() {
   const date = document.getElementById('tempDate').value || today();
   saveHealthEntry(date, { temp: document.getElementById('healthTemp').value });
@@ -2640,7 +2645,8 @@ function saveTemp() {
 }
 
 // Ganzen Tageseintrag bearbeiten (wie "Spiel bearbeiten" bei den Schiedsrichter-Spielen)
-const HEALTH_EDIT_FIELDS = { weight: 'heWeight', temp: 'heTemp', bpSys: 'heBpSys', bpDia: 'heBpDia', steps: 'heSteps', kcal: 'heKcal', medit: 'heMedit', note: 'heNote' };
+// Gewicht und Kalorien werden unter Ernährung → Tracker erfasst; vorhandene Altwerte bleiben beim Bearbeiten unverändert
+const HEALTH_EDIT_FIELDS = { temp: 'heTemp', bpSys: 'heBpSys', bpDia: 'heBpDia', steps: 'heSteps', medit: 'heMedit', note: 'heNote' };
 const HEALTH_EDIT_DURATIONS = { sleepMin: 'heSleep', deepMin: 'heDeep', remMin: 'heRem' };
 let healthEditDate = null;
 function openHealthEdit(date) {
@@ -2653,7 +2659,7 @@ function openHealthEdit(date) {
     document.getElementById(id + 'H').value = min ? Math.floor(min / 60) : '';
     document.getElementById(id + 'M').value = min ? min % 60 : '';
   });
-  openModal('healthEditModal', 'heWeight');
+  openModal('healthEditModal', 'heTemp');
 }
 function saveHealthEdit() {
   const data = DB.get('health', []);
@@ -2664,7 +2670,6 @@ function saveHealthEdit() {
   Object.entries(HEALTH_EDIT_DURATIONS).forEach(([k, id]) => set(k, toMin(id + 'H', id + 'M')));
   DB.set('health', data);
   if(entry.steps) checkStepsHabit(entry.date, parseInt(entry.steps));
-  if(entry.kcal) checkKcalHabit(entry.date, parseInt(entry.kcal));
   if(parseInt(entry.medit) > 0) checkMeditHabit(entry.date);
   renderHealth();
   closeModal('healthEditModal');
@@ -2731,6 +2736,21 @@ function checkMeditHabit(date) {
     DB.set('habit_log_' + habit.id, log);
     toast('🧘 Meditations-Habit automatisch abgehakt ✓');
   }
+}
+
+// Tageswerte aus der App aufs Kalorien-Habit übertragen (letzte 14 Tage, ohne Meldungen)
+function syncKcalHabitFromNutrition() {
+  const habit = DB.get('habits', []).find(h => /kalorie|kcal|calorie/i.test(h.name));
+  if(!habit) return;
+  const from = addDays(today(), -13);
+  const log = DB.get('habit_log_' + habit.id, {});
+  let changed = false;
+  DB.get('ernaehrung_daily', []).filter(d => d.date >= from && d.kcal > 0).forEach(d => {
+    const ok = d.kcal <= KCAL_GOAL;
+    if(ok && !log[d.date]) { log[d.date] = true; changed = true; }
+    else if(!ok && log[d.date]) { delete log[d.date]; changed = true; }
+  });
+  if(changed) DB.set('habit_log_' + habit.id, log);
 }
 
 function checkKcalHabit(date, kcal) {
@@ -2856,21 +2876,70 @@ function calcTrend(values) {
 let charts = {};
 
 // Gesundheits-Analytics (Unterseite von Gesundheit)
+// ===== ERNÄHRUNG → TRACKER =====
+function renderTracker() {
+  const days = nutritionDays();
+  const td = today();
+  const todayEntry = days.find(d => d.date === td);
+  const goal = todayEntry?.goal || KCAL_GOAL;
+  document.getElementById('trackerKcal').textContent = todayEntry?.kcal ? todayEntry.kcal.toLocaleString('de-DE') : '—';
+  const kcalNote = document.getElementById('trackerKcalGoal');
+  if(todayEntry?.kcal) {
+    const left = goal - todayEntry.kcal;
+    kcalNote.innerHTML = `<span class="${left >= 0 ? 'rating-good' : 'rating-bad'}">${left >= 0 ? `${left.toLocaleString('de-DE')} übrig` : `${(-left).toLocaleString('de-DE')} über Ziel`}</span>`;
+  } else kcalNote.textContent = `Ziel ${goal.toLocaleString('de-DE')} kcal`;
+
+  const weights = days.filter(d => d.weight);
+  const lastW = weights[weights.length - 1], prevW = weights[weights.length - 2];
+  document.getElementById('trackerWeight').textContent = lastW ? fmtDec(lastW.weight) : '—';
+  document.getElementById('trackerWeightAsOf').textContent = lastW ? asOf(lastW.date) : '';
+  const wd = lastW && prevW ? Math.round((lastW.weight - prevW.weight) * 10) / 10 : null;
+  document.getElementById('trackerWeightDelta').textContent = wd == null ? '' : (wd > 0 ? '↑ +' : wd < 0 ? '↓ −' : '± ') + fmtDec(Math.abs(wd)) + ' kg';
+
+  const fasts = days.filter(d => d.fastingHours);
+  const lastF = fasts[fasts.length - 1];
+  document.getElementById('trackerFasting').textContent = lastF ? fmtDec(lastF.fastingHours) + ' h' : '—';
+  document.getElementById('trackerFastingNote').innerHTML = lastF ? `<span class="${lastF.fastingReached ? 'rating-good' : 'rating-warn'}">${lastF.fastingReached ? 'Ziel erreicht' : 'vor dem Ziel beendet'}</span> · ${asOf(lastF.date)}` : '';
+  const latest = days.filter(d => d.fromApp).pop();
+  document.getElementById('trackerAsOf').textContent = latest ? `zuletzt aktualisiert: ${asOf(latest.date)}` : '';
+
+  const hasData = days.some(d => d.kcal || d.weight);
+  document.getElementById('trackerCharts').hidden = !hasData;
+  document.getElementById('trackerEmpty').innerHTML = hasData ? '' : emptyState('Noch keine Werte', 'Trag dein Essen in der Kalorien-&-Fasten-App ein – Kalorien, Gewicht und Fasten erscheinen dann hier.', 'App öffnen', "location.href='" + NUTRITION_APP + "#/diary'");
+  if(!hasData) return;
+
+  // Kalorien: letzte 30 Tage, Balken über dem Tagesziel rot
+  const kcalData = getLast(days.filter(d => d.kcal), 30);
+  const goalOf = d => d.goal || KCAL_GOAL;
+  if(charts.nk) charts.nk.destroy();
+  charts.nk = new Chart(document.getElementById('chartNutritionKcal'), {
+    type:'bar',
+    data:{ labels: kcalData.map(d=>fmtDate(d.date)), datasets:[
+      { label:'Kalorien', data:kcalData.map(d=>d.kcal), backgroundColor:kcalData.map(d=>d.kcal>goalOf(d) ? 'rgba(248,113,113,0.7)' : 'rgba(74,222,128,0.7)'), borderRadius:3 },
+      { label:'Tagesziel', data:kcalData.map(goalOf), type:'line', borderColor:'rgba(34,211,238,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
+      { label:'Trend', data:calcTrend(kcalData.map(d=>d.kcal)), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxRotation:0,autoSkip:true,maxTicksLimit:8}} } }
+  });
+  const last7 = getLast(kcalData, 7);
+  document.getElementById('trackerKcalCaption').textContent = last7.length ? `Ø letzte ${last7.length} Tage: ${Math.round(mean(last7.map(d=>d.kcal))).toLocaleString('de-DE')} kcal · über Ziel an ${last7.filter(d=>d.kcal>goalOf(d)).length} Tagen` : '';
+
+  // Gewicht: gesamter Verlauf
+  if(charts.nw) charts.nw.destroy();
+  charts.nw = new Chart(document.getElementById('chartNutritionWeight'), {
+    type:'line',
+    data:{ labels:weights.map(d=>fmtDate(d.date)), datasets:[
+      { label:'Gewicht', data:weights.map(d=>d.weight), borderColor:'#22d3ee', backgroundColor:'rgba(34,211,238,0.1)', tension:0.3, fill:true, pointRadius:3 },
+      { label:'Ziel 80 kg', data:weights.map(()=>80), borderColor:'rgba(74,222,128,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
+      { label:'Trend', data:calcTrend(weights.map(d=>d.weight)), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxRotation:0,autoSkip:true,maxTicksLimit:8}} } }
+  });
+  document.getElementById('trackerWeightCaption').textContent = weights.length >= 2 ? `${weights.length} Messungen · ${fmtDec(weights[0].weight)} → ${fmtDec(lastW.weight)} kg` : '';
+}
+
 function renderHealthAnalytics() {
   const health = DB.get('health', []);
-
-  // Full weight
-  const wd = health.filter(d=>d.weight);
-  if(charts.wf) charts.wf.destroy();
-  charts.wf = new Chart(document.getElementById('chartWeightFull'), {
-    type:'line',
-    data:{ labels:wd.map(d=>fmtDate(d.date)), datasets:[
-      { label:'Gewicht', data:wd.map(d=>parseFloat(d.weight)), borderColor:'#22d3ee', backgroundColor:'rgba(34,211,238,0.1)', tension:0.3, fill:true, pointRadius:3 },
-      { label:'Ziel 80 kg', data:wd.map(()=>80), borderColor:'rgba(74,222,128,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
-      { label:'Trend', data:calcTrend(wd.map(d=>parseFloat(d.weight))), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
-  });
 
   // BP chart
   const bpData = health.filter(d=>d.bpSys&&d.bpDia).slice(-30);
@@ -2921,19 +2990,6 @@ function renderHealthAnalytics() {
       { label:'Schritte', data:stepsData.map(d=>parseInt(d.steps)), backgroundColor:'rgba(74,222,128,0.7)', borderRadius:3 },
       { label:'Ziel 12.000', data:stepsData.map(()=>12000), type:'line', borderColor:'rgba(34,211,238,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
       { label:'Trend', data:calcTrend(stepsData.map(d=>parseInt(d.steps))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
-  });
-
-  // Kcal chart – Balken über dem Ziel rot, darunter grün
-  const kcalData = health.filter(d=>d.kcal).slice(-30);
-  if(charts.kc) charts.kc.destroy();
-  charts.kc = new Chart(document.getElementById('chartKcal'), {
-    type:'bar',
-    data:{ labels: kcalData.map(d=>fmtDate(d.date)), datasets:[
-      { label:'Kalorien', data:kcalData.map(d=>parseInt(d.kcal)), backgroundColor:kcalData.map(d=>parseInt(d.kcal)>KCAL_GOAL ? 'rgba(248,113,113,0.7)' : 'rgba(74,222,128,0.7)'), borderRadius:3 },
-      { label:'Ziel 2.000', data:kcalData.map(()=>KCAL_GOAL), type:'line', borderColor:'rgba(34,211,238,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
-      { label:'Trend', data:calcTrend(kcalData.map(d=>parseInt(d.kcal))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
@@ -4392,7 +4448,13 @@ document.addEventListener('input', e => {
 });
 restoreJournalDraft();
 
-pullState().then(renderOverview);
+pullState().then(() => {
+  syncKcalHabitFromNutrition();
+  renderOverview();
+  // Direktlink, z. B. aus der Kalorien-App zurück: …/#ernaehrung
+  const page = location.hash.slice(1);
+  if(page && page !== 'overview' && document.getElementById('page-' + page)) nav(page);
+});
 </script>
 </body>
 </html>
