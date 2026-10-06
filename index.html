@@ -968,20 +968,12 @@
   <div id="health-analytics" class="subpage">
     <div class="analytics-grid">
       <div class="card">
-        <div class="card-title">Schrittverlauf</div>
-        <div class="chart-wrap"><canvas id="chartSteps"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Kalorienzufuhr</div>
-        <div class="chart-wrap"><canvas id="chartKcal"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Meditation</div>
-        <div class="chart-wrap"><canvas id="chartMedit"></canvas></div>
-      </div>
-      <div class="card">
         <div class="card-title">Schlafverlauf</div>
         <div class="chart-wrap"><canvas id="chartSleep"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Schrittverlauf</div>
+        <div class="chart-wrap"><canvas id="chartSteps"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">Gewichtsverlauf (gesamt)</div>
@@ -992,8 +984,16 @@
         <div class="chart-wrap"><canvas id="chartBp"></canvas></div>
       </div>
       <div class="card">
+        <div class="card-title">Kalorienzufuhr</div>
+        <div class="chart-wrap"><canvas id="chartKcal"></canvas></div>
+      </div>
+      <div class="card">
         <div class="card-title">Körpertemperatur</div>
         <div class="chart-wrap"><canvas id="chartTemp"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Meditation</div>
+        <div class="chart-wrap"><canvas id="chartMedit"></canvas></div>
       </div>
     </div>
   </div>
@@ -1815,7 +1815,7 @@ function emptyState(title, text, ctaLabel, ctaJs) {
 
 // ===== LÖSCHEN BESTÄTIGEN =====
 // Nennt das betroffene Objekt, destruktiver Button in Rot, Abbrechen hat den Fokus, Escape bricht ab.
-function confirmDelete(title, text, verb) {
+function confirmDelete(title, text, verb, cancelLabel = 'Abbrechen') {
   return new Promise(resolve => {
     const ov = document.createElement('div');
     ov.className = 'modal-overlay confirm-overlay open';
@@ -1823,7 +1823,7 @@ function confirmDelete(title, text, verb) {
       <div class="modal-title" id="cfTitle" style="margin-bottom:8px"><span class="modal-icon tone-red"><svg class="i"><use href="#i-trash"/></svg></span>${escHtml(title)}</div>
       <div class="confirm-text" id="cfText">${escHtml(text || 'Das lässt sich nicht rückgängig machen.')}</div>
       <div class="modal-actions">
-        <button type="button" class="btn btn-secondary" data-act="cancel">Abbrechen</button>
+        <button type="button" class="btn btn-secondary" data-act="cancel">${escHtml(cancelLabel)}</button>
         <button type="button" class="btn btn-destructive" data-act="ok">${escHtml(verb)}</button>
       </div></div>`;
     const done = ok => { document.removeEventListener('keydown', onKey, true); ov.remove(); resolve(ok); };
@@ -3246,10 +3246,14 @@ const KRAFT_TEMPLATES = {
 async function startKraftTemplate(key) {
   const tpl = KRAFT_TEMPLATES[key];
   if(!tpl) return;
-  if(hasSessionDraft('kraft')) {
-    if(!await confirmDelete(`Entwurf durch ${tpl.label} ersetzen?`, 'Deine zwischengespeicherte Eingabe wird verworfen.', 'Ersetzen')) { openModal('kraftModal'); return; }
-    discardSessionDraft('kraft');
+  // Nur nachfragen, wenn schon Werte eingetragen sind – reine Übungsauswahl wird einfach ersetzt
+  const filled = sessionRows.kraft.reduce((n, r) => n + SESSION_TYPES.kraft.fields.filter(f => r[f.key]).length, 0);
+  const dauer = document.getElementById('kraftDauer').value;
+  if(filled || dauer) {
+    const what = [filled ? `${filled} Wert${filled === 1 ? '' : 'e'}` : '', dauer ? `${dauer} min Trainingszeit` : ''].filter(Boolean).join(' und ');
+    if(!await confirmDelete('Angefangenes Training ersetzen?', `Du hast schon ein Krafttraining angefangen (${what} eingetragen). Wenn du den ${tpl.label} startest, wird diese Eingabe gelöscht.`, `${tpl.label} starten`, 'Angefangenes fortsetzen')) { openModal('kraftModal'); return; }
   }
+  discardSessionDraft('kraft');
   sessionRows.kraft = tpl.exercises.map(uebung => ({ ...SESSION_TYPES.kraft.emptyRow(), uebung }));
   renderSessionRows('kraft');
   updateSessionDraft('kraft');
