@@ -401,6 +401,12 @@
   .training-row .form-row-3 { gap: 8px; grid-template-columns: 1fr 1fr 1fr; } /* auch auf schmalen Handys nebeneinander */
   .training-row .form-group { margin-bottom: 0; }
   .training-row .form-label { font-size: 12px; }
+  .last-hint { margin-top: 8px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .draft-banner { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; padding: 8px 8px 8px 12px; border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--text-2); font-size: 12px; }
+  .draft-banner[hidden] { display: none; }
+  .draft-banner .btn { margin-left: auto; }
+  table.week-table td.goal-ok { color: var(--green); }
+  table.week-table tr.goal-row td { color: var(--muted); font-size: 12px; }
   .training-head td { background: var(--surface2); font-weight: 600; }
   .session-meta { color: var(--muted); font-weight: 500; font-size: 12px; }
   .src-tag { display: inline-block; font-size: 12px; font-weight: 500; color: var(--muted); margin-right: 8px; }
@@ -851,7 +857,7 @@
         <thead><tr><th></th><th><span class="week-dot" style="background:var(--accent)"></span>Kraft</th><th><span class="week-dot" style="background:var(--red)"></span>Ausdauer</th><th><span class="week-dot" style="background:var(--green)"></span>Gesamt</th></tr></thead>
         <tbody id="weeklyTrainingBody"></tbody>
       </table></div>
-      <div class="card-foot">Zeit · Anzahl Einheiten. Ø-Woche = Schnitt der letzten abgeschlossenen Wochen.</div>
+      <div class="card-foot">Zeit · Anzahl Einheiten. Wochenziel: je 2h Kraft und Ausdauer, grün = erreicht. Ø-Woche = Schnitt der letzten abgeschlossenen Wochen.</div>
     </div>
   </div>
 
@@ -1534,13 +1540,14 @@
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Datum</label>
-        <input type="date" class="form-input" id="kraftDate">
+        <input type="date" class="form-input" id="kraftDate" onchange="updateSessionDraft('kraft')">
       </div>
       <div class="form-group">
         <label class="form-label">Trainingszeit (min)</label>
         <input type="number" min="0" class="form-input" id="kraftDauer" placeholder="60" oninput="updateSessionDraft('kraft')">
       </div>
     </div>
+    <div class="draft-banner" id="kraftDraftBanner" hidden></div>
     <label class="form-label">Übungen</label>
     <div id="trainingRows"></div>
     <button class="btn btn-secondary btn-sm" onclick="addSessionRow('kraft')" style="width:100%;margin-bottom:8px"><svg class="i"><use href="#i-plus"/></svg>Übung hinzufügen</button>
@@ -1557,8 +1564,9 @@
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-activity"/></svg></span>Ausdauer – Neue Einheit</div>
     <div class="form-group">
       <label class="form-label">Datum</label>
-      <input type="date" class="form-input" id="cardioDate">
+      <input type="date" class="form-input" id="cardioDate" onchange="updateSessionDraft('cardio')">
     </div>
+    <div class="draft-banner" id="cardioDraftBanner" hidden></div>
     <label class="form-label">Übungen</label>
     <div id="cardioRows"></div>
     <button class="btn btn-secondary btn-sm" onclick="addSessionRow('cardio')" style="width:100%;margin-bottom:8px"><svg class="i"><use href="#i-plus"/></svg>Übung hinzufügen</button>
@@ -2036,14 +2044,18 @@ function renderWeekReview() {
   const chip = r => r ? `<span class="${r.cls}">${r.label}</span>` : muted;
   const t = cur.training, tp = prev.training;
   const sessions = w => w.kraftSessions + w.cardioSessions;
-  const trainingRating = t.total >= 150 ? {label:'WHO-Ziel erreicht', cls:'rating-good'} : t.total > 0 ? {label:'Unter 150 min', cls:'rating-warn'} : {label:'Kein Training', cls:'rating-bad'};
+  const goalRating = (min, goal) => min >= goal ? {label:'Ziel erreicht', cls:'rating-good'} : min > 0 ? {label:`${fmtDur(goal - min)} fehlen`, cls:'rating-warn'} : {label:'Kein Training', cls:'rating-bad'};
   const bmi = cur.weight ? cur.weight / (HEIGHT_M * HEIGHT_M) : null;
 
   const rows = [
-    { key: 'Training', rating: trainingRating,
-      cur: t.total || sessions(t) ? `${fmtDur(t.total)} · ${sessions(t)}×<span class="wr-sub">Kraft ${fmtDur(t.kraft)} · Ausdauer ${fmtDur(t.cardio)}</span>` : muted,
-      prev: tp.total || sessions(tp) ? `${fmtDur(tp.total)} · ${sessions(tp)}×` : muted,
-      delta: delta(t.total, tp.total, fmtDur, 1) },
+    { key: 'Krafttraining', rating: goalRating(t.kraft, TRAINING_GOALS.kraft),
+      cur: t.kraft || t.kraftSessions ? `${fmtDur(t.kraft)} · ${t.kraftSessions}×<span class="wr-sub">Ziel ${fmtDur(TRAINING_GOALS.kraft)}</span>` : muted,
+      prev: tp.kraft || tp.kraftSessions ? `${fmtDur(tp.kraft)} · ${tp.kraftSessions}×` : muted,
+      delta: delta(t.kraft, tp.kraft, fmtDur, 1) },
+    { key: 'Ausdauer', rating: goalRating(t.cardio, TRAINING_GOALS.cardio),
+      cur: t.cardio || t.cardioSessions ? `${fmtDur(t.cardio)} · ${t.cardioSessions}×<span class="wr-sub">Ziel ${fmtDur(TRAINING_GOALS.cardio)} · inkl. Schiri</span>` : muted,
+      prev: tp.cardio || tp.cardioSessions ? `${fmtDur(tp.cardio)} · ${tp.cardioSessions}×` : muted,
+      delta: delta(t.cardio, tp.cardio, fmtDur, 1) },
     { key: 'Gewicht', rating: bmi ? bmiRating(bmi) : null,
       cur: cur.weight ? `${fmtDec(cur.weight)} kg<span class="wr-sub">BMI ${fmtDec(bmi)} · ${cur.weightN}× gemessen</span>` : muted,
       prev: prev.weight ? `${fmtDec(prev.weight)} kg` : muted,
@@ -2080,6 +2092,9 @@ function renderWeekReview() {
     </table></div>`;
 }
 
+// Wochenziele in Minuten (Ausdauer inkl. Schiedsrichter-Einsätze)
+const TRAINING_GOALS = { kraft: 120, cardio: 120 };
+
 function renderWeeklyTraining() {
   const td = today();
   const from = weekStart(td), to = addDays(from, 6);
@@ -2094,13 +2109,18 @@ function renderWeeklyTraining() {
     if(!min && !sessions) return '<span style="color:var(--muted)">—</span>';
     return `${fmtDur(min)} <span class="cnt">· ${isAvg ? fmtAvgCount(sessions) : sessions}×</span>`;
   };
+  // Ziel erreicht → grün (nicht für die Ø-Zeile)
+  const ok = (min, goal, isAvg) => !isAvg && min >= goal ? ' class="goal-ok"' : '';
   const row = (label, w, isCur, isAvg) => `<tr class="${isCur ? 'cur' : ''}">
     <td>${label}</td>
-    <td>${cell(w.kraft, w.kraftSessions, isAvg)}</td>
-    <td>${cell(w.cardio, w.cardioSessions, isAvg)}</td>
-    <td>${cell(w.total, w.kraftSessions + w.cardioSessions, isAvg)}</td>
+    <td${ok(w.kraft, TRAINING_GOALS.kraft, isAvg)}>${cell(w.kraft, w.kraftSessions, isAvg)}</td>
+    <td${ok(w.cardio, TRAINING_GOALS.cardio, isAvg)}>${cell(w.cardio, w.cardioSessions, isAvg)}</td>
+    <td${ok(w.total, TRAINING_GOALS.kraft + TRAINING_GOALS.cardio, isAvg)}>${cell(w.total, w.kraftSessions + w.cardioSessions, isAvg)}</td>
   </tr>`;
-  const rows = [row('Diese Woche', cur, true), row('Vorwoche', prev)];
+  const rest = (min, goal) => min >= goal ? '✓ erreicht' : `noch ${fmtDur(goal - min)}`;
+  const rows = [row('Diese Woche', cur, true),
+    `<tr class="goal-row"><td>Ziel</td><td>${fmtDur(TRAINING_GOALS.kraft)} · ${rest(cur.kraft, TRAINING_GOALS.kraft)}</td><td>${fmtDur(TRAINING_GOALS.cardio)} · ${rest(cur.cardio, TRAINING_GOALS.cardio)}</td><td>${fmtDur(TRAINING_GOALS.kraft + TRAINING_GOALS.cardio)}</td></tr>`,
+    row('Vorwoche', prev)];
   if(avg) rows.push(row(`Ø-Woche (${avg.weeks} Wo.)`, avg, false, true));
   document.getElementById('weeklyTrainingBody').innerHTML = rows.join('');
 }
@@ -3080,10 +3100,10 @@ function addCustomExercise(name, defaults, customKey) {
 }
 
 function renderSport() {
-  document.getElementById('kraftDate').value = today();
-  document.getElementById('cardioDate').value = today();
+  // Datum/Trainingszeit aus einem zwischengespeicherten Entwurf übernehmen, sonst heute
+  ['kraft','cardio'].forEach(type => { const d = readSessionDraft(type); document.getElementById(SESSION_TYPES[type].dateEl).value = (d.savedAt && d.date) || today(); });
   document.getElementById('saunaDate').value = today();
-  try { const d = JSON.parse(localStorage.getItem(SESSION_TYPES.kraft.draftKey) || '{}'); if(d.dauer) document.getElementById('kraftDauer').value = d.dauer; } catch(e) {}
+  { const d = readSessionDraft('kraft'); if(d.dauer) document.getElementById('kraftDauer').value = d.dauer; }
   renderSessionRows('kraft');
   renderSessionRows('cardio');
 
@@ -3211,17 +3231,21 @@ const SESSION_TYPES = {
   },
 };
 // Feste Trainingsvorlagen (Push/Pull/Legs) aus den bestehenden Kraft-Übungen –
-// laden die Übungszeilen vor, Gewicht/Sätze/Wdh. bleiben zum Ausfüllen leer.
+// laden die Übungszeilen vor, Gewicht/Sätze/Wdh. mit den zuletzt genutzten Werten.
 const KRAFT_TEMPLATES = {
   push: { label: 'Push-Day', exercises: ['Butterfly','Bankdrücken','Schrägbankdrücken','Trizepsdrücken','Seitheben','Schulterdrücken'] },
   pull: { label: 'Pull-Day', exercises: ['Lattziehen','Rudern Kabel','Langhantelrudern','T-Bar Rudern','Bizepscurls','Überzieher','Hyperextensions'] },
   legs: { label: 'Leg-Day', exercises: ['Beinpress','Kniebeuge','RDLs','Kreuzheben','Hyperextensions'] },
 };
 
-function startKraftTemplate(key) {
+async function startKraftTemplate(key) {
   const tpl = KRAFT_TEMPLATES[key];
   if(!tpl) return;
-  sessionRows.kraft = tpl.exercises.map(uebung => ({ ...SESSION_TYPES.kraft.emptyRow(), uebung }));
+  if(hasSessionDraft('kraft')) {
+    if(!await confirmDelete(`Entwurf durch ${tpl.label} ersetzen?`, 'Deine zwischengespeicherte Eingabe wird verworfen.', 'Ersetzen')) { openModal('kraftModal'); return; }
+    discardSessionDraft('kraft');
+  }
+  sessionRows.kraft = tpl.exercises.map(uebung => prefillFromLast('kraft', { ...SESSION_TYPES.kraft.emptyRow(), uebung }));
   renderSessionRows('kraft');
   updateSessionDraft('kraft');
   openModal('kraftModal');
@@ -3239,7 +3263,66 @@ Object.keys(SESSION_TYPES).forEach(type => {
 function updateSessionDraft(type) {
   const cfg = SESSION_TYPES[type];
   const dauerEl = cfg.dauerEl && document.getElementById(cfg.dauerEl);
-  try { localStorage.setItem(cfg.draftKey, JSON.stringify({ rows: sessionRows[type], dauer: dauerEl ? dauerEl.value : '' })); } catch(e) {}
+  const date = document.getElementById(cfg.dateEl).value;
+  if(!hasSessionDraft(type)) { try { localStorage.removeItem(cfg.draftKey); } catch(e) {} renderDraftBanner(type); return; }
+  try { localStorage.setItem(cfg.draftKey, JSON.stringify({ rows: sessionRows[type], dauer: dauerEl ? dauerEl.value : '', date, savedAt: Date.now() })); } catch(e) {}
+  renderDraftBanner(type);
+}
+const readSessionDraft = type => { try { return JSON.parse(localStorage.getItem(SESSION_TYPES[type].draftKey) || '{}'); } catch(e) { return {}; } };
+// Entwurf vorhanden = mindestens eine Übung gewählt oder ein Wert eingetragen
+function hasSessionDraft(type) {
+  const cfg = SESSION_TYPES[type];
+  const dauerEl = cfg.dauerEl && document.getElementById(cfg.dauerEl);
+  return (dauerEl && dauerEl.value) || sessionRows[type].some(r => r.uebung.trim() || cfg.fields.some(f => r[f.key]));
+}
+function renderDraftBanner(type) {
+  const el = document.getElementById(type + 'DraftBanner');
+  if(!el) return;
+  const d = readSessionDraft(type);
+  el.hidden = !d.savedAt;
+  if(!d.savedAt) return;
+  const t = new Date(d.savedAt);
+  const when = t.toDateString() === new Date().toDateString() ? `heute ${t.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'})}` : t.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'}) + ' ' + t.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+  el.innerHTML = `<svg class="i"><use href="#i-save"/></svg><span>Zwischengespeichert (${when}) – du machst dort weiter, wo du aufgehört hast.</span><button type="button" class="btn btn-secondary btn-sm" onclick="discardSessionDraft('${type}')">Verwerfen</button>`;
+}
+function discardSessionDraft(type) {
+  const cfg = SESSION_TYPES[type];
+  sessionRows[type] = [cfg.emptyRow()];
+  if(cfg.dauerEl) document.getElementById(cfg.dauerEl).value = '';
+  document.getElementById(cfg.dateEl).value = today();
+  try { localStorage.removeItem(cfg.draftKey); } catch(e) {}
+  renderSessionRows(type);
+  renderDraftBanner(type);
+}
+// Beim Schließen ohne Speichern bleibt die Eingabe erhalten – kurzer Hinweis darauf
+function onSessionModalClosed(type) {
+  if(!hasSessionDraft(type)) return;
+  updateSessionDraft(type);
+  toast('Eingabe zwischengespeichert – beim nächsten Öffnen geht es weiter');
+}
+
+// Letzte Werte einer Übung (jüngster Eintrag mit mindestens einem Wert)
+function lastExerciseValues(type, uebung) {
+  const cfg = SESSION_TYPES[type];
+  const name = (uebung || '').trim().toLowerCase();
+  if(!name) return null;
+  const list = DB.get(cfg.store, []).filter(e => (e.uebung || '').trim().toLowerCase() === name && cfg.fields.some(f => e[f.key]));
+  return list.length ? list.reduce((a, b) => (b.date >= a.date ? b : a)) : null;
+}
+// Kraft: leere Felder mit den letzten Werten vorbelegen
+function prefillFromLast(type, row) {
+  if(type !== 'kraft') return row;
+  const last = lastExerciseValues(type, row.uebung);
+  if(last) SESSION_TYPES[type].fields.forEach(f => { if(!row[f.key] && last[f.key]) row[f.key] = last[f.key]; });
+  return row;
+}
+function lastHint(type, uebung) {
+  const last = lastExerciseValues(type, uebung);
+  if(!last) return '';
+  const vals = type === 'kraft'
+    ? [last.gewicht ? `${fmtDec(last.gewicht, last.gewicht % 1 ? 1 : 0)} kg` : '', last.saetze && last.wdh ? `${last.saetze} × ${last.wdh}` : (last.saetze ? `${last.saetze} Sätze` : last.wdh ? `${last.wdh} Wdh.` : '')]
+    : [last.min ? `${last.min} min` : '', last.km ? `${fmtDec(last.km)} km` : ''];
+  return `<div class="last-hint">Zuletzt ${fmtDate(last.date)}: ${vals.filter(Boolean).join(' · ')}</div>`;
 }
 
 // Standardübungen + selbst ergänzte, in der Reihenfolge der Anlage
@@ -3266,6 +3349,7 @@ function renderSessionRows(type) {
   const cfg = SESSION_TYPES[type];
   const wrap = document.getElementById(cfg.rowsEl);
   if(!wrap) return;
+  renderDraftBanner(type);
   const options = allExercises(type);
   wrap.innerHTML = sessionRows[type].map((r, i) => {
     // Auswahl: bekannte Übung, „Neue Übung…" (Freitext darunter) oder noch nichts gewählt
@@ -3284,6 +3368,7 @@ function renderSessionRows(type) {
     <div class="form-row-3" style="grid-template-columns:repeat(${cfg.fields.length},1fr)">
       ${cfg.fields.map(f => `<div class="form-group"><label class="form-label">${f.label}</label><input type="${f.type}"${f.step?` step="${f.step}"`:''}${f.pattern?` pattern="${f.pattern}"`:''} class="form-input" placeholder="${f.ph}" value="${escAttr(r[f.key] || '')}" oninput="setSessionRow('${type}',${i},'${f.key}',this.value)"></div>`).join('')}
     </div>
+    ${lastHint(type, r.uebung)}
   </div>`;
   }).join('');
 }
@@ -3292,7 +3377,7 @@ function onExerciseSelect(type, i, value) {
   const r = sessionRows[type][i];
   if(!r) return;
   if(value === '__new__') { r.custom = true; r.uebung = ''; }
-  else { r.custom = false; r.uebung = value; }
+  else { r.custom = false; r.uebung = value; prefillFromLast(type, r); }
   renderSessionRows(type);
   updateSessionDraft(type);
   if(r.custom) {
@@ -3344,6 +3429,7 @@ function saveSession(type) {
   sessionRows[type] = [cfg.emptyRow()];
   if(cfg.dauerEl) document.getElementById(cfg.dauerEl).value = '';
   try { localStorage.removeItem(cfg.draftKey); } catch(e) {}
+  renderDraftBanner(type);
   checkGymHabit(date);
   renderSport();
   closeModal(type + 'Modal');
@@ -4192,6 +4278,7 @@ new MutationObserver(muts => muts.forEach(m => {
     requestAnimationFrame(() => { if(!ov.contains(document.activeElement)) { const f = focusables(ov.querySelector('.modal')); (f.find(x => !x.classList.contains('modal-close')) || f[0])?.focus(); } });
   } else if(!isOpen && wasOpen) {
     const t = overlayTrigger.get(ov); if(t && document.contains(t)) t.focus();
+    if(ov.id === 'kraftModal' || ov.id === 'cardioModal') onSessionModalClosed(ov.id.replace('Modal', ''));
     ov.querySelectorAll('[aria-invalid]').forEach(clearFieldError);
   }
 })).observe(document.body, { attributes: true, attributeFilter: ['class'], attributeOldValue: true, subtree: true });
