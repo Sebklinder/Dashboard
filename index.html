@@ -3968,6 +3968,8 @@ function renderHealth() {
 
 const escHtml = (str) => String(str).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const escAttr = (str) => escHtml(str).replace(/"/g, '&quot;');
+// IDs/Daten in onclick-Strings: nur harmlose Zeichen zulassen (Daten können aus Import/Sync stammen)
+const jsId = v => String(v ?? '').replace(/[^\w-]/g, '');
 
 // Beschriftungen der einzelnen Messwerte (für Rückfragen beim Löschen)
 const HEALTH_FIELDS = {
@@ -4030,7 +4032,7 @@ const VALUE_STORES = {
 };
 
 function sportCell(store, id, field, html) {
-  return `<span class="cell-val" title="Wert löschen" onclick="deleteValue('${store}','${id}','${field}')">${html}</span>`;
+  return `<span class="cell-val" title="Wert löschen" onclick="deleteValue('${store}','${jsId(id)}','${field}')">${html}</span>`;
 }
 
 async function deleteValue(store, id, field) {
@@ -4332,17 +4334,17 @@ function renderCheckList() {
   const list = document.getElementById('journalList');
   if(!entries.length) { list.innerHTML = emptyState('Noch keine Einträge', 'Beantworte links die Fragen des Tages – deine Einträge sammeln sich hier.'); return; }
   const block = (label, text, e, id) => `<div class="check-q">
-      <div class="check-q-head"><span>${label}</span><button class="val-del-btn" title="Nur diese Antwort löschen" onclick="deleteValue('journal','${e.id}','${id}')">✕</button></div>
+      <div class="check-q-head"><span>${label}</span><button class="val-del-btn" title="Nur diese Antwort löschen" onclick="deleteValue('journal','${jsId(e.id)}','${id}')">✕</button></div>
       <div class="journal-text">${escHtml(text).replace(/\n/g, '<br>')}</div>
     </div>`;
   list.innerHTML = [...entries].reverse().map(e => {
     const score = checkScore(e);
-    const ratings = CHECK_RATINGS.filter(r => e[r.id]).map(r => `<span class="check-chip">${r.short} <b>${e[r.id]}</b></span>`).join('');
+    const ratings = CHECK_RATINGS.filter(r => e[r.id]).map(r => `<span class="check-chip">${r.short} <b>${Number(e[r.id]) || '—'}</b></span>`).join('');
     return `<div class="journal-entry">
       <div class="check-entry-head">
-        <button type="button" class="check-entry-date" onclick="document.getElementById('journalDate').value='${e.date}';loadCheck();document.querySelector('.check-card').scrollIntoView({behavior:'smooth'})" title="Diesen Tag bearbeiten">${fmtDate(e.date)}</button>
+        <button type="button" class="check-entry-date" onclick="document.getElementById('journalDate').value='${jsId(e.date)}';loadCheck();document.querySelector('.check-card').scrollIntoView({behavior:'smooth'})" title="Diesen Tag bearbeiten">${fmtDate(e.date)}</button>
         ${score != null ? `<span class="check-score">Ø ${score.toLocaleString('de-DE', { maximumFractionDigits: 1 })}</span>` : ''}
-        <button class="icon-btn" title="Eintrag löschen" aria-label="Eintrag vom ${fmtDate(e.date)} löschen" onclick="deleteJournal('${e.id}')"><svg class="i"><use href="#i-trash"/></svg></button>
+        <button class="icon-btn" title="Eintrag löschen" aria-label="Eintrag vom ${fmtDate(e.date)} löschen" onclick="deleteJournal('${jsId(e.id)}')"><svg class="i"><use href="#i-trash"/></svg></button>
       </div>
       ${CHECK_TEXTS.filter(f => e[f.id]).map(f => block(f.label, e[f.id], e, f.id)).join('')}
       ${ratings ? `<div class="check-chips">${ratings}</div>` : ''}
@@ -4792,21 +4794,21 @@ function renderSportLog() {
     let title, meta = [], sum = '', details = '', actions = '';
     if(x.kind === 'sauna') {
       title = 'Sauna';
-      sum = x.min ? `${x.min} min` : '—';
-      actions = `<button class="icon-btn" title="Eintrag löschen" aria-label="Sauna-Eintrag löschen" onclick="deleteSauna('${x.id}')"><svg class="i"><use href="#i-trash"/></svg></button>`;
+      sum = x.min ? `${escHtml(x.min)} min` : '—';
+      actions = `<button class="icon-btn" title="Eintrag löschen" aria-label="Sauna-Eintrag löschen" onclick="deleteSauna('${jsId(x.id)}')"><svg class="i"><use href="#i-trash"/></svg></button>`;
     } else {
       const names = x.items.map(e => e.uebung);
       title = names.slice(0, 3).join(', ') + (names.length > 3 ? ` +${names.length - 3}` : '');
       meta.push(`${names.length} Übung${names.length === 1 ? '' : 'en'}`);
       if(x.kind === 'kraft') {
         const total = x.items.reduce((a, e) => a + volOf(e), 0);
-        if(x.dauer) meta.push(`${x.dauer} min`);
-        sum = total ? total.toLocaleString('de-DE') + ' kg' : (x.dauer ? `${x.dauer} min` : '');
+        if(x.dauer) meta.push(`${escHtml(x.dauer)} min`);
+        sum = total ? total.toLocaleString('de-DE') + ' kg' : (x.dauer ? `${escHtml(x.dauer)} min` : '');
         details = x.items.map(e => {
-          const vals = [e.gewicht ? sportCell('sport_kraft', e.id, 'gewicht', e.gewicht + ' kg') : '', e.saetze ? sportCell('sport_kraft', e.id, 'saetze', e.saetze + ' Sätze') : '', e.wdh ? sportCell('sport_kraft', e.id, 'wdh', e.wdh + ' Wdh.') : ''].filter(Boolean);
+          const vals = [e.gewicht ? sportCell('sport_kraft', e.id, 'gewicht', escHtml(e.gewicht) + ' kg') : '', e.saetze ? sportCell('sport_kraft', e.id, 'saetze', escHtml(e.saetze) + ' Sätze') : '', e.wdh ? sportCell('sport_kraft', e.id, 'wdh', escHtml(e.wdh) + ' Wdh.') : ''].filter(Boolean);
           const vol = volOf(e);
           return `<div class="sport-ex"><span class="sport-ex-n">${escHtml(e.uebung)}</span><span class="sport-ex-v">${vals.join('<span class="dot">·</span>') || '—'}${vol ? `<span class="dot">·</span><span class="muted">${vol.toLocaleString('de-DE')} kg</span>` : ''}</span>
-            <button class="icon-btn" title="Übung löschen" aria-label="${escAttr(e.uebung)} löschen" onclick="deleteKraft('${e.id}')"><svg class="i"><use href="#i-x"/></svg></button></div>`;
+            <button class="icon-btn" title="Übung löschen" aria-label="${escAttr(e.uebung)} löschen" onclick="deleteKraft('${jsId(e.id)}')"><svg class="i"><use href="#i-x"/></svg></button></div>`;
         }).join('');
       } else {
         const totalMin = x.items.reduce((a, e) => a + (parseDur(e.min) || 0), 0);
@@ -4816,25 +4818,25 @@ function renderSportLog() {
         details = x.items.map(e => {
           const dur = parseDur(e.min);
           const vals = [dur == null ? '' : (e.fromSchiri ? fmtMinSec(dur) + ' min' : sportCell('sport_cardio', e.id, 'min', fmtMinSec(dur) + ' min')),
-            !e.km ? '' : (e.fromSchiri ? e.km + ' km' : sportCell('sport_cardio', e.id, 'km', e.km + ' km')),
+            !e.km ? '' : (e.fromSchiri ? escHtml(e.km) + ' km' : sportCell('sport_cardio', e.id, 'km', escHtml(e.km) + ' km')),
             dur && e.km ? `<span class="muted">${fmtMinSec(dur / parseFloat(e.km))} min/km</span>` : ''].filter(Boolean);
-          const del = e.fromSchiri ? '' : `<button class="icon-btn" title="Übung löschen" aria-label="${escAttr(e.uebung)} löschen" onclick="deleteCardio('${e.id}')"><svg class="i"><use href="#i-x"/></svg></button>`;
+          const del = e.fromSchiri ? '' : `<button class="icon-btn" title="Übung löschen" aria-label="${escAttr(e.uebung)} löschen" onclick="deleteCardio('${jsId(e.id)}')"><svg class="i"><use href="#i-x"/></svg></button>`;
           return `<div class="sport-ex"><span class="sport-ex-n">${escHtml(e.uebung)}</span><span class="sport-ex-v">${vals.join('<span class="dot">·</span>') || '—'}</span>${del}</div>`;
         }).join('');
       }
       if(x.kcal) meta.push(`${Math.round(x.kcal).toLocaleString('de-DE')} kcal`);
       actions = x.schiriId
-        ? `<button class="icon-btn" title="Spiel bearbeiten" aria-label="Spiel bearbeiten" onclick="openSchiriModal('${x.schiriId}')"><svg class="i"><use href="#i-pencil"/></svg></button>
-           <button class="icon-btn" title="Spiel bei Schiedsrichter-Einsätze löschen" aria-label="Spiel löschen" onclick="deleteSchiri('${x.schiriId}')"><svg class="i"><use href="#i-trash"/></svg></button>`
-        : `<button class="icon-btn" title="Einheit bearbeiten" aria-label="Einheit bearbeiten" onclick="openSessionEdit('${x.kind}','${x.key}')"><svg class="i"><use href="#i-pencil"/></svg></button>`
-          + (x.trainingId ? `<button class="icon-btn" title="Ganze Einheit löschen" aria-label="Ganze Einheit löschen" onclick="deleteSession('${x.kind}','${x.trainingId}')"><svg class="i"><use href="#i-trash"/></svg></button>` : '');
+        ? `<button class="icon-btn" title="Spiel bearbeiten" aria-label="Spiel bearbeiten" onclick="openSchiriModal('${jsId(x.schiriId)}')"><svg class="i"><use href="#i-pencil"/></svg></button>
+           <button class="icon-btn" title="Spiel bei Schiedsrichter-Einsätze löschen" aria-label="Spiel löschen" onclick="deleteSchiri('${jsId(x.schiriId)}')"><svg class="i"><use href="#i-trash"/></svg></button>`
+        : `<button class="icon-btn" title="Einheit bearbeiten" aria-label="Einheit bearbeiten" onclick="openSessionEdit('${x.kind}','${jsId(x.key)}')"><svg class="i"><use href="#i-pencil"/></svg></button>`
+          + (x.trainingId ? `<button class="icon-btn" title="Ganze Einheit löschen" aria-label="Ganze Einheit löschen" onclick="deleteSession('${x.kind}','${jsId(x.trainingId)}')"><svg class="i"><use href="#i-trash"/></svg></button>` : '');
     }
     const tag = `<span class="liga-chip" style="--c:${kind.c}">${x.schiriId ? 'Schiri' : kind.n}</span>`;
     const main = `<div class="game-teams">${escHtml(title)}</div><div class="game-meta">${[tag, ...meta].join('<span class="dot">·</span>')}</div>`;
-    return `<div class="game sport-sess${open ? ' open' : ''}" data-key="${x.key}">
+    return `<div class="game sport-sess${open ? ' open' : ''}" data-key="${jsId(x.key)}">
       <div class="game-date" aria-label="${fmtDate(x.date)}"><b>${d.getDate()}</b><span>${MONATE_KURZ[d.getMonth()]}</span></div>
       ${x.kind === 'sauna' ? `<div class="game-main">${main}</div>`
-        : `<button type="button" class="game-main sport-sess-toggle" aria-expanded="${open}" onclick="toggleSportLog('${x.key}')">${main}</button>`}
+        : `<button type="button" class="game-main sport-sess-toggle" aria-expanded="${open}" onclick="toggleSportLog('${jsId(x.key)}')">${main}</button>`}
       <div class="game-side">
         <div class="game-sum">${sum}</div>
         <div class="game-actions">${actions}</div>
