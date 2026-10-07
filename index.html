@@ -568,9 +568,6 @@
   /* Ziel überschritten: Kachel rot einfärben */
   .ern-macro.over { background: var(--red-soft); border-color: color-mix(in srgb, var(--red) 45%, transparent); }
   .ern-macro.over .ern-macro-val, .ern-macro.over .ern-macro-pct { color: var(--red); }
-  .ern-meal.over { background: color-mix(in srgb, var(--red) 8%, var(--surface)); border-color: color-mix(in srgb, var(--red) 45%, transparent); box-shadow: inset 0 3px 0 var(--red), var(--shadow); }
-  .ern-meal.over .ern-meal-ico { background: var(--red-soft); color: var(--red); }
-  .ern-meal.over .ern-meal-head .ern-kcal { color: var(--red); }
   .ern-meal-bar { height: 4px; border-radius: 2px; background: var(--surface3); overflow: hidden; margin: 6px 0 8px; }
   .ern-meal-bar b { display: block; height: 100%; border-radius: 2px; background: var(--mc, var(--green)); transition: width .3s ease; }
   .ern-meal-bar.warn b { background: var(--red); opacity: .55; }
@@ -2925,7 +2922,7 @@ function renderTrackerDay() {
         <button type="button" class="icon-btn" aria-label="${escAttr(e.name)} löschen" onclick="deleteFood('${e.id}')"><svg class="i"><use href="#i-trash"/></svg></button>
       </div>`;
     }).join('');
-    return `<section class="card ern-meal${items.length ? ' has' : ''}${state ? ' over' : ''}" style="--mc:var(--meal-${m.k})" aria-label="${m.n}">
+    return `<section class="card ern-meal${items.length ? ' has' : ''}" style="--mc:var(--meal-${m.k})" aria-label="${m.n}">
       <div class="ern-meal-head">
         <span class="ern-meal-name"><span class="ern-meal-ico"><svg class="i"><use href="#${m.icon}"/></svg></span><span class="ern-meal-title">${m.n}<small class="${state}">${status}</small></span></span>
         ${items.length ? `<span class="ern-kcal">${mKcal.toLocaleString('de-DE')}${mGoal ? `<span class="ern-of"> / ${mGoal.toLocaleString('de-DE')}</span>` : ''} kcal</span>
