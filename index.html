@@ -585,6 +585,8 @@
   .ern-day-stats dt { font-size: 12px; color: var(--muted); }
   .ern-day-stats dd { margin: 0; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
   .ern-day-stats dd.bad { color: var(--red); }
+  .ern-day-stats dd.good { color: var(--green); }
+  .ern-day-stats .ern-stat-btn { font-size: inherit; font-weight: inherit; color: inherit; letter-spacing: inherit; font-variant-numeric: tabular-nums; }
   .ern-head-actions { grid-area: actions; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
   @media (max-width: 900px) { .ern-day-top { grid-template-columns: auto 1fr; grid-template-areas: 'ring side' 'actions actions'; } .ern-head-actions { justify-content: stretch; } .ern-head-actions .btn { flex: 1; justify-content: center; } }
   /* Ernährungsprofil */
@@ -1843,7 +1845,7 @@
 <div class="modal-overlay" id="kraftModal">
   <div class="modal modal-wide">
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-dumbbell"/></svg></span><span id="kraftModalTitle">Krafttraining – Neue Einheit</span></div>
-    <div class="form-row">
+    <div class="form-row-3">
       <div class="form-group">
         <label class="form-label">Datum</label>
         <input type="date" class="form-input" id="kraftDate" onchange="updateSessionDraft('kraft')">
@@ -1851,6 +1853,10 @@
       <div class="form-group">
         <label class="form-label">Trainingszeit (min)</label>
         <input type="number" min="0" class="form-input" id="kraftDauer" placeholder="60" oninput="updateSessionDraft('kraft')">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="kraftKcal">Verbrannt (kcal)</label>
+        <input type="number" min="0" step="1" class="form-input" id="kraftKcal" placeholder="350" oninput="updateSessionDraft('kraft')">
       </div>
     </div>
     <div class="draft-banner" id="kraftDraftBanner" hidden></div>
@@ -1868,9 +1874,15 @@
 <div class="modal-overlay" id="cardioModal">
   <div class="modal modal-wide">
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-activity"/></svg></span><span id="cardioModalTitle">Ausdauer – Neue Einheit</span></div>
-    <div class="form-group">
-      <label class="form-label">Datum</label>
-      <input type="date" class="form-input" id="cardioDate" onchange="updateSessionDraft('cardio')">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Datum</label>
+        <input type="date" class="form-input" id="cardioDate" onchange="updateSessionDraft('cardio')">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="cardioKcal">Verbrannt (kcal)</label>
+        <input type="number" min="0" step="1" class="form-input" id="cardioKcal" placeholder="400" oninput="updateSessionDraft('cardio')">
+      </div>
     </div>
     <div class="draft-banner" id="cardioDraftBanner" hidden></div>
     <label class="form-label">Übungen</label>
@@ -1951,7 +1963,11 @@
         <input type="number" min="0" step="1" class="form-input" id="schiriDauer" placeholder="90">
       </div>
     </div>
-    <div class="form-hint" style="margin-top:-4px;margin-bottom:16px">Die Einsatzzeit zählt in der Wochenübersicht als Ausdauer-Zeit.</div>
+    <div class="form-group">
+      <label class="form-label" for="schiriKcal">Verbrannt (kcal) <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <input type="number" min="0" step="1" class="form-input" id="schiriKcal" placeholder="600">
+    </div>
+    <div class="form-hint" style="margin-top:-4px;margin-bottom:16px">Einsatzzeit und verbrannte kcal erscheinen unter Sport → Ausdauer; die kcal werden im Ernährungs-Tracker gutgeschrieben.</div>
     <div class="form-group">
       <label class="form-label" for="schiriGut">Was lief gut? <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
       <textarea class="form-input" id="schiriGut" placeholder="z. B. Stellungsspiel, Kommunikation im Team…" style="min-height:64px"></textarea>
@@ -2771,8 +2787,17 @@ const ernProfile = () => {
   const p = DB.get('ern_profile', {}) || {};
   return { ...ERN_PROFILE_DEFAULT, ...p, meals: { ...ERN_PROFILE_DEFAULT.meals, ...(p.meals || {}) }, macros: { ...ERN_PROFILE_DEFAULT.macros, ...(p.macros || {}) } };
 };
-const ernMealGoal = meal => Math.round(ernGoal() * (ernProfile().meals[meal] || 0) / 100);
-const ernMacroGoal = k => Math.round(ernGoal() * ernProfile().macros[k] / 100 / ERN_MACRO_KCAL[k]);
+// Durch Sport verbrannte kcal eines Tages: Kraft und Ausdauer je Einheit einmal, dazu gepfiffene Spiele
+function ernBurned(day) {
+  const perSession = list => [...new Map(list.filter(e => e.date === day && parseFloat(e.kcal) > 0).map(e => [e.trainingId || e.id, parseFloat(e.kcal)])).values()];
+  const kraft = perSession(DB.get('sport_kraft', [])), cardio = perSession(DB.get('sport_cardio', []));
+  const schiri = DB.get('schiri_spiele', []).filter(g => g.date === day && parseFloat(g.kcal) > 0).map(g => parseFloat(g.kcal));
+  return Math.round([...kraft, ...cardio, ...schiri].reduce((a, b) => a + b, 0));
+}
+// Tagesziel = Kalorienziel + Sport; Mahlzeiten- und Makroziele wachsen anteilig mit
+const ernDayGoal = day => ernGoal() + ernBurned(day);
+const ernMealGoal = (meal, day = ernView) => Math.round(ernDayGoal(day) * (ernProfile().meals[meal] || 0) / 100);
+const ernMacroGoal = (k, day = ernView) => Math.round(ernDayGoal(day) * ernProfile().macros[k] / 100 / ERN_MACRO_KCAL[k]);
 const FAST_GOALS = [12, 14, 16, 18, 20, 24];
 const ernGoal = () => Number(DB.get('ern_goal', KCAL_GOAL)) || KCAL_GOAL;
 const ernWaterGoal = () => Number(DB.get('ern_water_goal', 2500)) || 2500;
@@ -2825,7 +2850,7 @@ function renderTracker() {
 }
 
 function renderTrackerDay() {
-  const tk = ddToday(), list = ernDay(ernView), goal = ernGoal(), prof = ernProfile();
+  const tk = ddToday(), list = ernDay(ernView), base = ernGoal(), burned = ernBurned(ernView), goal = base + burned, prof = ernProfile();
   const kcal = Math.round(ernSum(list, 'kcal')), left = goal - kcal;
   const label = new Date(ernView + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
   // Makros: gegessen vs. Ziel in Gramm (aus Kalorienziel und Verteilung), dazu der tatsächliche Energieanteil
@@ -2883,13 +2908,14 @@ function renderTrackerDay() {
       <div class="ern-day-top">
         <div class="ern-ring ern-ring-kcal${left < 0 ? ' over' : ''}" role="progressbar" aria-label="Kalorien: ${kcal} von ${goal} kcal" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${kcal}">
           <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="${ERN_RING_R}"/><circle class="val" cx="60" cy="60" r="${ERN_RING_R}" stroke-dasharray="${ERN_RING_C}" stroke-dashoffset="${ernRingOffset(kcal / goal)}"/></svg>
-          <div class="ern-ring-label"><b>${kcal.toLocaleString('de-DE')}</b><span>von <button type="button" class="ern-sum-goal" onclick="openErnGoal()" aria-label="Kalorienziel ändern, aktuell ${goal} kcal">${goal.toLocaleString('de-DE')}</button> kcal</span></div>
+          <div class="ern-ring-label"><b>${kcal.toLocaleString('de-DE')}</b><span>von ${burned ? goal.toLocaleString('de-DE') : `<button type="button" class="ern-sum-goal" onclick="openErnGoal()" aria-label="Kalorienziel ändern, aktuell ${goal} kcal">${goal.toLocaleString('de-DE')}</button>`} kcal</span></div>
         </div>
         <div class="ern-day-side">
           <span class="${left >= 0 ? 'rating-good' : 'rating-bad'}">${left >= 0 ? `noch ${left.toLocaleString('de-DE')} kcal` : `${(-left).toLocaleString('de-DE')} kcal über Ziel`}</span>
           <dl class="ern-day-stats">
             <div><dt>Gegessen</dt><dd>${kcal.toLocaleString('de-DE')}</dd></div>
-            <div><dt>Ziel</dt><dd>${goal.toLocaleString('de-DE')}</dd></div>
+            <div><dt>Ziel</dt><dd><button type="button" class="ern-sum-goal ern-stat-btn" onclick="openErnGoal()" aria-label="Kalorienziel ändern, aktuell ${base} kcal">${base.toLocaleString('de-DE')}</button></dd></div>
+            ${burned ? `<div><dt>Sport</dt><dd class="good">+${burned.toLocaleString('de-DE')}</dd></div>` : ''}
             <div><dt>${left >= 0 ? 'Übrig' : 'Drüber'}</dt><dd class="${left >= 0 ? '' : 'bad'}">${Math.abs(left).toLocaleString('de-DE')}</dd></div>
           </dl>
         </div>
@@ -3786,11 +3812,11 @@ function checkMeditHabit(date) {
 function syncKcalHabitFromNutrition() {
   const habit = DB.get('habits', []).find(h => /kalorie|kcal|calorie/i.test(h.name));
   if(!habit) return;
-  const from = ddShift(ddToday(), -13), goal = ernGoal();
+  const from = ddShift(ddToday(), -13);
   const log = DB.get('habit_log_' + habit.id, {});
   let changed = false;
   nutritionDays().filter(d => d.tracked && d.date >= from).forEach(d => {
-    const ok = d.kcal <= goal;
+    const ok = d.kcal <= ernDayGoal(d.date);
     if(ok && !log[d.date]) { log[d.date] = true; changed = true; }
     else if(!ok && log[d.date]) { delete log[d.date]; changed = true; }
   });
@@ -3912,7 +3938,7 @@ function renderTrackerCharts() {
 
   // Kalorien: letzte 30 Tage, Balken über dem Tagesziel rot
   const kcalData = getLast(days.filter(d => d.kcal), 30);
-  const goalOf = () => ernGoal();
+  const goalOf = d => ernDayGoal(d.date);
   if(charts.nk) charts.nk.destroy();
   charts.nk = new Chart(document.getElementById('chartNutritionKcal'), {
     type:'bar',
@@ -4163,14 +4189,15 @@ function renderSport() {
   ['kraft','cardio'].forEach(type => { const d = readSessionDraft(type); document.getElementById(SESSION_TYPES[type].dateEl).value = (d.savedAt && d.date) || today(); });
   document.getElementById('saunaDate').value = today();
   { const d = readSessionDraft('kraft'); if(d.dauer) document.getElementById('kraftDauer').value = d.dauer; }
+  ['kraft','cardio'].forEach(type => { const d = readSessionDraft(type); if(d.kcal && !editingSession[type]) document.getElementById(SESSION_TYPES[type].kcalEl).value = d.kcal; });
   renderSessionRows('kraft');
   renderSessionRows('cardio');
 
   const kraft = DB.get('sport_kraft', []);
   // Gepfiffene Spiele mit Einsatzzeit erscheinen zusätzlich im Cardio-Protokoll (nur Anzeige –
   // die Wochenübersicht zählt sie weiterhin separat über schiri_spiele, um sie nicht doppelt zu zählen).
-  const schiriCardio = DB.get('schiri_spiele', []).filter(g => parseDur(g.dauer) != null).map(g => ({
-    id: 'schiri-' + g.id, trainingId: 'schiri-' + g.id, date: g.date, uebung: 'Basketball', min: g.dauer, km: '', fromSchiri: g.id,
+  const schiriCardio = DB.get('schiri_spiele', []).filter(g => parseDur(g.dauer) != null || parseFloat(g.kcal) > 0).map(g => ({
+    id: 'schiri-' + g.id, trainingId: 'schiri-' + g.id, date: g.date, uebung: 'Basketball', min: g.dauer, km: '', kcal: g.kcal || '', fromSchiri: g.id,
   }));
   const cardio = [...DB.get('sport_cardio', []), ...schiriCardio];
 
@@ -4184,7 +4211,7 @@ function renderSport() {
       + (g.trainingId ? `<button class="icon-btn" title="Ganze Einheit löschen" aria-label="Ganze Einheit löschen" onclick="deleteSession('kraft','${g.trainingId}')"><svg class="i"><use href="#i-x"/></svg></button>` : '') + '</div>';
     const head = `<tr class="training-head">
       <td>${fmtDate(g.date)}</td>
-      <td><span class="session-meta">${g.items.length} Übung${g.items.length===1?'':'en'}${g.dauer ? ` · ${g.dauer} min` : ''}</span></td>
+      <td><span class="session-meta">${g.items.length} Übung${g.items.length===1?'':'en'}${g.dauer ? ` · ${g.dauer} min` : ''}${g.kcal ? ` · ${Math.round(g.kcal).toLocaleString('de-DE')} kcal` : ''}</span></td>
       <td></td><td></td><td></td>
       <td>${total ? total.toLocaleString('de-DE') + ' kg' : '—'}</td>
       <td>${delBtn}</td>
@@ -4216,7 +4243,7 @@ function renderSport() {
       : (g.trainingId ? `<button class="icon-btn" title="Ganze Einheit löschen" onclick="deleteSession('cardio','${g.trainingId}')"><svg class="i"><use href="#i-x"/></svg></button>` : '')) + '</div>';
     const head = `<tr class="training-head">
       <td>${fmtDate(g.date)}</td>
-      <td>${schiriId ? '<span class="src-tag">Schiri</span>' : ''}<span class="session-meta">${g.items.length} Übung${g.items.length===1?'':'en'}</span></td>
+      <td>${schiriId ? '<span class="src-tag">Schiri</span>' : ''}<span class="session-meta">${g.items.length} Übung${g.items.length===1?'':'en'}${g.kcal ? ` · ${Math.round(g.kcal).toLocaleString('de-DE')} kcal` : ''}</span></td>
       <td>${totalMin ? fmtMinSec(totalMin) : '—'}</td>
       <td>${totalKm ? totalKm.toFixed(1) + ' km' : '—'}</td>
       <td></td>
@@ -4272,7 +4299,7 @@ function checkGymHabit(date) {
 // Der Entwurf liegt im localStorage (ohne Cloud-Sync), damit ein Reload nichts verliert.
 const SESSION_TYPES = {
   kraft: {
-    store: 'sport_kraft', draftKey: 'training_draft', rowsEl: 'trainingRows', dateEl: 'kraftDate', dauerEl: 'kraftDauer',
+    store: 'sport_kraft', draftKey: 'training_draft', rowsEl: 'trainingRows', dateEl: 'kraftDate', dauerEl: 'kraftDauer', kcalEl: 'kraftKcal',
     defaults: () => DEFAULT_KRAFT_EXERCISES, customKey: 'custom_kraft_exercises', label: 'Training',
     title: 'Krafttraining', saveLabel: 'Training speichern',
     emptyRow: () => ({ uebung:'', custom:false, gewicht:'', saetze:'', wdh:'' }),
@@ -4283,7 +4310,7 @@ const SESSION_TYPES = {
     ],
   },
   cardio: {
-    store: 'sport_cardio', draftKey: 'cardio_draft', rowsEl: 'cardioRows', dateEl: 'cardioDate', dauerEl: null,
+    store: 'sport_cardio', draftKey: 'cardio_draft', rowsEl: 'cardioRows', dateEl: 'cardioDate', dauerEl: null, kcalEl: 'cardioKcal',
     defaults: () => DEFAULT_CARDIO_EXERCISES, customKey: 'custom_cardio_exercises', label: 'Ausdauer-Einheit',
     title: 'Ausdauer', saveLabel: 'Einheit speichern',
     emptyRow: () => ({ uebung:'', custom:false, min:'', km:'' }),
@@ -4333,7 +4360,7 @@ function updateSessionDraft(type) {
   const dauerEl = cfg.dauerEl && document.getElementById(cfg.dauerEl);
   const date = document.getElementById(cfg.dateEl).value;
   if(!hasSessionDraft(type)) { try { localStorage.removeItem(cfg.draftKey); } catch(e) {} renderDraftBanner(type); return; }
-  try { localStorage.setItem(cfg.draftKey, JSON.stringify({ rows: sessionRows[type], dauer: dauerEl ? dauerEl.value : '', date, savedAt: Date.now() })); } catch(e) {}
+  try { localStorage.setItem(cfg.draftKey, JSON.stringify({ rows: sessionRows[type], dauer: dauerEl ? dauerEl.value : '', kcal: document.getElementById(cfg.kcalEl).value, date, savedAt: Date.now() })); } catch(e) {}
   renderDraftBanner(type);
 }
 // Bearbeiten einer gespeicherten Einheit: nutzt dasselbe Formular, lässt den Entwurf aber unangetastet
@@ -4357,6 +4384,7 @@ function openSessionEdit(type, key) {
   });
   document.getElementById(cfg.dateEl).value = items[0].date;
   if(cfg.dauerEl) document.getElementById(cfg.dauerEl).value = items.find(e => e.dauer)?.dauer || '';
+  document.getElementById(cfg.kcalEl).value = items.find(e => e.kcal)?.kcal || '';
   setSessionModalMode(type);
   renderSessionRows(type);
   openModal(type + 'Modal');
@@ -4370,6 +4398,7 @@ function endSessionEdit(type) {
   sessionRows[type] = rows.length ? rows : [cfg.emptyRow()];
   document.getElementById(cfg.dateEl).value = (d.savedAt && d.date) || today();
   if(cfg.dauerEl) document.getElementById(cfg.dauerEl).value = d.dauer || '';
+  document.getElementById(cfg.kcalEl).value = d.kcal || '';
   setSessionModalMode(type);
   renderSessionRows(type);
 }
@@ -4378,7 +4407,7 @@ const readSessionDraft = type => { try { return JSON.parse(localStorage.getItem(
 function hasSessionDraft(type) {
   const cfg = SESSION_TYPES[type];
   const dauerEl = cfg.dauerEl && document.getElementById(cfg.dauerEl);
-  return (dauerEl && dauerEl.value) || sessionRows[type].some(r => r.uebung.trim() || cfg.fields.some(f => r[f.key]));
+  return (dauerEl && dauerEl.value) || document.getElementById(cfg.kcalEl).value || sessionRows[type].some(r => r.uebung.trim() || cfg.fields.some(f => r[f.key]));
 }
 function renderDraftBanner(type) {
   const el = document.getElementById(type + 'DraftBanner');
@@ -4394,6 +4423,7 @@ function discardSessionDraft(type) {
   const cfg = SESSION_TYPES[type];
   sessionRows[type] = [cfg.emptyRow()];
   if(cfg.dauerEl) document.getElementById(cfg.dauerEl).value = '';
+  document.getElementById(cfg.kcalEl).value = '';
   document.getElementById(cfg.dateEl).value = today();
   try { localStorage.removeItem(cfg.draftKey); } catch(e) {}
   renderSessionRows(type);
@@ -4437,8 +4467,9 @@ function groupSessions(entries) {
   entries.forEach(e => {
     const key = e.trainingId || 'day-' + e.date;
     let g = groups.find(x => x.key === key);
-    if(!g) { g = { key, date: e.date, trainingId: e.trainingId, dauer: e.dauer, items: [] }; groups.push(g); }
+    if(!g) { g = { key, date: e.date, trainingId: e.trainingId, dauer: e.dauer, kcal: e.kcal, items: [] }; groups.push(g); }
     if(e.dauer && !g.dauer) g.dauer = e.dauer;
+    if(e.kcal && !g.kcal) g.kcal = e.kcal;
     g.items.push(e);
   });
   return groups;
@@ -4513,6 +4544,7 @@ function saveSession(type) {
   const cfg = SESSION_TYPES[type];
   const date = document.getElementById(cfg.dateEl).value || today();
   const dauer = cfg.dauerEl ? document.getElementById(cfg.dauerEl).value : '';
+  const kcal = document.getElementById(cfg.kcalEl).value;
   const rows = sessionRows[type].filter(r => r.uebung.trim());
   if(!rows.length) { toast('Bitte mindestens eine Übung wählen!'); return; }
   const editKey = editingSession[type];
@@ -4524,6 +4556,7 @@ function saveSession(type) {
     const uebung = r.uebung.trim();
     const entry = { id: trainingId + '-' + i, trainingId, date, uebung };
     if(cfg.dauerEl) entry.dauer = dauer;
+    if(kcal) entry.kcal = kcal;  // je Einheit; an jeder Übung gespeichert wie die Trainingszeit, beim Summieren je Einheit einmal gezählt
     cfg.fields.forEach(f => entry[f.key] = r[f.key]);
     data.push(entry);
     addCustomExercise(uebung, cfg.defaults(), cfg.customKey); // neue Übung → ab jetzt wählbar
@@ -4539,8 +4572,10 @@ function saveSession(type) {
   }
   sessionRows[type] = [cfg.emptyRow()];
   if(cfg.dauerEl) document.getElementById(cfg.dauerEl).value = '';
+  document.getElementById(cfg.kcalEl).value = '';
   try { localStorage.removeItem(cfg.draftKey); } catch(e) {}
   renderDraftBanner(type);
+  if(kcal) { syncKcalHabitFromNutrition(); }
   checkGymHabit(date);
   renderSport();
   closeModal(type + 'Modal');
@@ -4828,6 +4863,7 @@ function saveSchiri() {
     gebuehr: document.getElementById('schiriGebuehr').value,
     fahrt: document.getElementById('schiriFahrt').value,
     dauer: document.getElementById('schiriDauer').value,
+    kcal: document.getElementById('schiriKcal').value,
     gut: document.getElementById('schiriGut').value.trim(),
     schlecht: document.getElementById('schiriSchlecht').value.trim(),
     tipp: document.getElementById('schiriTipp').value.trim(),
@@ -4854,7 +4890,7 @@ const SCHIRI_NOTIZ_FELDER = ['gut', 'schlecht', 'tipp', 'video'];
 // Video-Notiz: Links (http/https) klickbar machen, Rest als Text
 const linkify = t => escHtml(t).replace(/https?:\/\/[^\s<"']+/g, u => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
 const hasSchiriNotiz = g => SCHIRI_NOTIZ_FELDER.some(k => g[k]);
-const SCHIRI_TEXTFELDER = { gebuehr: 'schiriGebuehr', fahrt: 'schiriFahrt', dauer: 'schiriDauer', gut: 'schiriGut', schlecht: 'schiriSchlecht', tipp: 'schiriTipp', video: 'schiriVideo' };
+const SCHIRI_TEXTFELDER = { gebuehr: 'schiriGebuehr', fahrt: 'schiriFahrt', dauer: 'schiriDauer', kcal: 'schiriKcal', gut: 'schiriGut', schlecht: 'schiriSchlecht', tipp: 'schiriTipp', video: 'schiriVideo' };
 let schiriLetzteLiga = ''; // neue Spiele: zuletzt genutzte Liga vorauswählen – meist mehrere Spiele derselben Liga hintereinander
 
 // Spiel-Dialog: ohne id leer für ein neues Spiel, mit id befüllt zum Bearbeiten
