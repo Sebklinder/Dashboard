@@ -570,6 +570,8 @@
   .ern-meal-title small.warn { color: var(--yellow); }
   .ern-meal-title small.over { color: var(--red); }
   .ern-kcal .ern-of { color: var(--muted); }
+  .dd-auto { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--green); margin-top: 2px; }
+  .dd-auto .i { width: 12px; height: 12px; flex-shrink: 0; }
   .ern-item-dd { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--green); }
   .ern-item-dd .i { width: 12px; height: 12px; }
   .ern-day-top { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'ring side actions'; align-items: center; gap: 12px 24px; }
@@ -1559,7 +1561,7 @@
       </div>
       <input type="range" class="prof-range" id="profWater" min="1" max="5" step="0.25" oninput="profInput()" style="--c:var(--accent2)">
     </section>
-    <label class="prof-check"><input type="checkbox" id="profAutoDD"><span>Einträge automatisch im Daily Dozen und in den 21 Optimierungen abhaken<small>z. B. Linsen → Hülsenfrüchte, Apfel → Obst, Essig → „Essig hinzufügen“. Löschst du den Eintrag, wird das Häkchen wieder entfernt.</small></span></label>
+    <label class="prof-check"><input type="checkbox" id="profAutoDD"><span>Daily Dozen und 21 Optimierungen automatisch abhaken<small>Aus Essen (Linsen → Hülsenfrüchte, Essig → „Essig hinzufügen“), Training oder 12.000 Schritten (Bewegung), 7 h Schlaf, Wiegen, Fasten ab spätestens 19 Uhr und großem Frühstück/Mittag. Fällt die Quelle weg, verschwindet das Häkchen.</small></span></label>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('ernGoalModal')">Abbrechen</button>
       <button class="btn btn-primary" onclick="saveErnGoal()">Speichern</button>
@@ -2658,11 +2660,62 @@ function ddSet(kind, k, n) {
   DB.set(DD_KEY, all);
   renderDD(kind);
 }
+// ---- Abhaken aus anderen Bereichen: Training, Schritte, Schlaf, Gewicht, Fasten, Mahlzeiten ----
+// Der automatische Anteil steht je Tag unter `_auto` ({ k: { n, why } }) und wird bei jeder Berechnung ersetzt:
+// Fällt die Quelle weg (Training gelöscht …), verschwindet auch das Häkchen. Manuelle Häkchen bleiben unberührt.
+const ddMinOf = v => { const m = String(v || '').match(/^(\d+):(\d{1,2})$/); return m ? +m[1] + +m[2] / 60 : parseFloat(v) || 0; };
+function ddDerived(day) {
+  const out = {}, set = (k, why) => { out[k] = { n: 1, why }; };
+  const h = DB.get('health', []).find(x => x.date === day) || {};
+  // Bewegung: 40 Min. Training (Kraft + Ausdauer) oder 12.000 Schritte (≈ 90 Min. moderat)
+  const kraft = DB.get('sport_kraft', []).filter(e => e.date === day);
+  const kraftMin = [...new Map(kraft.map(e => [e.trainingId || e.id, ddMinOf(e.dauer)])).values()].reduce((a, b) => a + b, 0);
+  const cardio = DB.get('sport_cardio', []).filter(e => e.date === day);
+  const cardioMin = cardio.reduce((a, e) => a + ddMinOf(e.min), 0);
+  const sportMin = Math.round(kraftMin + cardioMin), steps = parseInt(h.steps) || 0;
+  if(sportMin >= 40) set('bewegung', `${sportMin} Min. Training`);
+  else if(steps >= 12000) set('bewegung', `${steps.toLocaleString('de-DE')} Schritte`);
+  if(kraft.length || cardio.length) set('t_training', kraft.length && cardio.length ? 'Kraft und Ausdauer eingetragen' : kraft.length ? 'Krafttraining eingetragen' : 'Ausdauer eingetragen');
+  // Schlaf: mindestens 7 Stunden
+  if(Number(h.sleepMin) >= 420) set('t_schlaf', `${Math.floor(h.sleepMin / 60)}:${String(h.sleepMin % 60).padStart(2, '0')} h Schlaf`);
+  // Wiegen: Gewicht an dem Tag eingetragen (ein Wert je Tag = ein Häkchen)
+  if(DB.get('ern_weight', {})[day] != null || h.weight) set('t_wiegen', 'Gewicht eingetragen');
+  // Fasten: an dem Tag spätestens 19 Uhr begonnen; ab 12 h zählt es als Essens-Zeitfenster
+  DB.get('ern_fasts', []).filter(f => ddLocalKey(new Date(f.start)) === day).forEach(f => {
+    const st = new Date(f.start), hrs = ernFastHours(f);
+    if(st.getHours() < 19 || (st.getHours() === 19 && st.getMinutes() === 0)) set('t_fasten', `Fasten ab ${st.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr`);
+    if(hrs >= 12) set('t_zeitfenster', `${ernHM(hrs)} h gefastet`);
+  });
+  // Kalorien früh: Frühstück oder Mittagessen größer als das Abendessen
+  const list = ernDay(day), mk = k => ernSum(list.filter(e => e.meal === k), 'kcal');
+  const early = Math.max(mk('fruehstueck'), mk('mittag')), late = mk('abend');
+  if(early > 0 && early > late) set('t_frueh', `${mk('fruehstueck') >= mk('mittag') ? 'Frühstück' : 'Mittagessen'} ist die größte Mahlzeit`);
+  return out;
+}
+function ddSyncDerived(day) {
+  const all = DB.get(DD_KEY, {}), cur = { ...(all[day] || {}) };
+  const prev = cur._auto || {}, want = ernProfile().autoDD ? ddDerived(day) : {}, next = {};
+  [...new Set([...Object.keys(prev), ...Object.keys(want)])].forEach(k => {
+    const g = ERN_DD_ITEMS.find(x => x.k === k); if(!g) return;
+    const base = Math.max(0, (Number(cur[k]) || 0) - (prev[k]?.n || 0));
+    const after = Math.min(g.max, base + (want[k]?.n || 0));
+    cur[k] = after;
+    if(after > base) next[k] = { n: after - base, why: want[k].why };
+  });
+  if(JSON.stringify(prev) === JSON.stringify(next)) return;
+  if(Object.keys(next).length) cur._auto = next; else delete cur._auto;
+  all[day] = cur;
+  DB.set(DD_KEY, all);
+}
+
 function ddGo(kind, n) { const nk = ddShift(ddView, n); if (nk > ddToday()) return; ddView = nk; renderDD(kind); }
 function ddToggleInfo(kind, k) { ddOpen[k] = !ddOpen[k]; renderDD(kind); }
 function ddPickDay(kind, day) { ddView = day; renderDD(kind); }
 function renderDD(kind) {
   const { items, list } = DD_KINDS[kind];
+  // Automatische Häkchen für den angezeigten Tag und die Wochenübersicht aktualisieren
+  new Set([ddView, ...Array.from({ length: 7 }, (_, i) => ddShift(ddToday(), -i))]).forEach(ddSyncDerived);
+  const auto = (DB.get(DD_KEY, {})[ddView] || {})._auto || {};
   const total = ddTotalOf(kind), tot = ddSum(kind, ddView), tk = ddToday();
   const label = new Date(ddView + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
   const sub = kind === 'dozen' ? 'Portionen' : 'Häkchen';
@@ -2671,7 +2724,7 @@ function renderDD(kind) {
     const boxes = Array.from({ length: g.max }, (_, i) => `<button type="button" class="dd-box${i < c ? ' on' : ''}" aria-pressed="${i < c}" aria-label="${ddEsc(g.n)}, ${i + 1} von ${g.max}" onclick="ddSet('${kind}','${g.k}',${i + 1})"><span></span></button>`).join('');
     const more = open ? `<div class="dd-more">${(DD_INFO[g.k] || []).map(t => `<p>${ddEsc(t)}</p>`).join('')}</div>` : '';
     return `<div class="dd-row${c === g.max ? ' done' : ''}" style="--h:${g.h}">
-      <div class="dd-main"><div class="dd-name">${ddEsc(g.n)}</div><div class="dd-hint">${ddEsc(g.t)}</div></div>
+      <div class="dd-main"><div class="dd-name">${ddEsc(g.n)}</div><div class="dd-hint">${ddEsc(g.t)}</div>${auto[g.k] ? `<div class="dd-auto"><svg class="i"><use href="#i-check"/></svg>Automatisch: ${ddEsc(auto[g.k].why)}</div>` : ''}</div>
       <button type="button" class="dd-info${open ? ' open' : ''}" aria-expanded="${open}" aria-label="Erklärung zu ${ddEsc(g.n)} ${open ? 'ausblenden' : 'anzeigen'}" onclick="ddToggleInfo('${kind}','${g.k}')"><svg class="i"><use href="#i-help"/></svg></button>
       <div class="dd-boxes">${boxes}</div>${more}</div>`;
   }).join('');
