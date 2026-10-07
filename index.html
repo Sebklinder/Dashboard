@@ -31,6 +31,7 @@
     --green-soft: rgba(52,211,153,0.12);
     --red-soft: rgba(248,113,113,0.12);
     --yellow-soft: rgba(251,191,36,0.12);
+    --meal-fruehstueck: #fbbf24; --meal-mittag: #34d399; --meal-abend: #818cf8; --meal-snack: #f472b6;
     --text: #ededef;
     --text-2: #a1a1aa;
     --muted: #71717a;
@@ -58,6 +59,7 @@
     --green-soft: rgba(5,150,105,0.09);
     --red-soft: rgba(220,38,38,0.08);
     --yellow-soft: rgba(217,119,6,0.1);
+    --meal-fruehstueck: #d97706; --meal-mittag: #059669; --meal-abend: #4f46e5; --meal-snack: #db2777;
     --text: #111113;
     --text-2: #52525b;
     --muted: #71717a;
@@ -563,11 +565,11 @@
   .ern-macro-pct.good { color: var(--green); }
   .ern-macro-pct.warn { color: var(--yellow); }
   .ern-macro-bar.over b { background: var(--yellow); }
-  .ern-meal-bar { height: 4px; border-radius: 2px; background: var(--surface3); overflow: hidden; margin: 4px 0 8px 44px; }
-  .ern-meal-bar b { display: block; height: 100%; border-radius: 2px; background: var(--green); transition: width .3s ease; }
-  .ern-meal-bar.warn b { background: var(--yellow); }
+  .ern-meal-bar { height: 4px; border-radius: 2px; background: var(--surface3); overflow: hidden; margin: 6px 0 8px; }
+  .ern-meal-bar b { display: block; height: 100%; border-radius: 2px; background: var(--mc, var(--green)); transition: width .3s ease; }
+  .ern-meal-bar.warn b { background: var(--red); opacity: .55; }
   .ern-meal-bar.over b { background: var(--red); }
-  .ern-meal-title small.warn { color: var(--yellow); }
+  .ern-meal-title small.warn { color: var(--red); opacity: .8; }
   .ern-meal-title small.over { color: var(--red); }
   .ern-kcal .ern-of { color: var(--muted); }
   .dd-auto { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--green); margin-top: 2px; }
@@ -621,19 +623,32 @@
   .ern-macro-pct { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
   .ern-macro-bar { height: 4px; border-radius: 2px; background: var(--surface3); overflow: hidden; margin-top: 6px; }
   .ern-macro-bar b { display: block; height: 100%; background: var(--c); border-radius: 2px; transition: width .3s ease; }
-  .ern-meals { padding: 8px 24px; margin-bottom: 16px; }
-  .ern-meal { padding: 12px 0; border-bottom: 1px solid var(--border); }
-  .ern-meal:last-child { border-bottom: none; }
+  .ern-meals { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-bottom: 16px; }
+  @media (min-width: 900px) { .ern-meals { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+  .ern-meal { padding: 16px 20px; box-shadow: inset 0 3px 0 var(--mc), var(--shadow); min-width: 0; }
+  .ern-meal-empty { width: 100%; min-height: 44px; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); background: none; color: var(--text-2); font: inherit; font-size: 14px; cursor: pointer; }
+  .ern-meal-empty:hover { border-color: var(--mc); color: var(--mc); }
   .ern-meal-head { display: flex; align-items: center; gap: 8px; min-height: 44px; }
   .ern-meal-name { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; flex: 1; min-width: 0; }
-  .ern-meal-ico { width: 32px; height: 32px; border-radius: var(--radius-sm); display: grid; place-items: center; background: var(--surface3); color: var(--text-2); flex-shrink: 0; }
-  .ern-meal.has .ern-meal-ico { background: var(--accent-soft); color: var(--accent); }
+  .ern-meal-ico { width: 32px; height: 32px; border-radius: var(--radius-sm); display: grid; place-items: center; background: color-mix(in srgb, var(--mc) 16%, transparent); color: var(--mc); flex-shrink: 0; }
+  .ern-meal-name { font-size: 16px; }
   .ern-meal-title { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
   .ern-meal-title small { font-size: 12px; font-weight: 400; color: var(--muted); }
   .ern-kcal { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--text-2); white-space: nowrap; }
-  .ern-add { width: 44px; height: 44px; margin-right: -10px; border: none; background: none; color: var(--accent); cursor: pointer; border-radius: 8px; display: grid; place-items: center; }
+  .ern-add { width: 44px; height: 44px; margin-right: -10px; border: none; background: none; color: var(--mc, var(--accent)); cursor: pointer; border-radius: 8px; display: grid; place-items: center; }
   .ern-add:hover { background: var(--accent-soft); }
-  .ern-items { margin-left: 44px; }
+  .ern-items { margin-left: 0; }
+  /* Portionsscheibe im Eintragen-Dialog */
+  .portion-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .portion-size { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .portion-picker { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .portion-step { width: 44px; height: 44px; flex-shrink: 0; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface2); color: var(--text); display: grid; place-items: center; cursor: pointer; }
+  .portion-step:hover { border-color: var(--accent); color: var(--accent); }
+  .portion-wheel { flex: 1; min-width: 0; display: flex; gap: 6px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; padding: 4px 2px; -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent); mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent); }
+  .portion-wheel::-webkit-scrollbar { display: none; }
+  .portion-chip { flex: 0 0 auto; min-width: 48px; height: 44px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface2); color: var(--text-2); font: inherit; font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; cursor: pointer; scroll-snap-align: center; transition: background .15s ease, color .15s ease, transform .15s ease; }
+  .portion-chip:hover { color: var(--text); border-color: var(--border-strong); }
+  .portion-chip.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; transform: scale(1.06); }
   .ern-item { display: flex; align-items: center; gap: 4px; border-top: 1px solid var(--border); }
   .ern-item-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 10px 0; border: none; background: none; color: var(--text); text-align: left; font: inherit; cursor: pointer; }
   .ern-item-main:hover .ern-item-name { color: var(--accent); }
@@ -695,7 +710,7 @@
   .food-hit small { display: block; color: var(--muted); font-size: 12px; }
   .food-hit-kcal { color: var(--text-2); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .food-status { font-size: 12px; color: var(--muted); padding: 8px 0; }
-  @media (max-width: 640px) { .ern-meals { padding: 4px 16px; } .ern-items { margin-left: 0; } .ern-wide { display: none; } .ern-macro { padding: 8px 10px; } .ern-macros { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ern-meal-bar { margin-left: 0; } .ern-ring { width: 112px; height: 112px; } .ern-ring-label b { font-size: 22px; } .ern-ring-kcal { width: 124px; height: 124px; } .ern-ring-kcal .ern-ring-label b { font-size: 24px; } .ern-day-top { gap: 12px 16px; } .ern-day-stats { gap: 4px 16px; } .ern-day-stats dd { font-size: 16px; } }
+  @media (max-width: 640px) { .ern-meal { padding: 12px 16px; } .ern-wide { display: none; } .ern-macro { padding: 8px 10px; } .ern-macros { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ern-meal-bar { margin-left: 0; } .ern-ring { width: 112px; height: 112px; } .ern-ring-label b { font-size: 22px; } .ern-ring-kcal { width: 124px; height: 124px; } .ern-ring-kcal .ern-ring-label b { font-size: 24px; } .ern-day-top { gap: 12px 16px; } .ern-day-stats { gap: 4px 16px; } .ern-day-stats dd { font-size: 16px; } }
 
   /* Trend-Badges für Trainingsanalyse */
   .trend-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
@@ -896,6 +911,7 @@
   <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></symbol>
   <symbol id="i-steth" viewBox="0 0 24 24"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6 6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></symbol>
   <symbol id="i-timer" viewBox="0 0 24 24"><path d="M10 2h4"/><path d="m12 14 3-3"/><circle cx="12" cy="14" r="8"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
@@ -1492,8 +1508,16 @@
       </div>
     </div>
     <div class="form-group" id="foodAmountGroup" hidden>
-      <label class="form-label" for="foodAmount" id="foodAmountLabel">Menge (g)</label>
-      <input type="number" min="0" step="any" class="form-input" id="foodAmount" oninput="foodRecalc()">
+      <div class="portion-head"><span class="form-label" id="foodPortionLabel">Portionen</span><span class="portion-size" id="foodPortionSize"></span></div>
+      <div class="portion-picker">
+        <button type="button" class="portion-step" aria-label="Eine halbe Portion weniger" onclick="stepPortions(-1)"><svg class="i"><use href="#i-minus"/></svg></button>
+        <div class="portion-wheel" id="foodPortionWheel" role="listbox" aria-labelledby="foodPortionLabel"></div>
+        <button type="button" class="portion-step" aria-label="Eine halbe Portion mehr" onclick="stepPortions(1)"><svg class="i"><use href="#i-plus"/></svg></button>
+      </div>
+      <div id="foodGramWrap">
+        <label class="form-label" for="foodAmount" id="foodAmountLabel" style="margin-top:12px">Menge (g)</label>
+        <input type="number" min="0" step="any" class="form-input" id="foodAmount" oninput="foodRecalc();renderPortionWheel()">
+      </div>
       <div class="form-hint" id="foodPer"></div>
     </div>
     <div class="form-group">
@@ -2880,7 +2904,11 @@ function renderTrackerDay() {
       : !mGoal ? `${items.length} ${items.length === 1 ? 'Eintrag' : 'Einträge'}`
       : mKcal <= mGoal ? `noch ${(mGoal - mKcal).toLocaleString('de-DE')} kcal` : `${(mKcal - mGoal).toLocaleString('de-DE')} kcal über Ziel`;
     const rows = items.map(e => {
-      const sub = [e.amount ? `${fmtNum(e.amount)} ${e.unit === 'g' || e.unit === 'ml' ? e.unit : (e.amount == 1 ? 'Portion' : 'Portionen')}` : '', ...ERN_NUTRIENTS.filter(([k]) => e[k]).map(([k, , short]) => `${short} ${fmtNum(e[k])} g`)].filter(Boolean).join(' · ');
+      const port = e.base?.portion && (e.unit === 'g' || e.unit === 'ml') ? e.amount / e.base.portion : null;
+      const amountTxt = !e.amount ? '' : e.unit === 'g' || e.unit === 'ml'
+        ? `${fmtNum(e.amount)} ${e.unit}${port && Math.abs(port * 2 - Math.round(port * 2)) < 0.01 ? ` (${fmtPortion(port)} Port.)` : ''}`
+        : `${fmtPortion(e.amount)} ${e.amount == 1 ? 'Portion' : 'Portionen'}`;
+      const sub = [amountTxt, ...ERN_NUTRIENTS.filter(([k]) => e[k]).map(([k, , short]) => `${short} ${fmtNum(e[k])} g`)].filter(Boolean).join(' · ');
       const dd = e.dd && Object.keys(e.dd).length ? `<span class="ern-item-dd"><svg class="i"><use href="#i-check"/></svg>${escHtml(ernDDText(e.dd, false))}</span>` : '';
       return `<div class="ern-item">
         <button type="button" class="ern-item-main" onclick="openFoodModal('${m.k}','${e.id}')" aria-label="${escAttr(e.name)} bearbeiten">
@@ -2890,13 +2918,13 @@ function renderTrackerDay() {
         <button type="button" class="icon-btn" aria-label="${escAttr(e.name)} löschen" onclick="deleteFood('${e.id}')"><svg class="i"><use href="#i-trash"/></svg></button>
       </div>`;
     }).join('');
-    return `<div class="ern-meal${items.length ? ' has' : ''}">
+    return `<section class="card ern-meal${items.length ? ' has' : ''}" style="--mc:var(--meal-${m.k})" aria-label="${m.n}">
       <div class="ern-meal-head">
         <span class="ern-meal-name"><span class="ern-meal-ico"><svg class="i"><use href="#${m.icon}"/></svg></span><span class="ern-meal-title">${m.n}<small class="${state}">${status}</small></span></span>
         ${items.length ? `<span class="ern-kcal">${mKcal.toLocaleString('de-DE')}${mGoal ? `<span class="ern-of"> / ${mGoal.toLocaleString('de-DE')}</span>` : ''} kcal</span>
         <button type="button" class="ern-copy" aria-label="${m.n} kopieren" title="Auf einen anderen Tag kopieren" onclick="openCopyMeal('${m.k}')"><svg class="i"><use href="#i-copy"/></svg></button>` : ''}
-        <button type="button" class="ern-add" style="${items.length ? 'margin-left:-8px' : ''}" aria-label="${m.n}: Essen eintragen" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg></button>
-      </div>${items.length && mGoal ? `<div class="ern-meal-bar ${state}" role="progressbar" aria-label="${m.n}: ${mKcal} von ${mGoal} kcal" aria-valuemin="0" aria-valuemax="${mGoal}" aria-valuenow="${mKcal}"><b style="width:${Math.min(100, mKcal / mGoal * 100)}%"></b></div>` : ''}${rows ? `<div class="ern-items">${rows}</div>` : ''}</div>`;
+        ${items.length ? `<button type="button" class="ern-add" style="margin-left:-8px" aria-label="${m.n}: Essen eintragen" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg></button>` : ''}
+      </div>${mGoal && items.length ? `<div class="ern-meal-bar ${state}" role="progressbar" aria-label="${m.n}: ${mKcal} von ${mGoal} kcal" aria-valuemin="0" aria-valuemax="${mGoal}" aria-valuenow="${mKcal}"><b style="width:${Math.min(100, mKcal / mGoal * 100)}%"></b></div>` : ''}${rows ? `<div class="ern-items">${rows}</div>` : `<button type="button" class="ern-meal-empty" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg>${m.n} eintragen</button>`}</section>`;
   }).join('');
   document.getElementById('trackerDay').innerHTML = `
     <div class="card dd-head">
@@ -2926,7 +2954,7 @@ function renderTrackerDay() {
       </div>
       <div class="ern-macros">${macros}</div>
     </div>
-    <div class="card ern-meals">${meals}</div>`;
+    <div class="ern-meals">${meals}</div>`;
 }
 function ernGo(n) {
   const nk = n === 0 ? ddToday() : ddShift(ernView, n);
@@ -3127,7 +3155,7 @@ function copyMeal() {
 
 // ---- Eigene Lebensmittel ----
 const ownFoodBase = f => {
-  const base = { per: 100, unit: f.unit, kcal: f.kcal, default: f.portion || 100 };
+  const base = { per: 100, unit: f.unit, kcal: f.kcal, default: f.portion || 100, portion: f.portion || null };
   ERN_NUTRIENTS.forEach(([k]) => { if(f[k] != null) base[k] = f[k]; });
   return base;
 };
@@ -3203,6 +3231,39 @@ function setFoodBase(base, amount) {
   document.getElementById('foodAmount').step = isG ? '1' : '0.5';
   document.getElementById('foodAmount').value = amount ?? base.default ?? (isG ? 100 : 1);
   document.getElementById('foodPer').textContent = `${fmtNum(base.kcal)} kcal${ERN_NUTRIENTS.filter(([k]) => base[k] != null).map(([k, , short]) => ` · ${short} ${fmtNum(base[k])} g`).join('')} je ${ernPerLabel(base)}`;
+  // Bei Portions-Einheiten (Rezepte) ist die Portionsscheibe die Mengenangabe – kein zweites Feld
+  document.getElementById('foodGramWrap').hidden = !isG;
+  renderPortionWheel(true);
+}
+// ---- Portionsscheibe: Vielfache der Standardportion in halben Schritten ----
+const PORTION_STEPS = Array.from({ length: 16 }, (_, i) => (i + 1) / 2);
+const fmtPortion = v => { const w = Math.floor(v + 1e-9), half = v - w > 0.25; return w === 0 ? '½' : half ? `${w}½` : String(w); };
+// Standardportion: selbst hinterlegt (eigenes Lebensmittel), von Open Food Facts oder 100 g/ml; bei Rezepten 1 Portion
+const foodPortionSize = () => !foodBase ? 1 : ernPer100(foodBase) ? (foodBase.portion || 100) : 1;
+function renderPortionWheel(jump) {
+  if(!foodBase) return;
+  const size = foodPortionSize(), amt = parseFloat(document.getElementById('foodAmount').value) || 0, cnt = amt / size;
+  const wheel = document.getElementById('foodPortionWheel');
+  wheel.innerHTML = PORTION_STEPS.map(v => { const on = Math.abs(v - cnt) < 0.01;
+    return `<button type="button" class="portion-chip${on ? ' on' : ''}" role="option" aria-selected="${on}" aria-label="${fmtNum(v)} Portionen" onclick="setPortions(${v})">${fmtPortion(v)}</button>`; }).join('');
+  const isG = ernPer100(foodBase), exact = PORTION_STEPS.some(v => Math.abs(v - cnt) < 0.01);
+  document.getElementById('foodPortionSize').textContent = isG
+    ? `1 Portion = ${fmtNum(size)} ${foodBase.unit}${foodBase.portion ? '' : ' (Standard)'}${amt && !exact ? ` · jetzt ${fmtNum(Math.round(cnt * 10) / 10)} Port.` : ''}`
+    : '';
+  // ausgewählte Portion in die Mitte der Scheibe rollen
+  const sel = wheel.querySelector('.on');
+  if(sel) wheel.scrollTo({ left: sel.offsetLeft - wheel.clientWidth / 2 + sel.offsetWidth / 2, behavior: jump ? 'auto' : 'smooth' });
+}
+function setPortions(v) {
+  const size = foodPortionSize(), isG = ernPer100(foodBase);
+  document.getElementById('foodAmount').value = isG ? Math.round(v * size) : v;
+  foodRecalc();
+  renderPortionWheel();
+}
+function stepPortions(d) {
+  const cnt = (parseFloat(document.getElementById('foodAmount').value) || 0) / foodPortionSize();
+  const next = d > 0 ? Math.floor(cnt * 2 + 1e-6) / 2 + 0.5 : Math.ceil(cnt * 2 - 1e-6) / 2 - 0.5;
+  setPortions(Math.min(PORTION_STEPS[PORTION_STEPS.length - 1], Math.max(0.5, next)));
 }
 function foodRecalc() {
   if(!foodBase) return;
@@ -3296,7 +3357,7 @@ async function searchOFF(q) {
       const kcal = num(n['energy-kcal_100g'] ?? (n['energy_100g'] != null ? n['energy_100g'] / 4.184 : null));
       const name = (p.product_name_de || p.product_name || '').trim();
       if(!name || kcal == null) return null;
-      return { name, sub: (p.brands || '').split(',')[0].trim(), base: { per: 100, unit: 'g', kcal, protein: num(n.proteins_100g), fett: num(n.fat_100g), kh: num(n.carbohydrates_100g), ballast: num(n.fiber_100g), default: num(p.serving_quantity) || 100 } };
+      return { name, sub: (p.brands || '').split(',')[0].trim(), base: { per: 100, unit: 'g', kcal, protein: num(n.proteins_100g), fett: num(n.fat_100g), kh: num(n.carbohydrates_100g), ballast: num(n.fiber_100g), default: num(p.serving_quantity) || 100, portion: num(p.serving_quantity) } };
     }).filter(Boolean).slice(0, 12);
     if(document.getElementById('foodSearch').value !== q) return;
     renderFoodResults(q, { hits, status: hits.length ? '' : 'Bei Open Food Facts nichts gefunden – trag die Werte einfach unten ein.' });
