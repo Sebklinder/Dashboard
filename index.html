@@ -558,44 +558,116 @@
   .ern-sum-goal { background: none; border: none; padding: 0; font: inherit; color: var(--muted); cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
   .ern-sum-goal:hover { color: var(--accent); }
   .dd-progress.over b { background: var(--red); }
-  .ern-macros { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .ern-macros { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .ern-macro-val .ern-of { font-size: 12px; font-weight: 500; color: var(--muted); }
+  .ern-macro-pct.good { color: var(--green); }
+  .ern-macro-pct.warn { color: var(--yellow); }
+  .ern-macro-bar.over b { background: var(--yellow); }
+  .ern-meal-bar { height: 4px; border-radius: 2px; background: var(--surface3); overflow: hidden; margin: 4px 0 8px 44px; }
+  .ern-meal-bar b { display: block; height: 100%; border-radius: 2px; background: var(--green); transition: width .3s ease; }
+  .ern-meal-bar.warn b { background: var(--yellow); }
+  .ern-meal-bar.over b { background: var(--red); }
+  .ern-meal-title small.warn { color: var(--yellow); }
+  .ern-meal-title small.over { color: var(--red); }
+  .ern-kcal .ern-of { color: var(--muted); }
+  .ern-item-dd { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--green); }
+  .ern-item-dd .i { width: 12px; height: 12px; }
+  .ern-head-actions { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+  .dd-sum .ern-head-actions .btn { margin-left: 0; }
+  /* Ernährungsprofil */
+  .prof-sec { padding: 16px 0; border-top: 1px solid var(--border); }
+  .prof-sec:first-of-type { border-top: none; padding-top: 0; }
+  .prof-head { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .prof-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .prof-label { font-size: 14px; font-weight: 600; }
+  .prof-sub .prof-label { font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .prof-sub .prof-label::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--c, var(--accent)); }
+  .prof-sub { margin-top: 12px; }
+  .prof-out { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--text-2); white-space: nowrap; }
+  .prof-out b { color: var(--text); font-weight: 600; }
+  .prof-range { -webkit-appearance: none; appearance: none; width: 100%; height: 32px; margin: 4px 0 0; background: transparent; cursor: pointer; --fill: var(--c, var(--accent)); }
+  .prof-range::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--fill) var(--p, 0%), var(--surface3) var(--p, 0%)); }
+  .prof-range::-moz-range-track { height: 6px; border-radius: 3px; background: var(--surface3); }
+  .prof-range::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--fill); }
+  .prof-range::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -8px; border-radius: 50%; background: #fff; border: 2px solid var(--fill); box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .15s ease; }
+  .prof-range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid var(--fill); box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+  .prof-range:active::-webkit-slider-thumb { transform: scale(1.15); }
+  .prof-range:focus-visible { outline: none; }
+  .prof-range:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .prof-presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+  .prof-check { display: flex; gap: 12px; align-items: flex-start; padding: 16px 0 0; border-top: 1px solid var(--border); font-size: 14px; cursor: pointer; }
+  .prof-check input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--accent); flex-shrink: 0; }
+  .prof-check small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .ern-macro { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .ern-macro-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .ern-macro-label::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--c); flex-shrink: 0; }
+  .ern-macro-val { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.2px; }
+  .ern-macro-val small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+  .ern-macro-pct { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .ern-macro-bar { height: 4px; border-radius: 2px; background: var(--surface3); overflow: hidden; margin-top: 6px; }
+  .ern-macro-bar b { display: block; height: 100%; background: var(--c); border-radius: 2px; transition: width .3s ease; }
   .ern-meals { padding: 8px 24px; margin-bottom: 16px; }
   .ern-meal { padding: 12px 0; border-bottom: 1px solid var(--border); }
   .ern-meal:last-child { border-bottom: none; }
   .ern-meal-head { display: flex; align-items: center; gap: 8px; min-height: 44px; }
-  .ern-meal-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; flex: 1; min-width: 0; }
-  .ern-meal-name .i { color: var(--muted); }
+  .ern-meal-name { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; flex: 1; min-width: 0; }
+  .ern-meal-ico { width: 32px; height: 32px; border-radius: var(--radius-sm); display: grid; place-items: center; background: var(--surface3); color: var(--text-2); flex-shrink: 0; }
+  .ern-meal.has .ern-meal-ico { background: var(--accent-soft); color: var(--accent); }
+  .ern-meal-title { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+  .ern-meal-title small { font-size: 12px; font-weight: 400; color: var(--muted); }
   .ern-kcal { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--text-2); white-space: nowrap; }
   .ern-add { width: 44px; height: 44px; margin-right: -10px; border: none; background: none; color: var(--accent); cursor: pointer; border-radius: 8px; display: grid; place-items: center; }
   .ern-add:hover { background: var(--accent-soft); }
-  .ern-item { display: flex; align-items: center; gap: 4px; border-top: 1px dashed var(--border); }
+  .ern-items { margin-left: 44px; }
+  .ern-item { display: flex; align-items: center; gap: 4px; border-top: 1px solid var(--border); }
   .ern-item-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 10px 0; border: none; background: none; color: var(--text); text-align: left; font: inherit; cursor: pointer; }
   .ern-item-main:hover .ern-item-name { color: var(--accent); }
   .ern-item-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
   .ern-item-name { font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
   .ern-item-sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .ern-item .icon-btn { width: 44px; height: 44px; margin-right: -10px; }
-  .tracker-side { margin-bottom: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .tracker-side { margin-bottom: 16px; grid-template-columns: 1fr; align-items: start; }
+  @media (min-width: 900px) {
+    .tracker-side { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: 'water fast' 'weight fast'; }
+    #trackerWaterCard { grid-area: water; } #trackerWeightCard { grid-area: weight; } #trackerFast { grid-area: fast; align-self: stretch; }
+  }
   .ern-copy { width: 44px; height: 44px; border: none; background: none; color: var(--muted); cursor: pointer; border-radius: 8px; display: grid; place-items: center; }
   .ern-copy:hover { background: var(--accent-soft); color: var(--accent); }
-  .ern-water-bar b { background: var(--accent2); }
+  .ern-glasses { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; }
+  .ern-glasses b { height: 8px; border-radius: 2px; background: var(--surface3); transition: background .2s ease; }
+  .ern-glasses b.on { background: var(--accent2); }
+  .ern-glasses-caption { font-size: 12px; color: var(--muted); margin-top: 8px; font-variant-numeric: tabular-nums; }
   .ern-water-btns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
   .ern-water-btns .btn { padding: 0 8px; }
   .food-own-btn { margin-top: 8px; }
   .food-hit-row { display: flex; align-items: center; gap: 4px; }
   .food-hit-row .food-hit { flex: 1; min-width: 0; }
   .food-hit-row .icon-btn { width: 40px; height: 40px; }
-  .ern-fast-time { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  #trackerFast { container-type: inline-size; }
+  .ern-fast-run { display: flex; align-items: center; gap: 20px; }
+  .ern-ring { position: relative; width: 132px; height: 132px; flex-shrink: 0; }
+  .ern-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ern-ring circle { fill: none; stroke-width: 10; }
+  .ern-ring .track { stroke: var(--surface3); }
+  .ern-ring .val { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset .4s ease; }
+  .ern-ring.done .val { stroke: var(--green); }
+  .ern-ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ern-ring-label b { font-size: 26px; font-weight: 600; letter-spacing: -.6px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .ern-ring-label span { font-size: 12px; color: var(--muted); }
+  .ern-fast-run .ern-fast-meta { margin-top: 0; font-size: 14px; color: var(--text-2); }
   .ern-fast-meta { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
-  .ern-fast-goals { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-  .ern-chip { min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-2); font: inherit; font-size: 14px; cursor: pointer; font-variant-numeric: tabular-nums; }
+  .ern-fast-goals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 16px; }
+  @container (min-width: 420px) { .ern-fast-goals { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+  .ern-chip { min-height: 40px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-2); font: inherit; font-size: 14px; cursor: pointer; font-variant-numeric: tabular-nums; }
   .ern-chip.on { background: var(--accent-soft); color: var(--accent); border-color: transparent; font-weight: 600; }
   .ern-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
   .ern-row .form-group { flex: 1; min-width: 160px; margin-bottom: 0; }
   .ern-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
   .ern-history { list-style: none; margin: 16px 0 0; padding: 0; font-size: 14px; }
+  .ern-history-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin: 20px 0 4px; }
+  .ern-history-title + .ern-history { margin-top: 0; }
   .ern-history li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--border); }
-  .ern-history li > span:first-child { flex: 1; min-width: 0; color: var(--text-2); }
+  .ern-history li > span:first-child { flex: 1; min-width: 0; color: var(--text-2); font-variant-numeric: tabular-nums; }
   .ern-history b { font-weight: 600; font-variant-numeric: tabular-nums; }
   .ern-history .icon-btn { width: 36px; height: 36px; }
   .ern-weight-now { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -608,7 +680,7 @@
   .food-hit small { display: block; color: var(--muted); font-size: 12px; }
   .food-hit-kcal { color: var(--text-2); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .food-status { font-size: 12px; color: var(--muted); padding: 8px 0; }
-  @media (max-width: 640px) { .ern-meals { padding: 4px 16px; } }
+  @media (max-width: 640px) { .ern-meals { padding: 4px 16px; } .ern-items { margin-left: 0; } .ern-wide { display: none; } .ern-macro { padding: 8px 10px; } .ern-macros { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ern-meal-bar { margin-left: 0; } .ern-ring { width: 112px; height: 112px; } .ern-ring-label b { font-size: 22px; } }
 
   /* Trend-Badges für Trainingsanalyse */
   .trend-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
@@ -646,6 +718,7 @@
   .zutat-editor { max-height: 260px; overflow-y: auto; padding-right: 2px; }
   .macro-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .macro-inputs .form-group { margin-bottom: 0; }
+  .macro-inputs.five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .macro-inputs .form-label { font-size: 12px; margin-bottom: 4px; }
   .modal.modal-wide { width: 580px; }
 
@@ -744,7 +817,7 @@
     /* Rezeptbuch */
     .search-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     .rezept-grid { grid-template-columns: 1fr; gap: 12px; }
-    .macro-inputs { grid-template-columns: 1fr 1fr; }
+    .macro-inputs, .macro-inputs.five { grid-template-columns: 1fr 1fr; }
     .zutat-row { grid-template-columns: 1fr 84px 36px; }
 
     /* Charts etwas flacher */
@@ -812,6 +885,7 @@
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M21 4h-7"/><path d="M10 4H3"/><path d="M21 12h-9"/><path d="M8 12H3"/><path d="M21 20h-5"/><path d="M12 20H3"/><path d="M14 2v4"/><path d="M8 10v4"/><path d="M16 18v4"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"/></symbol>
   <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5S5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
   <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></symbol>
@@ -1344,7 +1418,7 @@
 
     <div class="form-group">
       <label class="form-label" style="margin-bottom:8px">Nährwerte der Mahlzeit</label>
-      <div class="macro-inputs">
+      <div class="macro-inputs five">
         <div class="form-group">
           <label class="form-label">kcal</label>
           <input type="number" min="0" step="1" class="form-input" id="rezeptKcal" placeholder="420">
@@ -1360,6 +1434,10 @@
         <div class="form-group">
           <label class="form-label">KH (g)</label>
           <input type="number" min="0" step="0.1" class="form-input" id="rezeptKh" placeholder="55">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="rezeptBallast">Ballaststoffe (g)</label>
+          <input type="number" min="0" step="0.1" class="form-input" id="rezeptBallast" placeholder="9">
         </div>
       </div>
     </div>
@@ -1403,7 +1481,7 @@
       <div class="form-hint" id="foodPer"></div>
     </div>
     <div class="form-group">
-      <div class="macro-inputs">
+      <div class="macro-inputs five">
         <div class="form-group">
           <label class="form-label" for="foodKcal">kcal</label>
           <input type="number" min="0" step="1" class="form-input" id="foodKcal" placeholder="250">
@@ -1420,6 +1498,10 @@
           <label class="form-label" for="foodKh">KH (g)</label>
           <input type="number" min="0" step="0.1" class="form-input" id="foodKh" placeholder="–">
         </div>
+        <div class="form-group">
+          <label class="form-label" for="foodBallast">Ballaststoffe (g)</label>
+          <input type="number" min="0" step="0.1" class="form-input" id="foodBallast" placeholder="–">
+        </div>
       </div>
     </div>
     <div class="modal-actions">
@@ -1429,19 +1511,43 @@
   </div>
 </div>
 
+<!-- Ernährung → Tracker: Ernährungsprofil (Ziele per Schieberegler) -->
 <div class="modal-overlay" id="ernGoalModal">
-  <div class="modal">
-    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-flame"/></svg></span>Tagesziele</div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label" for="ernGoalInput">Kalorien (kcal)</label>
-        <input type="number" min="500" step="50" class="form-input" id="ernGoalInput">
+  <div class="modal modal-wide">
+    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-sliders"/></svg></span>Ernährungsprofil</div>
+    <section class="prof-sec">
+      <div class="prof-row">
+        <label class="prof-label" for="profKcal">Kalorienziel pro Tag</label>
+        <output class="prof-out" id="profKcalOut" for="profKcal"></output>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="ernWaterGoalInput">Wasser (Liter)</label>
-        <input type="number" min="0.5" max="6" step="0.25" class="form-input" id="ernWaterGoalInput">
+      <input type="range" class="prof-range" id="profKcal" min="1200" max="4000" step="50" oninput="profInput()">
+    </section>
+    <section class="prof-sec">
+      <div class="prof-head">Verteilung auf die Mahlzeiten</div>
+      <div class="form-hint">Verschiebst du einen Regler, gleichen sich die anderen an – zusammen immer 100 %.</div>
+      <div id="profMeals"></div>
+    </section>
+    <section class="prof-sec">
+      <div class="prof-head">Makronährstoffe</div>
+      <div class="prof-presets" id="profPresets"></div>
+      <div id="profMacros"></div>
+    </section>
+    <section class="prof-sec">
+      <div class="prof-row">
+        <label class="prof-label" for="profBallast">Ballaststoffe pro Tag</label>
+        <output class="prof-out" id="profBallastOut" for="profBallast"></output>
       </div>
-    </div>
+      <input type="range" class="prof-range" id="profBallast" min="20" max="70" step="1" oninput="profInput()" style="--c:var(--accent)">
+      <div class="form-hint">Die DGE empfiehlt mindestens 30 g. Große Auswertungen (u. a. Lancet 2019) zeigen: Je mehr Ballaststoffe, desto geringer das Sterbe-, Herz-Kreislauf- und Darmkrebsrisiko – auch über 30 g hinaus. Für Longevity sind 40 g und mehr ein gutes Ziel, steigere langsam und trink genug.</div>
+    </section>
+    <section class="prof-sec">
+      <div class="prof-row">
+        <label class="prof-label" for="profWater">Wasser pro Tag</label>
+        <output class="prof-out" id="profWaterOut" for="profWater"></output>
+      </div>
+      <input type="range" class="prof-range" id="profWater" min="1" max="5" step="0.25" oninput="profInput()" style="--c:var(--accent2)">
+    </section>
+    <label class="prof-check"><input type="checkbox" id="profAutoDD"><span>Einträge automatisch im Daily Dozen und in den 21 Optimierungen abhaken<small>z. B. Linsen → Hülsenfrüchte, Apfel → Obst, Essig → „Essig hinzufügen“. Löschst du den Eintrag, wird das Häkchen wieder entfernt.</small></span></label>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('ernGoalModal')">Abbrechen</button>
       <button class="btn btn-primary" onclick="saveErnGoal()">Speichern</button>
@@ -1467,7 +1573,7 @@
       </div>
     </div>
     <div class="form-group">
-      <div class="macro-inputs">
+      <div class="macro-inputs five">
         <div class="form-group">
           <label class="form-label" for="ownFoodKcal">kcal</label>
           <input type="number" min="0" step="1" class="form-input" id="ownFoodKcal" placeholder="120">
@@ -1483,6 +1589,10 @@
         <div class="form-group">
           <label class="form-label" for="ownFoodKh">KH (g)</label>
           <input type="number" min="0" step="0.1" class="form-input" id="ownFoodKh" placeholder="–">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ownFoodBallast">Ballaststoffe (g)</label>
+          <input type="number" min="0" step="0.1" class="form-input" id="ownFoodBallast" placeholder="–">
         </div>
       </div>
     </div>
@@ -2577,7 +2687,9 @@ function renderDD(kind) {
 // ern_fasts:  [{ id, start, end?, goal }] – Zeiten als ISO-String, ohne end läuft das Fasten gerade
 // ern_goal:   Kalorien-Tagesziel
 // ern_water:  { 'YYYY-MM-DD': ml }, Ziel in ern_water_goal (ml)
-// ern_foods:  eigene Lebensmittel [{ id, name, unit: 'g'|'ml', kcal, protein?, fett?, kh?, portion? }] – Werte je 100 g/ml
+// ern_foods:  eigene Lebensmittel [{ id, name, unit: 'g'|'ml', kcal, protein?, fett?, kh?, ballast?, portion? }] – Werte je 100 g/ml
+// ern_profile: { meals: { fruehstueck: %, … }, macros: { protein: %, fett: %, kh: % }, ballast: g, autoDD: bool }
+//             Einträge merken sich in `dd`, was sie im Daily Dozen / den 21 Optimierungen abgehakt haben
 const ERN_MEALS = [
   { k: 'fruehstueck', n: 'Frühstück', icon: 'i-sunrise' },
   { k: 'mittag', n: 'Mittagessen', icon: 'i-sun' },
@@ -2585,6 +2697,17 @@ const ERN_MEALS = [
   { k: 'snack', n: 'Snacks', icon: 'i-leaf' },
 ];
 const ERN_MACROS = [['protein', 'Protein'], ['fett', 'Fett'], ['kh', 'KH']];
+const ERN_MACRO_KCAL = { protein: 4, fett: 9, kh: 4 };
+const ERN_MACRO_COLOR = { protein: '--green', fett: '--yellow', kh: '--accent2', ballast: '--accent' };
+// Alle erfassten Nährwerte in Gramm: [Schlüssel, Name, Kurzname]
+const ERN_NUTRIENTS = [['protein', 'Protein', 'Protein'], ['fett', 'Fett', 'Fett'], ['kh', 'KH', 'KH'], ['ballast', 'Ballaststoffe', 'Ballast']];
+const ERN_PROFILE_DEFAULT = { meals: { fruehstueck: 25, mittag: 35, abend: 30, snack: 10 }, macros: { protein: 20, fett: 30, kh: 50 }, ballast: 40, autoDD: true };
+const ernProfile = () => {
+  const p = DB.get('ern_profile', {}) || {};
+  return { ...ERN_PROFILE_DEFAULT, ...p, meals: { ...ERN_PROFILE_DEFAULT.meals, ...(p.meals || {}) }, macros: { ...ERN_PROFILE_DEFAULT.macros, ...(p.macros || {}) } };
+};
+const ernMealGoal = meal => Math.round(ernGoal() * (ernProfile().meals[meal] || 0) / 100);
+const ernMacroGoal = k => Math.round(ernGoal() * ernProfile().macros[k] / 100 / ERN_MACRO_KCAL[k]);
 const FAST_GOALS = [12, 14, 16, 18, 20, 24];
 const ernGoal = () => Number(DB.get('ern_goal', KCAL_GOAL)) || KCAL_GOAL;
 const ernWaterGoal = () => Number(DB.get('ern_water_goal', 2500)) || 2500;
@@ -2597,6 +2720,12 @@ const ernSum = (list, key) => list.reduce((s, e) => s + (Number(e[key]) || 0), 0
 const ernFastHours = f => ((f.end ? new Date(f.end) : new Date()) - new Date(f.start)) / 3600000;
 const ernHM = h => { const m = Math.max(0, Math.floor(h * 60)); return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
 const ernTime = iso => new Date(iso).toLocaleString('de-DE', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+// Zeitraum kompakt: Wochentag nur wiederholen, wenn das Ende auf einen anderen Tag fällt
+const ernSpan = (a, b) => {
+  const s = new Date(a), e = new Date(b), hm = d => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  const wd = d => d.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', '');
+  return `${wd(s)} ${hm(s)} – ${ddLocalKey(s) === ddLocalKey(e) ? '' : wd(e) + ' '}${hm(e)}`;
+};
 // datetime-local braucht lokale Zeit ohne Zeitzone
 const ernLocalInput = d => ddLocalKey(d) + 'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
 let ernView = ddToday();
@@ -2630,29 +2759,53 @@ function renderTracker() {
 }
 
 function renderTrackerDay() {
-  const tk = ddToday(), list = ernDay(ernView), goal = ernGoal();
+  const tk = ddToday(), list = ernDay(ernView), goal = ernGoal(), prof = ernProfile();
   const kcal = Math.round(ernSum(list, 'kcal')), left = goal - kcal;
   const label = new Date(ernView + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
-  const macros = ERN_MACROS.map(([k, n]) => `<span class="macro ${k}"><span>${n}</span>${fmtNum(ernSum(list, k))} g</span>`).join('');
+  // Makros: gegessen vs. Ziel in Gramm (aus Kalorienziel und Verteilung), dazu der tatsächliche Energieanteil
+  const mg = Object.fromEntries(ERN_MACROS.map(([k]) => [k, ernSum(list, k)]));
+  const mk = Object.fromEntries(ERN_MACROS.map(([k]) => [k, mg[k] * ERN_MACRO_KCAL[k]]));
+  const mTotal = Object.values(mk).reduce((a, b) => a + b, 0);
+  const pct = k => mTotal ? Math.round(mk[k] / mTotal * 100) : 0;
+  const tile = (k, n, val, target, note, noteCls, over) => `<div class="ern-macro" style="--c:var(${ERN_MACRO_COLOR[k]})" aria-label="${n}: ${fmtNum(val)} von ${target} g">
+      <span class="ern-macro-label">${n}</span>
+      <span class="ern-macro-val">${fmtNum(val)}<span class="ern-of"> / ${target} g</span></span>
+      <span class="ern-macro-pct ${noteCls}">${note}</span>
+      <span class="ern-macro-bar${over ? ' over' : ''}" aria-hidden="true"><b style="width:${Math.min(100, target ? val / target * 100 : 0)}%"></b></span>
+    </div>`;
+  const macros = ERN_MACROS.map(([k, n]) => {
+    const target = ernMacroGoal(k), over = k !== 'protein' && mg[k] > target * 1.05;
+    return tile(k, n, mg[k], target, mTotal ? `${pct(k)} %<span class="ern-wide"> Energie</span> · Ziel ${prof.macros[k]} %` : `Ziel ${prof.macros[k]} %<span class="ern-wide"> der Energie</span>`, '', over);
+  }).join('') + (() => {
+    const v = ernSum(list, 'ballast'), t = prof.ballast;
+    return tile('ballast', 'Ballaststoffe', v, t, v >= t ? 'Ziel erreicht' : `noch ${fmtNum(Math.round((t - v) * 10) / 10)} g`, v >= t ? 'good' : '', false);
+  })();
   const meals = ERN_MEALS.map(m => {
     const items = list.filter(e => e.meal === m.k);
+    const mKcal = Math.round(ernSum(items, 'kcal')), mGoal = ernMealGoal(m.k);
+    // Rückmeldung je Mahlzeit: bis 10 % drüber gelb, darüber rot
+    const state = !mGoal || mKcal <= mGoal ? '' : mKcal <= mGoal * 1.1 ? 'warn' : 'over';
+    const status = !items.length ? (mGoal ? `Ziel ${mGoal.toLocaleString('de-DE')} kcal` : 'Noch nichts eingetragen')
+      : !mGoal ? `${items.length} ${items.length === 1 ? 'Eintrag' : 'Einträge'}`
+      : mKcal <= mGoal ? `noch ${(mGoal - mKcal).toLocaleString('de-DE')} kcal` : `${(mKcal - mGoal).toLocaleString('de-DE')} kcal über Ziel`;
     const rows = items.map(e => {
-      const sub = [e.amount ? `${fmtNum(e.amount)} ${e.unit === 'g' || e.unit === 'ml' ? e.unit : (e.amount == 1 ? 'Portion' : 'Portionen')}` : '', ...ERN_MACROS.filter(([k]) => e[k]).map(([k, n]) => `${n} ${fmtNum(e[k])} g`)].filter(Boolean).join(' · ');
+      const sub = [e.amount ? `${fmtNum(e.amount)} ${e.unit === 'g' || e.unit === 'ml' ? e.unit : (e.amount == 1 ? 'Portion' : 'Portionen')}` : '', ...ERN_NUTRIENTS.filter(([k]) => e[k]).map(([k, , short]) => `${short} ${fmtNum(e[k])} g`)].filter(Boolean).join(' · ');
+      const dd = e.dd && Object.keys(e.dd).length ? `<span class="ern-item-dd"><svg class="i"><use href="#i-check"/></svg>${escHtml(ernDDText(e.dd, false))}</span>` : '';
       return `<div class="ern-item">
         <button type="button" class="ern-item-main" onclick="openFoodModal('${m.k}','${e.id}')" aria-label="${escAttr(e.name)} bearbeiten">
-          <span class="ern-item-text"><span class="ern-item-name">${escHtml(e.name)}</span>${sub ? `<span class="ern-item-sub">${sub}</span>` : ''}</span>
+          <span class="ern-item-text"><span class="ern-item-name">${escHtml(e.name)}</span>${sub ? `<span class="ern-item-sub">${sub}</span>` : ''}${dd}</span>
           <span class="ern-kcal">${Math.round(e.kcal).toLocaleString('de-DE')} kcal</span>
         </button>
         <button type="button" class="icon-btn" aria-label="${escAttr(e.name)} löschen" onclick="deleteFood('${e.id}')"><svg class="i"><use href="#i-trash"/></svg></button>
       </div>`;
     }).join('');
-    return `<div class="ern-meal">
+    return `<div class="ern-meal${items.length ? ' has' : ''}">
       <div class="ern-meal-head">
-        <span class="ern-meal-name"><svg class="i"><use href="#${m.icon}"/></svg>${m.n}</span>
-        ${items.length ? `<span class="ern-kcal">${Math.round(ernSum(items, 'kcal')).toLocaleString('de-DE')} kcal</span>
+        <span class="ern-meal-name"><span class="ern-meal-ico"><svg class="i"><use href="#${m.icon}"/></svg></span><span class="ern-meal-title">${m.n}<small class="${state}">${status}</small></span></span>
+        ${items.length ? `<span class="ern-kcal">${mKcal.toLocaleString('de-DE')}${mGoal ? `<span class="ern-of"> / ${mGoal.toLocaleString('de-DE')}</span>` : ''} kcal</span>
         <button type="button" class="ern-copy" aria-label="${m.n} kopieren" title="Auf einen anderen Tag kopieren" onclick="openCopyMeal('${m.k}')"><svg class="i"><use href="#i-copy"/></svg></button>` : ''}
         <button type="button" class="ern-add" style="${items.length ? 'margin-left:-8px' : ''}" aria-label="${m.n}: Essen eintragen" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg></button>
-      </div>${rows}</div>`;
+      </div>${items.length && mGoal ? `<div class="ern-meal-bar ${state}" role="progressbar" aria-label="${m.n}: ${mKcal} von ${mGoal} kcal" aria-valuemin="0" aria-valuemax="${mGoal}" aria-valuenow="${mKcal}"><b style="width:${Math.min(100, mKcal / mGoal * 100)}%"></b></div>` : ''}${rows ? `<div class="ern-items">${rows}</div>` : ''}</div>`;
   }).join('');
   document.getElementById('trackerDay').innerHTML = `
     <div class="card dd-head">
@@ -2665,7 +2818,10 @@ function renderTrackerDay() {
         <span class="dd-num">${kcal.toLocaleString('de-DE')}</span>
         <span class="dd-of">von <button type="button" class="ern-sum-goal" onclick="openErnGoal()" aria-label="Kalorienziel ändern, aktuell ${goal} kcal">${goal.toLocaleString('de-DE')} kcal</button></span>
         <span class="${left >= 0 ? 'rating-good' : 'rating-bad'}">${left >= 0 ? `noch ${left.toLocaleString('de-DE')}` : `${(-left).toLocaleString('de-DE')} über Ziel`}</span>
-        ${ernView !== tk ? `<button type="button" class="btn btn-secondary btn-sm" onclick="ernGo(0)">Heute anzeigen</button>` : `<button type="button" class="btn btn-primary btn-sm" onclick="openFoodModal()"><svg class="i"><use href="#i-plus"/></svg>Essen eintragen</button>`}
+        <span class="ern-head-actions">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="openErnGoal()"><svg class="i"><use href="#i-sliders"/></svg>Profil</button>
+          ${ernView !== tk ? `<button type="button" class="btn btn-secondary btn-sm" onclick="ernGo(0)">Heute anzeigen</button>` : `<button type="button" class="btn btn-primary btn-sm" onclick="openFoodModal()"><svg class="i"><use href="#i-plus"/></svg>Essen eintragen</button>`}
+        </span>
       </div>
       <div class="dd-progress${left < 0 ? ' over' : ''}" role="progressbar" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${kcal}"><b style="width:${Math.min(100, Math.round(kcal / goal * 100))}%"></b></div>
       <div class="ern-macros">${macros}</div>
@@ -2681,32 +2837,135 @@ function ernGo(n) {
   renderWeightCard();
 }
 
-// ---- Kalorienziel ----
+// ---- Ernährungsprofil: Kalorienziel, Verteilung auf Mahlzeiten und Makros, Ballaststoffe, Wasser ----
+const ERN_MACRO_PRESETS = [
+  { n: 'Longevity', v: { protein: 15, fett: 30, kh: 55 } },
+  { n: 'Ausgewogen', v: { protein: 20, fett: 30, kh: 50 } },
+  { n: 'Proteinbetont', v: { protein: 30, fett: 30, kh: 40 } },
+];
+let profDraft = null;
+// Einen Regler setzen und die übrigen anteilig angleichen, sodass die Summe 100 % bleibt
+function profRebalance(vals, key, v) {
+  const others = Object.keys(vals).filter(k => k !== key);
+  v = Math.max(0, Math.min(100, Math.round(v)));
+  const rest = 100 - v, cur = others.reduce((a, k) => a + vals[k], 0);
+  const out = { ...vals, [key]: v };
+  let given = 0;
+  others.forEach((k, i) => {
+    out[k] = i === others.length - 1 ? rest - given : Math.round(cur ? vals[k] / cur * rest : rest / others.length);
+    given += out[k];
+  });
+  // Rundungsrest darf nicht negativ werden
+  if(out[others[others.length - 1]] < 0) { const k = others.reduce((a, b) => out[a] >= out[b] ? a : b); out[k] += out[others[others.length - 1]]; out[others[others.length - 1]] = 0; }
+  return out;
+}
+function profSlider(group, k, n, v, color, extra) {
+  return `<div class="prof-sub" style="--c:${color}">
+    <div class="prof-row"><label class="prof-label" for="prof_${group}_${k}">${n}</label><output class="prof-out" id="prof_${group}_${k}_out"><b>${v} %</b> · ${extra}</output></div>
+    <input type="range" class="prof-range" id="prof_${group}_${k}" min="0" max="100" step="1" value="${v}" oninput="profSet('${group}','${k}',this.value)">
+  </div>`;
+}
+function renderProf() {
+  const d = profDraft;
+  // Füllstand der Regler-Spur (WebKit kennt kein ::range-progress)
+  setTimeout(() => document.querySelectorAll('#ernGoalModal .prof-range').forEach(r => r.style.setProperty('--p', ((r.value - r.min) / (r.max - r.min) * 100) + '%')));
+  document.getElementById('profKcalOut').innerHTML = `<b>${d.kcal.toLocaleString('de-DE')} kcal</b>`;
+  document.getElementById('profBallastOut').innerHTML = `<b>${d.ballast} g</b>`;
+  document.getElementById('profWaterOut').innerHTML = `<b>${fmtL(d.water)}</b>`;
+  ERN_MEALS.forEach(m => { const el = document.getElementById(`prof_meals_${m.k}`); if(el) { el.value = d.meals[m.k]; document.getElementById(`prof_meals_${m.k}_out`).innerHTML = `<b>${d.meals[m.k]} %</b> · ${Math.round(d.kcal * d.meals[m.k] / 100).toLocaleString('de-DE')} kcal`; } });
+  ERN_MACROS.forEach(([k]) => { const el = document.getElementById(`prof_macros_${k}`); if(el) { el.value = d.macros[k]; document.getElementById(`prof_macros_${k}_out`).innerHTML = `<b>${d.macros[k]} %</b> · ${Math.round(d.kcal * d.macros[k] / 100 / ERN_MACRO_KCAL[k])} g`; } });
+  document.getElementById('profPresets').innerHTML = ERN_MACRO_PRESETS.map((p, i) => { const on = ERN_MACROS.every(([k]) => p.v[k] === d.macros[k]);
+    return `<button type="button" class="ern-chip${on ? ' on' : ''}" aria-pressed="${on}" onclick="profPreset(${i})">${p.n} <span style="opacity:.7">${p.v.protein}/${p.v.fett}/${p.v.kh}</span></button>`; }).join('');
+}
+function profSet(group, k, v) { profDraft[group] = profRebalance(profDraft[group], k, +v); renderProf(); }
+function profPreset(i) { profDraft.macros = { ...ERN_MACRO_PRESETS[i].v }; renderProf(); }
+function profInput() {
+  profDraft.kcal = +document.getElementById('profKcal').value;
+  profDraft.ballast = +document.getElementById('profBallast').value;
+  profDraft.water = Math.round(+document.getElementById('profWater').value * 1000);
+  renderProf();
+}
 function openErnGoal(focus) {
-  document.getElementById('ernGoalInput').value = ernGoal();
-  document.getElementById('ernWaterGoalInput').value = ernWaterGoal() / 1000;
-  openModal('ernGoalModal', focus || 'ernGoalInput');
+  const p = ernProfile();
+  profDraft = { kcal: ernGoal(), water: ernWaterGoal(), ballast: p.ballast, meals: { ...p.meals }, macros: { ...p.macros } };
+  document.getElementById('profKcal').value = profDraft.kcal;
+  document.getElementById('profBallast').value = profDraft.ballast;
+  document.getElementById('profWater').value = profDraft.water / 1000;
+  document.getElementById('profAutoDD').checked = p.autoDD;
+  document.getElementById('profMeals').innerHTML = ERN_MEALS.map(m => profSlider('meals', m.k, m.n, p.meals[m.k], 'var(--accent)', '')).join('');
+  document.getElementById('profMacros').innerHTML = ERN_MACROS.map(([k, n]) => profSlider('macros', k, n, p.macros[k], `var(${ERN_MACRO_COLOR[k]})`, '')).join('');
+  renderProf();
+  openModal('ernGoalModal', focus === 'water' ? 'profWater' : 'profKcal');
 }
 function saveErnGoal() {
-  const v = parseInt(document.getElementById('ernGoalInput').value);
-  const w = Math.round(parseFloat(document.getElementById('ernWaterGoalInput').value) * 1000);
-  if(!(v >= 500)) { toast('Bitte ein Kalorienziel ab 500 kcal eingeben'); return; }
-  if(!(w >= 500 && w <= 6000)) { toast('Bitte ein Wasserziel zwischen 0,5 und 6 Litern eingeben'); return; }
-  DB.set('ern_goal', v);
-  DB.set('ern_water_goal', w);
+  const d = profDraft;
+  DB.set('ern_goal', d.kcal);
+  DB.set('ern_water_goal', d.water);
+  DB.set('ern_profile', { meals: d.meals, macros: d.macros, ballast: d.ballast, autoDD: document.getElementById('profAutoDD').checked });
   closeModal('ernGoalModal');
   syncKcalHabitFromNutrition();
   renderTracker();
-  toast('Tagesziele gespeichert ✓');
+  toast('Ernährungsprofil gespeichert ✓');
+}
+
+// ---- Automatisch abhaken: Einträge → Daily Dozen und 21 Optimierungen ----
+// Ergänzt DD_ZUTATEN um Getränke und Gewürze: [Schlüsselwort, Kategorie, Menge je Portion in g/ml (0 = ein Häkchen)]
+const ERN_DD_EXTRA = [
+  ['grüner tee', 't_tee', 250], ['grüntee', 't_tee', 250], ['matcha', 't_tee', 250],
+  ['tee', 'getraenke', 355], ['kaffee', 'getraenke', 355], ['espresso', 'getraenke', 0], ['mineralwasser', 'getraenke', 355],
+  ['essig', 't_essig', 0], ['hefeflocken', 't_hefe', 0], ['schwarzkümmel', 't_schwarzkuemmel', 0], ['knoblauch', 't_knoblauch', 0],
+  ['ingwer', 't_ingwer', 0], ['cayenne', 't_ingwer', 0], ['kreuzkümmel', 't_kreuzkuemmel', 0], ['vollkornmehl', 't_mehl', 0],
+];
+// Wörter, die einen Treffer aufheben (Bohnenkaffee ist keine Hülsenfrucht, Mandelmilch kaum Nüsse …)
+const ERN_DD_EXCLUDE = { bohnen: ['kaffee', 'espresso'], nuesse: ['milch', 'drink'], fruechte: ['saft', 'essig'], beeren: ['saft'], kreuz: ['kohlenhydrat'], getraenke: ['eistee'] };
+const ERN_DD_ITEMS = [...DD_GROUPS, ...DD_TWEAKS];
+const ERN_DD_SHORT_EXTRA = { getraenke: 'Getränke', t_tee: 'Grüner Tee', t_essig: 'Essig', t_hefe: 'Hefeflocken', t_schwarzkuemmel: 'Schwarzkümmel', t_knoblauch: 'Knoblauch', t_ingwer: 'Ingwer', t_kreuzkuemmel: 'Kreuzkümmel', t_mehl: 'Vollkornmehl' };
+const ernDDText = (map, plus = true) => Object.entries(map).map(([k, n]) => (DD_KURZ[k] || ERN_DD_SHORT_EXTRA[k] || k) + (plus || n > 1 ? ` ${plus ? '+' : '×'}${n}` : '')).join(', ');
+// Welche Portionen deckt ein Eintrag ab?
+function ernMatchDD(e) {
+  const out = {};
+  const r = e.rezeptId && DB.get('rezepte', []).find(x => x.id === e.rezeptId);
+  if(r) { Object.entries(rezeptDD(r)).forEach(([k, n]) => out[k] = n * (e.amount || 1)); }
+  else {
+    const n = e.name.toLowerCase();
+    [...ERN_DD_EXTRA, ...DD_ZUTATEN].forEach(([kw, k, por]) => {
+      if(out[k] != null || !n.includes(kw) || (ERN_DD_EXCLUDE[k] || []).some(x => n.includes(x))) return;
+      out[k] = !por ? 1 : (e.unit === 'g' || e.unit === 'ml') && e.amount ? e.amount / por : (e.unit === 'portion' && e.amount ? e.amount : 1);
+    });
+  }
+  const res = {};
+  Object.entries(out).forEach(([k, v]) => { if(v >= 0.5) res[k] = Math.max(1, Math.round(v)); });
+  return res;
+}
+// Portionen am Tag hinzufügen (sign 1) oder wieder abziehen (sign -1); liefert, was tatsächlich verändert wurde
+function ernApplyDD(day, map, sign = 1) {
+  const all = DB.get(DD_KEY, {}), cur = { ...(all[day] || {}) }, done = {};
+  Object.entries(map || {}).forEach(([k, n]) => {
+    const g = ERN_DD_ITEMS.find(x => x.k === k); if(!g) return;
+    const before = Math.min(Number(cur[k]) || 0, g.max), after = Math.max(0, Math.min(g.max, before + sign * n));
+    if(after !== before) { cur[k] = after; done[k] = Math.abs(after - before); }
+  });
+  if(Object.keys(done).length) { all[day] = cur; DB.set(DD_KEY, all); }
+  return done;
+}
+// Eintrag abhaken und merken, was er beigetragen hat (damit Löschen es exakt zurücknimmt)
+function ernTickEntry(day, e) {
+  delete e.dd;
+  const done = ernApplyDD(day, ernMatchDD(e));
+  if(Object.keys(done).length) e.dd = done;
+  return done;
 }
 
 // ---- Wasser ----
 function renderWaterCard() {
   const ml = DB.get('ern_water', {})[ernView] || 0, goal = ernWaterGoal();
+  // Ziel in Glas-Segmente teilen (à 250 ml, höchstens 12 Segmente)
+  const glasses = Math.min(12, Math.max(2, Math.round(goal / 250))), per = goal / glasses;
   const dayLabel = ernView === ddToday() ? 'heute' : new Date(ernView + 'T12:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
   document.getElementById('trackerWaterCard').innerHTML = `<div class="card-title"><svg class="i"><use href="#i-drop"/></svg>Wasser ${dayLabel}</div>
-    <div class="ern-weight-now"><span class="dd-num">${fmtL(ml)}</span><span class="dd-of">von <button type="button" class="ern-sum-goal" onclick="openErnGoal('ernWaterGoalInput')" aria-label="Wasserziel ändern, aktuell ${fmtL(goal)}">${fmtL(goal)}</button></span>${ml >= goal ? '<span class="rating-good">Ziel erreicht</span>' : ''}</div>
-    <div class="dd-progress ern-water-bar" role="progressbar" aria-label="Wasser" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${ml}"><b style="width:${Math.min(100, Math.round(ml / goal * 100))}%"></b></div>
+    <div class="ern-weight-now"><span class="dd-num">${fmtL(ml)}</span><span class="dd-of">von <button type="button" class="ern-sum-goal" onclick="openErnGoal('water')" aria-label="Wasserziel ändern, aktuell ${fmtL(goal)}">${fmtL(goal)}</button></span>${ml >= goal ? '<span class="rating-good">Ziel erreicht</span>' : ''}</div>
+    <div class="ern-glasses" style="--n:${glasses}" role="progressbar" aria-label="Wasser" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${ml}">${Array.from({ length: glasses }, (_, i) => `<b class="${ml >= (i + 1) * per - 1 ? 'on' : ''}"></b>`).join('')}</div>
+    <div class="ern-glasses-caption">${Math.floor(ml / 250)} ${Math.floor(ml / 250) === 1 ? 'Glas' : 'Gläser'} à 250 ml${ml < goal ? ` · noch ${fmtL(goal - ml)}` : ''}</div>
     <div class="ern-water-btns">
       <button type="button" class="btn btn-secondary" onclick="addWater(250)" aria-label="Glas, 250 ml hinzufügen" title="Glas">+ 250 ml</button>
       <button type="button" class="btn btn-secondary" onclick="addWater(500)" aria-label="Flasche, 500 ml hinzufügen" title="Flasche">+ 500 ml</button>
@@ -2718,6 +2977,11 @@ function addWater(delta) {
   const before = all[ernView] || 0, ml = Math.max(0, before + delta), goal = ernWaterGoal();
   if(ml) all[ernView] = ml; else delete all[ernView];
   DB.set('ern_water', all);
+  // Daily Dozen „Getränke“: je 355 ml eine Portion – nur auffüllen, nie zurücknehmen (Tee/Kaffee zählen auch dort)
+  if(ernProfile().autoDD && delta > 0) {
+    const g = DD_GROUPS.find(x => x.k === 'getraenke'), have = ddCount(ernView, g), want = Math.min(g.max, Math.floor(ml / 355));
+    if(want > have) ernApplyDD(ernView, { getraenke: want - have });
+  }
   // Ziel geschafft → in den 21 Optimierungen „Genug trinken“ abhaken (nur setzen, nie zurücknehmen)
   if(before < goal && ml >= goal) {
     const dd = DB.get(DD_KEY, {});
@@ -2750,6 +3014,8 @@ function copyMeal() {
   const log = DB.get('ern_log', {});
   const copies = (log[copyMealFrom.day] || []).filter(e => e.meal === copyMealFrom.meal)
     .map((e, i) => ({ ...e, id: Date.now().toString(36) + i + Math.random().toString(36).slice(2, 5), meal }));
+  const auto = ernProfile().autoDD;
+  copies.forEach(e => { if(auto) ernTickEntry(day, e); else delete e.dd; });
   log[day] = [...(log[day] || []), ...copies];
   DB.set('ern_log', log);
   closeModal('copyMealModal');
@@ -2762,7 +3028,7 @@ function copyMeal() {
 // ---- Eigene Lebensmittel ----
 const ownFoodBase = f => {
   const base = { per: 100, unit: f.unit, kcal: f.kcal, default: f.portion || 100 };
-  ERN_MACROS.forEach(([k]) => { if(f[k] != null) base[k] = f[k]; });
+  ERN_NUTRIENTS.forEach(([k]) => { if(f[k] != null) base[k] = f[k]; });
   return base;
 };
 function openOwnFood(id) {
@@ -2771,7 +3037,7 @@ function openOwnFood(id) {
   document.getElementById('ownFoodId').value = f?.id || '';
   document.getElementById('ownFoodName').value = f?.name || document.getElementById('foodSearch').value.trim() || document.getElementById('foodName').value.trim();
   document.getElementById('ownFoodUnit').value = f?.unit || 'g';
-  ['Kcal', 'Protein', 'Fett', 'Kh'].forEach(k => document.getElementById('ownFood' + k).value = f?.[k.toLowerCase()] ?? '');
+  ['Kcal', 'Protein', 'Fett', 'Kh', 'Ballast'].forEach(k => document.getElementById('ownFood' + k).value = f?.[k.toLowerCase()] ?? '');
   document.getElementById('ownFoodPortion').value = f?.portion ?? '';
   document.getElementById('ownFoodDelete').style.display = f ? '' : 'none';
   openModal('ownFoodModal', 'ownFoodName');
@@ -2782,7 +3048,7 @@ function saveOwnFood() {
   if(!name || kcal === '' || !(+kcal >= 0)) { toast('Bitte Name und kcal je 100 g/ml angeben'); return; }
   const id = document.getElementById('ownFoodId').value;
   const f = { id: id || 'f' + Date.now().toString(36), name, unit: document.getElementById('ownFoodUnit').value, kcal: Math.round(+kcal * 10) / 10 };
-  ERN_MACROS.forEach(([k, n]) => { const v = document.getElementById('ownFood' + (k === 'kh' ? 'Kh' : k[0].toUpperCase() + k.slice(1))).value; if(v !== '') f[k] = Math.round(+v * 10) / 10; });
+  ERN_NUTRIENTS.forEach(([k]) => { const v = document.getElementById('ownFood' + (k === 'kh' ? 'Kh' : k[0].toUpperCase() + k.slice(1))).value; if(v !== '') f[k] = Math.round(+v * 10) / 10; });
   const portion = parseFloat(document.getElementById('ownFoodPortion').value);
   if(portion > 0) f.portion = portion;
   const foods = DB.get('ern_foods', []);
@@ -2811,7 +3077,8 @@ async function deleteOwnFood() {
 let foodBase = null;      // gewählte Nährwerte je `per` Einheit
 let foodHits = [];        // aktuelle Trefferliste
 let foodSearchTimer = null, foodAbort = null;
-const FOOD_FIELDS = { kcal: 'foodKcal', protein: 'foodProtein', fett: 'foodFett', kh: 'foodKh' };
+const FOOD_FIELDS = { kcal: 'foodKcal', protein: 'foodProtein', fett: 'foodFett', kh: 'foodKh', ballast: 'foodBallast' };
+let foodRezeptId = null;  // gewähltes Rezept aus dem Rezeptbuch (für Daily-Dozen-Portionen)
 
 function openFoodModal(meal, id) {
   const e = id ? ernDay(ernView).find(x => x.id === id) : null;
@@ -2820,6 +3087,7 @@ function openFoodModal(meal, id) {
   document.getElementById('foodId').value = e ? e.id : '';
   document.getElementById('foodMeal').value = e?.meal || meal || (hour < 11 ? 'fruehstueck' : hour < 15 ? 'mittag' : hour < 18 ? 'snack' : 'abend');
   document.getElementById('foodName').value = e?.name || '';
+  foodRezeptId = e?.rezeptId || null;
   Object.entries(FOOD_FIELDS).forEach(([k, f]) => document.getElementById(f).value = e?.[k] ?? '');
   document.getElementById('foodSearch').value = '';
   setFoodBase(e?.base || null, e?.amount);
@@ -2834,7 +3102,7 @@ function setFoodBase(base, amount) {
   document.getElementById('foodAmountLabel').textContent = isG ? `Menge (${base.unit})` : 'Portionen';
   document.getElementById('foodAmount').step = isG ? '1' : '0.5';
   document.getElementById('foodAmount').value = amount ?? base.default ?? (isG ? 100 : 1);
-  document.getElementById('foodPer').textContent = `${fmtNum(base.kcal)} kcal${ERN_MACROS.filter(([k]) => base[k] != null).map(([k, n]) => ` · ${n} ${fmtNum(base[k])} g`).join('')} je ${ernPerLabel(base)}`;
+  document.getElementById('foodPer').textContent = `${fmtNum(base.kcal)} kcal${ERN_NUTRIENTS.filter(([k]) => base[k] != null).map(([k, , short]) => ` · ${short} ${fmtNum(base[k])} g`).join('')} je ${ernPerLabel(base)}`;
 }
 function foodRecalc() {
   if(!foodBase) return;
@@ -2849,6 +3117,7 @@ function pickFood(i) {
   if(!h) return;
   document.getElementById('foodName').value = h.name;
   if(h.meal) document.getElementById('foodMeal').value = h.meal;
+  foodRezeptId = h.rezeptId || null;
   Object.values(FOOD_FIELDS).forEach(id => document.getElementById(id).value = '');
   setFoodBase(h.base);
   foodRecalc();
@@ -2865,8 +3134,8 @@ function ernRecent() {
     const key = e.name.toLowerCase();
     if(seen.has(key)) return;
     seen.add(key);
-    const base = e.base || { per: 1, unit: 'portion', kcal: e.kcal, protein: e.protein, fett: e.fett, kh: e.kh, default: 1 };
-    out.push({ name: e.name, meal: e.meal, base: { ...base, default: e.amount ?? base.default } });
+    const base = e.base || { per: 1, unit: 'portion', kcal: e.kcal, protein: e.protein, fett: e.fett, kh: e.kh, ballast: e.ballast, default: 1 };
+    out.push({ name: e.name, meal: e.meal, rezeptId: e.rezeptId, base: { ...base, default: e.amount ?? base.default } });
   }));
   return out;
 }
@@ -2882,8 +3151,8 @@ function renderFoodResults(q, remote) {
   const ownNames = new Set(DB.get('ern_foods', []).map(f => f.name.toLowerCase()));
   const recent = ernRecent().filter(h => match(h.name) && !ownNames.has(h.name.toLowerCase())).slice(0, ql ? 6 : 8);
   const rezepte = ql ? DB.get('rezepte', []).filter(r => r.kcal && match(r.name)).slice(0, 6).map(r => ({
-    name: r.name, meal: ERN_MEALS.some(m => m.k === r.category) ? r.category : null, sub: 'Eigenes Rezept',
-    base: { per: 1, unit: 'portion', kcal: +r.kcal, protein: r.protein === '' ? null : +r.protein, fett: r.fett === '' ? null : +r.fett, kh: r.kh === '' ? null : +r.kh, default: 1 },
+    name: r.name, meal: ERN_MEALS.some(m => m.k === r.category) ? r.category : null, sub: 'Eigenes Rezept', rezeptId: r.id,
+    base: { per: 1, unit: 'portion', kcal: +r.kcal, ...Object.fromEntries(ERN_NUTRIENTS.map(([k]) => [k, r[k] === '' || r[k] == null ? null : +r[k]])), default: 1 },
   })) : [];
   foodHits = [...own, ...recent, ...rezepte, ...(remote?.hits || [])];
   let i = 0, html = '';
@@ -2925,7 +3194,7 @@ async function searchOFF(q) {
       const kcal = num(n['energy-kcal_100g'] ?? (n['energy_100g'] != null ? n['energy_100g'] / 4.184 : null));
       const name = (p.product_name_de || p.product_name || '').trim();
       if(!name || kcal == null) return null;
-      return { name, sub: (p.brands || '').split(',')[0].trim(), base: { per: 100, unit: 'g', kcal, protein: num(n.proteins_100g), fett: num(n.fat_100g), kh: num(n.carbohydrates_100g), default: num(p.serving_quantity) || 100 } };
+      return { name, sub: (p.brands || '').split(',')[0].trim(), base: { per: 100, unit: 'g', kcal, protein: num(n.proteins_100g), fett: num(n.fat_100g), kh: num(n.carbohydrates_100g), ballast: num(n.fiber_100g), default: num(p.serving_quantity) || 100 } };
     }).filter(Boolean).slice(0, 12);
     if(document.getElementById('foodSearch').value !== q) return;
     renderFoodResults(q, { hits, status: hits.length ? '' : 'Bei Open Food Facts nichts gefunden – trag die Werte einfach unten ein.' });
@@ -2940,14 +3209,21 @@ function saveFood() {
   if(!name || kcalRaw === '' || !(+kcalRaw >= 0)) { toast('Bitte Name und Kalorien angeben'); return; }
   const id = document.getElementById('foodId').value;
   const entry = { id: id || Date.now().toString(36) + Math.random().toString(36).slice(2, 6), meal: document.getElementById('foodMeal').value, name, kcal: Math.round(+kcalRaw) };
-  ERN_MACROS.forEach(([k]) => { const v = document.getElementById(FOOD_FIELDS[k]).value; if(v !== '') entry[k] = Math.round(+v * 10) / 10; });
+  ERN_NUTRIENTS.forEach(([k]) => { const v = document.getElementById(FOOD_FIELDS[k]).value; if(v !== '') entry[k] = Math.round(+v * 10) / 10; });
   if(foodBase) {
     const amount = parseFloat(document.getElementById('foodAmount').value);
     if(amount > 0) { entry.amount = amount; entry.unit = foodBase.unit; entry.base = foodBase; }
   }
+  if(foodRezeptId) entry.rezeptId = foodRezeptId;
   const log = DB.get('ern_log', {});
   const list = [...(log[ernView] || [])];
   const idx = list.findIndex(e => e.id === entry.id);
+  // Daily Dozen / 21 Optimierungen: alten Beitrag zurücknehmen, neuen abhaken
+  let ticked = {};
+  if(ernProfile().autoDD) {
+    if(idx >= 0 && list[idx].dd) ernApplyDD(ernView, list[idx].dd, -1);
+    ticked = ernTickEntry(ernView, entry);
+  } else if(idx >= 0 && list[idx].dd) entry.dd = list[idx].dd;
   if(idx >= 0) list[idx] = entry; else list.push(entry);
   log[ernView] = list;
   DB.set('ern_log', log);
@@ -2955,7 +3231,8 @@ function saveFood() {
   syncKcalHabitFromNutrition();
   renderTrackerDay();
   renderTrackerCharts();
-  toast(idx >= 0 ? 'Eintrag gespeichert ✓' : `${name} eingetragen ✓`);
+  const dd = Object.keys(ticked).length ? ` · Abgehakt: ${ernDDText(ticked)}` : '';
+  toast((idx >= 0 ? 'Eintrag gespeichert' : `${name} eingetragen`) + dd + ' ✓');
 }
 async function deleteFood(id) {
   const log = DB.get('ern_log', {});
@@ -2964,6 +3241,7 @@ async function deleteFood(id) {
   log[ernView] = log[ernView].filter(x => x.id !== id);
   if(!log[ernView].length) delete log[ernView];
   DB.set('ern_log', log);
+  if(e.dd) ernApplyDD(ernView, e.dd, -1);
   syncKcalHabitFromNutrition();
   renderTrackerDay();
   renderTrackerCharts();
@@ -2973,28 +3251,36 @@ async function deleteFood(id) {
 function logRezept(r) {
   const log = DB.get('ern_log', {}), day = ddToday();
   const base = { per: 1, unit: 'portion', kcal: +r.kcal, default: 1 };
-  ERN_MACROS.forEach(([k]) => { if(r[k] !== '' && r[k] != null) base[k] = +r[k]; });
-  const entry = { id: Date.now().toString(36), meal: ERN_MEALS.some(m => m.k === r.category) ? r.category : 'snack', name: r.name, kcal: Math.round(base.kcal), amount: 1, unit: 'portion', base };
-  ERN_MACROS.forEach(([k]) => { if(base[k] != null) entry[k] = base[k]; });
+  ERN_NUTRIENTS.forEach(([k]) => { if(r[k] !== '' && r[k] != null) base[k] = +r[k]; });
+  const entry = { id: Date.now().toString(36), meal: ERN_MEALS.some(m => m.k === r.category) ? r.category : 'snack', name: r.name, kcal: Math.round(base.kcal), amount: 1, unit: 'portion', base, rezeptId: r.id };
+  ERN_NUTRIENTS.forEach(([k]) => { if(base[k] != null) entry[k] = base[k]; });
+  ernTickEntry(day, entry);  // „Gegessen“ im Rezeptbuch hakt immer ab
   log[day] = [...(log[day] || []), entry];
   DB.set('ern_log', log);
   syncKcalHabitFromNutrition();
+  return entry;
 }
 
 // ---- Fasten ----
 const ernActiveFast = () => DB.get('ern_fasts', []).find(f => !f.end);
+const ERN_RING_R = 54, ERN_RING_C = +(2 * Math.PI * ERN_RING_R).toFixed(2);
+const ernRingOffset = p => (ERN_RING_C * (1 - Math.min(1, Math.max(0, p)))).toFixed(2);
 function renderFast() {
   const el = document.getElementById('trackerFast');
   const active = ernActiveFast();
   const done = DB.get('ern_fasts', []).filter(f => f.end).slice(-5).reverse();
-  const history = done.length ? `<ul class="ern-history">${done.map(f => { const h = ernFastHours(f), ok = h >= f.goal;
-    return `<li><span>${ernTime(f.start)} – ${ernTime(f.end)}</span><b>${ernHM(h)} h</b><span class="${ok ? 'rating-good' : 'rating-warn'}">${ok ? 'Ziel' : `von ${f.goal} h`}</span><button type="button" class="icon-btn" aria-label="Fasten vom ${ernTime(f.start)} löschen" onclick="deleteFast('${f.id}')"><svg class="i"><use href="#i-trash"/></svg></button></li>`; }).join('')}</ul>` : '';
+  const history = done.length ? `<div class="ern-history-title">Letzte Fastenzeiten</div><ul class="ern-history">${done.map(f => { const h = ernFastHours(f), ok = h >= f.goal;
+    return `<li><span>${ernSpan(f.start, f.end)}</span><b>${ernHM(h)} h</b><span class="${ok ? 'rating-good' : 'rating-warn'}">${ok ? 'Ziel' : `von ${f.goal} h`}</span><button type="button" class="icon-btn" aria-label="Fasten vom ${ernTime(f.start)} löschen" onclick="deleteFast('${f.id}')"><svg class="i"><use href="#i-trash"/></svg></button></li>`; }).join('')}</ul>` : '';
   if(active) {
     const h = ernFastHours(active), endAt = new Date(new Date(active.start).getTime() + active.goal * 3600000);
     el.innerHTML = `<div class="card-title"><svg class="i"><use href="#i-timer"/></svg>Fasten läuft</div>
-      <div class="ern-fast-time"><span class="dd-num" id="fastElapsed">${ernHM(h)}</span><span class="dd-of">von ${active.goal} h</span></div>
-      <div class="dd-progress" role="progressbar" aria-label="Fastenfortschritt" aria-valuemin="0" aria-valuemax="${active.goal}" aria-valuenow="${Math.floor(h)}"><b id="fastBar" style="width:${Math.min(100, h / active.goal * 100).toFixed(1)}%"></b></div>
-      <div class="ern-fast-meta" id="fastMeta">${h >= active.goal ? 'Ziel erreicht – du kannst das Fasten beenden, wann du willst.' : `Ziel erreicht ${ernTime(endAt.toISOString())} Uhr`}</div>
+      <div class="ern-fast-run">
+        <div class="ern-ring${h >= active.goal ? ' done' : ''}" id="fastRing" role="progressbar" aria-label="Fastenfortschritt" aria-valuemin="0" aria-valuemax="${active.goal}" aria-valuenow="${Math.floor(h)}">
+          <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="${ERN_RING_R}"/><circle class="val" id="fastBar" cx="60" cy="60" r="${ERN_RING_R}" stroke-dasharray="${ERN_RING_C}" stroke-dashoffset="${ernRingOffset(h / active.goal)}"/></svg>
+          <div class="ern-ring-label"><b id="fastElapsed">${ernHM(h)}</b><span>von ${active.goal} h</span></div>
+        </div>
+        <div class="ern-fast-meta" id="fastMeta">${h >= active.goal ? 'Ziel erreicht – du kannst das Fasten beenden, wann du willst.' : `Ziel erreicht ${ernTime(endAt.toISOString())} Uhr`}</div>
+      </div>
       <div class="ern-row" style="margin-top:12px">
         <div class="form-group"><label class="form-label" for="fastStart">Beginn</label><input type="datetime-local" class="form-input" id="fastStart" value="${ernLocalInput(new Date(active.start))}" max="${ernLocalInput(new Date())}" onchange="setFastStart(this.value)"></div>
       </div>
@@ -3056,8 +3342,9 @@ setInterval(() => {
   if(!active || !el || !document.getElementById('ernaehrung-tracker').offsetParent) return;
   const h = ernFastHours(active);
   el.textContent = ernHM(h);
-  document.getElementById('fastBar').style.width = Math.min(100, h / active.goal * 100).toFixed(1) + '%';
-  if(h >= active.goal) document.getElementById('fastMeta').textContent = 'Ziel erreicht – du kannst das Fasten beenden, wann du willst.';
+  document.getElementById('fastBar').setAttribute('stroke-dashoffset', ernRingOffset(h / active.goal));
+  document.getElementById('fastRing').setAttribute('aria-valuenow', Math.floor(h));
+  if(h >= active.goal) { document.getElementById('fastRing').classList.add('done'); document.getElementById('fastMeta').textContent = 'Ziel erreicht – du kannst das Fasten beenden, wann du willst.'; }
 }, 30000);
 
 // ---- Gewicht ----
@@ -3553,7 +3840,7 @@ function renderTrackerCharts() {
   charts.nk = new Chart(document.getElementById('chartNutritionKcal'), {
     type:'bar',
     data:{ labels: kcalData.map(d=>fmtDate(d.date)), datasets:[
-      { label:'Kalorien', data:kcalData.map(d=>d.kcal), backgroundColor:kcalData.map(d=>d.kcal>goalOf(d) ? 'rgba(248,113,113,0.7)' : 'rgba(74,222,128,0.7)'), borderRadius:3 },
+      { label:'Kalorien', data:kcalData.map(d=>d.kcal), backgroundColor:kcalData.map(d=>d.kcal>goalOf(d) ? 'rgba(248,113,113,0.7)' : 'rgba(74,222,128,0.7)'), borderRadius:3, maxBarThickness:28 },
       { label:'Tagesziel', data:kcalData.map(goalOf), type:'line', borderColor:'rgba(34,211,238,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
       { label:'Trend', data:calcTrend(kcalData.map(d=>d.kcal)), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
@@ -4697,7 +4984,7 @@ function exportSchiri() {
 
 // Daily-Dozen-Portionen eines Rezepts aus den Zutaten: Schlüsselwort → Kategorie, Gramm je Portion (0 = ein Häkchen, egal wie viel)
 const DD_ZUTATEN = [
-  ['lein','lein',10], ['kurkuma','kraeuter',0], ['curry','kraeuter',0],
+  ['leinsamen','lein',10], ['leinsaat','lein',10], ['kurkuma','kraeuter',0], ['curry','kraeuter',0],
   ['tofu','bohnen',85], ['tempeh','bohnen',85], ['hummus','bohnen',60], ['edamame','bohnen',80],
   ['kichererbse','bohnen',90], ['linse','bohnen',90], ['bohne','bohnen',90], ['erbse','bohnen',80],
   ['heidelbeer','beeren',75], ['himbeer','beeren',75], ['brombeer','beeren',75], ['erdbeer','beeren',75], ['johannisbeer','beeren',75], ['beeren','beeren',75],
@@ -4726,17 +5013,9 @@ function rezeptDD(r) {
 function rezeptGegessen(id) {
   const r = DB.get('rezepte', []).find(x => x.id === id);
   if(!r) return;
-  if(r.kcal) logRezept(r);
-  const portions = rezeptDD(r), day = ddToday();
-  const all = DB.get(DD_KEY, {});
-  const cur = Object.assign({}, all[day] || {});
-  const added = [];
-  DD_GROUPS.forEach(g => {
-    const n = portions[g.k]; if(!n) return;
-    const before = Math.min(Number(cur[g.k]) || 0, g.max), after = Math.min(before + n, g.max);
-    if(after > before) { cur[g.k] = after; added.push(`${DD_KURZ[g.k]} +${after - before}`); }
-  });
-  if(added.length) { all[day] = cur; DB.set(DD_KEY, all); }
+  // Mit Kalorien als Eintrag (der hakt selbst ab und nimmt das beim Löschen zurück), sonst nur abhaken
+  const done = r.kcal ? (logRezept(r).dd || {}) : ernApplyDD(ddToday(), rezeptDD(r));
+  const added = Object.keys(done).length ? [ernDDText(done)] : [];
   const parts = [r.kcal ? `${Math.round(r.kcal)} kcal eingetragen` : '', added.length ? 'Daily Dozen: ' + added.join(', ') : ''].filter(Boolean);
   toast((parts.length ? parts.join(' · ') : 'Daily Dozen: diese Kategorien sind heute schon voll') + ' ✓');
 }
@@ -4807,6 +5086,7 @@ function openRezeptModal(id) {
   document.getElementById('rezeptProtein').value = r?.protein ?? '';
   document.getElementById('rezeptFett').value = r?.fett ?? '';
   document.getElementById('rezeptKh').value = r?.kh ?? '';
+  document.getElementById('rezeptBallast').value = r?.ballast ?? '';
   document.getElementById('rezeptZutaten').innerHTML = '';
   const zutaten = r?.zutaten?.length ? r.zutaten : [{name:'', gramm:''}];
   zutaten.forEach(z => addZutatRow(z.name, z.gramm));
@@ -4833,6 +5113,7 @@ function saveRezept() {
     protein: num('rezeptProtein'),
     fett: num('rezeptFett'),
     kh: num('rezeptKh'),
+    ballast: num('rezeptBallast'),
     updated: today(),
   };
   const data = DB.get('rezepte', []);
@@ -4883,6 +5164,7 @@ function exportAll() {
     ern_water: DB.get('ern_water', {}),
     ern_water_goal: DB.get('ern_water_goal', null),
     ern_foods: DB.get('ern_foods', []),
+    ern_profile: DB.get('ern_profile', null),
   };
   download('dashboard-backup-' + today() + '.json', 'application/json', JSON.stringify(all,null,2));
   toast('Export erfolgreich ✓');
@@ -4907,7 +5189,7 @@ function handleImport(event) {
       if(data.journal) DB.set('journal', data.journal);
       if(data.rezepte) DB.set('rezepte', data.rezepte);
       if(data.dd_days) DB.set('dd_days', data.dd_days);
-      ['ern_log', 'ern_weight', 'ern_fasts', 'ern_goal', 'ern_water', 'ern_water_goal', 'ern_foods'].forEach(k => { if(data[k] != null) DB.set(k, data[k]); });
+      ['ern_log', 'ern_weight', 'ern_fasts', 'ern_goal', 'ern_water', 'ern_water_goal', 'ern_foods', 'ern_profile'].forEach(k => { if(data[k] != null) DB.set(k, data[k]); });
       clearTimeout(syncTimer);
       pushState().then(() => { toast('Import erfolgreich ✓'); setTimeout(() => location.reload(), 600); });
     } catch(err) { alert('Fehler beim Importieren: ' + err.message); }
