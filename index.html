@@ -512,8 +512,15 @@
   .subnav-secondary { background: transparent; border: none; padding: 0; gap: 4px; margin-bottom: 16px; }
   .subnav-secondary .subnav-btn { padding: 6px 12px; font-size: 13px; border: 1px solid var(--border); border-radius: 999px; }
   .subnav-secondary .subnav-btn.active { background: var(--accent-soft); color: var(--accent); box-shadow: none; border-color: transparent; }
-  /* Ernährung hat vier Reiter: auf schmalen Bildschirmen 2×2 statt gestaucht – gleiche Knöpfe mit Symbol wie bei Sport */
-  @media (max-width: 560px) { #page-ernaehrung > .subnav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; } }
+  /* Reiter als Kacheln (wie die Erfassen-Kacheln bei Sport) */
+  .subnav.subnav-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 12px; width: 100%; padding: 0; background: none; border: none; border-radius: 0; margin-bottom: 20px; }
+  .subnav-tiles .subnav-btn { justify-content: flex-start; gap: 12px; padding: 12px 14px; min-height: 56px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); color: var(--text); text-align: left; transition: border-color .15s ease, background .15s ease, transform .15s ease; }
+  .subnav-tiles .subnav-btn:hover { border-color: var(--border-strong); background: var(--surface2); }
+  .subnav-tiles .subnav-btn:active { transform: scale(0.98); }
+  .subnav-tiles .subnav-btn .entry-tile-icon .i { width: 18px; height: 18px; }
+  .subnav-tiles .subnav-btn.active { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent), var(--shadow); }
+  :root.light .subnav-tiles .subnav-btn.active { background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
+  @media (max-width: 640px) { .subnav.subnav-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .subnav-tiles .subnav-btn { padding: 12px; gap: 10px; white-space: normal; } }
   @media (max-width: 480px) { .subnav-secondary .subnav-btn .i { display: none; } .subnav-secondary .subnav-btn { padding: 6px 4px; min-width: 0; } }
   .subnav-btn:hover { color: var(--text); }
   .subnav-btn.active { background: var(--surface3); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 0 0 1px var(--border-strong); }
@@ -563,8 +570,6 @@
   .ern-sum-goal:hover { color: var(--accent); }
   .dd-progress.over b { background: var(--red); }
   /* Ziel überschritten: Kachel rot einfärben */
-  .ern-meal-title small.warn { color: var(--red); opacity: .8; }
-  .ern-meal-title small.over { color: var(--red); }
   .ern-kcal .ern-of { color: var(--muted); }
   .dd-auto { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--green); margin-top: 2px; }
   .dd-auto .i { width: 12px; height: 12px; flex-shrink: 0; }
@@ -596,7 +601,27 @@
   .prof-check { display: flex; gap: 12px; align-items: flex-start; padding: 16px 0 0; border-top: 1px solid var(--border); font-size: 14px; cursor: pointer; }
   .prof-check input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--accent); flex-shrink: 0; }
   .prof-check small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .ern-meals { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .ern-meals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+  .ern-meal.open { border-color: var(--mc); box-shadow: inset 0 3px 0 var(--mc), 0 0 0 1px var(--mc), var(--shadow); }
+  .ern-detail { padding: 12px 20px 8px; box-shadow: inset 0 3px 0 var(--mc), var(--shadow); }
+  .ern-detail-head { display: flex; align-items: center; gap: 4px; }
+  .ern-detail-title { flex: 1; min-width: 0; font-size: 16px; font-weight: 600; display: flex; align-items: baseline; gap: 8px; }
+  .ern-detail-title small { font-size: 12px; font-weight: 400; color: var(--muted); }
+  .ern-detail .ern-copy:last-child { margin-right: -10px; }
+  .ern-meal-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .ern-meal-acts { display: flex; margin: -6px -10px 0 0; }
+  .ern-meal-acts .ern-add { margin: 0; }
+  .ern-meal-body { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; margin-top: 10px; padding: 0; border: none; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; border-radius: var(--radius-sm); }
+  .ern-meal-n { display: inline-flex; align-items: center; gap: 4px; font-size: 16px; font-weight: 600; }
+  .ern-meal-body[aria-expanded="true"] .ern-meal-chev { transform: rotate(90deg); }
+  .ern-meal-body:hover .ern-meal-chev { color: var(--text); }
+  .ern-meal-k { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ern-meal-k b { font-size: 18px; font-weight: 600; color: var(--text); letter-spacing: -.3px; }
+  .ern-meal-st { font-size: 12px; color: var(--muted); }
+  .ern-meal-st.warn { color: var(--red); opacity: .8; }
+  .ern-meal-st.over { color: var(--red); }
+  .ern-meal:not(.has) .ern-meal-k { display: none; }
+  .ern-detail .ern-items { margin-top: 4px; }
   /* Tracker-Aufbau: Hauptspalte (Bilanz + Mahlzeiten), Nebenspalte (Wasser, Fasten, Gewicht) */
   .tracker-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; margin-bottom: 24px; }
   .tracker-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
@@ -645,12 +670,7 @@
     .ern-head-actions .btn { flex: 1; justify-content: center; }
   }
   .ern-meal { padding: 16px 20px; box-shadow: inset 0 3px 0 var(--mc), var(--shadow); min-width: 0; }
-  .ern-meal-empty { width: 100%; min-height: 44px; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); background: none; color: var(--text-2); font: inherit; font-size: 14px; cursor: pointer; }
-  .ern-meal-empty:hover { border-color: var(--mc); color: var(--mc); }
-  .ern-meal-head { display: flex; align-items: center; gap: 8px; min-height: 44px; }
-  .ern-meal-name { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; flex: 1; min-width: 0; }
   .ern-meal-ico { width: 32px; height: 32px; border-radius: var(--radius-sm); display: grid; place-items: center; background: color-mix(in srgb, var(--mc) 16%, transparent); color: var(--mc); flex-shrink: 0; }
-  .ern-meal-name { font-size: 16px; }
   .ern-meal-ring { position: relative; width: 44px; height: 44px; border-radius: 50%; background: none; }
   .ern-meal-ring-svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
   .ern-meal-ring-svg circle { fill: none; stroke-width: 4; }
@@ -659,12 +679,7 @@
   .ern-meal-ring.warn .val { stroke: var(--red); opacity: .6; }
   .ern-meal-ring.over .val { stroke: var(--red); }
   .ern-meal-ring > .i { position: relative; width: 18px; height: 18px; }
-  .ern-meal-toggle { min-height: 44px; padding: 0; border: none; background: none; color: inherit; font: inherit; font-size: 16px; font-weight: 600; text-align: left; cursor: pointer; border-radius: var(--radius-sm); }
   .ern-meal-chev { width: 16px; height: 16px; color: var(--muted); flex-shrink: 0; transition: transform .2s ease; }
-  .ern-meal-toggle[aria-expanded="true"] .ern-meal-chev { transform: rotate(90deg); }
-  .ern-meal-toggle:hover .ern-meal-chev { color: var(--text); }
-  .ern-meal-title { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
-  .ern-meal-title small { font-size: 12px; font-weight: 400; color: var(--muted); }
   .ern-kcal { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--text-2); white-space: nowrap; }
   .ern-add { width: 44px; height: 44px; margin-right: -10px; border: none; background: none; color: var(--mc, var(--accent)); cursor: pointer; border-radius: 8px; display: grid; place-items: center; }
   .ern-add:hover { background: var(--accent-soft); }
@@ -1315,11 +1330,12 @@
   <div class="page-title">Ernährung</div>
   <div class="page-sub">Kalorien, Wasser, Gewicht und Fasten, Daily Dozen, 21 Optimierungen und dein Rezeptbuch.</div>
 
-  <div class="subnav">
-    <button class="subnav-btn active" onclick="switchSubtab('ernaehrung','tracker',this)"><svg class="i"><use href="#i-utensils"/></svg>Tracker</button>
-    <button class="subnav-btn" onclick="switchSubtab('ernaehrung','dozen',this)"><svg class="i"><use href="#i-leaf"/></svg>Daily Dozen</button>
-    <button class="subnav-btn" onclick="switchSubtab('ernaehrung','tweaks',this)"><svg class="i"><use href="#i-check"/></svg>21 Optimierungen</button>
-    <button class="subnav-btn" onclick="switchSubtab('ernaehrung','rezepte',this)"><svg class="i"><use href="#i-book"/></svg>Rezepte</button>
+  <div class="subnav subnav-tiles" role="tablist" aria-label="Bereiche der Ernährung">
+    <button class="subnav-btn active" role="tab" onclick="switchSubtab('ernaehrung','tracker',this)"><span class="entry-tile-icon tone-indigo"><svg class="i"><use href="#i-utensils"/></svg></span><span class="entry-tile-label">Tracker</span></button>
+    <button class="subnav-btn" role="tab" onclick="switchSubtab('ernaehrung','dozen',this)"><span class="entry-tile-icon tone-green"><svg class="i"><use href="#i-leaf"/></svg></span><span class="entry-tile-label">Daily Dozen</span></button>
+    <button class="subnav-btn" role="tab" onclick="switchSubtab('ernaehrung','tweaks',this)"><span class="entry-tile-icon tone-amber"><svg class="i"><use href="#i-check"/></svg></span><span class="entry-tile-label">21 Optimierungen</span></button>
+    <button class="subnav-btn" role="tab" onclick="switchSubtab('ernaehrung','rezepte',this)"><span class="entry-tile-icon tone-red"><svg class="i"><use href="#i-book"/></svg></span><span class="entry-tile-label">Rezepte</span></button>
+    <button class="subnav-btn" role="tab" onclick="switchSubtab('ernaehrung','analytics',this)"><span class="entry-tile-icon tone-cyan"><svg class="i"><use href="#i-chart"/></svg></span><span class="entry-tile-label">Analytics</span></button>
   </div>
 
   <div id="ernaehrung-tracker" class="subpage active">
@@ -1331,6 +1347,10 @@
         <section class="card aside-sec" id="trackerWeightCard"></section>
       </aside>
     </div>
+  </div>
+
+  <div id="ernaehrung-analytics" class="subpage">
+    <div class="card" id="trackerChartsEmpty" hidden></div>
     <div class="analytics-grid" id="trackerCharts">
       <div class="card">
         <div class="card-title">Kalorienzufuhr (30 Tage)</div>
@@ -2127,7 +2147,7 @@ function switchSubtab(page, tab, btn) {
   btn.classList.add('active');
   if(page === 'health' && tab === 'analytics') renderHealthAnalytics();
   if(page === 'sport' && tab === 'analytics') renderSportAnalytics();
-  if(page === 'ernaehrung') { if(tab === 'tracker') renderTracker(); else if(tab === 'rezepte') renderRezepte(); else renderDD(tab); }
+  if(page === 'ernaehrung') { if(tab === 'tracker') renderTracker(); else if(tab === 'rezepte') renderRezepte(); else if(tab === 'analytics') renderTrackerCharts(); else renderDD(tab); }
 }
 
 // ===== TOAST =====
@@ -2926,6 +2946,7 @@ function renderTrackerDay() {
     const done = Math.round(v) >= t;  // Haken passt zur angezeigten, gerundeten Zahl
     return tile('ballast', 'Ballaststoffe', v, t, done ? 'Ballaststoff-Ziel erreicht' : `Ballaststoffe: noch ${fmtNum(Math.round((t - v) * 10) / 10)} g`, done ? 'good' : '');
   })();
+  let detail = '';  // Einträge der gewählten Mahlzeit, unter dem 2×2-Block
   const meals = ERN_MEALS.map(m => {
     const items = list.filter(e => e.meal === m.k);
     const mKcal = Math.round(ernSum(items, 'kcal')), mGoal = ernMealGoal(m.k);
@@ -2935,7 +2956,7 @@ function renderTrackerDay() {
     const status = !items.length ? (mGoal ? `Ziel ${mGoal.toLocaleString('de-DE')} kcal` : 'Noch nichts eingetragen')
       : !mGoal ? count
       : count + ' · ' + (mKcal <= mGoal ? `noch ${(mGoal - mKcal).toLocaleString('de-DE')} kcal` : `${(mKcal - mGoal).toLocaleString('de-DE')} kcal über Ziel`);
-    const open = !!ernMealOpen()[m.k];
+    const open = ernMealOpen().sel === m.k;
     // Fortschritt der Mahlzeit als Ring um das Symbol (bis 10 % drüber hellrot, darüber rot)
     const ico = `<span class="ern-meal-ico ern-meal-ring${state ? ' ' + state : ''}"${mGoal ? ` role="progressbar" aria-label="${m.n}: ${mKcal} von ${mGoal} kcal" aria-valuemin="0" aria-valuemax="${mGoal}" aria-valuenow="${mKcal}"` : ''}><svg class="ern-meal-ring-svg" viewBox="0 0 44 44" aria-hidden="true"><circle class="track" cx="22" cy="22" r="${ERN_MEAL_R}"/>${mGoal && mKcal ? `<circle class="val" cx="22" cy="22" r="${ERN_MEAL_R}" stroke-dasharray="${ERN_MEAL_C}" stroke-dashoffset="${(ERN_MEAL_C * (1 - Math.min(1, mKcal / mGoal))).toFixed(2)}"/>` : ''}</svg><svg class="i"><use href="#${m.icon}"/></svg></span>`;
     const rows = items.map(e => {
@@ -2954,15 +2975,29 @@ function renderTrackerDay() {
         <button type="button" class="icon-btn" aria-label="${escAttr(e.name)} löschen" onclick="deleteFood('${e.id}')"><svg class="i"><use href="#i-trash"/></svg></button>
       </div>`;
     }).join('');
-    return `<section class="card ern-meal${items.length ? ' has' : ''}" style="--mc:var(--meal-${m.k})" aria-label="${m.n}">
-      <div class="ern-meal-head">
-        ${items.length
-          ? `<button type="button" class="ern-meal-name ern-meal-toggle" aria-expanded="${open}" aria-controls="ernItems-${m.k}" onclick="toggleErnMeal('${m.k}')">${ico}<span class="ern-meal-title">${m.n}<small class="${state}">${status}</small></span><svg class="i ern-meal-chev" aria-hidden="true"><use href="#i-chevron"/></svg></button>`
-          : `<span class="ern-meal-name">${ico}<span class="ern-meal-title">${m.n}<small class="${state}">${status}</small></span></span>`}
-        ${items.length ? `<span class="ern-kcal">${mKcal.toLocaleString('de-DE')}${mGoal ? `<span class="ern-of"> / ${mGoal.toLocaleString('de-DE')}</span>` : ''} kcal</span>
-        <button type="button" class="ern-copy" aria-label="${m.n} kopieren" title="Auf einen anderen Tag kopieren" onclick="openCopyMeal('${m.k}')"><svg class="i"><use href="#i-copy"/></svg></button>` : ''}
-        ${items.length ? `<button type="button" class="ern-add" style="margin-left:-8px" aria-label="${m.n}: Essen eintragen" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg></button>` : ''}
-      </div>${rows ? `<div class="ern-items" id="ernItems-${m.k}"${open ? '' : ' hidden'}>${rows}</div>` : `<button type="button" class="ern-meal-empty" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg>${m.n} eintragen</button>`}</section>`;
+    if(open && items.length) detail = `<section class="card ern-detail" id="ernItems-${m.k}" style="--mc:var(--meal-${m.k})" aria-label="Einträge ${m.n}">
+      <div class="ern-detail-head">
+        <span class="ern-detail-title">${m.n}<small>${count}</small></span>
+        <button type="button" class="ern-copy" aria-label="${m.n} kopieren" title="Auf einen anderen Tag kopieren" onclick="openCopyMeal('${m.k}')"><svg class="i"><use href="#i-copy"/></svg></button>
+        <button type="button" class="ern-copy" aria-label="Einträge schließen" onclick="toggleErnMeal('${m.k}')"><svg class="i"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="ern-items">${rows}</div>
+    </section>`;
+    // Mahlzeit als Kachel im 2×2-Block: Ring + Aktionen oben, Name/kcal/Status darunter.
+    // Aufgeklappt (Einträge sichtbar) nimmt die Kachel die volle Breite ein.
+    const kcalTxt = `<span class="ern-meal-k"><b>${mKcal.toLocaleString('de-DE')}</b>${mGoal ? ` / ${mGoal.toLocaleString('de-DE')}` : ''} kcal</span>`;
+    const body = `<span class="ern-meal-n">${m.n}${items.length ? '<svg class="i ern-meal-chev" aria-hidden="true"><use href="#i-chevron"/></svg>' : ''}</span>${kcalTxt}<small class="ern-meal-st ${state}">${status}</small>`;
+    return `<section class="card ern-meal${items.length ? ' has' : ''}${open && items.length ? ' open' : ''}" style="--mc:var(--meal-${m.k})" aria-label="${m.n}">
+      <div class="ern-meal-top">
+        ${ico}
+        <span class="ern-meal-acts">
+          <button type="button" class="ern-add" aria-label="${m.n}: Essen eintragen" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg></button>
+        </span>
+      </div>
+      ${items.length
+        ? `<button type="button" class="ern-meal-body" aria-expanded="${open}" aria-controls="ernItems-${m.k}" onclick="toggleErnMeal('${m.k}')">${body}</button>`
+        : `<button type="button" class="ern-meal-body" onclick="openFoodModal('${m.k}')">${body.replace(status, mGoal ? `Ziel ${mGoal.toLocaleString('de-DE')} kcal · eintragen` : 'Noch nichts · eintragen')}</button>`}
+    </section>`;
   }).join('');
   document.getElementById('trackerDay').innerHTML = `
     <div class="card dd-head">
@@ -2986,13 +3021,13 @@ function renderTrackerDay() {
         ${ernView !== tk ? `<button type="button" class="btn btn-secondary btn-sm" onclick="ernGo(0)">Heute anzeigen</button>` : `<button type="button" class="btn btn-primary btn-sm" onclick="openFoodModal()"><svg class="i"><use href="#i-plus"/></svg>Essen eintragen</button>`}
       </div>
     </div>
-    <div class="ern-meals">${meals}</div>`;
+    <div class="ern-meals">${meals}</div>${detail}`;
 }
 // Einträge je Mahlzeit ein-/ausklappen (standardmäßig zu); der Zustand bleibt im Browser gespeichert
 const ERN_MEAL_R = 19, ERN_MEAL_C = +(2 * Math.PI * ERN_MEAL_R).toFixed(2);
 const ernMealOpen = () => { try { return JSON.parse(localStorage.getItem('ern_meal_open') || '{}'); } catch(e) { return {}; } };
 function toggleErnMeal(k) {
-  const o = ernMealOpen(); o[k] = !o[k];
+  const o = ernMealOpen(); o.sel = o.sel === k ? null : k;  // immer nur eine Mahlzeit aufgeklappt
   try { localStorage.setItem('ern_meal_open', JSON.stringify(o)); } catch(e) {}
   renderTrackerDay();
 }
@@ -4030,12 +4065,16 @@ let charts = {};
 // Gesundheits-Analytics (Unterseite von Gesundheit)
 // ===== ERNÄHRUNG → TRACKER: Diagramme =====
 function renderTrackerCharts() {
+  // Diagramme nur zeichnen, wenn der Analytics-Reiter sichtbar ist (verdeckte Canvas haben keine Größe)
+  if(!document.getElementById('ernaehrung-analytics').classList.contains('active')) return;
   const days = nutritionDays();
   const weights = days.filter(d => d.weight);
   const lastW = weights[weights.length - 1];
   const hasData = days.some(d => d.kcal || d.weight);
   document.getElementById('trackerCharts').hidden = !hasData;
-  if(!hasData) return;
+  const empty = document.getElementById('trackerChartsEmpty');
+  empty.hidden = hasData;
+  if(!hasData) { empty.innerHTML = emptyState('Noch keine Verläufe', 'Sobald du Essen oder dein Gewicht im Tracker einträgst, siehst du hier Kalorien der letzten 30 Tage und deinen Gewichtsverlauf.'); return; }
 
   // Kalorien: letzte 30 Tage, Balken über dem Tagesziel rot
   const kcalData = getLast(days.filter(d => d.kcal), 30);
