@@ -220,13 +220,31 @@
   .game-sum { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; margin-right: 4px; }
   .game-actions { display: flex; }
   .game .schiri-notes { grid-column: 2 / -1; margin-top: 10px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); }
+  /* Sport-Verlauf: Einheiten wie die Spiele-Liste, Übungen klappen darunter auf */
+  .sport-sess-toggle { min-width: 0; padding: 0; border: none; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; border-radius: var(--radius-sm); }
+  .sport-sess-toggle .game-teams::after { content: ''; display: inline-block; width: 6px; height: 6px; margin: 0 0 2px 8px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(45deg); transition: transform .2s ease; }
+  .sport-sess.open .sport-sess-toggle .game-teams::after { transform: rotate(-135deg); margin-bottom: -1px; }
+  .sport-exs { grid-column: 2 / -1; margin-top: 10px; padding: 4px 4px 4px 12px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); }
+  .sport-ex { display: grid; grid-template-columns: minmax(0, 1fr) auto 40px; align-items: center; gap: 12px; min-height: 40px; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .sport-ex + .sport-ex { border-top: 1px solid var(--border); }
+  .sport-ex-n { font-weight: 500; overflow-wrap: anywhere; }
+  .sport-ex-v { display: flex; flex-wrap: wrap; gap: 2px 6px; justify-content: flex-end; color: var(--text-2); }
+  .sport-ex-v .dot { opacity: .5; }
+  .sport-ex-v .muted { color: var(--muted); }
+  .season-chip .muted { opacity: .6; font-weight: 400; }
+  .sport-log-foot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; margin-top: 16px; }
+  .sport-log-foot #sportLogMore[hidden] { display: none; }
+  .sport-log-foot #sportLogMore[hidden] + .btn { margin-left: auto; }
   @media (max-width: 900px) { .schiri-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .schiri-grid { grid-template-columns: 1fr; } }
   @media (max-width: 640px) {
     .page-actions { width: 100%; } .page-actions .btn-primary { flex: 1; }
     .games-search { width: 100%; }
     .game { grid-template-columns: 44px minmax(0, 1fr); row-gap: 6px; }
     .game-side { grid-column: 2; justify-content: space-between; }
-    .game .schiri-notes { grid-column: 1 / -1; }
+    .game .schiri-notes, .sport-exs { grid-column: 1 / -1; }
+    .sport-ex { grid-template-columns: minmax(0, 1fr) 40px; row-gap: 0; }
+    .sport-ex-v { grid-column: 1; grid-row: 2; justify-content: flex-start; padding-bottom: 8px; }
+    .sport-ex .icon-btn { grid-column: 2; grid-row: 1 / span 2; }
     .kpi-value { font-size: 22px; }
   }
   /* Top 3 links untereinander, weitere Kollegen rechts untereinander */
@@ -727,6 +745,8 @@
   .ern-glasses b { height: 8px; border-radius: 2px; background: var(--surface3); transition: background .2s ease; }
   .ern-glasses b.on { background: var(--accent2); }
   .ern-glasses-caption { font-size: 12px; color: var(--muted); margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .ern-water-sport { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .ern-water-sport .i { width: 14px; height: 14px; }
   .ern-water-btns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
   .ern-water-btns .btn { padding: 0 8px; }
   .food-own-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
@@ -1292,36 +1312,19 @@
     <div class="entry-tile" onclick="startKraftTemplate('legs')"><span class="entry-tile-icon tone-green"><svg class="i"><use href="#i-dumbbell"/></svg></span><span class="entry-tile-label">Leg-Day</span></div>
   </div>
 
-  <!-- Kraft-Protokoll -->
-  <div class="card" style="margin-bottom:16px">
-    <div class="section-header">
-      <span class="card-title"><svg class="i"><use href="#i-dumbbell"/></svg>Kraft-Protokoll</span>
-      <button class="btn btn-secondary btn-sm" onclick="exportSport()"><svg class="i"><use href="#i-download"/></svg>CSV exportieren</button>
-    </div>
-    <div class="table-hint">Jede Trainingseinheit als Block mit Dauer und Gesamtvolumen – darunter die Übungen. Einzelwert per Klick löschen, ✕ löscht Übung bzw. ganze Einheit.</div>
-    <div class="table-scroll"><table class="data-table">
-      <thead><tr><th>Datum</th><th>Übung</th><th>Gewicht</th><th>Sätze</th><th>Wdh.</th><th>Volumen (kg)</th><th></th></tr></thead>
-      <tbody id="kraftTable"></tbody>
-    </table></div>
-  </div>
-
-  <!-- Cardio-Protokoll -->
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-title"><svg class="i"><use href="#i-activity"/></svg>Ausdauer-Protokoll</div>
-    <div class="table-hint">Jede Einheit als Block mit Gesamtdauer und -strecke – darunter die Übungen.</div>
-    <div class="table-scroll"><table class="data-table">
-      <thead><tr><th>Datum</th><th>Übung</th><th>Dauer (mm:ss)</th><th>Strecke (km)</th><th>Tempo (min/km)</th><th></th></tr></thead>
-      <tbody id="cardioTable"></tbody>
-    </table></div>
-  </div>
-
-  <!-- Sauna-Protokoll -->
+  <!-- Sport-Verlauf: Kraft, Ausdauer und Sauna in einer Liste, neueste Einheit oben -->
   <div class="card">
-    <div class="card-title"><svg class="i"><use href="#i-flame"/></svg>Sauna-Protokoll</div>
-    <div class="table-scroll"><table class="data-table">
-      <thead><tr><th>Datum</th><th>Minuten</th><th></th></tr></thead>
-      <tbody id="saunaTable"></tbody>
-    </table></div>
+    <div class="section-header games-head">
+      <span class="card-title"><svg class="i"><use href="#i-list"/></svg>Verlauf <span class="card-sub" id="sportLogSub"></span></span>
+      <label for="sportSuche" class="search-label">Übungen durchsuchen</label>
+      <input type="search" class="form-input games-search" id="sportSuche" placeholder="Übung suchen, z. B. Kniebeuge" oninput="sportLogLimit=SPORT_LOG_STEP;renderSportLog()">
+    </div>
+    <div class="season-chips" id="sportLogChips" role="group" aria-label="Nach Sportart filtern"></div>
+    <div id="sportLog"></div>
+    <div class="sport-log-foot">
+      <button class="btn btn-secondary btn-sm" id="sportLogMore" onclick="sportLogLimit+=SPORT_LOG_STEP;renderSportLog()" hidden>Ältere anzeigen</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportSport()"><svg class="i"><use href="#i-download"/></svg>Kraft als CSV</button>
+    </div>
   </div>
 
   </div>
@@ -2956,6 +2959,10 @@ function ernMacroGoal(k, day = ernView) {
 const FAST_GOALS = [12, 14, 16, 18, 20, 24];
 const ernGoal = () => Number(DB.get('ern_goal', KCAL_GOAL)) || KCAL_GOAL;
 const ernWaterGoal = () => Number(DB.get('ern_water_goal', 2500)) || 2500;
+// Sport erhöht das Tagesziel: je 20 min Training (Kraft, Ausdauer, Schiri-Einsätze) 1 l mehr, auf 250 ml gerundet
+const ERN_WATER_PER_20MIN = 1000;
+const ernSportWater = day => Math.round(trainingMinutes(day, day).total / 20 * ERN_WATER_PER_20MIN / 250) * 250;
+const ernWaterGoalDay = day => ernWaterGoal() + ernSportWater(day);
 // Nährwerte je 100 g/ml oder je Portion
 const ernPer100 = base => base.unit === 'g' || base.unit === 'ml';
 const ernPerLabel = base => ernPer100(base) ? '100 ' + base.unit : 'Portion';
@@ -3323,14 +3330,16 @@ function ernTickEntry(day, e) {
 
 // ---- Wasser ----
 function renderWaterCard() {
-  const ml = DB.get('ern_water', {})[ernView] || 0, goal = ernWaterGoal();
+  const ml = DB.get('ern_water', {})[ernView] || 0, base = ernWaterGoal(), sportMl = ernSportWater(ernView), goal = base + sportMl;
+  const sportMin = Math.round(trainingMinutes(ernView, ernView).total);
   // Ziel in Glas-Segmente teilen (à 250 ml, höchstens 12 Segmente)
   const glasses = Math.min(12, Math.max(2, Math.round(goal / 250))), per = goal / glasses;
   const dayLabel = ernView === ddToday() ? 'heute' : new Date(ernView + 'T12:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
   document.getElementById('trackerWaterCard').innerHTML = `<div class="card-title"><svg class="i"><use href="#i-drop"/></svg>Wasser ${dayLabel}</div>
-    <div class="ern-weight-now"><span class="dd-num">${fmtL(ml)}</span><span class="dd-of">von <button type="button" class="ern-sum-goal" onclick="openErnGoal('water')" aria-label="Wasserziel ändern, aktuell ${fmtL(goal)}">${fmtL(goal)}</button></span>${ml >= goal ? '<span class="rating-good">Ziel erreicht</span>' : ''}</div>
+    <div class="ern-weight-now"><span class="dd-num">${fmtL(ml)}</span><span class="dd-of">von <button type="button" class="ern-sum-goal" onclick="openErnGoal('water')" aria-label="Wasserziel ändern, aktuell ${fmtL(base)}${sportMl ? ` plus ${fmtL(sportMl)} für Sport` : ''}">${fmtL(goal)}</button></span>${ml >= goal ? '<span class="rating-good">Ziel erreicht</span>' : ''}</div>
     <div class="ern-glasses" style="--n:${glasses}" role="progressbar" aria-label="Wasser" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${ml}">${Array.from({ length: glasses }, (_, i) => `<b class="${ml >= (i + 1) * per - 1 ? 'on' : ''}"></b>`).join('')}</div>
     <div class="ern-glasses-caption">${Math.floor(ml / 250)} ${Math.floor(ml / 250) === 1 ? 'Glas' : 'Gläser'} à 250 ml${ml < goal ? ` · noch ${fmtL(goal - ml)}` : ''}</div>
+    ${sportMl ? `<div class="ern-glasses-caption ern-water-sport"><svg class="i"><use href="#i-dumbbell"/></svg>inkl. ${fmtL(sportMl)} für ${sportMin} min Sport</div>` : ''}
     <div class="ern-water-btns">
       <button type="button" class="btn btn-secondary" onclick="addWater(250)" aria-label="Glas, 250 ml hinzufügen" title="Glas">+ 250 ml</button>
       <button type="button" class="btn btn-secondary" onclick="addWater(500)" aria-label="Flasche, 500 ml hinzufügen" title="Flasche">+ 500 ml</button>
@@ -3339,7 +3348,7 @@ function renderWaterCard() {
 }
 function addWater(delta) {
   const all = DB.get('ern_water', {});
-  const before = all[ernView] || 0, ml = Math.max(0, before + delta), goal = ernWaterGoal();
+  const before = all[ernView] || 0, ml = Math.max(0, before + delta), goal = ernWaterGoalDay(ernView);
   if(ml) all[ernView] = ml; else delete all[ernView];
   DB.set('ern_water', all);
   // Daily Dozen „Getränke“: je 355 ml eine Portion – nur auffüllen, nie zurücknehmen (Tee/Kaffee zählen auch dort)
@@ -4619,89 +4628,136 @@ function renderSport() {
   renderSessionRows('kraft');
   renderSessionRows('cardio');
 
-  const kraft = DB.get('sport_kraft', []);
-  // Gepfiffene Spiele mit Einsatzzeit erscheinen zusätzlich im Cardio-Protokoll (nur Anzeige –
+  renderSportLog();
+}
+
+// ---- Sport-Verlauf ----
+// Alle Einheiten (Kraft, Ausdauer, Sauna) in einer Liste – neueste oben, nach Monat gruppiert.
+// Filter nach Sportart und Suche nach Übung; eine Einheit klappt per Klick auf und zeigt ihre Übungen.
+const SPORT_LOG_STEP = 15;
+const SPORT_KINDS = {
+  kraft: { n: 'Kraft', c: 'var(--accent)', icon: 'i-dumbbell' },
+  cardio: { n: 'Ausdauer', c: 'var(--red)', icon: 'i-activity' },
+  sauna: { n: 'Sauna', c: 'var(--yellow)', icon: 'i-flame' },
+};
+let sportLogFilter = 'alle', sportLogLimit = SPORT_LOG_STEP;
+let sportLogOpen = null; // Schlüssel der aufgeklappten Einheit; null = die neueste ist offen
+
+function sportSessions() {
+  // Gepfiffene Spiele mit Einsatzzeit erscheinen zusätzlich als Ausdauer (nur Anzeige –
   // die Wochenübersicht zählt sie weiterhin separat über schiri_spiele, um sie nicht doppelt zu zählen).
   const schiriCardio = DB.get('schiri_spiele', []).filter(g => parseDur(g.dauer) != null || parseFloat(g.kcal) > 0).map(g => ({
     id: 'schiri-' + g.id, trainingId: 'schiri-' + g.id, date: g.date, uebung: 'Basketball', min: g.dauer, km: '', kcal: g.kcal || '', fromSchiri: g.id,
   }));
-  const cardio = [...DB.get('sport_cardio', []), ...schiriCardio];
+  const kraft = groupSessions(DB.get('sport_kraft', [])).map(g => ({ ...g, kind: 'kraft' }));
+  const cardio = groupSessions([...DB.get('sport_cardio', []), ...schiriCardio]).map(g => ({ ...g, kind: 'cardio', schiriId: g.items[0] && g.items[0].fromSchiri }));
+  const sauna = DB.get('sport_sauna', []).map(e => ({ key: 'sauna-' + e.id, date: e.date, kind: 'sauna', id: e.id, min: e.min, items: [] }));
+  // Neueste oben; am selben Tag die zuletzt angelegte zuerst (IDs sind Zeitstempel)
+  const stamp = x => Number(String(x.trainingId || x.id || (x.items[0] && x.items[0].id) || '').replace(/\D/g, '')) || 0;
+  return [...kraft, ...cardio, ...sauna].sort((a, b) => b.date.localeCompare(a.date) || stamp(b) - stamp(a));
+}
 
-  // Kraft-Protokoll: Übungen zu Trainingseinheiten gruppieren
-  const kb = document.getElementById('kraftTable');
-  const groups = groupSessions(kraft);
+function setSportLogFilter(f) { sportLogFilter = f; sportLogLimit = SPORT_LOG_STEP; renderSportLog(); }
+function toggleSportLog(key) {
+  const first = document.querySelector('#sportLog .sport-sess');
+  const cur = sportLogOpen ?? (first && first.dataset.key);
+  sportLogOpen = cur === key ? '' : key;
+  renderSportLog();
+}
+
+function renderSportLog() {
+  const el = document.getElementById('sportLog');
+  if(!el) return;
+  const all = sportSessions();
+  const q = (document.getElementById('sportSuche')?.value || '').trim().toLowerCase();
+  const counts = { alle: all.length };
+  Object.keys(SPORT_KINDS).forEach(k => counts[k] = all.filter(x => x.kind === k).length);
+  document.getElementById('sportLogChips').innerHTML = [['alle', 'Alle'], ...Object.entries(SPORT_KINDS).map(([k, v]) => [k, v.n])]
+    .map(([k, n]) => `<button type="button" class="season-chip${sportLogFilter === k ? ' active' : ''}" aria-pressed="${sportLogFilter === k}" onclick="setSportLogFilter('${k}')">${n} <span class="muted">${counts[k]}</span></button>`).join('');
+
+  let list = sportLogFilter === 'alle' ? all : all.filter(x => x.kind === sportLogFilter);
+  if(q) list = list.filter(x => (x.kind === 'sauna' ? 'sauna' : x.items.map(e => e.uebung).join(' ')).toLowerCase().includes(q));
+  document.getElementById('sportLogSub').textContent = list.length ? `${list.length} Einheit${list.length === 1 ? '' : 'en'}` : '';
+  const more = document.getElementById('sportLogMore');
+  more.hidden = list.length <= sportLogLimit;
+  if(!list.length) {
+    el.innerHTML = q
+      ? emptyState('Keine Treffer', `Keine Einheit enthält „${escHtml(q)}“.`, 'Suche zurücksetzen', "document.getElementById('sportSuche').value='';renderSportLog()")
+      : emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um die erste Einheit zu erfassen.');
+    return;
+  }
+  const shown = list.slice(0, sportLogLimit);
+  const openKey = sportLogOpen ?? shown[0].key;
   const volOf = e => e.gewicht && e.saetze && e.wdh ? parseFloat(e.gewicht) * parseInt(e.saetze) * parseInt(e.wdh) : 0;
-  kb.innerHTML = groups.reverse().map(g => {
-    const total = g.items.reduce((s,e) => s + volOf(e), 0);
-    const delBtn = `<div class="session-actions"><button class="icon-btn edit-btn" title="Einheit bearbeiten" aria-label="Einheit bearbeiten" onclick="openSessionEdit('kraft','${g.key}')"><svg class="i"><use href="#i-pencil"/></svg></button>`
-      + (g.trainingId ? `<button class="icon-btn" title="Ganze Einheit löschen" aria-label="Ganze Einheit löschen" onclick="deleteSession('kraft','${g.trainingId}')"><svg class="i"><use href="#i-x"/></svg></button>` : '') + '</div>';
-    const head = `<tr class="training-head">
-      <td>${fmtDate(g.date)}</td>
-      <td><span class="session-meta">${g.items.length} Übung${g.items.length===1?'':'en'}${g.dauer ? ` · ${g.dauer} min` : ''}${g.kcal ? ` · ${Math.round(g.kcal).toLocaleString('de-DE')} kcal` : ''}</span></td>
-      <td></td><td></td><td></td>
-      <td>${total ? total.toLocaleString('de-DE') + ' kg' : '—'}</td>
-      <td>${delBtn}</td>
-    </tr>`;
-    const rows = g.items.map(e => {
-      const vol = volOf(e);
-      return `<tr class="training-sub">
-      <td></td>
-      <td>${e.uebung}</td>
-      <td>${e.gewicht ? sportCell('sport_kraft',e.id,'gewicht',e.gewicht + ' kg') : '—'}</td>
-      <td>${e.saetze ? sportCell('sport_kraft',e.id,'saetze',e.saetze) : '—'}</td>
-      <td>${e.wdh ? sportCell('sport_kraft',e.id,'wdh',e.wdh) : '—'}</td>
-      <td>${vol ? vol.toLocaleString('de-DE') + ' kg' : '—'}</td>
-      <td><button class="icon-btn" title="Übung löschen" onclick="deleteKraft('${e.id}')"><svg class="i"><use href="#i-x"/></svg></button></td>
-    </tr>`;
-    }).join('');
-    return head + rows;
-  }).join('') || `<tr><td class="empty-cell" colspan="7">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
+  const months = [];
+  shown.forEach(x => {
+    const key = x.date.slice(0, 7);
+    if(!months.length || months[months.length - 1].key !== key) months.push({ key, items: [] });
+    months[months.length - 1].items.push(x);
+  });
 
-  // Ausdauer-Protokoll: ebenfalls je Einheit gruppiert
-  const cb = document.getElementById('cardioTable');
-  cb.innerHTML = groupSessions(cardio).reverse().map(g => {
-    const totalMin = g.items.reduce((sum,e) => sum + (parseDur(e.min) || 0), 0);
-    const totalKm = g.items.reduce((sum,e) => sum + (parseFloat(e.km) || 0), 0);
-    const schiriId = g.items[0] && g.items[0].fromSchiri;
-    const editBtn = `<button class="icon-btn edit-btn" title="${schiriId ? 'Spiel bearbeiten' : 'Einheit bearbeiten'}" aria-label="${schiriId ? 'Spiel bearbeiten' : 'Einheit bearbeiten'}" onclick="${schiriId ? `openSchiriModal('${schiriId}')` : `openSessionEdit('cardio','${g.key}')`}"><svg class="i"><use href="#i-pencil"/></svg></button>`;
-    const delBtn = '<div class="session-actions">' + editBtn + (schiriId
-      ? `<button class="icon-btn" title="Spiel bei Schiedsrichter-Einsätze löschen" onclick="deleteSchiri('${schiriId}')"><svg class="i"><use href="#i-x"/></svg></button>`
-      : (g.trainingId ? `<button class="icon-btn" title="Ganze Einheit löschen" onclick="deleteSession('cardio','${g.trainingId}')"><svg class="i"><use href="#i-x"/></svg></button>` : '')) + '</div>';
-    const head = `<tr class="training-head">
-      <td>${fmtDate(g.date)}</td>
-      <td>${schiriId ? '<span class="src-tag">Schiri</span>' : ''}<span class="session-meta">${g.items.length} Übung${g.items.length===1?'':'en'}${g.kcal ? ` · ${Math.round(g.kcal).toLocaleString('de-DE')} kcal` : ''}</span></td>
-      <td>${totalMin ? fmtMinSec(totalMin) : '—'}</td>
-      <td>${totalKm ? totalKm.toFixed(1) + ' km' : '—'}</td>
-      <td></td>
-      <td>${delBtn}</td>
-    </tr>`;
-    const rows = g.items.map(e => {
-      const durMin = parseDur(e.min);
-      const tempo = durMin && e.km ? fmtMinSec(durMin / parseFloat(e.km)) + ' min/km' : '—';
-      const minCell = durMin == null ? '—' : (e.fromSchiri ? fmtMinSec(durMin) : sportCell('sport_cardio',e.id,'min',fmtMinSec(durMin)));
-      const kmCell = !e.km ? '—' : (e.fromSchiri ? e.km + ' km' : sportCell('sport_cardio',e.id,'km',e.km + ' km'));
-      const rowDelBtn = e.fromSchiri
-        ? `<button class="icon-btn" title="Spiel bei Schiedsrichter-Einsätze löschen" onclick="deleteSchiri('${e.fromSchiri}')"><svg class="i"><use href="#i-x"/></svg></button>`
-        : `<button class="icon-btn" title="Übung löschen" onclick="deleteCardio('${e.id}')"><svg class="i"><use href="#i-x"/></svg></button>`;
-      return `<tr class="training-sub">
-      <td></td>
-      <td>${e.uebung}</td>
-      <td>${minCell}</td>
-      <td>${kmCell}</td>
-      <td>${tempo}</td>
-      <td>${rowDelBtn}</td>
-    </tr>`;
-    }).join('');
-    return head + rows;
-  }).join('') || `<tr><td class="empty-cell" colspan="6">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
+  const row = x => {
+    const kind = SPORT_KINDS[x.kind], d = new Date(x.date + 'T12:00:00');
+    // Bei der Suche alle Treffer aufklappen, sonst nur die gewählte bzw. neueste Einheit
+    const open = x.kind !== 'sauna' && (q ? true : x.key === openKey);
+    let title, meta = [], sum = '', details = '', actions = '';
+    if(x.kind === 'sauna') {
+      title = 'Sauna';
+      sum = x.min ? `${x.min} min` : '—';
+      actions = `<button class="icon-btn" title="Eintrag löschen" aria-label="Sauna-Eintrag löschen" onclick="deleteSauna('${x.id}')"><svg class="i"><use href="#i-trash"/></svg></button>`;
+    } else {
+      const names = x.items.map(e => e.uebung);
+      title = names.slice(0, 3).join(', ') + (names.length > 3 ? ` +${names.length - 3}` : '');
+      meta.push(`${names.length} Übung${names.length === 1 ? '' : 'en'}`);
+      if(x.kind === 'kraft') {
+        const total = x.items.reduce((a, e) => a + volOf(e), 0);
+        if(x.dauer) meta.push(`${x.dauer} min`);
+        sum = total ? total.toLocaleString('de-DE') + ' kg' : (x.dauer ? `${x.dauer} min` : '');
+        details = x.items.map(e => {
+          const vals = [e.gewicht ? sportCell('sport_kraft', e.id, 'gewicht', e.gewicht + ' kg') : '', e.saetze ? sportCell('sport_kraft', e.id, 'saetze', e.saetze + ' Sätze') : '', e.wdh ? sportCell('sport_kraft', e.id, 'wdh', e.wdh + ' Wdh.') : ''].filter(Boolean);
+          const vol = volOf(e);
+          return `<div class="sport-ex"><span class="sport-ex-n">${escHtml(e.uebung)}</span><span class="sport-ex-v">${vals.join('<span class="dot">·</span>') || '—'}${vol ? `<span class="dot">·</span><span class="muted">${vol.toLocaleString('de-DE')} kg</span>` : ''}</span>
+            <button class="icon-btn" title="Übung löschen" aria-label="${escAttr(e.uebung)} löschen" onclick="deleteKraft('${e.id}')"><svg class="i"><use href="#i-x"/></svg></button></div>`;
+        }).join('');
+      } else {
+        const totalMin = x.items.reduce((a, e) => a + (parseDur(e.min) || 0), 0);
+        const totalKm = x.items.reduce((a, e) => a + (parseFloat(e.km) || 0), 0);
+        if(totalKm) meta.push(`${totalKm.toFixed(1).replace('.', ',')} km`);
+        sum = totalMin ? fmtMinSec(totalMin) + ' min' : '';
+        details = x.items.map(e => {
+          const dur = parseDur(e.min);
+          const vals = [dur == null ? '' : (e.fromSchiri ? fmtMinSec(dur) + ' min' : sportCell('sport_cardio', e.id, 'min', fmtMinSec(dur) + ' min')),
+            !e.km ? '' : (e.fromSchiri ? e.km + ' km' : sportCell('sport_cardio', e.id, 'km', e.km + ' km')),
+            dur && e.km ? `<span class="muted">${fmtMinSec(dur / parseFloat(e.km))} min/km</span>` : ''].filter(Boolean);
+          const del = e.fromSchiri ? '' : `<button class="icon-btn" title="Übung löschen" aria-label="${escAttr(e.uebung)} löschen" onclick="deleteCardio('${e.id}')"><svg class="i"><use href="#i-x"/></svg></button>`;
+          return `<div class="sport-ex"><span class="sport-ex-n">${escHtml(e.uebung)}</span><span class="sport-ex-v">${vals.join('<span class="dot">·</span>') || '—'}</span>${del}</div>`;
+        }).join('');
+      }
+      if(x.kcal) meta.push(`${Math.round(x.kcal).toLocaleString('de-DE')} kcal`);
+      actions = x.schiriId
+        ? `<button class="icon-btn" title="Spiel bearbeiten" aria-label="Spiel bearbeiten" onclick="openSchiriModal('${x.schiriId}')"><svg class="i"><use href="#i-pencil"/></svg></button>
+           <button class="icon-btn" title="Spiel bei Schiedsrichter-Einsätze löschen" aria-label="Spiel löschen" onclick="deleteSchiri('${x.schiriId}')"><svg class="i"><use href="#i-trash"/></svg></button>`
+        : `<button class="icon-btn" title="Einheit bearbeiten" aria-label="Einheit bearbeiten" onclick="openSessionEdit('${x.kind}','${x.key}')"><svg class="i"><use href="#i-pencil"/></svg></button>`
+          + (x.trainingId ? `<button class="icon-btn" title="Ganze Einheit löschen" aria-label="Ganze Einheit löschen" onclick="deleteSession('${x.kind}','${x.trainingId}')"><svg class="i"><use href="#i-trash"/></svg></button>` : '');
+    }
+    const tag = `<span class="liga-chip" style="--c:${kind.c}">${x.schiriId ? 'Schiri' : kind.n}</span>`;
+    const main = `<div class="game-teams">${escHtml(title)}</div><div class="game-meta">${[tag, ...meta].join('<span class="dot">·</span>')}</div>`;
+    return `<div class="game sport-sess${open ? ' open' : ''}" data-key="${x.key}">
+      <div class="game-date" aria-label="${fmtDate(x.date)}"><b>${d.getDate()}</b><span>${MONATE_KURZ[d.getMonth()]}</span></div>
+      ${x.kind === 'sauna' ? `<div class="game-main">${main}</div>`
+        : `<button type="button" class="game-main sport-sess-toggle" aria-expanded="${open}" onclick="toggleSportLog('${x.key}')">${main}</button>`}
+      <div class="game-side">
+        <div class="game-sum">${sum}</div>
+        <div class="game-actions">${actions}</div>
+      </div>
+      ${open && details ? `<div class="sport-exs">${details}</div>` : ''}
+    </div>`;
+  };
 
-  const sauna = DB.get('sport_sauna', []);
-  const sb = document.getElementById('saunaTable');
-  sb.innerHTML = [...sauna].reverse().map(e => `<tr>
-      <td>${fmtDate(e.date)}</td>
-      <td>${e.min || '—'}</td>
-      <td><button class="icon-btn" onclick="deleteSauna('${e.id}')"><svg class="i"><use href="#i-x"/></svg></button></td>
-    </tr>`).join('') || `<tr><td class="empty-cell" colspan="3">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
+  el.innerHTML = months.map(({ key, items }) => {
+    const monat = new Date(key + '-15T12:00:00').toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+    return `<div class="games-month"><span>${monat}</span><span>${items.length} Einheit${items.length === 1 ? '' : 'en'}</span></div>${items.map(row).join('')}`;
+  }).join('');
 }
 
 function checkGymHabit(date) {
