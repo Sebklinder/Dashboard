@@ -653,6 +653,10 @@
   .ern-meal-name { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; flex: 1; min-width: 0; }
   .ern-meal-ico { width: 32px; height: 32px; border-radius: var(--radius-sm); display: grid; place-items: center; background: color-mix(in srgb, var(--mc) 16%, transparent); color: var(--mc); flex-shrink: 0; }
   .ern-meal-name { font-size: 16px; }
+  .ern-meal-toggle { min-height: 44px; padding: 0; border: none; background: none; color: inherit; font: inherit; font-size: 16px; font-weight: 600; text-align: left; cursor: pointer; border-radius: var(--radius-sm); }
+  .ern-meal-chev { width: 16px; height: 16px; color: var(--muted); flex-shrink: 0; transition: transform .2s ease; }
+  .ern-meal-toggle[aria-expanded="true"] .ern-meal-chev { transform: rotate(90deg); }
+  .ern-meal-toggle:hover .ern-meal-chev { color: var(--text); }
   .ern-meal-title { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
   .ern-meal-title small { font-size: 12px; font-weight: 400; color: var(--muted); }
   .ern-kcal { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--text-2); white-space: nowrap; }
@@ -2060,7 +2064,7 @@ async function pushState() {
     const snapshot = {};
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k === 'theme') continue; // rein lokale UI-Einstellung, nicht syncen
+      if (k === 'theme' || k === 'ern_meal_open') continue; // rein lokale UI-Einstellungen, nicht syncen
       snapshot[k] = localStorage.getItem(k);
     }
     const res = await fetch('/api/state', { method: 'POST', body: JSON.stringify(snapshot) });
@@ -2921,9 +2925,11 @@ function renderTrackerDay() {
     const mKcal = Math.round(ernSum(items, 'kcal')), mGoal = ernMealGoal(m.k);
     // Rückmeldung je Mahlzeit: bis 10 % drüber gelb, darüber rot
     const state = !mGoal || mKcal <= mGoal ? '' : mKcal <= mGoal * 1.1 ? 'warn' : 'over';
+    const count = `${items.length} ${items.length === 1 ? 'Eintrag' : 'Einträge'}`;
     const status = !items.length ? (mGoal ? `Ziel ${mGoal.toLocaleString('de-DE')} kcal` : 'Noch nichts eingetragen')
-      : !mGoal ? `${items.length} ${items.length === 1 ? 'Eintrag' : 'Einträge'}`
-      : mKcal <= mGoal ? `noch ${(mGoal - mKcal).toLocaleString('de-DE')} kcal` : `${(mKcal - mGoal).toLocaleString('de-DE')} kcal über Ziel`;
+      : !mGoal ? count
+      : count + ' · ' + (mKcal <= mGoal ? `noch ${(mGoal - mKcal).toLocaleString('de-DE')} kcal` : `${(mKcal - mGoal).toLocaleString('de-DE')} kcal über Ziel`);
+    const open = !!ernMealOpen()[m.k];
     const rows = items.map(e => {
       const port = e.base?.portion && (e.unit === 'g' || e.unit === 'ml') ? e.amount / e.base.portion : null;
       const amountTxt = !e.amount ? '' : e.unit === 'g' || e.unit === 'ml'
@@ -2942,11 +2948,13 @@ function renderTrackerDay() {
     }).join('');
     return `<section class="card ern-meal${items.length ? ' has' : ''}" style="--mc:var(--meal-${m.k})" aria-label="${m.n}">
       <div class="ern-meal-head">
-        <span class="ern-meal-name"><span class="ern-meal-ico"><svg class="i"><use href="#${m.icon}"/></svg></span><span class="ern-meal-title">${m.n}<small class="${state}">${status}</small></span></span>
+        ${items.length
+          ? `<button type="button" class="ern-meal-name ern-meal-toggle" aria-expanded="${open}" aria-controls="ernItems-${m.k}" onclick="toggleErnMeal('${m.k}')"><span class="ern-meal-ico"><svg class="i"><use href="#${m.icon}"/></svg></span><span class="ern-meal-title">${m.n}<small class="${state}">${status}</small></span><svg class="i ern-meal-chev" aria-hidden="true"><use href="#i-chevron"/></svg></button>`
+          : `<span class="ern-meal-name"><span class="ern-meal-ico"><svg class="i"><use href="#${m.icon}"/></svg></span><span class="ern-meal-title">${m.n}<small class="${state}">${status}</small></span></span>`}
         ${items.length ? `<span class="ern-kcal">${mKcal.toLocaleString('de-DE')}${mGoal ? `<span class="ern-of"> / ${mGoal.toLocaleString('de-DE')}</span>` : ''} kcal</span>
         <button type="button" class="ern-copy" aria-label="${m.n} kopieren" title="Auf einen anderen Tag kopieren" onclick="openCopyMeal('${m.k}')"><svg class="i"><use href="#i-copy"/></svg></button>` : ''}
         ${items.length ? `<button type="button" class="ern-add" style="margin-left:-8px" aria-label="${m.n}: Essen eintragen" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg></button>` : ''}
-      </div>${mGoal && items.length ? `<div class="ern-meal-bar ${state}" role="progressbar" aria-label="${m.n}: ${mKcal} von ${mGoal} kcal" aria-valuemin="0" aria-valuemax="${mGoal}" aria-valuenow="${mKcal}"><b style="width:${Math.min(100, mKcal / mGoal * 100)}%"></b></div>` : ''}${rows ? `<div class="ern-items">${rows}</div>` : `<button type="button" class="ern-meal-empty" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg>${m.n} eintragen</button>`}</section>`;
+      </div>${mGoal && items.length ? `<div class="ern-meal-bar ${state}" role="progressbar" aria-label="${m.n}: ${mKcal} von ${mGoal} kcal" aria-valuemin="0" aria-valuemax="${mGoal}" aria-valuenow="${mKcal}"><b style="width:${Math.min(100, mKcal / mGoal * 100)}%"></b></div>` : ''}${rows ? `<div class="ern-items" id="ernItems-${m.k}"${open ? '' : ' hidden'}>${rows}</div>` : `<button type="button" class="ern-meal-empty" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg>${m.n} eintragen</button>`}</section>`;
   }).join('');
   document.getElementById('trackerDay').innerHTML = `
     <div class="card dd-head">
@@ -2971,6 +2979,13 @@ function renderTrackerDay() {
       </div>
     </div>
     <div class="ern-meals">${meals}</div>`;
+}
+// Einträge je Mahlzeit ein-/ausklappen (standardmäßig zu); der Zustand bleibt im Browser gespeichert
+const ernMealOpen = () => { try { return JSON.parse(localStorage.getItem('ern_meal_open') || '{}'); } catch(e) { return {}; } };
+function toggleErnMeal(k) {
+  const o = ernMealOpen(); o[k] = !o[k];
+  try { localStorage.setItem('ern_meal_open', JSON.stringify(o)); } catch(e) {}
+  renderTrackerDay();
 }
 function ernGo(n) {
   const nk = n === 0 ? ddToday() : ddShift(ernView, n);
