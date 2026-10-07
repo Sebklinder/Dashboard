@@ -606,17 +606,17 @@
   .prof-check small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
   .ern-meals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
   .ern-meal.open { border-color: var(--mc); box-shadow: inset 0 3px 0 var(--mc), 0 0 0 1px var(--mc), var(--shadow); }
-  .ern-detail { padding: 12px 20px 8px; box-shadow: inset 0 3px 0 var(--mc), var(--shadow); }
-  .ern-detail-head { display: flex; align-items: center; gap: 4px; }
-  .ern-detail-title { flex: 1; min-width: 0; font-size: 16px; font-weight: 600; display: flex; align-items: baseline; gap: 8px; }
-  .ern-detail-title small { font-size: 12px; font-weight: 400; color: var(--muted); }
-  .ern-detail .ern-copy:last-child { margin-right: -10px; }
+  .ern-detail .ern-items { border-bottom: 1px solid var(--border); }
   .ern-meal-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
   .ern-meal-acts { display: flex; margin: -6px -10px 0 0; }
   .ern-meal-acts .ern-add { margin: 0; }
   .ern-meal-body { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; margin-top: 10px; padding: 0; border: none; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; border-radius: var(--radius-sm); }
   .ern-meal-n { display: inline-flex; align-items: center; gap: 4px; font-size: 16px; font-weight: 600; }
-  .ern-meal-body[aria-expanded="true"] .ern-meal-chev { transform: rotate(90deg); }
+  .ern-modal-ring { width: 44px; height: 44px; background: none; padding: 0; }
+  .ern-modal-ring .ern-meal-ring { width: 44px; height: 44px; }
+  .ern-modal-sub { display: block; font-size: 13px; font-weight: 400; color: var(--muted); letter-spacing: 0; margin-top: 2px; }
+  .ern-modal-sub.warn, .ern-modal-sub.over { color: var(--red); }
+  .ern-modal-empty { margin: 0 0 4px; font-size: 14px; color: var(--muted); }
   .ern-meal-body:hover .ern-meal-chev { color: var(--text); }
   .ern-meal-k { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .ern-meal-k b { font-size: 18px; font-weight: 600; color: var(--text); letter-spacing: -.3px; }
@@ -1563,6 +1563,11 @@
   </div>
 </div>
 
+<!-- Ernährung → Tracker: Mahlzeit (Einträge, Zuletzt gegessen, Wie gestern) – wie die Sport-Dialoge -->
+<div class="modal-overlay" id="mealModal">
+  <div class="modal modal-wide" id="mealModalBox"></div>
+</div>
+
 <!-- Ernährung → Tracker: Essen eintragen / bearbeiten -->
 <div class="modal-overlay" id="foodModal">
   <div class="modal modal-wide">
@@ -2157,7 +2162,7 @@ async function pushState() {
     const snapshot = {};
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k === 'theme' || k === 'ern_meal_open') continue; // rein lokale UI-Einstellungen, nicht syncen
+      if (k === 'theme') continue; // rein lokale UI-Einstellung, nicht syncen
       snapshot[k] = localStorage.getItem(k);
     }
     const res = await fetch('/api/state', { method: 'POST', body: JSON.stringify(snapshot) });
@@ -3043,7 +3048,7 @@ function renderTrackerDay() {
     const status = !items.length ? (mGoal ? `Ziel ${mGoal.toLocaleString('de-DE')} kcal` : 'Noch nichts eingetragen')
       : !mGoal ? count
       : count + ' · ' + (mKcal <= mGoal ? `noch ${(mGoal - mKcal).toLocaleString('de-DE')} kcal` : `${(mKcal - mGoal).toLocaleString('de-DE')} kcal über Ziel`);
-    const open = ernMealOpen().sel === m.k;
+    const open = ernMealSel === m.k;
     // Fortschritt der Mahlzeit als Ring um das Symbol (bis 10 % drüber hellrot, darüber rot)
     const ico = `<span class="ern-meal-ico ern-meal-ring${state ? ' ' + state : ''}"${mGoal ? ` role="progressbar" aria-label="${m.n}: ${mKcal} von ${mGoal} kcal" aria-valuemin="0" aria-valuemax="${mGoal}" aria-valuenow="${mKcal}"` : ''}><svg class="ern-meal-ring-svg" viewBox="0 0 44 44" aria-hidden="true"><circle class="track" cx="22" cy="22" r="${ERN_MEAL_R}"/>${mGoal && mKcal ? `<circle class="val" cx="22" cy="22" r="${ERN_MEAL_R}" stroke-dasharray="${ERN_MEAL_C}" stroke-dashoffset="${(ERN_MEAL_C * (1 - Math.min(1, mKcal / mGoal))).toFixed(2)}"/>` : ''}</svg><svg class="i"><use href="#${m.icon}"/></svg></span>`;
     const rows = items.map(e => {
@@ -3066,22 +3071,24 @@ function renderTrackerDay() {
       // Schnell hinzufügen: zuletzt zu dieser Mahlzeit Gegessenes (ein Tipp = übliche Menge) und „Wie gestern“
       const quick = ernRecent().filter(h => h.meal === m.k).slice(0, 6);
       ernQuick[m.k] = quick;
-      const yItems = ernDay(ddShift(ernView, -1)).filter(e => e.meal === m.k);
+      // „Wie gestern“ nur anbieten, solange die Einträge von gestern nicht schon übernommen sind
+      const yAll = ernDay(ddShift(ernView, -1)).filter(e => e.meal === m.k);
+      const yItems = yAll.every(e => items.some(i => i.name === e.name)) ? [] : yAll;
       const chip = (h, i) => { const b = h.base, amt = b.default ?? (ernPer100(b) ? 100 : 1);
         return `<button type="button" class="ern-quick" onclick="ernQuickAdd('${m.k}',${i})"><svg class="i"><use href="#i-plus"/></svg><span>${escHtml(h.name)}</span><small>${ernPer100(b) ? `${fmtNum(amt)} ${b.unit}` : `${fmtPortion(amt)} Port.`}</small></button>`; };
-      detail = `<section class="card ern-detail" id="ernItems-${m.k}" style="--mc:var(--meal-${m.k})" aria-label="${m.n}">
-      <div class="ern-detail-head">
-        <span class="ern-detail-title">${m.n}<small>${items.length ? count : 'noch nichts eingetragen'}</small></span>
-        ${items.length ? `<button type="button" class="ern-copy" aria-label="${m.n} kopieren" title="Auf einen anderen Tag kopieren" onclick="openCopyMeal('${m.k}')"><svg class="i"><use href="#i-copy"/></svg></button>` : ''}
-        <button type="button" class="ern-copy" aria-label="Schließen" onclick="toggleErnMeal('${m.k}')"><svg class="i"><use href="#i-x"/></svg></button>
-      </div>
-      ${rows ? `<div class="ern-items">${rows}</div>` : ''}
+      detail = `<div class="modal-title"><span class="modal-icon ern-modal-ring" style="--mc:var(--meal-${m.k})">${ico}</span><span>${m.n}<small class="ern-modal-sub ${state}">${items.length ? `${mKcal.toLocaleString('de-DE')}${mGoal ? ` / ${mGoal.toLocaleString('de-DE')}` : ''} kcal · ${status}` : status}</small></span></div>
+      <div class="ern-detail" style="--mc:var(--meal-${m.k})">
+      ${rows ? `<div class="ern-items">${rows}</div>` : '<p class="ern-modal-empty">Noch nichts eingetragen.</p>'}
       ${quick.length ? `<div class="ern-quick-head">Zuletzt gegessen</div><div class="ern-quick-row">${quick.map(chip).join('')}</div>` : ''}
       <div class="ern-detail-actions">
         ${yItems.length ? `<button type="button" class="btn btn-secondary btn-sm" onclick="ernRepeatYesterday('${m.k}')"><svg class="i"><use href="#i-copy"/></svg>Wie gestern (${yItems.length} · ${Math.round(ernSum(yItems, 'kcal')).toLocaleString('de-DE')} kcal)</button>` : ''}
-        <button type="button" class="btn btn-secondary btn-sm" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg>Anderes eintragen</button>
+        ${items.length ? `<button type="button" class="btn btn-secondary btn-sm" onclick="openCopyMeal('${m.k}')"><svg class="i"><use href="#i-copy"/></svg>Auf anderen Tag kopieren</button>` : ''}
       </div>
-    </section>`;
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('mealModal')">Schließen</button>
+        <button class="btn btn-primary" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg>Essen eintragen</button>
+      </div>`;
     }
     // Mahlzeit als Kachel im 2×2-Block: Ring + Aktionen oben, Name/kcal/Status darunter.
     // Aufgeklappt (Einträge sichtbar) nimmt die Kachel die volle Breite ein.
@@ -3094,7 +3101,7 @@ function renderTrackerDay() {
           <button type="button" class="ern-add" aria-label="${m.n}: Essen eintragen" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg></button>
         </span>
       </div>
-      <button type="button" class="ern-meal-body" aria-expanded="${open}" aria-controls="ernItems-${m.k}" onclick="toggleErnMeal('${m.k}')">${body}</button>
+      <button type="button" class="ern-meal-body" aria-haspopup="dialog" onclick="toggleErnMeal('${m.k}')">${body}</button>
     </section>`;
   }).join('');
   document.getElementById('trackerDay').innerHTML = `
@@ -3120,15 +3127,17 @@ function renderTrackerDay() {
         ${ernView !== tk ? `<button type="button" class="btn btn-secondary btn-sm" onclick="ernGo(0)">Heute anzeigen</button>` : `<button type="button" class="btn btn-primary btn-sm" onclick="openFoodModal()"><svg class="i"><use href="#i-plus"/></svg>Essen eintragen</button>`}
       </div>
     </div>
-    <div class="ern-meals">${meals}</div>${detail}`;
+    <div class="ern-meals">${meals}</div>`;
+  // Offenes Mahlzeit-Fenster mitaktualisieren (nach Eintragen, Löschen, „Wie gestern“ …)
+  if(ernMealSel && detail) document.getElementById('mealModalBox').innerHTML = '<button class="modal-close" type="button" title="Schließen" aria-label="Schließen" onclick="closeModal(\'mealModal\')"><svg class="i"><use href="#i-x"/></svg></button>' + detail;
 }
-// Einträge je Mahlzeit ein-/ausklappen (standardmäßig zu); der Zustand bleibt im Browser gespeichert
 const ERN_MEAL_R = 19, ERN_MEAL_C = +(2 * Math.PI * ERN_MEAL_R).toFixed(2);
-const ernMealOpen = () => { try { return JSON.parse(localStorage.getItem('ern_meal_open') || '{}'); } catch(e) { return {}; } };
+// Mahlzeit antippen → Fenster mit Einträgen, „Zuletzt gegessen“ und „Wie gestern“ (wie die Sport-Dialoge)
+let ernMealSel = null;
 function toggleErnMeal(k) {
-  const o = ernMealOpen(); o.sel = o.sel === k ? null : k;  // immer nur eine Mahlzeit aufgeklappt
-  try { localStorage.setItem('ern_meal_open', JSON.stringify(o)); } catch(e) {}
+  ernMealSel = k;
   renderTrackerDay();
+  openModal('mealModal');
 }
 // ---- Schnell hinzufügen ----
 const ernQuick = {};
@@ -5918,6 +5927,7 @@ new MutationObserver(muts => muts.forEach(m => {
     const t = overlayTrigger.get(ov); if(t && document.contains(t)) t.focus();
     if(ov.id === 'kraftModal' || ov.id === 'cardioModal') onSessionModalClosed(ov.id.replace('Modal', ''));
     if(ov.id === 'scanModal') stopScan();
+    if(ov.id === 'mealModal') { ernMealSel = null; renderTrackerDay(); }
     ov.querySelectorAll('[aria-invalid]').forEach(clearFieldError);
   }
 })).observe(document.body, { attributes: true, attributeFilter: ['class'], attributeOldValue: true, subtree: true });
