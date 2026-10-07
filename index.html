@@ -558,44 +558,77 @@
   .ern-sum-goal { background: none; border: none; padding: 0; font: inherit; color: var(--muted); cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
   .ern-sum-goal:hover { color: var(--accent); }
   .dd-progress.over b { background: var(--red); }
-  .ern-macros { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .ern-macros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .ern-macro { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .ern-macro-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .ern-macro-label::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--c); flex-shrink: 0; }
+  .ern-macro-val { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.2px; }
+  .ern-macro-val small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+  .ern-macro-pct { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .ern-macro-bar { height: 4px; border-radius: 2px; background: var(--surface3); overflow: hidden; margin-top: 6px; }
+  .ern-macro-bar b { display: block; height: 100%; background: var(--c); border-radius: 2px; transition: width .3s ease; }
   .ern-meals { padding: 8px 24px; margin-bottom: 16px; }
   .ern-meal { padding: 12px 0; border-bottom: 1px solid var(--border); }
   .ern-meal:last-child { border-bottom: none; }
   .ern-meal-head { display: flex; align-items: center; gap: 8px; min-height: 44px; }
-  .ern-meal-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; flex: 1; min-width: 0; }
-  .ern-meal-name .i { color: var(--muted); }
+  .ern-meal-name { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; flex: 1; min-width: 0; }
+  .ern-meal-ico { width: 32px; height: 32px; border-radius: var(--radius-sm); display: grid; place-items: center; background: var(--surface3); color: var(--text-2); flex-shrink: 0; }
+  .ern-meal.has .ern-meal-ico { background: var(--accent-soft); color: var(--accent); }
+  .ern-meal-title { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+  .ern-meal-title small { font-size: 12px; font-weight: 400; color: var(--muted); }
   .ern-kcal { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--text-2); white-space: nowrap; }
   .ern-add { width: 44px; height: 44px; margin-right: -10px; border: none; background: none; color: var(--accent); cursor: pointer; border-radius: 8px; display: grid; place-items: center; }
   .ern-add:hover { background: var(--accent-soft); }
-  .ern-item { display: flex; align-items: center; gap: 4px; border-top: 1px dashed var(--border); }
+  .ern-items { margin-left: 44px; }
+  .ern-item { display: flex; align-items: center; gap: 4px; border-top: 1px solid var(--border); }
   .ern-item-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 10px 0; border: none; background: none; color: var(--text); text-align: left; font: inherit; cursor: pointer; }
   .ern-item-main:hover .ern-item-name { color: var(--accent); }
   .ern-item-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
   .ern-item-name { font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
   .ern-item-sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .ern-item .icon-btn { width: 44px; height: 44px; margin-right: -10px; }
-  .tracker-side { margin-bottom: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .tracker-side { margin-bottom: 16px; grid-template-columns: 1fr; align-items: start; }
+  @media (min-width: 900px) {
+    .tracker-side { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: 'water fast' 'weight fast'; }
+    #trackerWaterCard { grid-area: water; } #trackerWeightCard { grid-area: weight; } #trackerFast { grid-area: fast; align-self: stretch; }
+  }
   .ern-copy { width: 44px; height: 44px; border: none; background: none; color: var(--muted); cursor: pointer; border-radius: 8px; display: grid; place-items: center; }
   .ern-copy:hover { background: var(--accent-soft); color: var(--accent); }
-  .ern-water-bar b { background: var(--accent2); }
+  .ern-glasses { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; }
+  .ern-glasses b { height: 8px; border-radius: 2px; background: var(--surface3); transition: background .2s ease; }
+  .ern-glasses b.on { background: var(--accent2); }
+  .ern-glasses-caption { font-size: 12px; color: var(--muted); margin-top: 8px; font-variant-numeric: tabular-nums; }
   .ern-water-btns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
   .ern-water-btns .btn { padding: 0 8px; }
   .food-own-btn { margin-top: 8px; }
   .food-hit-row { display: flex; align-items: center; gap: 4px; }
   .food-hit-row .food-hit { flex: 1; min-width: 0; }
   .food-hit-row .icon-btn { width: 40px; height: 40px; }
-  .ern-fast-time { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  #trackerFast { container-type: inline-size; }
+  .ern-fast-run { display: flex; align-items: center; gap: 20px; }
+  .ern-ring { position: relative; width: 132px; height: 132px; flex-shrink: 0; }
+  .ern-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ern-ring circle { fill: none; stroke-width: 10; }
+  .ern-ring .track { stroke: var(--surface3); }
+  .ern-ring .val { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset .4s ease; }
+  .ern-ring.done .val { stroke: var(--green); }
+  .ern-ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ern-ring-label b { font-size: 26px; font-weight: 600; letter-spacing: -.6px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .ern-ring-label span { font-size: 12px; color: var(--muted); }
+  .ern-fast-run .ern-fast-meta { margin-top: 0; font-size: 14px; color: var(--text-2); }
   .ern-fast-meta { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
-  .ern-fast-goals { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-  .ern-chip { min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-2); font: inherit; font-size: 14px; cursor: pointer; font-variant-numeric: tabular-nums; }
+  .ern-fast-goals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 16px; }
+  @container (min-width: 420px) { .ern-fast-goals { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+  .ern-chip { min-height: 40px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-2); font: inherit; font-size: 14px; cursor: pointer; font-variant-numeric: tabular-nums; }
   .ern-chip.on { background: var(--accent-soft); color: var(--accent); border-color: transparent; font-weight: 600; }
   .ern-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
   .ern-row .form-group { flex: 1; min-width: 160px; margin-bottom: 0; }
   .ern-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
   .ern-history { list-style: none; margin: 16px 0 0; padding: 0; font-size: 14px; }
+  .ern-history-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin: 20px 0 4px; }
+  .ern-history-title + .ern-history { margin-top: 0; }
   .ern-history li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--border); }
-  .ern-history li > span:first-child { flex: 1; min-width: 0; color: var(--text-2); }
+  .ern-history li > span:first-child { flex: 1; min-width: 0; color: var(--text-2); font-variant-numeric: tabular-nums; }
   .ern-history b { font-weight: 600; font-variant-numeric: tabular-nums; }
   .ern-history .icon-btn { width: 36px; height: 36px; }
   .ern-weight-now { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -608,7 +641,7 @@
   .food-hit small { display: block; color: var(--muted); font-size: 12px; }
   .food-hit-kcal { color: var(--text-2); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .food-status { font-size: 12px; color: var(--muted); padding: 8px 0; }
-  @media (max-width: 640px) { .ern-meals { padding: 4px 16px; } }
+  @media (max-width: 640px) { .ern-meals { padding: 4px 16px; } .ern-items { margin-left: 0; } .ern-wide { display: none; } .ern-macro { padding: 8px 10px; } .ern-ring { width: 112px; height: 112px; } .ern-ring-label b { font-size: 22px; } }
 
   /* Trend-Badges für Trainingsanalyse */
   .trend-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
@@ -2585,6 +2618,8 @@ const ERN_MEALS = [
   { k: 'snack', n: 'Snacks', icon: 'i-leaf' },
 ];
 const ERN_MACROS = [['protein', 'Protein'], ['fett', 'Fett'], ['kh', 'KH']];
+const ERN_MACRO_KCAL = { protein: 4, fett: 9, kh: 4 };
+const ERN_MACRO_COLOR = { protein: '--green', fett: '--yellow', kh: '--accent2' };
 const FAST_GOALS = [12, 14, 16, 18, 20, 24];
 const ernGoal = () => Number(DB.get('ern_goal', KCAL_GOAL)) || KCAL_GOAL;
 const ernWaterGoal = () => Number(DB.get('ern_water_goal', 2500)) || 2500;
@@ -2597,6 +2632,12 @@ const ernSum = (list, key) => list.reduce((s, e) => s + (Number(e[key]) || 0), 0
 const ernFastHours = f => ((f.end ? new Date(f.end) : new Date()) - new Date(f.start)) / 3600000;
 const ernHM = h => { const m = Math.max(0, Math.floor(h * 60)); return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
 const ernTime = iso => new Date(iso).toLocaleString('de-DE', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+// Zeitraum kompakt: Wochentag nur wiederholen, wenn das Ende auf einen anderen Tag fällt
+const ernSpan = (a, b) => {
+  const s = new Date(a), e = new Date(b), hm = d => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  const wd = d => d.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', '');
+  return `${wd(s)} ${hm(s)} – ${ddLocalKey(s) === ddLocalKey(e) ? '' : wd(e) + ' '}${hm(e)}`;
+};
 // datetime-local braucht lokale Zeit ohne Zeitzone
 const ernLocalInput = d => ddLocalKey(d) + 'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
 let ernView = ddToday();
@@ -2633,7 +2674,17 @@ function renderTrackerDay() {
   const tk = ddToday(), list = ernDay(ernView), goal = ernGoal();
   const kcal = Math.round(ernSum(list, 'kcal')), left = goal - kcal;
   const label = new Date(ernView + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
-  const macros = ERN_MACROS.map(([k, n]) => `<span class="macro ${k}"><span>${n}</span>${fmtNum(ernSum(list, k))} g</span>`).join('');
+  // Energieanteile der Makros (Protein/KH 4 kcal/g, Fett 9 kcal/g)
+  const mg = Object.fromEntries(ERN_MACROS.map(([k]) => [k, ernSum(list, k)]));
+  const mk = Object.fromEntries(ERN_MACROS.map(([k]) => [k, mg[k] * ERN_MACRO_KCAL[k]]));
+  const mTotal = Object.values(mk).reduce((a, b) => a + b, 0);
+  const pct = k => mTotal ? Math.round(mk[k] / mTotal * 100) : 0;
+  const macros = ERN_MACROS.map(([k, n]) => `<div class="ern-macro" style="--c:var(${ERN_MACRO_COLOR[k]})">
+      <span class="ern-macro-label">${n}</span>
+      <span class="ern-macro-val">${fmtNum(mg[k])}<small>g</small></span>
+      <span class="ern-macro-pct">${mTotal ? `${pct(k)} %<span class="ern-wide"> der Energie</span>` : '—'}</span>
+      <span class="ern-macro-bar" aria-hidden="true"><b style="width:${pct(k)}%"></b></span>
+    </div>`).join('');
   const meals = ERN_MEALS.map(m => {
     const items = list.filter(e => e.meal === m.k);
     const rows = items.map(e => {
@@ -2646,13 +2697,13 @@ function renderTrackerDay() {
         <button type="button" class="icon-btn" aria-label="${escAttr(e.name)} löschen" onclick="deleteFood('${e.id}')"><svg class="i"><use href="#i-trash"/></svg></button>
       </div>`;
     }).join('');
-    return `<div class="ern-meal">
+    return `<div class="ern-meal${items.length ? ' has' : ''}">
       <div class="ern-meal-head">
-        <span class="ern-meal-name"><svg class="i"><use href="#${m.icon}"/></svg>${m.n}</span>
+        <span class="ern-meal-name"><span class="ern-meal-ico"><svg class="i"><use href="#${m.icon}"/></svg></span><span class="ern-meal-title">${m.n}<small>${items.length ? `${items.length} ${items.length === 1 ? 'Eintrag' : 'Einträge'}` : 'Noch nichts eingetragen'}</small></span></span>
         ${items.length ? `<span class="ern-kcal">${Math.round(ernSum(items, 'kcal')).toLocaleString('de-DE')} kcal</span>
         <button type="button" class="ern-copy" aria-label="${m.n} kopieren" title="Auf einen anderen Tag kopieren" onclick="openCopyMeal('${m.k}')"><svg class="i"><use href="#i-copy"/></svg></button>` : ''}
         <button type="button" class="ern-add" style="${items.length ? 'margin-left:-8px' : ''}" aria-label="${m.n}: Essen eintragen" onclick="openFoodModal('${m.k}')"><svg class="i"><use href="#i-plus"/></svg></button>
-      </div>${rows}</div>`;
+      </div>${rows ? `<div class="ern-items">${rows}</div>` : ''}</div>`;
   }).join('');
   document.getElementById('trackerDay').innerHTML = `
     <div class="card dd-head">
@@ -2703,10 +2754,13 @@ function saveErnGoal() {
 // ---- Wasser ----
 function renderWaterCard() {
   const ml = DB.get('ern_water', {})[ernView] || 0, goal = ernWaterGoal();
+  // Ziel in Glas-Segmente teilen (à 250 ml, höchstens 12 Segmente)
+  const glasses = Math.min(12, Math.max(2, Math.round(goal / 250))), per = goal / glasses;
   const dayLabel = ernView === ddToday() ? 'heute' : new Date(ernView + 'T12:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
   document.getElementById('trackerWaterCard').innerHTML = `<div class="card-title"><svg class="i"><use href="#i-drop"/></svg>Wasser ${dayLabel}</div>
     <div class="ern-weight-now"><span class="dd-num">${fmtL(ml)}</span><span class="dd-of">von <button type="button" class="ern-sum-goal" onclick="openErnGoal('ernWaterGoalInput')" aria-label="Wasserziel ändern, aktuell ${fmtL(goal)}">${fmtL(goal)}</button></span>${ml >= goal ? '<span class="rating-good">Ziel erreicht</span>' : ''}</div>
-    <div class="dd-progress ern-water-bar" role="progressbar" aria-label="Wasser" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${ml}"><b style="width:${Math.min(100, Math.round(ml / goal * 100))}%"></b></div>
+    <div class="ern-glasses" style="--n:${glasses}" role="progressbar" aria-label="Wasser" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${ml}">${Array.from({ length: glasses }, (_, i) => `<b class="${ml >= (i + 1) * per - 1 ? 'on' : ''}"></b>`).join('')}</div>
+    <div class="ern-glasses-caption">${Math.floor(ml / 250)} ${Math.floor(ml / 250) === 1 ? 'Glas' : 'Gläser'} à 250 ml${ml < goal ? ` · noch ${fmtL(goal - ml)}` : ''}</div>
     <div class="ern-water-btns">
       <button type="button" class="btn btn-secondary" onclick="addWater(250)" aria-label="Glas, 250 ml hinzufügen" title="Glas">+ 250 ml</button>
       <button type="button" class="btn btn-secondary" onclick="addWater(500)" aria-label="Flasche, 500 ml hinzufügen" title="Flasche">+ 500 ml</button>
@@ -2983,18 +3037,24 @@ function logRezept(r) {
 
 // ---- Fasten ----
 const ernActiveFast = () => DB.get('ern_fasts', []).find(f => !f.end);
+const ERN_RING_R = 54, ERN_RING_C = +(2 * Math.PI * ERN_RING_R).toFixed(2);
+const ernRingOffset = p => (ERN_RING_C * (1 - Math.min(1, Math.max(0, p)))).toFixed(2);
 function renderFast() {
   const el = document.getElementById('trackerFast');
   const active = ernActiveFast();
   const done = DB.get('ern_fasts', []).filter(f => f.end).slice(-5).reverse();
-  const history = done.length ? `<ul class="ern-history">${done.map(f => { const h = ernFastHours(f), ok = h >= f.goal;
-    return `<li><span>${ernTime(f.start)} – ${ernTime(f.end)}</span><b>${ernHM(h)} h</b><span class="${ok ? 'rating-good' : 'rating-warn'}">${ok ? 'Ziel' : `von ${f.goal} h`}</span><button type="button" class="icon-btn" aria-label="Fasten vom ${ernTime(f.start)} löschen" onclick="deleteFast('${f.id}')"><svg class="i"><use href="#i-trash"/></svg></button></li>`; }).join('')}</ul>` : '';
+  const history = done.length ? `<div class="ern-history-title">Letzte Fastenzeiten</div><ul class="ern-history">${done.map(f => { const h = ernFastHours(f), ok = h >= f.goal;
+    return `<li><span>${ernSpan(f.start, f.end)}</span><b>${ernHM(h)} h</b><span class="${ok ? 'rating-good' : 'rating-warn'}">${ok ? 'Ziel' : `von ${f.goal} h`}</span><button type="button" class="icon-btn" aria-label="Fasten vom ${ernTime(f.start)} löschen" onclick="deleteFast('${f.id}')"><svg class="i"><use href="#i-trash"/></svg></button></li>`; }).join('')}</ul>` : '';
   if(active) {
     const h = ernFastHours(active), endAt = new Date(new Date(active.start).getTime() + active.goal * 3600000);
     el.innerHTML = `<div class="card-title"><svg class="i"><use href="#i-timer"/></svg>Fasten läuft</div>
-      <div class="ern-fast-time"><span class="dd-num" id="fastElapsed">${ernHM(h)}</span><span class="dd-of">von ${active.goal} h</span></div>
-      <div class="dd-progress" role="progressbar" aria-label="Fastenfortschritt" aria-valuemin="0" aria-valuemax="${active.goal}" aria-valuenow="${Math.floor(h)}"><b id="fastBar" style="width:${Math.min(100, h / active.goal * 100).toFixed(1)}%"></b></div>
-      <div class="ern-fast-meta" id="fastMeta">${h >= active.goal ? 'Ziel erreicht – du kannst das Fasten beenden, wann du willst.' : `Ziel erreicht ${ernTime(endAt.toISOString())} Uhr`}</div>
+      <div class="ern-fast-run">
+        <div class="ern-ring${h >= active.goal ? ' done' : ''}" id="fastRing" role="progressbar" aria-label="Fastenfortschritt" aria-valuemin="0" aria-valuemax="${active.goal}" aria-valuenow="${Math.floor(h)}">
+          <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="${ERN_RING_R}"/><circle class="val" id="fastBar" cx="60" cy="60" r="${ERN_RING_R}" stroke-dasharray="${ERN_RING_C}" stroke-dashoffset="${ernRingOffset(h / active.goal)}"/></svg>
+          <div class="ern-ring-label"><b id="fastElapsed">${ernHM(h)}</b><span>von ${active.goal} h</span></div>
+        </div>
+        <div class="ern-fast-meta" id="fastMeta">${h >= active.goal ? 'Ziel erreicht – du kannst das Fasten beenden, wann du willst.' : `Ziel erreicht ${ernTime(endAt.toISOString())} Uhr`}</div>
+      </div>
       <div class="ern-row" style="margin-top:12px">
         <div class="form-group"><label class="form-label" for="fastStart">Beginn</label><input type="datetime-local" class="form-input" id="fastStart" value="${ernLocalInput(new Date(active.start))}" max="${ernLocalInput(new Date())}" onchange="setFastStart(this.value)"></div>
       </div>
@@ -3056,8 +3116,9 @@ setInterval(() => {
   if(!active || !el || !document.getElementById('ernaehrung-tracker').offsetParent) return;
   const h = ernFastHours(active);
   el.textContent = ernHM(h);
-  document.getElementById('fastBar').style.width = Math.min(100, h / active.goal * 100).toFixed(1) + '%';
-  if(h >= active.goal) document.getElementById('fastMeta').textContent = 'Ziel erreicht – du kannst das Fasten beenden, wann du willst.';
+  document.getElementById('fastBar').setAttribute('stroke-dashoffset', ernRingOffset(h / active.goal));
+  document.getElementById('fastRing').setAttribute('aria-valuenow', Math.floor(h));
+  if(h >= active.goal) { document.getElementById('fastRing').classList.add('done'); document.getElementById('fastMeta').textContent = 'Ziel erreicht – du kannst das Fasten beenden, wann du willst.'; }
 }, 30000);
 
 // ---- Gewicht ----
@@ -3553,7 +3614,7 @@ function renderTrackerCharts() {
   charts.nk = new Chart(document.getElementById('chartNutritionKcal'), {
     type:'bar',
     data:{ labels: kcalData.map(d=>fmtDate(d.date)), datasets:[
-      { label:'Kalorien', data:kcalData.map(d=>d.kcal), backgroundColor:kcalData.map(d=>d.kcal>goalOf(d) ? 'rgba(248,113,113,0.7)' : 'rgba(74,222,128,0.7)'), borderRadius:3 },
+      { label:'Kalorien', data:kcalData.map(d=>d.kcal), backgroundColor:kcalData.map(d=>d.kcal>goalOf(d) ? 'rgba(248,113,113,0.7)' : 'rgba(74,222,128,0.7)'), borderRadius:3, maxBarThickness:28 },
       { label:'Tagesziel', data:kcalData.map(goalOf), type:'line', borderColor:'rgba(34,211,238,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
       { label:'Trend', data:calcTrend(kcalData.map(d=>d.kcal)), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
     ]},
