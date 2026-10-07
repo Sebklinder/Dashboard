@@ -572,8 +572,19 @@
   .ern-kcal .ern-of { color: var(--muted); }
   .ern-item-dd { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--green); }
   .ern-item-dd .i { width: 12px; height: 12px; }
-  .ern-head-actions { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
-  .dd-sum .ern-head-actions .btn { margin-left: 0; }
+  .ern-day-top { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'ring side actions'; align-items: center; gap: 12px 24px; }
+  .ern-ring-kcal { grid-area: ring; width: 152px; height: 152px; }
+  .ern-ring.ern-ring-kcal .val { stroke: var(--green); }
+  .ern-ring.ern-ring-kcal.over .val { stroke: var(--red); }
+  .ern-ring-kcal .ern-ring-label b { font-size: 30px; letter-spacing: -.8px; }
+  .ern-ring-kcal .ern-sum-goal { font-size: 12px; }
+  .ern-day-side { grid-area: side; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; }
+  .ern-day-stats { display: flex; gap: 24px; margin: 0; flex-wrap: wrap; }
+  .ern-day-stats dt { font-size: 12px; color: var(--muted); }
+  .ern-day-stats dd { margin: 0; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
+  .ern-day-stats dd.bad { color: var(--red); }
+  .ern-head-actions { grid-area: actions; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  @media (max-width: 900px) { .ern-day-top { grid-template-columns: auto 1fr; grid-template-areas: 'ring side' 'actions actions'; } .ern-head-actions { justify-content: stretch; } .ern-head-actions .btn { flex: 1; justify-content: center; } }
   /* Ernährungsprofil */
   .prof-sec { padding: 16px 0; border-top: 1px solid var(--border); }
   .prof-sec:first-of-type { border-top: none; padding-top: 0; }
@@ -680,7 +691,7 @@
   .food-hit small { display: block; color: var(--muted); font-size: 12px; }
   .food-hit-kcal { color: var(--text-2); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .food-status { font-size: 12px; color: var(--muted); padding: 8px 0; }
-  @media (max-width: 640px) { .ern-meals { padding: 4px 16px; } .ern-items { margin-left: 0; } .ern-wide { display: none; } .ern-macro { padding: 8px 10px; } .ern-macros { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ern-meal-bar { margin-left: 0; } .ern-ring { width: 112px; height: 112px; } .ern-ring-label b { font-size: 22px; } }
+  @media (max-width: 640px) { .ern-meals { padding: 4px 16px; } .ern-items { margin-left: 0; } .ern-wide { display: none; } .ern-macro { padding: 8px 10px; } .ern-macros { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ern-meal-bar { margin-left: 0; } .ern-ring { width: 112px; height: 112px; } .ern-ring-label b { font-size: 22px; } .ern-ring-kcal { width: 124px; height: 124px; } .ern-ring-kcal .ern-ring-label b { font-size: 24px; } .ern-day-top { gap: 12px 16px; } .ern-day-stats { gap: 4px 16px; } .ern-day-stats dd { font-size: 16px; } }
 
   /* Trend-Badges für Trainingsanalyse */
   .trend-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
@@ -704,6 +715,7 @@
   .macro.protein { color: var(--green); }
   .macro.fett { color: var(--yellow); }
   .macro.kh { color: var(--accent2); }
+  .macro.ballast { color: var(--accent); }
   .zutat-list { list-style: none; margin: 0; padding: 0; font-size: 14px; }
   .zutat-list li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--border); }
   .zutat-list li:last-child { border-bottom: none; }
@@ -1437,7 +1449,7 @@
         </div>
         <div class="form-group">
           <label class="form-label" for="rezeptBallast">Ballaststoffe (g)</label>
-          <input type="number" min="0" step="0.1" class="form-input" id="rezeptBallast" placeholder="9">
+          <input type="number" min="0" step="0.1" class="form-input" id="rezeptBallast" placeholder="aus Zutaten">
         </div>
       </div>
     </div>
@@ -2751,6 +2763,7 @@ function nutritionDays() {
 function openTracker() { nav('ernaehrung'); }
 
 function renderTracker() {
+  ernBackfillBallast();
   renderTrackerDay();
   renderWaterCard();
   renderFast();
@@ -2814,16 +2827,24 @@ function renderTrackerDay() {
         <div class="dd-date">${ernView === tk ? 'Heute, ' : ''}${label}</div>
         <button type="button" class="icon-btn" aria-label="Nächster Tag" ${ernView >= tk ? 'disabled' : ''} onclick="ernGo(1)"><svg class="i"><use href="#i-chevron"/></svg></button>
       </div>
-      <div class="dd-sum">
-        <span class="dd-num">${kcal.toLocaleString('de-DE')}</span>
-        <span class="dd-of">von <button type="button" class="ern-sum-goal" onclick="openErnGoal()" aria-label="Kalorienziel ändern, aktuell ${goal} kcal">${goal.toLocaleString('de-DE')} kcal</button></span>
-        <span class="${left >= 0 ? 'rating-good' : 'rating-bad'}">${left >= 0 ? `noch ${left.toLocaleString('de-DE')}` : `${(-left).toLocaleString('de-DE')} über Ziel`}</span>
+      <div class="ern-day-top">
+        <div class="ern-ring ern-ring-kcal${left < 0 ? ' over' : ''}" role="progressbar" aria-label="Kalorien: ${kcal} von ${goal} kcal" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${kcal}">
+          <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="${ERN_RING_R}"/><circle class="val" cx="60" cy="60" r="${ERN_RING_R}" stroke-dasharray="${ERN_RING_C}" stroke-dashoffset="${ernRingOffset(kcal / goal)}"/></svg>
+          <div class="ern-ring-label"><b>${kcal.toLocaleString('de-DE')}</b><span>von <button type="button" class="ern-sum-goal" onclick="openErnGoal()" aria-label="Kalorienziel ändern, aktuell ${goal} kcal">${goal.toLocaleString('de-DE')}</button> kcal</span></div>
+        </div>
+        <div class="ern-day-side">
+          <span class="${left >= 0 ? 'rating-good' : 'rating-bad'}">${left >= 0 ? `noch ${left.toLocaleString('de-DE')} kcal` : `${(-left).toLocaleString('de-DE')} kcal über Ziel`}</span>
+          <dl class="ern-day-stats">
+            <div><dt>Gegessen</dt><dd>${kcal.toLocaleString('de-DE')}</dd></div>
+            <div><dt>Ziel</dt><dd>${goal.toLocaleString('de-DE')}</dd></div>
+            <div><dt>${left >= 0 ? 'Übrig' : 'Drüber'}</dt><dd class="${left >= 0 ? '' : 'bad'}">${Math.abs(left).toLocaleString('de-DE')}</dd></div>
+          </dl>
+        </div>
         <span class="ern-head-actions">
           <button type="button" class="btn btn-secondary btn-sm" onclick="openErnGoal()"><svg class="i"><use href="#i-sliders"/></svg>Profil</button>
           ${ernView !== tk ? `<button type="button" class="btn btn-secondary btn-sm" onclick="ernGo(0)">Heute anzeigen</button>` : `<button type="button" class="btn btn-primary btn-sm" onclick="openFoodModal()"><svg class="i"><use href="#i-plus"/></svg>Essen eintragen</button>`}
         </span>
       </div>
-      <div class="dd-progress${left < 0 ? ' over' : ''}" role="progressbar" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${kcal}"><b style="width:${Math.min(100, Math.round(kcal / goal * 100))}%"></b></div>
       <div class="ern-macros">${macros}</div>
     </div>
     <div class="card ern-meals">${meals}</div>`;
@@ -3118,6 +3139,8 @@ function pickFood(i) {
   document.getElementById('foodName').value = h.name;
   if(h.meal) document.getElementById('foodMeal').value = h.meal;
   foodRezeptId = h.rezeptId || null;
+  // Open Food Facts liefert Ballaststoffe oft nicht – dann aus der Tabelle schätzen
+  if(h.base.ballast == null && ernPer100(h.base)) { const b = ballastJe100(h.name); if(b != null) h.base = { ...h.base, ballast: b }; }
   Object.values(FOOD_FIELDS).forEach(id => document.getElementById(id).value = '');
   setFoodBase(h.base);
   foodRecalc();
@@ -3215,6 +3238,7 @@ function saveFood() {
     if(amount > 0) { entry.amount = amount; entry.unit = foodBase.unit; entry.base = foodBase; }
   }
   if(foodRezeptId) entry.rezeptId = foodRezeptId;
+  if(entry.ballast == null) { const b = ernBallastEstimate(entry); if(b != null) entry.ballast = b; }
   const log = DB.get('ern_log', {});
   const list = [...(log[ernView] || [])];
   const idx = list.findIndex(e => e.id === entry.id);
@@ -4996,6 +5020,67 @@ const DD_ZUTATEN = [
   ['paprika','gemuese',80], ['tomate','gemuese',80], ['zwiebel','gemuese',80], ['karotte','gemuese',80], ['möhre','gemuese',80], ['zucchini','gemuese',80], ['pilz','gemuese',80], ['champignon','gemuese',80], ['süßkartoffel','gemuese',80], ['gurke','gemuese',80],
 ];
 const DD_KURZ = { bohnen: 'Hülsenfrüchte', beeren: 'Beeren', fruechte: 'Obst', kreuz: 'Kreuzblütler', blatt: 'Blattgrün', gemuese: 'Gemüse', lein: 'Leinsamen', nuesse: 'Nüsse', kraeuter: 'Kurkuma', vollkorn: 'Vollkorn' };
+// Ballaststoffe in g je 100 g (gerundete Tabellenwerte, Hülsenfrüchte/Getreide gegart). Spezifisches zuerst – der erste Treffer zählt.
+const BALLAST_JE_100 = [
+  ['leinsamen', 27], ['leinsaat', 27], ['chia', 34], ['flohsamen', 80], ['weizenkleie', 45], ['haferkleie', 15], ['haferflocken', 10], ['müsli', 8],
+  ['vollkornbrot', 7.5], ['knäckebrot', 14], ['vollkornnudel', 4.5], ['vollkorn', 1.8], ['quinoa', 2.8], ['buchweizen', 2.7], ['hirse', 1.3], ['bulgur', 4.5], ['couscous', 1.4],
+  ['nudel', 1.8], ['pasta', 1.8], ['reis', 0.4], ['brötchen', 3], ['brot', 4],
+  ['süßkartoffel', 3], ['kartoffel', 1.8],
+  ['linse', 8], ['kichererbse', 6], ['kidneybohne', 6.5], ['schwarze bohne', 7], ['weiße bohne', 6], ['bohne', 6], ['edamame', 5], ['erbse', 5], ['hummus', 6], ['tempeh', 5], ['tofu', 2],
+  ['himbeer', 6.5], ['brombeer', 5.3], ['johannisbeer', 7], ['heidelbeer', 2.4], ['blaubeer', 2.4], ['erdbeer', 2], ['beeren', 3],
+  ['birne', 3.1], ['kiwi', 3], ['apfel', 2.4], ['orange', 2.4], ['banane', 2], ['mango', 1.6], ['dattel', 8], ['feige', 2.9], ['avocado', 6.7],
+  ['rosenkohl', 4.4], ['grünkohl', 4.2], ['brokkoli', 3], ['blumenkohl', 2], ['rotkohl', 2.5], ['weißkohl', 2.9], ['kohlrabi', 1.4], ['pak choi', 1],
+  ['spinat', 2.2], ['mangold', 1.6], ['rucola', 1.6], ['feldsalat', 1.5], ['salat', 1.3],
+  ['karotte', 2.8], ['möhre', 2.8], ['paprika', 2], ['passierte tomate', 1.5], ['tomate', 1.2], ['zwiebel', 1.7], ['knoblauch', 2.1], ['zucchini', 1], ['aubergine', 3],
+  ['champignon', 1.5], ['pilz', 1.5], ['gurke', 0.5], ['radieschen', 1.6], ['rote bete', 2.8], ['kürbis', 1.5], ['mais', 2.7], ['sellerie', 1.6], ['lauch', 1.8],
+  ['mandelmus', 10], ['mandel', 12.5], ['walnüss', 6.7], ['walnuss', 6.7], ['haselnuss', 9.7], ['haselnüss', 9.7], ['cashew', 3.3], ['erdnuss', 8.5], ['pistazie', 10.6],
+  ['kürbiskern', 6], ['sonnenblumenkern', 8.6], ['sesam', 11.8], ['kakao', 33], ['zartbitter', 10],
+];
+// Getränke, Öle und Milchprodukte: keine Schätzung (Mandelmilch ist keine Mandel, Leinöl kein Leinsamen)
+const BALLAST_OHNE = ['milch', 'drink', 'saft', 'kaffee', 'espresso', 'öl', 'joghurt', 'skyr', 'quark', 'käse'];
+function ballastJe100(name) {
+  const n = String(name || '').toLowerCase();
+  if(BALLAST_OHNE.some(x => n.includes(x))) return null;
+  const r = BALLAST_JE_100.find(([kw]) => n.includes(kw));
+  return r ? r[1] : null;
+}
+// Ballaststoffe einer Rezeptportion aus den Zutaten (Zutaten ohne Treffer zählen 0 – Fleisch, Fisch, Milch, Whey …)
+function rezeptBallast(r) {
+  const zs = (r.zutaten || []).filter(z => parseFloat(z.gramm) > 0);
+  if(!zs.length) return null;
+  return Math.round(zs.reduce((sum, z) => sum + (ballastJe100(z.name) || 0) * parseFloat(z.gramm) / 100, 0) * 10) / 10;
+}
+// Schätzung für einen Eintrag ohne Ballaststoffangabe: über das Rezept oder über Name + Menge in g/ml
+function ernBallastEstimate(e) {
+  const r = DB.get('rezepte', []).find(x => (e.rezeptId && x.id === e.rezeptId) || x.name.toLowerCase() === String(e.name).toLowerCase());
+  const rb = r ? (r.ballast !== '' && r.ballast != null ? +r.ballast : rezeptBallast(r)) : null;
+  if(rb != null) return Math.round(rb * (e.unit === 'portion' && e.amount ? e.amount : 1) * 10) / 10;
+  const per = ballastJe100(e.name);
+  if(per != null && (e.unit === 'g' || e.unit === 'ml') && e.amount) return Math.round(per * e.amount / 100 * 10) / 10;
+  return null;
+}
+// Fehlende Ballaststoffe nachtragen: Rezepte, eigene Lebensmittel, Einträge. Füllt nur Lücken, überschreibt nie eigene Angaben.
+function ernBackfillBallast() {
+  const rezepte = DB.get('rezepte', []);
+  let rc = false;
+  rezepte.forEach(r => { if(r.ballast === '' || r.ballast == null) { const b = rezeptBallast(r); if(b != null) { r.ballast = b; rc = true; } } });
+  if(rc) DB.set('rezepte', rezepte);
+  const foods = DB.get('ern_foods', []);
+  let fc = false;
+  foods.forEach(f => { if(f.ballast == null) { const b = ballastJe100(f.name); if(b != null) { f.ballast = b; fc = true; } } });
+  if(fc) DB.set('ern_foods', foods);
+  const log = DB.get('ern_log', {});
+  let lc = false;
+  Object.values(log).forEach(list => list.forEach(e => {
+    if(e.ballast != null) return;
+    const b = ernBallastEstimate(e);
+    if(b == null) return;
+    e.ballast = b; lc = true;
+    if(e.base && e.base.ballast == null) e.base.ballast = ernPer100(e.base) ? ballastJe100(e.name) ?? undefined : b / (e.amount || 1);
+  }));
+  if(lc) DB.set('ern_log', log);
+}
+
 function rezeptDD(r) {
   const sum = {};
   (r.zutaten || []).forEach(z => {
@@ -5022,6 +5107,7 @@ function rezeptGegessen(id) {
 
 function renderRezepte() {
   seedRezepte();
+  ernBackfillBallast();
   const all = DB.get('rezepte', []);
   const q = (document.getElementById('rezeptSearch')?.value || '').trim().toLowerCase();
   Object.keys(REZEPT_KATEGORIEN).forEach(kat => {
@@ -5044,6 +5130,7 @@ function renderRezepte() {
           <div class="macro protein"><span>Protein</span>${fmtNum(r.protein,' g')}</div>
           <div class="macro fett"><span>Fett</span>${fmtNum(r.fett,' g')}</div>
           <div class="macro kh"><span>KH</span>${fmtNum(r.kh,' g')}</div>
+          ${r.ballast !== '' && r.ballast != null ? `<div class="macro ballast"><span>Ballast</span>${fmtNum(r.ballast,' g')}</div>` : ''}
         </div>
         ${(() => { const d = rezeptDD(r); const keys = DD_GROUPS.filter(g => d[g.k]);
           return keys.length ? `<div class="rezept-dd" aria-label="Daily Dozen">${keys.map(g => `<span class="dd-chip" style="--h:${g.h}">${DD_KURZ[g.k]}${d[g.k] > 1 ? ` <b>${d[g.k]}</b>` : ''}</span>`).join('')}</div>` : ''; })()}
@@ -5116,6 +5203,8 @@ function saveRezept() {
     ballast: num('rezeptBallast'),
     updated: today(),
   };
+  // Ballaststoffe leer gelassen → aus den Zutaten berechnen
+  if(entry.ballast === '') { const b = rezeptBallast(entry); if(b != null) entry.ballast = b; }
   const data = DB.get('rezepte', []);
   const idx = data.findIndex(x => x.id === entry.id);
   if(idx >= 0) data[idx] = { ...data[idx], ...entry }; else data.push({ ...entry, created: today() });
