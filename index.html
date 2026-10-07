@@ -3049,6 +3049,9 @@ function renderTrackerDay() {
       : !mGoal ? count
       : count + ' · ' + (mKcal <= mGoal ? `noch ${(mGoal - mKcal).toLocaleString('de-DE')} kcal` : `${(mKcal - mGoal).toLocaleString('de-DE')} kcal über Ziel`);
     const open = ernMealSel === m.k;
+    // Kachel ohne Anzahl der Einträge – nur Rest bzw. Überschreitung (das Fenster zeigt die Anzahl weiter)
+    const tileStatus = !items.length || !mGoal ? (items.length ? '' : status)
+      : mKcal <= mGoal ? `noch ${(mGoal - mKcal).toLocaleString('de-DE')} kcal` : `${(mKcal - mGoal).toLocaleString('de-DE')} kcal über Ziel`;
     // Fortschritt der Mahlzeit als Ring um das Symbol (bis 10 % drüber hellrot, darüber rot)
     const ico = `<span class="ern-meal-ico ern-meal-ring${state ? ' ' + state : ''}"${mGoal ? ` role="progressbar" aria-label="${m.n}: ${mKcal} von ${mGoal} kcal" aria-valuemin="0" aria-valuemax="${mGoal}" aria-valuenow="${mKcal}"` : ''}><svg class="ern-meal-ring-svg" viewBox="0 0 44 44" aria-hidden="true"><circle class="track" cx="22" cy="22" r="${ERN_MEAL_R}"/>${mGoal && mKcal ? `<circle class="val" cx="22" cy="22" r="${ERN_MEAL_R}" stroke-dasharray="${ERN_MEAL_C}" stroke-dashoffset="${(ERN_MEAL_C * (1 - Math.min(1, mKcal / mGoal))).toFixed(2)}"/>` : ''}</svg><svg class="i"><use href="#${m.icon}"/></svg></span>`;
     const rows = items.map(e => {
@@ -3093,7 +3096,7 @@ function renderTrackerDay() {
     // Mahlzeit als Kachel im 2×2-Block: Ring + Aktionen oben, Name/kcal/Status darunter.
     // Aufgeklappt (Einträge sichtbar) nimmt die Kachel die volle Breite ein.
     const kcalTxt = `<span class="ern-meal-k"><b>${mKcal.toLocaleString('de-DE')}</b>${mGoal ? ` / ${mGoal.toLocaleString('de-DE')}` : ''} kcal</span>`;
-    const body = `<span class="ern-meal-n">${m.n}<svg class="i ern-meal-chev" aria-hidden="true"><use href="#i-chevron"/></svg></span>${kcalTxt}<small class="ern-meal-st ${state}">${status}</small>`;
+    const body = `<span class="ern-meal-n">${m.n}<svg class="i ern-meal-chev" aria-hidden="true"><use href="#i-chevron"/></svg></span>${kcalTxt}${tileStatus ? `<small class="ern-meal-st ${state}">${tileStatus}</small>` : ''}`;
     return `<section class="card ern-meal${items.length ? ' has' : ''}${open ? ' open' : ''}" style="--mc:var(--meal-${m.k})" aria-label="${m.n}">
       <div class="ern-meal-top">
         ${ico}
