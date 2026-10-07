@@ -386,6 +386,35 @@
   .journal-date { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
   .journal-mood { display: inline-block; font-size: 12px; color: var(--text-2); margin-right: 8px; }
   .journal-text { max-width: 70ch; font-size: 14px; color: var(--text); line-height: 1.6; margin-top: 8px; }
+  /* Tages-Check */
+  .check-date { width: auto; height: 36px; }
+  .check-card .search-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .check-sec { display: flex; align-items: center; gap: 6px; margin: 4px 0 10px; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .check-sec .i { width: 14px; height: 14px; }
+  .check-sec ~ .check-sec { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .check-card textarea.form-input { min-height: 0; }
+  .check-rate-head { margin: 4px 0 8px; font-size: 14px; font-weight: 600; color: var(--text-2); }
+  .check-rate { margin-bottom: 12px; }
+  .check-rate-label { font-size: 14px; color: var(--text-2); margin-bottom: 6px; }
+  .check-scale { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
+  .check-n { height: 36px; min-width: 0; padding: 0; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface2); color: var(--text-2); font: inherit; font-size: 14px; font-variant-numeric: tabular-nums; cursor: pointer; }
+  .check-n:hover { border-color: var(--border-strong); color: var(--text); }
+  .check-n.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .check-foot { margin-top: 4px; font-size: 12px; color: var(--muted); }
+  .check-avg { margin-bottom: 16px; }
+  table.check-avg th, table.check-avg td { padding: 8px 10px; }
+  .check-entry-head { display: flex; align-items: center; gap: 8px; }
+  .check-entry-date { padding: 0; border: none; background: none; color: var(--text); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .check-entry-date:hover { color: var(--accent); }
+  .check-score { font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+  .check-entry-head .icon-btn { margin-left: auto; }
+  .check-q { margin-top: 10px; }
+  .check-q-head { display: flex; align-items: baseline; gap: 8px; }
+  .check-q-head span { flex: 1; font-size: 12px; font-weight: 600; color: var(--text-2); }
+  .check-q .journal-text { margin-top: 2px; }
+  .check-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .check-chip { font-size: 12px; color: var(--text-2); background: var(--surface2); border: 1px solid var(--border); padding: 2px 8px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+  .check-chip b { color: var(--text); }
   .journal-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .tag { font-size: 12px; color: var(--muted); }
 
@@ -1026,7 +1055,7 @@
   <div class="nav-item active" onclick="nav('overview')"><svg class="i"><use href="#i-home"/></svg><span>Übersicht</span></div>
   <div class="nav-item" onclick="nav('habits')"><svg class="i"><use href="#i-habits"/></svg><span>Habits</span></div>
   <div class="nav-item" onclick="nav('health')"><svg class="i"><use href="#i-heart"/></svg><span>Gesundheit</span></div>
-  <div class="nav-item" onclick="nav('journal')"><svg class="i"><use href="#i-book"/></svg><span>Journal</span></div>
+  <div class="nav-item" onclick="nav('journal')"><svg class="i"><use href="#i-book"/></svg><span>Tages-Check</span></div>
   <div class="nav-item" onclick="nav('sport')"><svg class="i"><use href="#i-dumbbell"/></svg><span>Sport</span></div>
   <div class="nav-item" onclick="nav('ernaehrung')"><svg class="i"><use href="#i-utensils"/></svg><span>Ernährung</span></div>
   <div class="nav-item" onclick="nav('schiri')"><svg class="i"><use href="#i-ball"/></svg><span>Schiedsrichter</span></div>
@@ -1240,53 +1269,45 @@
 
 <!-- JOURNAL -->
 <div id="page-journal" class="page">
-  <div class="page-title">Journal</div>
-  <div class="page-sub">Gedanken, Reflexionen, Erkenntnisse.</div>
-
+  <div class="page-title">Tages-Check</div>
+  <div class="page-sub">Morgens ausrichten, abends kurz zurückschauen – zwei Minuten am Tag.</div>
   <div class="grid-2">
-    <div class="card" style="margin-bottom:0">
-      <div class="card-title"><svg class="i"><use href="#i-note"/></svg>Tagesreflexion <span id="journalTodayDate" style="color:var(--muted);font-weight:500"></span></div>
-      <div class="form-group">
-        <label class="form-label">Datum</label>
-        <input type="date" class="form-input" id="journalDate">
-      </div>
-      <div class="form-group">
-        <label class="form-label">1. Was habe ich heute erreicht – was bin ich stolz auf?</label>
-        <textarea class="form-input" id="journalQ1" required placeholder="Meine heutigen Erfolge…" style="min-height:80px"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">2. Was hat mich heute Energie gekostet?</label>
-        <textarea class="form-input" id="journalQ2" placeholder="Was hat mich erschöpft oder belastet…" style="min-height:80px"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">3. Was habe ich heute vermieden, das ich angehen sollte?</label>
-        <textarea class="form-input" id="journalQ3" placeholder="Was habe ich aufgeschoben oder ausgewichen…" style="min-height:80px"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">4. Wie stehe ich gerade bei meinen Zielen?</label>
-        <textarea class="form-input" id="journalQ4" placeholder="Fortschritt, Rückschläge, aktueller Stand…" style="min-height:80px"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">5. Was mache ich morgen anders oder besser?</label>
-        <textarea class="form-input" id="journalQ5" placeholder="Mein Vorsatz für morgen…" style="min-height:80px"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">6. Was habe ich heute gelernt?</label>
-        <textarea class="form-input" id="journalQ6" placeholder="Neue Erkenntnisse, Learnings…" style="min-height:80px"></textarea>
-      </div>
-      <button class="btn btn-primary" onclick="saveJournal()" style="width:100%">Speichern</button>
-    </div>
-
-    <div class="card" style="max-height:700px; overflow-y:auto">
+    <div class="card check-card" style="margin-bottom:0">
       <div class="section-header">
-        <span class="card-title"><svg class="i"><use href="#i-book"/></svg>Einträge</span>
+        <span class="card-title"><svg class="i"><use href="#i-note"/></svg>Check <span class="card-sub" id="checkSaved" aria-live="polite"></span></span>
+        <label for="journalDate" class="search-label">Datum</label>
+        <input type="date" class="form-input check-date" id="journalDate" onchange="loadCheck()">
+      </div>
+
+      <div class="check-sec"><svg class="i"><use href="#i-sunrise"/></svg>Morgens</div>
+      <div class="form-group">
+        <label class="form-label" for="checkFocus">Was ist heute das eine Wichtigste – und wann mache ich es?</label>
+        <input class="form-input" id="checkFocus" placeholder="z. B. Angebot fertig – direkt nach dem Frühstück" oninput="queueCheckSave()">
+      </div>
+
+      <div class="check-sec"><svg class="i"><use href="#i-moon"/></svg>Abends</div>
+      <div class="form-group">
+        <label class="form-label" for="checkGood">Was lief heute gut – und warum?</label>
+        <textarea class="form-input" id="checkGood" rows="2" placeholder="z. B. Training durchgezogen, weil ich es fest eingeplant hatte" oninput="queueCheckSave()"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="checkBetter">Was mache ich morgen anders?</label>
+        <input class="form-input" id="checkBetter" placeholder="Ein Satz reicht" oninput="queueCheckSave()">
+      </div>
+      <div class="check-rate-head">Habe ich heute mein Bestes gegeben, um …</div>
+      <div id="checkRatings"></div>
+      <div class="check-foot">Wird automatisch gespeichert.</div>
+    </div>
+    <div class="card">
+      <div class="section-header">
+        <span class="card-title"><svg class="i"><use href="#i-list"/></svg>Verlauf</span>
         <button class="btn btn-secondary btn-sm" onclick="exportJournal()"><svg class="i"><use href="#i-download"/></svg>Exportieren</button>
       </div>
+      <div id="checkAvg"></div>
       <div id="journalList"></div>
     </div>
   </div>
 </div>
-
 <!-- SPORT -->
 <div id="page-sport" class="page">
   <div class="page-title">Sport</div>
@@ -1479,7 +1500,7 @@
   <div class="tab-item" onclick="nav('schiri')"><svg class="i"><use href="#i-ball"/></svg><span>Schiri</span></div>
   <div class="tab-item tab-home active" onclick="nav('overview')"><span class="tab-home-btn"><svg class="i"><use href="#i-home"/></svg></span><span>Start</span></div>
   <div class="tab-item" onclick="nav('habits')"><svg class="i"><use href="#i-habits"/></svg><span>Habits</span></div>
-  <div class="tab-item" onclick="nav('journal')"><svg class="i"><use href="#i-book"/></svg><span>Journal</span></div>
+  <div class="tab-item" onclick="nav('journal')" aria-label="Tages-Check"><svg class="i"><use href="#i-book"/></svg><span>Check</span></div>
   <div class="tab-item" onclick="nav('ernaehrung')" aria-label="Ernährung"><svg class="i"><use href="#i-utensils"/></svg><span>Essen</span></div>
 </nav>
 
@@ -2477,6 +2498,7 @@ function weekStats(from) {
     bpSys: mean(bp.map(d => parseInt(d.bpSys))), bpDia: mean(bp.map(d => parseInt(d.bpDia))), bpN: bp.length,
     steps: mean(steps), stepsN: steps.length, stepsGoal: steps.filter(v => v >= 12000).length,
     sleep: mean(vals('sleepMin')), deep: mean(vals('deepMin')), rem: mean(vals('remMin')), sleepN: vals('sleepMin').length,
+    ...(() => { const sc = DB.get('journal', []).filter(e => e.date >= from && e.date <= to).map(checkScore).filter(v => v != null); return { check: mean(sc), checkN: sc.length }; })(),
   };
 }
 
@@ -2543,9 +2565,13 @@ function renderWeekReview() {
       cur: cur.sleepN ? `${minToHM(cur.sleep)} h<span class="wr-sub">Tief ${cur.deep ? minToHM(cur.deep) : '—'} · REM ${cur.rem ? minToHM(cur.rem) : '—'}</span>` : muted,
       prev: prev.sleepN ? `${minToHM(prev.sleep)} h` : muted,
       delta: delta(cur.sleep, prev.sleep, v => minToHM(v) + ' h', 0) },
+    { key: 'Tages-Check', rating: cur.checkN ? (cur.check >= 7 ? {label:'Gut', cls:'rating-good'} : cur.check >= 5 ? {label:'Mittel', cls:'rating-warn'} : {label:'Schwach', cls:'rating-bad'}) : null,
+      cur: cur.checkN ? `Ø ${fmtDec(cur.check)}<span class="wr-sub">„Bestes gegeben“ · an ${cur.checkN} Tagen</span>` : muted,
+      prev: prev.checkN ? `Ø ${fmtDec(prev.check)}` : muted,
+      delta: delta(cur.check, prev.check, v => fmtDec(v), 1) },
   ];
 
-  const hasData = t.total || sessions(t) || cur.weightN || cur.bpN || cur.stepsN || cur.sleepN;
+  const hasData = t.total || sessions(t) || cur.weightN || cur.bpN || cur.stepsN || cur.sleepN || cur.checkN;
   if(!hasData) {
     document.getElementById('weekReviewBody').innerHTML = emptyState('Keine Daten in dieser Woche', 'Für diese Woche sind weder Training noch Vitalwerte erfasst.');
     return;
@@ -3986,7 +4012,7 @@ const VALUE_STORES = {
     // Bei einer Reflexion ohne verbleibende Antwort ist der Eintrag sinnlos.
     dropWhenEmpty: true,
     label: (field) => {
-      const q = JOURNAL_QUESTIONS.find(q => q.id === field);
+      const q = CHECK_FIELDS.find(q => q.id === field);
       const t = q ? q.label : 'Antwort';
       return 'Antwort \u201e' + (t.length > 40 ? t.slice(0,40) + '\u2026' : t) + '\u201c';
     },
@@ -4205,7 +4231,22 @@ function exportHealth() {
   download('gesundheitsdaten.csv', 'text/csv', csv);
 }
 
-// ===== JOURNAL =====
+// ===== TAGES-CHECK (früher Journal) =====
+// Ein Eintrag je Tag: morgens das Wichtigste, abends was gut lief und was morgen anders wird,
+// dazu Marshall Goldsmiths „Habe ich mein Bestes gegeben, um …“ als 1–10 zum Antippen.
+// Alles speichert automatisch. Alte Journal-Einträge (q1–q6) bleiben lesbar.
+const CHECK_TEXTS = [
+  { id: 'focus', el: 'checkFocus', label: 'Das Wichtigste heute' },
+  { id: 'good', el: 'checkGood', label: 'Lief gut, weil' },
+  { id: 'better', el: 'checkBetter', label: 'Morgen anders' },
+];
+const CHECK_RATINGS = [
+  { id: 'r_ziele', label: '… klare Ziele zu setzen?', short: 'Ziele' },
+  { id: 'r_fortschritt', label: '… Fortschritt bei meinen Zielen zu machen?', short: 'Fortschritt' },
+  { id: 'r_glueck', label: '… glücklich zu sein?', short: 'Glück' },
+  { id: 'r_beziehungen', label: '… gute Beziehungen zu pflegen?', short: 'Beziehungen' },
+];
+// Fragen des alten Journals – nur noch zur Anzeige älterer Einträge
 const JOURNAL_QUESTIONS = [
   { id:'q1', label:'Was habe ich heute erreicht – was bin ich stolz auf?' },
   { id:'q2', label:'Was hat mich heute Energie gekostet?' },
@@ -4214,52 +4255,100 @@ const JOURNAL_QUESTIONS = [
   { id:'q5', label:'Was mache ich morgen anders oder besser?' },
   { id:'q6', label:'Was habe ich heute gelernt?' },
 ];
+const CHECK_FIELDS = [...CHECK_TEXTS, ...CHECK_RATINGS, ...JOURNAL_QUESTIONS];
+let checkDraft = {}, checkSaveTimer = null;
+
+const checkDate = () => document.getElementById('journalDate').value || today();
+const checkScore = e => { const v = CHECK_RATINGS.map(r => e[r.id]).filter(Boolean); return v.length ? mean(v) : null; };
 
 function renderJournal() {
-  document.getElementById('journalDate').value = today();
-  document.getElementById('journalTodayDate').textContent = fmtDate(today());
-  const entries = DB.get('journal', []);
-  const list = document.getElementById('journalList');
-  if(!entries.length) { list.innerHTML = emptyState('Noch keine Journal-Einträge', 'Beantworte oben die Fragen des Tages – deine Einträge sammeln sich hier.'); return; }
-  list.innerHTML = [...entries].reverse().map(e=>`
-    <div class="journal-entry">
-      <div class="journal-date" style="font-size:14px;color:var(--text);font-weight:600">${fmtDate(e.date)}</div>
-      ${JOURNAL_QUESTIONS.map(q => e[q.id] ? `
-        <div style="margin-top:10px">
-          <div style="display:flex;align-items:baseline;gap:8px">
-            <div style="flex:1;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:2px">${q.label}</div>
-            <button class="val-del-btn" title="Nur diese Antwort löschen" onclick="deleteValue('journal','${e.id}','${q.id}')">✕</button>
-          </div>
-          <div class="journal-text">${escHtml(e[q.id]).replace(/\n/g,'<br>')}</div>
-        </div>` : '').join('')}
-      <div style="margin-top:10px;text-align:right">
-        <button class="btn btn-danger btn-sm" onclick="deleteJournal('${e.id}')"><svg class="i"><use href="#i-trash"/></svg>Eintrag löschen</button>
-      </div>
-    </div>`).join('');
+  const dateEl = document.getElementById('journalDate');
+  dateEl.max = today();
+  if(!dateEl.value) dateEl.value = today();
+  loadCheck();
+  renderCheckList();
 }
 
-function saveJournal() {
-  const q1 = document.getElementById('journalQ1').value.trim();
-  if(!q1) { toast('Bitte mindestens Frage 1 beantworten!'); return; }
-  const date = document.getElementById('journalDate').value || today();
-  const entry = {
-    id: Date.now().toString(),
-    date,
-    q1, q2: document.getElementById('journalQ2').value.trim(),
-    q3: document.getElementById('journalQ3').value.trim(),
-    q4: document.getElementById('journalQ4').value.trim(),
-    q5: document.getElementById('journalQ5').value.trim(),
-    q6: document.getElementById('journalQ6').value.trim(),
-  };
+// Formular mit dem Eintrag des gewählten Tages füllen
+function loadCheck() {
+  clearTimeout(checkSaveTimer);
+  const e = DB.get('journal', []).find(x => x.date === checkDate()) || {};
+  checkDraft = { ...e };
+  CHECK_TEXTS.forEach(f => document.getElementById(f.el).value = e[f.id] || '');
+  document.getElementById('checkSaved').textContent = checkDate() === today() ? 'heute' : fmtDate(checkDate());
+  renderCheckRatings();
+}
+
+function renderCheckRatings() {
+  document.getElementById('checkRatings').innerHTML = CHECK_RATINGS.map(r => `<div class="check-rate" role="group" aria-label="${r.label}">
+    <div class="check-rate-label">${r.label}</div>
+    <div class="check-scale">${Array.from({ length: 10 }, (_, i) => i + 1).map(n => `<button type="button" class="check-n${checkDraft[r.id] === n ? ' on' : ''}" aria-pressed="${checkDraft[r.id] === n}" aria-label="${r.short}: ${n} von 10" onclick="setCheckRating('${r.id}',${n})">${n}</button>`).join('')}</div>
+  </div>`).join('');
+}
+
+function setCheckRating(id, n) {
+  checkDraft[id] = checkDraft[id] === n ? undefined : n; // nochmal tippen nimmt die Bewertung zurück
+  renderCheckRatings();
+  saveCheck();
+}
+
+function queueCheckSave() {
+  clearTimeout(checkSaveTimer);
+  checkSaveTimer = setTimeout(saveCheck, 600);
+}
+
+function saveCheck() {
+  clearTimeout(checkSaveTimer);
+  const date = checkDate();
+  CHECK_TEXTS.forEach(f => checkDraft[f.id] = document.getElementById(f.el).value.trim());
   const entries = DB.get('journal', []);
-  entries.push(entry);
-  entries.sort((a,b)=>a.date.localeCompare(b.date));
+  const idx = entries.findIndex(x => x.date === date);
+  const entry = { id: checkDraft.id || (idx >= 0 ? entries[idx].id : Date.now().toString()), date };
+  CHECK_FIELDS.forEach(f => { if(checkDraft[f.id]) entry[f.id] = checkDraft[f.id]; });
+  const empty = !CHECK_FIELDS.some(f => entry[f.id]);
+  if(idx >= 0) { if(empty) entries.splice(idx, 1); else entries[idx] = entry; }
+  else if(!empty) { entries.push(entry); entries.sort((a, b) => a.date.localeCompare(b.date)); }
+  else return;
+  checkDraft.id = empty ? undefined : entry.id;
   DB.set('journal', entries);
-  ['journalQ1','journalQ2','journalQ3','journalQ4','journalQ5','journalQ6'].forEach(id=>document.getElementById(id).value='');
-  checkJournalHabit(date);
-  try { localStorage.removeItem('journal_draft'); } catch(e) {}
-  renderJournal();
-  toast('Tagesreflexion gespeichert ✓');
+  // Abend-Teil ausgefüllt → passenden Habit abhaken
+  if(entry.good || entry.better || checkScore(entry) != null) checkJournalHabit(date);
+  document.getElementById('checkSaved').textContent = 'gespeichert ✓';
+  renderCheckList();
+}
+
+function renderCheckList() {
+  const entries = DB.get('journal', []);
+  // Durchschnitt der Bewertungen: letzte 7 und 30 Tage
+  const since = n => addDays(today(), -(n - 1));
+  const avg = (n, id) => { const v = entries.filter(e => e.date >= since(n) && e[id]).map(e => e[id]); return v.length ? mean(v) : null; };
+  const fmtA = v => v == null ? '—' : v.toLocaleString('de-DE', { maximumFractionDigits: 1 });
+  const rated = entries.some(e => checkScore(e) != null);
+  document.getElementById('checkAvg').innerHTML = rated ? `<div class="table-scroll"><table class="data-table check-avg">
+    <thead><tr><th>Bestes gegeben</th><th>Ø 7 T.</th><th>Ø 30 T.</th></tr></thead>
+    <tbody>${CHECK_RATINGS.map(r => `<tr><td>${r.short}</td><td>${fmtA(avg(7, r.id))}</td><td>${fmtA(avg(30, r.id))}</td></tr>`).join('')}</tbody>
+  </table></div>` : '';
+
+  const list = document.getElementById('journalList');
+  if(!entries.length) { list.innerHTML = emptyState('Noch keine Einträge', 'Beantworte links die Fragen des Tages – deine Einträge sammeln sich hier.'); return; }
+  const block = (label, text, e, id) => `<div class="check-q">
+      <div class="check-q-head"><span>${label}</span><button class="val-del-btn" title="Nur diese Antwort löschen" onclick="deleteValue('journal','${e.id}','${id}')">✕</button></div>
+      <div class="journal-text">${escHtml(text).replace(/\n/g, '<br>')}</div>
+    </div>`;
+  list.innerHTML = [...entries].reverse().map(e => {
+    const score = checkScore(e);
+    const ratings = CHECK_RATINGS.filter(r => e[r.id]).map(r => `<span class="check-chip">${r.short} <b>${e[r.id]}</b></span>`).join('');
+    return `<div class="journal-entry">
+      <div class="check-entry-head">
+        <button type="button" class="check-entry-date" onclick="document.getElementById('journalDate').value='${e.date}';loadCheck();document.querySelector('.check-card').scrollIntoView({behavior:'smooth'})" title="Diesen Tag bearbeiten">${fmtDate(e.date)}</button>
+        ${score != null ? `<span class="check-score">Ø ${score.toLocaleString('de-DE', { maximumFractionDigits: 1 })}</span>` : ''}
+        <button class="icon-btn" title="Eintrag löschen" aria-label="Eintrag vom ${fmtDate(e.date)} löschen" onclick="deleteJournal('${e.id}')"><svg class="i"><use href="#i-trash"/></svg></button>
+      </div>
+      ${CHECK_TEXTS.filter(f => e[f.id]).map(f => block(f.label, e[f.id], e, f.id)).join('')}
+      ${ratings ? `<div class="check-chips">${ratings}</div>` : ''}
+      ${JOURNAL_QUESTIONS.filter(q => e[q.id]).map(q => block(q.label, e[q.id], e, q.id)).join('')}
+    </div>`;
+  }).join('');
 }
 
 function checkJournalHabit(date) {
@@ -6034,18 +6123,6 @@ document.addEventListener('click', e => {
   bad[0].focus({ preventScroll: true });
 }, true);
 
-// Journal-Entwurf: Antworten überleben Reload und Seitenwechsel, bis gespeichert wird
-const JOURNAL_DRAFT = 'journal_draft';
-function restoreJournalDraft() {
-  let d = {}; try { d = JSON.parse(localStorage.getItem(JOURNAL_DRAFT) || '{}'); } catch(e) {}
-  for(let i = 1; i <= 6; i++) { const el = document.getElementById('journalQ' + i); if(el && d['q' + i] && !el.value) el.value = d['q' + i]; }
-}
-document.addEventListener('input', e => {
-  if(!/^journalQ\d$/.test(e.target.id || '')) return;
-  const d = {}; for(let i = 1; i <= 6; i++) d['q' + i] = document.getElementById('journalQ' + i).value;
-  try { localStorage.setItem(JOURNAL_DRAFT, JSON.stringify(d)); } catch(e) {}
-});
-restoreJournalDraft();
 
 pullState().then(() => {
   syncKcalHabitFromNutrition();
