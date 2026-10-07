@@ -608,8 +608,8 @@
   .ern-fast-more summary:hover { color: var(--accent); }
   .ern-fast-more[open] summary { margin-bottom: 8px; }
   @media (min-width: 1100px) { .tracker-layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; } }
-  .tracker-aside { padding: 20px; min-width: 0; }
-  .aside-sec + .aside-sec { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; }
+  .tracker-aside { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .aside-sec { padding: 20px; min-width: 0; }
   .aside-sec .card-title { margin-bottom: 12px; }
   /* Tagesbilanz: Ring (übrig) + eine Zeile Gegessen/Ziel + Nährstoffzeilen */
   .ern-day-top { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 16px 28px; }
@@ -1325,10 +1325,10 @@
   <div id="ernaehrung-tracker" class="subpage active">
     <div class="tracker-layout">
       <div class="tracker-main" id="trackerDay"></div>
-      <aside class="card tracker-aside" aria-label="Wasser, Fasten und Gewicht">
-        <section class="aside-sec" id="trackerWaterCard"></section>
-        <section class="aside-sec" id="trackerFast"></section>
-        <section class="aside-sec" id="trackerWeightCard"></section>
+      <aside class="tracker-aside" aria-label="Wasser, Fasten und Gewicht">
+        <section class="card aside-sec" id="trackerWaterCard"></section>
+        <section class="card aside-sec" id="trackerFast"></section>
+        <section class="card aside-sec" id="trackerWeightCard"></section>
       </aside>
     </div>
     <div class="analytics-grid" id="trackerCharts">
