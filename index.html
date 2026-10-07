@@ -34,7 +34,7 @@
     --meal-fruehstueck: #fbbf24; --meal-mittag: #34d399; --meal-abend: #818cf8; --meal-snack: #f472b6;
     --text: #ededef;
     --text-2: #a1a1aa;
-    --muted: #71717a;
+    --muted: #8b8b94;
     --radius: 12px;
     --radius-sm: 8px;
     --shadow: 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
@@ -560,14 +560,7 @@
   .ern-sum-goal { background: none; border: none; padding: 0; font: inherit; color: var(--muted); cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
   .ern-sum-goal:hover { color: var(--accent); }
   .dd-progress.over b { background: var(--red); }
-  .ern-macros { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-  .ern-macro-val .ern-of { font-size: 12px; font-weight: 500; color: var(--muted); }
-  .ern-macro-pct.good { color: var(--green); }
-  .ern-macro-pct.warn { color: var(--yellow); }
-  .ern-macro-bar.over b { background: var(--red); }
   /* Ziel überschritten: Kachel rot einfärben */
-  .ern-macro.over { background: var(--red-soft); border-color: color-mix(in srgb, var(--red) 45%, transparent); }
-  .ern-macro.over .ern-macro-val, .ern-macro.over .ern-macro-pct { color: var(--red); }
   .ern-meal-bar { height: 4px; border-radius: 2px; background: var(--surface3); overflow: hidden; margin: 6px 0 8px; }
   .ern-meal-bar b { display: block; height: 100%; border-radius: 2px; background: var(--mc, var(--green)); transition: width .3s ease; }
   .ern-meal-bar.warn b { background: var(--red); opacity: .55; }
@@ -579,21 +572,8 @@
   .dd-auto .i { width: 12px; height: 12px; flex-shrink: 0; }
   .ern-item-dd { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--green); }
   .ern-item-dd .i { width: 12px; height: 12px; }
-  .ern-day-top { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'ring side actions'; align-items: center; gap: 12px 24px; }
-  .ern-ring-kcal { grid-area: ring; width: 152px; height: 152px; }
   .ern-ring.ern-ring-kcal .val { stroke: var(--green); }
   .ern-ring.ern-ring-kcal.over .val { stroke: var(--red); }
-  .ern-ring-kcal .ern-ring-label b { font-size: 30px; letter-spacing: -.8px; }
-  .ern-ring-kcal .ern-sum-goal { font-size: 12px; }
-  .ern-day-side { grid-area: side; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; }
-  .ern-day-stats { display: flex; gap: 24px; margin: 0; flex-wrap: wrap; }
-  .ern-day-stats dt { font-size: 12px; color: var(--muted); }
-  .ern-day-stats dd { margin: 0; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
-  .ern-day-stats dd.bad { color: var(--red); }
-  .ern-day-stats dd.good { color: var(--green); }
-  .ern-day-stats .ern-stat-btn { font-size: inherit; font-weight: inherit; color: inherit; letter-spacing: inherit; font-variant-numeric: tabular-nums; }
-  .ern-head-actions { grid-area: actions; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-  @media (max-width: 900px) { .ern-day-top { grid-template-columns: auto 1fr; grid-template-areas: 'ring side' 'actions actions'; } .ern-head-actions { justify-content: stretch; } .ern-head-actions .btn { flex: 1; justify-content: center; } }
   /* Ernährungsprofil */
   .prof-sec { padding: 16px 0; border-top: 1px solid var(--border); }
   .prof-sec:first-of-type { border-top: none; padding-top: 0; }
@@ -618,16 +598,54 @@
   .prof-check { display: flex; gap: 12px; align-items: flex-start; padding: 16px 0 0; border-top: 1px solid var(--border); font-size: 14px; cursor: pointer; }
   .prof-check input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--accent); flex-shrink: 0; }
   .prof-check small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .ern-macro { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .ern-macro-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .ern-meals { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  /* Tracker-Aufbau: Hauptspalte (Bilanz + Mahlzeiten), Nebenspalte (Wasser, Fasten, Gewicht) */
+  .tracker-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; margin-bottom: 24px; }
+  .tracker-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .tracker-main > .dd-head { margin-bottom: 4px; gap: 20px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .tracker-aside .dd-num { font-size: 32px; }
+  .ern-fast-more { margin-top: 12px; font-size: 14px; }
+  .ern-fast-more summary { cursor: pointer; color: var(--text-2); min-height: 32px; display: inline-flex; align-items: center; }
+  .ern-fast-more summary:hover { color: var(--accent); }
+  .ern-fast-more[open] summary { margin-bottom: 8px; }
+  @media (min-width: 1100px) { .tracker-layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; } }
+  .tracker-aside { padding: 20px; min-width: 0; }
+  .aside-sec + .aside-sec { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; }
+  .aside-sec .card-title { margin-bottom: 12px; }
+  /* Tagesbilanz: Ring (übrig) + eine Zeile Gegessen/Ziel + Nährstoffzeilen */
+  .ern-day-top { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 16px 28px; }
+  .ern-ring.ern-ring-kcal { width: 148px; height: 148px; }
+  .ern-ring.ern-ring-kcal .val { stroke: var(--green); }
+  .ern-ring.ern-ring-kcal.over .val { stroke: var(--red); }
+  .ern-ring-kcal .ern-ring-label b { font-size: 32px; letter-spacing: -1px; }
+  .ern-ring-kcal.over .ern-ring-label b { color: var(--red); }
+  .ern-day-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .ern-day-line { margin: 0; font-size: 14px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .ern-day-line b { color: var(--text); font-weight: 600; }
+  .ern-day-line .ern-sum-goal { color: var(--text); }
+  .ern-day-sport { margin-left: 8px; color: var(--green); white-space: nowrap; }
+  .ern-head-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .ern-macros { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 20px; }
+  .ern-macro { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 4px 8px; min-width: 0; padding: 4px 6px; margin: -4px -6px; border-radius: 6px; }
+  .ern-macro-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); min-width: 0; }
   .ern-macro-label::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--c); flex-shrink: 0; }
-  .ern-macro-val { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.2px; }
-  .ern-macro-val small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 2px; }
-  .ern-macro-pct { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
-  .ern-macro-bar { height: 4px; border-radius: 2px; background: var(--surface3); overflow: hidden; margin-top: 6px; }
+  .ern-macro-val { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+  .ern-macro-val b { font-size: 14px; font-weight: 600; color: var(--text); }
+  .ern-macro-val .i { width: 14px; height: 14px; color: var(--green); }
+  .ern-macro-bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: var(--surface3); overflow: hidden; }
   .ern-macro-bar b { display: block; height: 100%; background: var(--c); border-radius: 2px; transition: width .3s ease; }
-  .ern-meals { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-bottom: 16px; }
-  @media (min-width: 900px) { .ern-meals { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+  /* Ziel überschritten (Fett, KH): Zeile rot einfärben */
+  .ern-macro.over { background: var(--red-soft); }
+  .ern-macro.over .ern-macro-val, .ern-macro.over .ern-macro-val b { color: var(--red); }
+  .ern-macro.over .ern-macro-bar b { background: var(--red); }
+  .ern-macro.good .ern-macro-val b { color: var(--green); }
+  @media (max-width: 640px) {
+    .ern-day-top { grid-template-columns: 1fr; justify-items: center; }
+    .ern-day-side { width: 100%; }
+    .ern-day-line { text-align: center; }
+    .ern-head-actions .btn { flex: 1; justify-content: center; }
+  }
   .ern-meal { padding: 16px 20px; box-shadow: inset 0 3px 0 var(--mc), var(--shadow); min-width: 0; }
   .ern-meal-empty { width: 100%; min-height: 44px; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); background: none; color: var(--text-2); font: inherit; font-size: 14px; cursor: pointer; }
   .ern-meal-empty:hover { border-color: var(--mc); color: var(--mc); }
@@ -659,11 +677,6 @@
   .ern-item-name { font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
   .ern-item-sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .ern-item .icon-btn { width: 44px; height: 44px; margin-right: -10px; }
-  .tracker-side { margin-bottom: 16px; grid-template-columns: 1fr; align-items: start; }
-  @media (min-width: 900px) {
-    .tracker-side { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: 'water fast' 'weight fast'; }
-    #trackerWaterCard { grid-area: water; } #trackerWeightCard { grid-area: weight; } #trackerFast { grid-area: fast; align-self: stretch; }
-  }
   .ern-copy { width: 44px; height: 44px; border: none; background: none; color: var(--muted); cursor: pointer; border-radius: 8px; display: grid; place-items: center; }
   .ern-copy:hover { background: var(--accent-soft); color: var(--accent); }
   .ern-glasses { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; }
@@ -713,7 +726,7 @@
   .food-hit small { display: block; color: var(--muted); font-size: 12px; }
   .food-hit-kcal { color: var(--text-2); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .food-status { font-size: 12px; color: var(--muted); padding: 8px 0; }
-  @media (max-width: 640px) { .ern-meal { padding: 12px 16px; } .ern-wide { display: none; } .ern-macro { padding: 8px 10px; } .ern-macros { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ern-meal-bar { margin-left: 0; } .ern-ring { width: 112px; height: 112px; } .ern-ring-label b { font-size: 22px; } .ern-ring-kcal { width: 124px; height: 124px; } .ern-ring-kcal .ern-ring-label b { font-size: 24px; } .ern-day-top { gap: 12px 16px; } .ern-day-stats { gap: 4px 16px; } .ern-day-stats dd { font-size: 16px; } }
+  @media (max-width: 640px) { .ern-meal { padding: 12px 16px; } .ern-wide { display: none; } .ern-ring { width: 112px; height: 112px; } .ern-ring-label b { font-size: 22px; } .ern-ring-kcal { width: 120px; height: 120px; } .ern-ring-kcal .ern-ring-label b { font-size: 26px; } }
 
   /* Trend-Badges für Trainingsanalyse */
   .trend-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
@@ -1300,11 +1313,13 @@
   </div>
 
   <div id="ernaehrung-tracker" class="subpage active">
-    <div id="trackerDay"></div>
-    <div class="analytics-grid tracker-side">
-      <div class="card" id="trackerWaterCard"></div>
-      <div class="card" id="trackerFast"></div>
-      <div class="card" id="trackerWeightCard"></div>
+    <div class="tracker-layout">
+      <div class="tracker-main" id="trackerDay"></div>
+      <aside class="card tracker-aside" aria-label="Wasser, Fasten und Gewicht">
+        <section class="aside-sec" id="trackerWaterCard"></section>
+        <section class="aside-sec" id="trackerFast"></section>
+        <section class="aside-sec" id="trackerWeightCard"></section>
+      </aside>
     </div>
     <div class="analytics-grid" id="trackerCharts">
       <div class="card">
@@ -2885,19 +2900,21 @@ function renderTrackerDay() {
   const mk = Object.fromEntries(ERN_MACROS.map(([k]) => [k, mg[k] * ERN_MACRO_KCAL[k]]));
   const mTotal = Object.values(mk).reduce((a, b) => a + b, 0);
   const pct = k => mTotal ? Math.round(mk[k] / mTotal * 100) : 0;
-  const tile = (k, n, val, target, note, noteCls, over) => `<div class="ern-macro${over ? ' over' : ''}" style="--c:var(${ERN_MACRO_COLOR[k]})" aria-label="${n}: ${fmtNum(val)} von ${target} g">
+  // Kompakte Zeile je Nährstoff: Name, gegessen / Ziel, Balken. Details (Energieanteil) im Tooltip.
+  const tile = (k, n, val, target, detail, state) => `<div class="ern-macro${state ? ' ' + state : ''}" style="--c:var(${ERN_MACRO_COLOR[k]})" title="${escAttr(detail)}">
       <span class="ern-macro-label">${n}</span>
-      <span class="ern-macro-val">${fmtNum(val)}<span class="ern-of"> / ${target} g</span></span>
-      <span class="ern-macro-pct ${noteCls}">${note}</span>
-      <span class="ern-macro-bar${over ? ' over' : ''}" aria-hidden="true"><b style="width:${Math.min(100, target ? val / target * 100 : 0)}%"></b></span>
+      <span class="ern-macro-val"><b>${fmtNum(Math.round(val))}</b> / ${target} g${state === 'good' ? ' <svg class="i" aria-hidden="true"><use href="#i-check"/></svg>' : ''}</span>
+      <span class="ern-macro-bar" aria-hidden="true"><b style="width:${Math.min(100, target ? val / target * 100 : 0)}%"></b></span>
+      <span class="sr-only">${state === 'over' ? 'über Ziel' : state === 'good' ? 'Ziel erreicht' : ''}</span>
     </div>`;
   const macros = ERN_MACROS.map(([k, n]) => {
     // Überschritten zählt nur bei Fett und KH – mehr Protein (wie mehr Ballaststoffe) ist kein Problem
     const target = ernMacroGoal(k), over = k !== 'protein' && Math.round(mg[k]) > target;
-    return tile(k, n, mg[k], target, mTotal ? `${pct(k)} %<span class="ern-wide"> Energie</span> · Ziel ${prof.macros[k]} %` : `Ziel ${prof.macros[k]} %<span class="ern-wide"> der Energie</span>`, '', over);
+    return tile(k, n, mg[k], target, `${n}: ${mTotal ? pct(k) + ' % der Energie, ' : ''}Ziel ${prof.macros[k]} %`, over ? 'over' : '');
   }).join('') + (() => {
     const v = ernSum(list, 'ballast'), t = prof.ballast;
-    return tile('ballast', 'Ballaststoffe', v, t, v >= t ? 'Ziel erreicht' : `noch ${fmtNum(Math.round((t - v) * 10) / 10)} g`, v >= t ? 'good' : '', false);
+    const done = Math.round(v) >= t;  // Haken passt zur angezeigten, gerundeten Zahl
+    return tile('ballast', 'Ballaststoffe', v, t, done ? 'Ballaststoff-Ziel erreicht' : `Ballaststoffe: noch ${fmtNum(Math.round((t - v) * 10) / 10)} g`, done ? 'good' : '');
   })();
   const meals = ERN_MEALS.map(m => {
     const items = list.filter(e => e.meal === m.k);
@@ -2912,11 +2929,12 @@ function renderTrackerDay() {
       const amountTxt = !e.amount ? '' : e.unit === 'g' || e.unit === 'ml'
         ? `${fmtNum(e.amount)} ${e.unit}${port && Math.abs(port * 2 - Math.round(port * 2)) < 0.01 ? ` (${fmtPortion(port)} Port.)` : ''}`
         : `${fmtPortion(e.amount)} ${e.amount == 1 ? 'Portion' : 'Portionen'}`;
-      const sub = [amountTxt, ...ERN_NUTRIENTS.filter(([k]) => e[k]).map(([k, , short]) => `${short} ${fmtNum(e[k])} g`)].filter(Boolean).join(' · ');
+      // Liste bleibt ruhig: Menge und Daily-Dozen-Häkchen; Makros je Lebensmittel stehen beim Antippen im Bearbeiten-Dialog
+      const sub = amountTxt;
       const dd = e.dd && Object.keys(e.dd).length ? `<span class="ern-item-dd"><svg class="i"><use href="#i-check"/></svg>${escHtml(ernDDText(e.dd, false))}</span>` : '';
       return `<div class="ern-item">
         <button type="button" class="ern-item-main" onclick="openFoodModal('${m.k}','${e.id}')" aria-label="${escAttr(e.name)} bearbeiten">
-          <span class="ern-item-text"><span class="ern-item-name">${escHtml(e.name)}</span>${sub ? `<span class="ern-item-sub">${sub}</span>` : ''}${dd}</span>
+          <span class="ern-item-text"><span class="ern-item-name">${escHtml(e.name)}</span>${sub || dd ? `<span class="ern-item-sub">${sub}${sub && dd ? '<span aria-hidden="true"> · </span>' : ''}${dd}</span>` : ''}</span>
           <span class="ern-kcal">${Math.round(e.kcal).toLocaleString('de-DE')} kcal</span>
         </button>
         <button type="button" class="icon-btn" aria-label="${escAttr(e.name)} löschen" onclick="deleteFood('${e.id}')"><svg class="i"><use href="#i-trash"/></svg></button>
@@ -2938,25 +2956,19 @@ function renderTrackerDay() {
         <button type="button" class="icon-btn" aria-label="Nächster Tag" ${ernView >= tk ? 'disabled' : ''} onclick="ernGo(1)"><svg class="i"><use href="#i-chevron"/></svg></button>
       </div>
       <div class="ern-day-top">
-        <div class="ern-ring ern-ring-kcal${left < 0 ? ' over' : ''}" role="progressbar" aria-label="Kalorien: ${kcal} von ${goal} kcal" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${kcal}">
+        <div class="ern-ring ern-ring-kcal${left < 0 ? ' over' : ''}" role="progressbar" aria-label="Kalorien: ${kcal} von ${goal} kcal gegessen" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${kcal}">
           <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="${ERN_RING_R}"/><circle class="val" cx="60" cy="60" r="${ERN_RING_R}" stroke-dasharray="${ERN_RING_C}" stroke-dashoffset="${ernRingOffset(kcal / goal)}"/></svg>
-          <div class="ern-ring-label"><b>${kcal.toLocaleString('de-DE')}</b><span>von ${burned ? goal.toLocaleString('de-DE') : `<button type="button" class="ern-sum-goal" onclick="openErnGoal()" aria-label="Kalorienziel ändern, aktuell ${goal} kcal">${goal.toLocaleString('de-DE')}</button>`} kcal</span></div>
+          <div class="ern-ring-label"><b>${Math.abs(left).toLocaleString('de-DE')}</b><span>${left >= 0 ? 'kcal übrig' : 'kcal drüber'}</span></div>
         </div>
         <div class="ern-day-side">
-          <span class="${left >= 0 ? 'rating-good' : 'rating-bad'}">${left >= 0 ? `noch ${left.toLocaleString('de-DE')} kcal` : `${(-left).toLocaleString('de-DE')} kcal über Ziel`}</span>
-          <dl class="ern-day-stats">
-            <div><dt>Gegessen</dt><dd>${kcal.toLocaleString('de-DE')}</dd></div>
-            <div><dt>Ziel</dt><dd><button type="button" class="ern-sum-goal ern-stat-btn" onclick="openErnGoal()" aria-label="Kalorienziel ändern, aktuell ${base} kcal">${base.toLocaleString('de-DE')}</button></dd></div>
-            ${burned ? `<div><dt>Sport</dt><dd class="good">+${burned.toLocaleString('de-DE')}</dd></div>` : ''}
-            <div><dt>${left >= 0 ? 'Übrig' : 'Drüber'}</dt><dd class="${left >= 0 ? '' : 'bad'}">${Math.abs(left).toLocaleString('de-DE')}</dd></div>
-          </dl>
+          <p class="ern-day-line"><b>${kcal.toLocaleString('de-DE')}</b> von <button type="button" class="ern-sum-goal" onclick="openErnGoal()" aria-label="Kalorienziel ändern, aktuell ${base} kcal">${goal.toLocaleString('de-DE')}</button> kcal gegessen${burned ? `<span class="ern-day-sport">inkl. +${burned.toLocaleString('de-DE')} Sport</span>` : ''}</p>
+          <div class="ern-macros">${macros}</div>
         </div>
-        <span class="ern-head-actions">
-          <button type="button" class="btn btn-secondary btn-sm" onclick="openErnGoal()"><svg class="i"><use href="#i-sliders"/></svg>Profil</button>
-          ${ernView !== tk ? `<button type="button" class="btn btn-secondary btn-sm" onclick="ernGo(0)">Heute anzeigen</button>` : `<button type="button" class="btn btn-primary btn-sm" onclick="openFoodModal()"><svg class="i"><use href="#i-plus"/></svg>Essen eintragen</button>`}
-        </span>
       </div>
-      <div class="ern-macros">${macros}</div>
+      <div class="ern-head-actions">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="openErnGoal()"><svg class="i"><use href="#i-sliders"/></svg>Ziele</button>
+        ${ernView !== tk ? `<button type="button" class="btn btn-secondary btn-sm" onclick="ernGo(0)">Heute anzeigen</button>` : `<button type="button" class="btn btn-primary btn-sm" onclick="openFoodModal()"><svg class="i"><use href="#i-plus"/></svg>Essen eintragen</button>`}
+      </div>
     </div>
     <div class="ern-meals">${meals}</div>`;
 }
@@ -3461,10 +3473,10 @@ function renderFast() {
   el.innerHTML = `<div class="card-title"><svg class="i"><use href="#i-timer"/></svg>Fasten</div>
     <div class="form-label" id="fastGoalLabel">Ziel</div>
     <div class="ern-fast-goals" role="group" aria-labelledby="fastGoalLabel">${FAST_GOALS.map(g => `<button type="button" class="ern-chip${g === ernFastGoal ? ' on' : ''}" aria-pressed="${g === ernFastGoal}" onclick="ernFastGoal=${g};renderFast()">${g} h</button>`).join('')}</div>
-    <div class="ern-row">
-      <div class="form-group"><label class="form-label" for="fastStart">Beginn (letzte Mahlzeit)</label><input type="datetime-local" class="form-input" id="fastStart" value="${ernLocalInput(new Date())}" max="${ernLocalInput(new Date())}"></div>
-      <button type="button" class="btn btn-primary" onclick="startFast()"><svg class="i"><use href="#i-timer"/></svg>Fasten starten</button>
-    </div>${history || '<div class="ern-fast-meta">Noch kein Fasten erfasst.</div>'}`;
+    <button type="button" class="btn btn-secondary" style="width:100%;justify-content:center" onclick="startFast()"><svg class="i"><use href="#i-timer"/></svg>Fasten jetzt starten</button>
+    <details class="ern-fast-more"><summary>Früher begonnen? Beginn anpassen</summary>
+      <div class="form-group" style="margin-bottom:0"><label class="form-label" for="fastStart">Beginn (letzte Mahlzeit)</label><input type="datetime-local" class="form-input" id="fastStart" value="${ernLocalInput(new Date())}" max="${ernLocalInput(new Date())}"></div>
+    </details>${history}`;
 }
 function startFast() {
   const v = document.getElementById('fastStart').value;
@@ -3523,7 +3535,7 @@ function renderWeightCard() {
   const wd = lastW && prevW ? Math.round((lastW.weight - prevW.weight) * 10) / 10 : null;
   const dayLabel = ernView === ddToday() ? 'heute' : new Date(ernView + 'T12:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
   document.getElementById('trackerWeightCard').innerHTML = `<div class="card-title"><svg class="i"><use href="#i-scale"/></svg>Gewicht</div>
-    <div class="ern-weight-now"><span class="dd-num">${lastW ? fmtDec(lastW.weight) : '—'}</span><span class="dd-of">kg${lastW ? ` · ${asOf(lastW.date)}` : ''}</span>${wd == null ? '' : `<span class="dd-of">${wd > 0 ? '↑ +' : wd < 0 ? '↓ −' : '± '}${fmtDec(Math.abs(wd))} kg</span>`}</div>
+    ${lastW ? `<div class="ern-weight-now"><span class="dd-num">${fmtDec(lastW.weight)}</span><span class="dd-of">kg · ${asOf(lastW.date)}</span>${wd == null ? '' : `<span class="dd-of">${wd > 0 ? '↑ +' : wd < 0 ? '↓ −' : '± '}${fmtDec(Math.abs(wd))} kg</span>`}</div>` : ''}
     <div class="ern-row">
       <div class="form-group"><label class="form-label" for="ernWeightInput">Gewicht ${dayLabel} (kg)</label><input type="number" step="0.1" min="20" class="form-input" id="ernWeightInput" value="${dayW ?? ''}" placeholder="${lastW ? fmtDec(lastW.weight).replace(',', '.') : '75.5'}" onkeydown="if(event.key==='Enter')saveErnWeight()"></div>
       <button type="button" class="btn btn-secondary" onclick="saveErnWeight()"><svg class="i"><use href="#i-save"/></svg>Speichern</button>
