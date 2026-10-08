@@ -404,7 +404,21 @@
   .check-task .form-input { flex: 1; }
   .check-add { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; margin-top: 8px; padding: 0 10px 0 6px; border: none; border-radius: var(--radius-sm); background: none; color: var(--accent); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
   .check-add:hover { background: var(--accent-soft); }
-  .check-task-list { margin: 2px 0 0; padding-left: 18px; font-size: 14px; line-height: 1.6; }
+  .check-task-list { list-style: none; margin: 4px 0 0; padding: 0; font-size: 14px; line-height: 1.5; }
+  .check-task-list li { display: flex; align-items: flex-start; gap: 8px; padding: 2px 0; }
+  .check-task-list li.main { font-weight: 600; }
+  .check-task-list li.done > span:last-child { color: var(--muted); text-decoration: line-through; }
+  .check-mark { flex: none; width: 16px; height: 16px; margin-top: 2px; border-radius: 4px; border: 1.5px solid var(--border-strong); display: grid; place-items: center; }
+  li.done .check-mark { background: var(--green); border-color: var(--green); color: #fff; }
+  .check-mark .i { width: 12px; height: 12px; }
+  .check-task-main { margin-top: 0; }
+  .check-box { flex: none; width: 40px; height: 40px; display: grid; place-items: center; padding: 0; border: none; background: none; cursor: pointer; border-radius: var(--radius-sm); }
+  .check-box::before { content: ''; grid-area: 1 / 1; width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border-strong); background: var(--surface); transition: background .15s, border-color .15s; }
+  .check-box .i { grid-area: 1 / 1; width: 14px; height: 14px; color: #fff; opacity: 0; transition: opacity .15s; position: relative; }
+  .check-box:hover::before { border-color: var(--green); }
+  .check-box[aria-pressed="true"]::before { background: var(--green); border-color: var(--green); }
+  .check-box[aria-pressed="true"] .i { opacity: 1; }
+  .check-task.done .form-input { color: var(--muted); text-decoration: line-through; }
   .check-foot { margin-top: 4px; font-size: 12px; color: var(--muted); }
   .check-avg { margin-bottom: 16px; }
   table.check-avg th, table.check-avg td { padding: 8px 10px; }
@@ -521,6 +535,9 @@
   .modal-close { position: absolute; top: 18px; right: 18px; width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
   .modal-close:hover { background: var(--surface2); color: var(--text); }
   .modal-close .i { width: 18px; height: 18px; vertical-align: 0; }
+  /* Hintergrund steht still, solange ein Fenster offen ist (sonst scrollt iOS die Seite mit) */
+  html:has(.modal-overlay.open), html:has(.modal-overlay.open) body { overflow: hidden; }
+  .modal { overscroll-behavior: contain; }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin: 24px -24px -24px; padding: 16px 24px; border-top: 1px solid var(--border); background: var(--surface2); border-radius: 0 0 14px 14px; }
 
   /* Eingabe-Kacheln: Klick öffnet das jeweilige Eingabe-Modal */
@@ -797,10 +814,10 @@
   .food-meal:hover { color: var(--text); border-color: var(--border-strong); }
   .food-meal.on { background: color-mix(in srgb, var(--mc) 18%, transparent); border-color: var(--mc); color: var(--text); font-weight: 600; }
   .food-search { height: 44px; }
-  .food-modal .food-results { max-height: min(46vh, 360px); }
-  .food-alt { display: flex; flex-direction: column; margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--border); }
-  .food-alt-btn { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border: none; border-radius: var(--radius-sm); background: none; color: var(--text-2); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
-  .food-alt-btn:hover { background: var(--surface2); color: var(--text); }
+  .food-modal .food-results { max-height: min(46vh, 360px); overscroll-behavior: contain; }
+  .food-alt { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 12px; }
+  .food-alt-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 56px; padding: 6px 4px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2); color: var(--text-2); font: inherit; font-size: 12px; font-weight: 500; line-height: 1.2; text-align: center; cursor: pointer; }
+  .food-alt-btn:hover { border-color: var(--border-strong); color: var(--text); }
   .food-alt-btn .i { color: var(--accent); }
   .food-create { justify-content: flex-start; color: var(--accent); font-weight: 500; }
   .food-create span { display: flex; align-items: center; gap: 8px; }
@@ -1033,6 +1050,13 @@
     .modal-overlay:not(.confirm-overlay) { align-items: flex-end; }
     .modal-overlay:not(.confirm-overlay) .modal { height: auto; max-height: calc(100vh - 40px); border-radius: 20px 20px 0 0; border-width: 1px 0 0; }
     .modal-overlay:not(.confirm-overlay) .modal-actions { bottom: -20px; }
+    /* Sichtbarer Bereich über der Tastatur (per visualViewport gesetzt) – das Fenster rutscht nicht mehr unter die Tastatur */
+    .modal-overlay { top: var(--vv-top, 0px); bottom: auto; height: var(--vv-h, 100dvh); }
+    .modal, .modal-overlay:not(.confirm-overlay) .modal { max-height: calc(var(--vv-h, 100dvh) - 24px); }
+    /* Essen eintragen: feste Höhe, damit Trefferliste und Schrittwechsel das Fenster nicht auf und ab schieben */
+    .modal-overlay:not(.confirm-overlay) .food-modal { height: calc(var(--vv-h, 100dvh) - 24px); }
+    .food-modal[data-view="search"] .food-view[data-for="search"] { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .food-modal .food-results { flex: 1; min-height: 0; max-height: none; }
     @keyframes sheetIn { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
     .modal-close { top: 14px; right: 12px; }
     .modal-actions { flex-direction: column-reverse; margin: 20px -16px -20px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border-radius: 0; }
@@ -1341,7 +1365,10 @@
       <div class="check-sec"><svg class="i"><use href="#i-sunrise"/></svg>Morgens</div>
       <div class="form-group">
         <label class="form-label" for="checkFocus">Was ist heute das eine Wichtigste – und wann mache ich es?</label>
-        <input class="form-input" id="checkFocus" placeholder="z. B. Angebot fertig – direkt nach dem Frühstück" oninput="queueCheckSave()">
+        <div class="check-task check-task-main" id="checkFocusRow">
+          <button type="button" class="check-box" id="checkFocusDone" aria-pressed="false" aria-label="Das Wichtigste erledigt" onclick="toggleCheckDone(this)"><svg class="i"><use href="#i-check"/></svg></button>
+          <input class="form-input" id="checkFocus" placeholder="z. B. Angebot fertig – direkt nach dem Frühstück" oninput="queueCheckSave()">
+        </div>
         <div id="checkTasks"></div>
         <button type="button" class="check-add" onclick="addCheckTask()"><svg class="i"><use href="#i-plus"/></svg>Weitere Aufgabe</button>
       </div>
@@ -1664,14 +1691,14 @@
 
     <!-- Schritt 1: Suchen -->
     <div class="food-view" data-for="search">
+      <div class="food-alt">
+        <button type="button" class="food-alt-btn" onclick="openScan()"><svg class="i"><use href="#i-scan"/></svg><span>Barcode</span></button>
+        <button type="button" class="food-alt-btn" onclick="openOwnFood()"><svg class="i"><use href="#i-plus"/></svg><span>Eigenes Lebensmittel</span></button>
+        <button type="button" class="food-alt-btn" onclick="showFoodView('manual')"><svg class="i"><use href="#i-pencil"/></svg><span>Nur Kalorien</span></button>
+      </div>
       <label class="search-label" for="foodSearch">Lebensmittel suchen</label>
       <input type="search" class="form-input food-search" id="foodSearch" placeholder="Lebensmittel, Marke oder Rezept suchen…" oninput="foodSearchInput()" autocomplete="off">
       <div class="food-results" id="foodResults" aria-live="polite"></div>
-      <div class="food-alt">
-        <button type="button" class="food-alt-btn" onclick="openScan()"><svg class="i"><use href="#i-scan"/></svg><span>Barcode scannen</span></button>
-        <button type="button" class="food-alt-btn" onclick="openOwnFood()"><svg class="i"><use href="#i-plus"/></svg><span>Eigenes Lebensmittel anlegen</span></button>
-        <button type="button" class="food-alt-btn" onclick="showFoodView('manual')"><svg class="i"><use href="#i-pencil"/></svg><span>Nur Kalorien eintragen</span></button>
-      </div>
     </div>
 
     <!-- Schritt 2: gewähltes Lebensmittel + Menge -->
@@ -2719,9 +2746,19 @@ function closeHabitModal() { document.getElementById('habitModal').classList.rem
 
 // ===== EINGABE-MODALS (Gesundheit/Sport/Schiedsrichter) =====
 // Generischer Öffnen/Schließen-Mechanismus für alle Eingabe-Kacheln.
+// Touch-Geräte: Felder nicht automatisch fokussieren – die Tastatur würde während der Einblende-Animation aufspringen
+const isTouch = matchMedia('(pointer: coarse)').matches;
 function openModal(id, focusId) {
   document.getElementById(id).classList.add('open');
-  if(focusId) document.getElementById(focusId).focus();
+  if(focusId && !isTouch) document.getElementById(focusId).focus();
+}
+// iPhone: sichtbaren Bereich (ohne Tastatur) als CSS-Variablen für die Fenster bereitstellen
+if(window.visualViewport) {
+  const vv = window.visualViewport, root = document.documentElement;
+  const fitVV = () => { root.style.setProperty('--vv-h', vv.height + 'px'); root.style.setProperty('--vv-top', vv.offsetTop + 'px'); };
+  vv.addEventListener('resize', fitVV);
+  vv.addEventListener('scroll', fitVV);
+  fitVV();
 }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function closeAllModals() { document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open')); }
@@ -3594,13 +3631,13 @@ function showFoodView(view, keep) {
   document.querySelector('#foodModal .food-save').textContent = document.getElementById('foodId').value ? 'Speichern' : 'Eintragen';
   if(view === 'manual' && !keep) {
     if(!document.getElementById('foodName').value) document.getElementById('foodName').value = document.getElementById('foodSearch').value.trim();
-    document.getElementById(document.getElementById('foodName').value ? 'foodKcal' : 'foodName').focus();
+    if(!isTouch) document.getElementById(document.getElementById('foodName').value ? 'foodKcal' : 'foodName').focus();
   }
 }
 function toggleFoodMacros() {
   const box = document.getElementById('foodModalBox'), open = box.classList.toggle('show-fields');
   document.getElementById('foodMoreBtn').setAttribute('aria-expanded', open);
-  if(open) document.getElementById('foodName').focus();
+  if(open && !isTouch) document.getElementById('foodName').focus();
 }
 function backToFoodSearch() {
   setFoodBase(null);
@@ -3609,7 +3646,7 @@ function backToFoodSearch() {
   Object.values(FOOD_FIELDS).forEach(id => document.getElementById(id).value = '');
   showFoodView('search');
   renderFoodResults(document.getElementById('foodSearch').value);
-  document.getElementById('foodSearch').focus();
+  if(!isTouch) document.getElementById('foodSearch').focus();
 }
 // Ergebnis der gewählten Menge: Kalorien groß, Makros klein darunter
 function renderFoodSum() {
@@ -3684,8 +3721,7 @@ function pickFood(i) {
   showFoodView('amount');
   document.getElementById('foodSearch').value = '';
   renderFoodResults('');
-  document.getElementById('foodAmount').focus();
-  document.getElementById('foodAmount').select();
+  if(!isTouch) { document.getElementById('foodAmount').focus(); document.getElementById('foodAmount').select(); }
 }
 // Zuletzt Gegessenes (60 Tage), je Name nur der jüngste Eintrag
 function ernRecent() {
@@ -4390,8 +4426,11 @@ const JOURNAL_QUESTIONS = [
   { id:'q6', label:'Was habe ich heute gelernt?' },
 ];
 // Weitere Aufgaben des Tages (über das Plus hinzugefügt) – als Liste im Feld „tasks“
+// Einträge: { t: Text, d: erledigt } – ältere Einträge sind reine Texte
 const CHECK_TASKS = { id: 'tasks', label: 'Weitere Aufgaben' };
-const CHECK_FIELDS = [...CHECK_TEXTS, CHECK_TASKS, ...CHECK_RATINGS, ...JOURNAL_QUESTIONS];
+const CHECK_FOCUS_DONE = { id: 'focusDone', label: 'Wichtigstes erledigt' };
+const checkTaskList = e => (Array.isArray(e.tasks) ? e.tasks : []).map(x => typeof x === 'string' ? { t: x, d: false } : { t: String(x?.t || ''), d: !!x?.d }).filter(x => x.t);
+const CHECK_FIELDS = [...CHECK_TEXTS, CHECK_FOCUS_DONE, CHECK_TASKS, ...CHECK_RATINGS, ...JOURNAL_QUESTIONS];
 let checkDraft = {}, checkSaveTimer = null;
 
 const checkDate = () => document.getElementById('journalDate').value || today();
@@ -4411,15 +4450,17 @@ function loadCheck() {
   const e = DB.get('journal', []).find(x => x.date === checkDate()) || {};
   checkDraft = { ...e };
   CHECK_TEXTS.forEach(f => document.getElementById(f.el).value = e[f.id] || '');
-  renderCheckTasks(e.tasks || []);
+  setCheckDone(document.getElementById('checkFocusDone'), !!e.focusDone);
+  renderCheckTasks(checkTaskList(e));
   document.getElementById('checkSaved').textContent = checkDate() === today() ? 'heute' : fmtDate(checkDate());
   renderCheckRatings();
 }
 
 function renderCheckTasks(tasks) {
-  document.getElementById('checkTasks').innerHTML = tasks.map((t, i) => checkTaskRow(t, i + 2)).join('');
+  document.getElementById('checkTasks').innerHTML = tasks.map((t, i) => checkTaskRow(t.t, i + 2, t.d)).join('');
 }
-const checkTaskRow = (val, n) => `<div class="check-task">
+const checkTaskRow = (val, n, done) => `<div class="check-task${done ? ' done' : ''}">
+    <button type="button" class="check-box" aria-pressed="${!!done}" aria-label="Aufgabe ${n} erledigt" onclick="toggleCheckDone(this)"><svg class="i"><use href="#i-check"/></svg></button>
     <input class="form-input" value="${escAttr(val)}" placeholder="Weitere Aufgabe" aria-label="Aufgabe ${n}" oninput="queueCheckSave()">
     <button type="button" class="icon-btn" aria-label="Aufgabe entfernen" title="Entfernen" onclick="removeCheckTask(this)"><svg class="i"><use href="#i-x"/></svg></button>
   </div>`;
@@ -4427,6 +4468,14 @@ function addCheckTask() {
   const wrap = document.getElementById('checkTasks');
   wrap.insertAdjacentHTML('beforeend', checkTaskRow('', wrap.children.length + 2));
   wrap.lastElementChild.querySelector('input').focus();
+}
+function setCheckDone(btn, on) {
+  btn.setAttribute('aria-pressed', on);
+  btn.closest('.check-task').classList.toggle('done', on);
+}
+function toggleCheckDone(btn) {
+  setCheckDone(btn, btn.getAttribute('aria-pressed') !== 'true');
+  saveCheck();
 }
 function removeCheckTask(btn) {
   btn.closest('.check-task').remove();
@@ -4455,7 +4504,9 @@ function saveCheck() {
   clearTimeout(checkSaveTimer);
   const date = checkDate();
   CHECK_TEXTS.forEach(f => checkDraft[f.id] = document.getElementById(f.el).value.trim());
-  const tasks = [...document.querySelectorAll('#checkTasks input')].map(i => i.value.trim()).filter(Boolean);
+  checkDraft.focusDone = checkDraft.focus && document.getElementById('checkFocusDone').getAttribute('aria-pressed') === 'true' || undefined;
+  const tasks = [...document.querySelectorAll('#checkTasks .check-task')]
+    .map(row => ({ t: row.querySelector('input').value.trim(), d: row.classList.contains('done') })).filter(x => x.t);
   checkDraft.tasks = tasks.length ? tasks : undefined;
   const entries = DB.get('journal', []);
   const idx = entries.findIndex(x => x.date === date);
@@ -4500,11 +4551,16 @@ function renderCheckList() {
         ${score != null ? `<span class="check-score">Ø ${score.toLocaleString('de-DE', { maximumFractionDigits: 1 })}</span>` : ''}
         <button class="icon-btn" title="Eintrag löschen" aria-label="Eintrag vom ${fmtDate(e.date)} löschen" onclick="deleteJournal('${jsId(e.id)}')"><svg class="i"><use href="#i-trash"/></svg></button>
       </div>
-      ${e.focus ? block(CHECK_TEXTS[0].label, e.focus, e, 'focus') : ''}
-      ${Array.isArray(e.tasks) && e.tasks.length ? `<div class="check-q">
-        <div class="check-q-head"><span>${CHECK_TASKS.label}</span><button class="val-del-btn" title="Nur diese Antwort löschen" onclick="deleteValue('journal','${jsId(e.id)}','tasks')">✕</button></div>
-        <ul class="check-task-list">${e.tasks.map(t => `<li>${escHtml(t)}</li>`).join('')}</ul>
-      </div>` : ''}
+      ${(() => {
+        // Aufgaben des Tages mit Erledigt-Stand
+        const list = [...(e.focus ? [{ t: e.focus, d: !!e.focusDone, main: true }] : []), ...checkTaskList(e)];
+        if(!list.length) return '';
+        const done = list.filter(x => x.d).length;
+        return `<div class="check-q">
+          <div class="check-q-head"><span>Aufgaben · ${done} von ${list.length} erledigt</span>${checkTaskList(e).length ? `<button class="val-del-btn" title="Weitere Aufgaben löschen" onclick="deleteValue('journal','${jsId(e.id)}','tasks')">✕</button>` : ''}</div>
+          <ul class="check-task-list">${list.map(x => `<li class="${x.d ? 'done' : ''}${x.main ? ' main' : ''}"><span class="check-mark" aria-label="${x.d ? 'erledigt' : 'offen'}">${x.d ? '<svg class="i"><use href="#i-check"/></svg>' : ''}</span><span>${escHtml(x.t)}</span></li>`).join('')}</ul>
+        </div>`;
+      })()}
       ${CHECK_TEXTS.slice(1).filter(f => e[f.id]).map(f => block(f.label, e[f.id], e, f.id)).join('')}
       ${ratings ? `<div class="check-chips">${ratings}</div>` : ''}
       ${JOURNAL_QUESTIONS.filter(q => e[q.id]).map(q => block(q.label, e[q.id], e, q.id)).join('')}
