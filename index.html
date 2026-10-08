@@ -783,6 +783,60 @@
   .ern-water-sport .i { width: 14px; height: 14px; }
   .ern-water-btns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
   .ern-water-btns .btn { padding: 0 8px; }
+  /* Essen eintragen: Schritte statt aller Felder auf einmal */
+  .food-view { display: none; }
+  .food-modal[data-view="search"] .food-view[data-for="search"],
+  .food-modal[data-view="amount"] .food-view[data-for="amount"],
+  .food-modal[data-view="manual"] .food-view[data-for="manual"],
+  .food-modal[data-view="amount"].show-fields .food-fields { display: block; }
+  .food-modal[data-view="search"] .food-save { display: none; }
+  .food-modal:not([data-view="manual"]) [data-only="manual"] { display: none; }
+  .food-modal .search-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .food-meals { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 16px; }
+  .food-meal { min-height: 36px; padding: 0 6px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--text-2); font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .food-meal:hover { color: var(--text); border-color: var(--border-strong); }
+  .food-meal.on { background: color-mix(in srgb, var(--mc) 18%, transparent); border-color: var(--mc); color: var(--text); font-weight: 600; }
+  .food-search { height: 44px; }
+  .food-modal .food-results { max-height: min(46vh, 360px); }
+  .food-alt { display: flex; flex-direction: column; margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .food-alt-btn { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border: none; border-radius: var(--radius-sm); background: none; color: var(--text-2); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+  .food-alt-btn:hover { background: var(--surface2); color: var(--text); }
+  .food-alt-btn .i { color: var(--accent); }
+  .food-create { justify-content: flex-start; color: var(--accent); font-weight: 500; }
+  .food-create span { display: flex; align-items: center; gap: 8px; }
+  .food-picked { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: 16px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); }
+  .food-picked-main { flex: 1; min-width: 0; }
+  .food-picked-name { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+  .food-picked-per { font-size: 12px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .food-gram { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .food-gram .form-label { margin: 0; white-space: nowrap; }
+  .food-gram .input-suffix { width: 140px; }
+  .input-suffix { position: relative; }
+  .input-suffix .form-input { padding-right: 44px; }
+  .input-suffix input { -moz-appearance: textfield; appearance: textfield; }
+  .input-suffix input::-webkit-inner-spin-button, .input-suffix input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .input-suffix > span { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--muted); pointer-events: none; }
+  .food-sum { display: flex; flex-direction: column; gap: 2px; padding: 12px 0 4px; font-size: 14px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .food-sum:empty { display: none; }
+  .food-sum b { font-size: 26px; font-weight: 600; color: var(--text); letter-spacing: -.5px; margin-right: 4px; }
+  .food-sum span { font-size: 13px; color: var(--muted); }
+  .food-more { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; margin: 8px 0 4px; padding: 0 8px 0 0; border: none; background: none; color: var(--accent); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .food-more .i { width: 16px; height: 16px; transition: transform .2s ease; }
+  .food-more[aria-expanded="true"] .i { transform: rotate(90deg); }
+  .food-fields { margin-top: 8px; }
+  .food-back { margin-top: 12px; }
+  /* Eigenes Lebensmittel */
+  .own-sec { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .own-sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; font-weight: 600; }
+  .own-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+  .own-grid .form-group { margin-bottom: 0; }
+  .own-kcal { grid-column: 1 / -1; }
+  .own-kcal .form-input { font-size: 18px; font-weight: 600; height: 48px; }
+  .own-portion { max-width: 200px; }
+  .label-opt { font-weight: 400; color: var(--muted); font-size: 12px; margin-left: 4px; }
+  .seg { display: inline-flex; padding: 2px; border-radius: 999px; background: var(--surface2); border: 1px solid var(--border); }
+  .seg-btn { min-height: 32px; padding: 0 12px; border: none; border-radius: 999px; background: none; color: var(--text-2); font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+  .seg-btn.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
   .food-own-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   .scan-view { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; background: #000; }
   .scan-view video, .scan-view #scanLib video { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -1601,78 +1655,88 @@
 
 <!-- Ernährung → Tracker: Essen eintragen / bearbeiten -->
 <div class="modal-overlay" id="foodModal">
-  <div class="modal modal-wide">
+  <!-- Schritte: suchen → Menge wählen; „Nur Kalorien“ für freie Eingabe ohne Lebensmittel -->
+  <div class="modal modal-wide food-modal" id="foodModalBox" data-view="search">
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-utensils"/></svg></span><span id="foodModalTitle">Essen eintragen</span></div>
     <input type="hidden" id="foodId">
-    <div class="form-group">
-      <label class="form-label" for="foodSearch">Suchen</label>
-      <input type="search" class="form-input" id="foodSearch" placeholder="Lebensmittel, Marke oder eigenes Rezept…" oninput="foodSearchInput()" autocomplete="off">
+    <input type="hidden" id="foodMeal">
+    <div class="food-meals" id="foodMealChips" role="group" aria-label="Mahlzeit"></div>
+
+    <!-- Schritt 1: Suchen -->
+    <div class="food-view" data-for="search">
+      <label class="search-label" for="foodSearch">Lebensmittel suchen</label>
+      <input type="search" class="form-input food-search" id="foodSearch" placeholder="Lebensmittel, Marke oder Rezept suchen…" oninput="foodSearchInput()" autocomplete="off">
       <div class="food-results" id="foodResults" aria-live="polite"></div>
-      <div class="food-own-row">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="openScan()"><svg class="i"><use href="#i-scan"/></svg>Barcode scannen</button>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="openOwnFood()"><svg class="i"><use href="#i-plus"/></svg>Eigenes Lebensmittel anlegen</button>
+      <div class="food-alt">
+        <button type="button" class="food-alt-btn" onclick="openScan()"><svg class="i"><use href="#i-scan"/></svg><span>Barcode scannen</span></button>
+        <button type="button" class="food-alt-btn" onclick="openOwnFood()"><svg class="i"><use href="#i-plus"/></svg><span>Eigenes Lebensmittel anlegen</span></button>
+        <button type="button" class="food-alt-btn" onclick="showFoodView('manual')"><svg class="i"><use href="#i-pencil"/></svg><span>Nur Kalorien eintragen</span></button>
       </div>
     </div>
-    <div class="form-row">
+
+    <!-- Schritt 2: gewähltes Lebensmittel + Menge -->
+    <div class="food-view" data-for="amount">
+      <div class="food-picked">
+        <div class="food-picked-main">
+          <div class="food-picked-name" id="foodPickedName"></div>
+          <div class="food-picked-per" id="foodPer"></div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="backToFoodSearch()">Ändern</button>
+      </div>
+      <div class="form-group" id="foodAmountGroup">
+        <div class="portion-head"><span class="form-label" id="foodPortionLabel">Portionen</span><span class="portion-size" id="foodPortionSize"></span></div>
+        <div class="portion-picker">
+          <button type="button" class="portion-step" aria-label="Eine halbe Portion weniger" onclick="stepPortions(-1)"><svg class="i"><use href="#i-minus"/></svg></button>
+          <div class="portion-wheel" id="foodPortionWheel" role="listbox" aria-labelledby="foodPortionLabel"></div>
+          <button type="button" class="portion-step" aria-label="Eine halbe Portion mehr" onclick="stepPortions(1)"><svg class="i"><use href="#i-plus"/></svg></button>
+        </div>
+        <div id="foodGramWrap" class="food-gram">
+          <label class="form-label" for="foodAmount" id="foodAmountLabel">oder genau</label>
+          <div class="input-suffix"><input type="number" min="0" step="any" inputmode="decimal" class="form-input" id="foodAmount" oninput="foodRecalc();renderPortionWheel()"><span id="foodAmountUnit">g</span></div>
+        </div>
+      </div>
+      <div class="food-sum" id="foodSum" aria-live="polite"></div>
+      <button type="button" class="food-more" id="foodMoreBtn" aria-expanded="false" onclick="toggleFoodMacros()">Name und Nährwerte anpassen<svg class="i"><use href="#i-chevron"/></svg></button>
+    </div>
+
+    <!-- Name + Nährwerte: bei „Nur Kalorien“ immer sichtbar, sonst aufklappbar -->
+    <div class="food-view food-fields" data-for="manual">
       <div class="form-group">
         <label class="form-label" for="foodName">Name</label>
-        <input type="text" class="form-input" id="foodName" placeholder="z.B. Apfel">
+        <input type="text" class="form-input" id="foodName" placeholder="z. B. Kantinenessen">
       </div>
-      <div class="form-group">
-        <label class="form-label" for="foodMeal">Mahlzeit</label>
-        <select class="form-input" id="foodMeal">
-          <option value="fruehstueck">Frühstück</option>
-          <option value="mittag">Mittagessen</option>
-          <option value="abend">Abendessen</option>
-          <option value="snack">Snacks</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group" id="foodAmountGroup" hidden>
-      <div class="portion-head"><span class="form-label" id="foodPortionLabel">Portionen</span><span class="portion-size" id="foodPortionSize"></span></div>
-      <div class="portion-picker">
-        <button type="button" class="portion-step" aria-label="Eine halbe Portion weniger" onclick="stepPortions(-1)"><svg class="i"><use href="#i-minus"/></svg></button>
-        <div class="portion-wheel" id="foodPortionWheel" role="listbox" aria-labelledby="foodPortionLabel"></div>
-        <button type="button" class="portion-step" aria-label="Eine halbe Portion mehr" onclick="stepPortions(1)"><svg class="i"><use href="#i-plus"/></svg></button>
-      </div>
-      <div id="foodGramWrap">
-        <label class="form-label" for="foodAmount" id="foodAmountLabel" style="margin-top:12px">Menge (g)</label>
-        <input type="number" min="0" step="any" class="form-input" id="foodAmount" oninput="foodRecalc();renderPortionWheel()">
-      </div>
-      <div class="form-hint" id="foodPer"></div>
-    </div>
-    <div class="form-group">
       <div class="macro-inputs five">
         <div class="form-group">
           <label class="form-label" for="foodKcal">kcal</label>
-          <input type="number" min="0" step="1" class="form-input" id="foodKcal" placeholder="250">
+          <input type="number" min="0" step="1" inputmode="numeric" class="form-input" id="foodKcal" placeholder="250" oninput="renderFoodSum()">
         </div>
         <div class="form-group">
           <label class="form-label" for="foodProtein">Protein (g)</label>
-          <input type="number" min="0" step="0.1" class="form-input" id="foodProtein" placeholder="–">
+          <input type="number" min="0" step="0.1" inputmode="decimal" class="form-input" id="foodProtein" placeholder="–" oninput="renderFoodSum()">
         </div>
         <div class="form-group">
           <label class="form-label" for="foodFett">Fett (g)</label>
-          <input type="number" min="0" step="0.1" class="form-input" id="foodFett" placeholder="–">
+          <input type="number" min="0" step="0.1" inputmode="decimal" class="form-input" id="foodFett" placeholder="–" oninput="renderFoodSum()">
         </div>
         <div class="form-group">
           <label class="form-label" for="foodKh">KH (g)</label>
-          <input type="number" min="0" step="0.1" class="form-input" id="foodKh" placeholder="–">
+          <input type="number" min="0" step="0.1" inputmode="decimal" class="form-input" id="foodKh" placeholder="–" oninput="renderFoodSum()">
         </div>
         <div class="form-group">
           <label class="form-label" for="foodBallast">Ballaststoffe (g)</label>
-          <input type="number" min="0" step="0.1" class="form-input" id="foodBallast" placeholder="–">
+          <input type="number" min="0" step="0.1" inputmode="decimal" class="form-input" id="foodBallast" placeholder="–" oninput="renderFoodSum()">
         </div>
       </div>
+      <button type="button" class="food-more food-back" data-only="manual" onclick="backToFoodSearch()"><svg class="i"><use href="#i-chevron-left"/></svg>Doch lieber suchen</button>
     </div>
+
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('foodModal')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveFood()">Speichern</button>
+      <button class="btn btn-primary food-save" onclick="saveFood()">Eintragen</button>
     </div>
   </div>
 </div>
 
-<!-- Ernährung → Tracker: Ernährungsprofil (Ziele per Schieberegler) -->
 <div class="modal-overlay" id="ernGoalModal">
   <div class="modal modal-wide">
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-sliders"/></svg></span>Ernährungsprofil</div>
@@ -1747,59 +1811,62 @@
 </div>
 
 <div class="modal-overlay" id="ownFoodModal">
-  <div class="modal modal-wide">
+  <div class="modal modal-wide own-food">
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-utensils"/></svg></span><span id="ownFoodTitle">Eigenes Lebensmittel</span></div>
     <input type="hidden" id="ownFoodId">
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label" for="ownFoodName">Name</label>
-        <input type="text" class="form-input" id="ownFoodName" placeholder="z.B. Mamas Linsensuppe">
+    <div class="form-group">
+      <label class="form-label" for="ownFoodName">Name</label>
+      <input type="text" class="form-input" id="ownFoodName" placeholder="z. B. Mamas Linsensuppe">
+    </div>
+
+    <div class="own-sec">
+      <div class="own-sec-head">
+        <span>Nährwerte</span>
+        <div class="seg" role="group" aria-label="Angaben je">
+          <button type="button" class="seg-btn" data-unit="g" onclick="setOwnFoodUnit('g')">je 100 g</button>
+          <button type="button" class="seg-btn" data-unit="ml" onclick="setOwnFoodUnit('ml')">je 100 ml</button>
+        </div>
+        <input type="hidden" id="ownFoodUnit" value="g">
       </div>
-      <div class="form-group">
-        <label class="form-label" for="ownFoodUnit">Angaben je</label>
-        <select class="form-input" id="ownFoodUnit">
-          <option value="g">100 g</option>
-          <option value="ml">100 ml</option>
-        </select>
+      <div class="form-hint">Von der Verpackung abschreiben – die Spalte „pro 100 <span class="own-unit">g</span>“. Nur kcal ist Pflicht.</div>
+      <div class="own-grid">
+        <div class="form-group own-kcal">
+          <label class="form-label" for="ownFoodKcal">Kalorien</label>
+          <div class="input-suffix"><input type="number" min="0" step="1" inputmode="decimal" class="form-input" id="ownFoodKcal" placeholder="120"><span>kcal</span></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ownFoodProtein">Eiweiß</label>
+          <div class="input-suffix"><input type="number" min="0" step="0.1" inputmode="decimal" class="form-input" id="ownFoodProtein" placeholder="–"><span>g</span></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ownFoodFett">Fett</label>
+          <div class="input-suffix"><input type="number" min="0" step="0.1" inputmode="decimal" class="form-input" id="ownFoodFett" placeholder="–"><span>g</span></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ownFoodKh">Kohlenhydrate</label>
+          <div class="input-suffix"><input type="number" min="0" step="0.1" inputmode="decimal" class="form-input" id="ownFoodKh" placeholder="–"><span>g</span></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ownFoodBallast">Ballaststoffe</label>
+          <div class="input-suffix"><input type="number" min="0" step="0.1" inputmode="decimal" class="form-input" id="ownFoodBallast" placeholder="–"><span>g</span></div>
+        </div>
       </div>
     </div>
-    <div class="form-group">
-      <div class="macro-inputs five">
-        <div class="form-group">
-          <label class="form-label" for="ownFoodKcal">kcal</label>
-          <input type="number" min="0" step="1" class="form-input" id="ownFoodKcal" placeholder="120">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="ownFoodProtein">Protein (g)</label>
-          <input type="number" min="0" step="0.1" class="form-input" id="ownFoodProtein" placeholder="–">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="ownFoodFett">Fett (g)</label>
-          <input type="number" min="0" step="0.1" class="form-input" id="ownFoodFett" placeholder="–">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="ownFoodKh">KH (g)</label>
-          <input type="number" min="0" step="0.1" class="form-input" id="ownFoodKh" placeholder="–">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="ownFoodBallast">Ballaststoffe (g)</label>
-          <input type="number" min="0" step="0.1" class="form-input" id="ownFoodBallast" placeholder="–">
-        </div>
+
+    <div class="own-sec">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label" for="ownFoodPortion">Übliche Portion <span class="label-opt">optional</span></label>
+        <div class="input-suffix own-portion"><input type="number" min="0" step="1" inputmode="decimal" class="form-input" id="ownFoodPortion" placeholder="z. B. 250"><span class="own-unit">g</span></div>
+        <div class="form-hint">Wird beim Eintragen als Menge vorgeschlagen.</div>
       </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="ownFoodPortion">Übliche Portion (optional)</label>
-      <input type="number" min="0" step="1" class="form-input" id="ownFoodPortion" placeholder="z.B. 250">
-      <div class="form-hint">Wird beim Eintragen als Menge vorgeschlagen.</div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-destructive" id="ownFoodDelete" onclick="deleteOwnFood()" style="margin-right:auto">Löschen</button>
       <button class="btn btn-secondary" onclick="closeModal('ownFoodModal')">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveOwnFood()">Speichern</button>
+      <button class="btn btn-primary" id="ownFoodSave" onclick="saveOwnFood()">Speichern</button>
     </div>
   </div>
 </div>
-
 <div class="modal-overlay" id="copyMealModal">
   <div class="modal">
     <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-copy"/></svg></span>Mahlzeit kopieren</div>
@@ -3443,16 +3510,24 @@ function openOwnFood(id) {
   document.getElementById('ownFoodTitle').textContent = f ? 'Eigenes Lebensmittel bearbeiten' : 'Eigenes Lebensmittel';
   document.getElementById('ownFoodId').value = f?.id || '';
   document.getElementById('ownFoodName').value = f?.name || document.getElementById('foodSearch').value.trim() || document.getElementById('foodName').value.trim();
-  document.getElementById('ownFoodUnit').value = f?.unit || 'g';
+  setOwnFoodUnit(f?.unit || 'g');
   ['Kcal', 'Protein', 'Fett', 'Kh', 'Ballast'].forEach(k => document.getElementById('ownFood' + k).value = f?.[k.toLowerCase()] ?? '');
   document.getElementById('ownFoodPortion').value = f?.portion ?? '';
   document.getElementById('ownFoodDelete').style.display = f ? '' : 'none';
-  openModal('ownFoodModal', 'ownFoodName');
+  // Neu aus dem Eintragen-Fenster heraus: nach dem Anlegen geht es direkt mit der Menge weiter
+  document.getElementById('ownFoodSave').textContent = f ? 'Speichern' : 'Anlegen und eintragen';
+  openModal('ownFoodModal', document.getElementById('ownFoodName').value ? 'ownFoodKcal' : 'ownFoodName');
+}
+function setOwnFoodUnit(u) {
+  document.getElementById('ownFoodUnit').value = u;
+  document.querySelectorAll('#ownFoodModal .seg-btn').forEach(b => { const on = b.dataset.unit === u; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  document.querySelectorAll('#ownFoodModal .own-unit').forEach(el => el.textContent = u);
 }
 function saveOwnFood() {
   const name = document.getElementById('ownFoodName').value.trim();
   const kcal = document.getElementById('ownFoodKcal').value;
-  if(!name || kcal === '' || !(+kcal >= 0)) { toast('Bitte Name und kcal je 100 g/ml angeben'); return; }
+  if(!name) { toast('Bitte einen Namen angeben'); document.getElementById('ownFoodName').focus(); return; }
+  if(kcal === '' || !(+kcal >= 0)) { toast('Bitte die Kalorien je 100 ' + document.getElementById('ownFoodUnit').value + ' angeben'); document.getElementById('ownFoodKcal').focus(); return; }
   const id = document.getElementById('ownFoodId').value;
   const f = { id: id || 'f' + Date.now().toString(36), name, unit: document.getElementById('ownFoodUnit').value, kcal: Math.round(+kcal * 10) / 10 };
   ERN_NUTRIENTS.forEach(([k]) => { const v = document.getElementById('ownFood' + (k === 'kh' ? 'Kh' : k[0].toUpperCase() + k.slice(1))).value; if(v !== '') f[k] = Math.round(+v * 10) / 10; });
@@ -3492,21 +3567,63 @@ function openFoodModal(meal, id) {
   const hour = new Date().getHours();
   document.getElementById('foodModalTitle').textContent = e ? 'Eintrag bearbeiten' : 'Essen eintragen';
   document.getElementById('foodId').value = e ? e.id : '';
-  document.getElementById('foodMeal').value = e?.meal || meal || (hour < 11 ? 'fruehstueck' : hour < 15 ? 'mittag' : hour < 18 ? 'snack' : 'abend');
+  setFoodMeal(e?.meal || meal || (hour < 11 ? 'fruehstueck' : hour < 15 ? 'mittag' : hour < 18 ? 'snack' : 'abend'));
   document.getElementById('foodName').value = e?.name || '';
   foodRezeptId = e?.rezeptId || null;
   Object.entries(FOOD_FIELDS).forEach(([k, f]) => document.getElementById(f).value = e?.[k] ?? '');
   document.getElementById('foodSearch').value = '';
   setFoodBase(e?.base || null, e?.amount);
   renderFoodResults('');
-  openModal('foodModal', e ? 'foodName' : 'foodSearch');
+  // Neu: mit der Suche beginnen; Bearbeiten: direkt Menge bzw. die frei eingetragenen Werte
+  showFoodView(!e ? 'search' : e.base ? 'amount' : 'manual', true);
+  renderFoodSum();
+  openModal('foodModal', !e ? 'foodSearch' : e.base ? 'foodAmount' : 'foodName');
+}
+// Mahlzeit als vier Chips oben im Fenster
+const FOOD_MEAL_SHORT = { fruehstueck: 'Frühstück', mittag: 'Mittag', abend: 'Abend', snack: 'Snack' };
+function setFoodMeal(k) {
+  document.getElementById('foodMeal').value = k;
+  document.getElementById('foodMealChips').innerHTML = ERN_MEALS.map(m => `<button type="button" class="food-meal${m.k === k ? ' on' : ''}" style="--mc:var(--meal-${m.k})" aria-pressed="${m.k === k}" aria-label="${m.n}" onclick="setFoodMeal('${m.k}')">${FOOD_MEAL_SHORT[m.k] || m.n}</button>`).join('');
+}
+// Ansicht wechseln: search (Suche) · amount (Menge des gewählten Lebensmittels) · manual (nur Werte eintragen)
+function showFoodView(view, keep) {
+  const box = document.getElementById('foodModalBox');
+  box.dataset.view = view;
+  box.classList.remove('show-fields');
+  document.getElementById('foodMoreBtn').setAttribute('aria-expanded', 'false');
+  document.querySelector('#foodModal .food-save').textContent = document.getElementById('foodId').value ? 'Speichern' : 'Eintragen';
+  if(view === 'manual' && !keep) {
+    if(!document.getElementById('foodName').value) document.getElementById('foodName').value = document.getElementById('foodSearch').value.trim();
+    document.getElementById(document.getElementById('foodName').value ? 'foodKcal' : 'foodName').focus();
+  }
+}
+function toggleFoodMacros() {
+  const box = document.getElementById('foodModalBox'), open = box.classList.toggle('show-fields');
+  document.getElementById('foodMoreBtn').setAttribute('aria-expanded', open);
+  if(open) document.getElementById('foodName').focus();
+}
+function backToFoodSearch() {
+  setFoodBase(null);
+  foodRezeptId = null;
+  document.getElementById('foodName').value = '';
+  Object.values(FOOD_FIELDS).forEach(id => document.getElementById(id).value = '');
+  showFoodView('search');
+  renderFoodResults(document.getElementById('foodSearch').value);
+  document.getElementById('foodSearch').focus();
+}
+// Ergebnis der gewählten Menge: Kalorien groß, Makros klein darunter
+function renderFoodSum() {
+  const v = id => document.getElementById(id).value;
+  const kcal = v('foodKcal');
+  document.getElementById('foodSum').innerHTML = kcal === '' ? '' : `<div><b>${Math.round(+kcal).toLocaleString('de-DE')}</b> kcal</div>`
+    + `<span>${ERN_NUTRIENTS.filter(([k]) => v(FOOD_FIELDS[k]) !== '').map(([k, , short]) => `${short} ${fmtNum(+v(FOOD_FIELDS[k]))} g`).join(' · ')}</span>`;
 }
 function setFoodBase(base, amount) {
   foodBase = base;
-  document.getElementById('foodAmountGroup').hidden = !base;
   if(!base) return;
   const isG = ernPer100(base);
-  document.getElementById('foodAmountLabel').textContent = isG ? `Menge (${base.unit})` : 'Portionen';
+  document.getElementById('foodPickedName').textContent = document.getElementById('foodName').value;
+  document.getElementById('foodAmountUnit').textContent = base.unit;
   document.getElementById('foodAmount').step = isG ? '1' : '0.5';
   document.getElementById('foodAmount').value = amount ?? base.default ?? (isG ? 100 : 1);
   document.getElementById('foodPer').textContent = `${fmtNum(base.kcal)} kcal${ERN_NUTRIENTS.filter(([k]) => base[k] != null).map(([k, , short]) => ` · ${short} ${fmtNum(base[k])} g`).join('')} je ${ernPerLabel(base)}`;
@@ -3551,18 +3668,20 @@ function foodRecalc() {
     if(foodBase[k] == null) return;
     document.getElementById(id).value = k === 'kcal' ? Math.round(foodBase[k] * f) : Math.round(foodBase[k] * f * 10) / 10;
   });
+  renderFoodSum();
 }
 function pickFood(i) {
   const h = foodHits[i];
   if(!h) return;
   document.getElementById('foodName').value = h.name;
-  if(h.meal) document.getElementById('foodMeal').value = h.meal;
+  if(h.meal && !document.getElementById('foodId').value) setFoodMeal(h.meal);
   foodRezeptId = h.rezeptId || null;
   // Open Food Facts liefert Ballaststoffe oft nicht – dann aus der Tabelle schätzen
   if(h.base.ballast == null && ernPer100(h.base)) { const b = ballastJe100(h.name); if(b != null) h.base = { ...h.base, ballast: b }; }
   Object.values(FOOD_FIELDS).forEach(id => document.getElementById(id).value = '');
   setFoodBase(h.base);
   foodRecalc();
+  showFoodView('amount');
   document.getElementById('foodSearch').value = '';
   renderFoodResults('');
   document.getElementById('foodAmount').focus();
@@ -3604,6 +3723,8 @@ function renderFoodResults(q, remote) {
   group('Deine Rezepte', rezepte);
   if(remote?.hits?.length) group('Open Food Facts', remote.hits);
   if(remote?.status) html += `<div class="food-status">${remote.status}</div>`;
+  // Nicht dabei? Gesuchtes direkt als eigenes Lebensmittel anlegen
+  if(ql.length >= 2) html += `<button type="button" class="food-hit food-create" onclick="openOwnFood()"><span><svg class="i"><use href="#i-plus"/></svg>„${escHtml(q.trim())}“ als eigenes Lebensmittel anlegen</span></button>`;
   document.getElementById('foodResults').innerHTML = html;
 }
 function foodSearchInput() {
@@ -3639,10 +3760,10 @@ async function searchOFF(q) {
       return { name, sub: (p.brands || '').split(',')[0].trim(), base: { per: 100, unit: 'g', kcal, protein: num(n.proteins_100g), fett: num(n.fat_100g), kh: num(n.carbohydrates_100g), ballast: num(n.fiber_100g), default: num(p.serving_quantity) || 100, portion: num(p.serving_quantity) } };
     }).filter(Boolean).slice(0, 12);
     if(document.getElementById('foodSearch').value !== q) return;
-    renderFoodResults(q, { hits, status: hits.length ? '' : 'Bei Open Food Facts nichts gefunden – trag die Werte einfach unten ein.' });
+    renderFoodResults(q, { hits, status: hits.length ? '' : 'Bei Open Food Facts nichts gefunden.' });
   } catch(e) {
     if(e.name === 'AbortError') return;
-    renderFoodResults(q, { status: 'Open Food Facts gerade nicht erreichbar – trag die Werte einfach unten ein.' });
+    renderFoodResults(q, { status: 'Open Food Facts gerade nicht erreichbar.' });
   }
 }
 // ---- Barcode scannen: eingebauter BarcodeDetector, sonst html5-qrcode (wird nur bei Bedarf geladen) ----
@@ -3717,7 +3838,11 @@ async function scanLookup(code) {
 function saveFood() {
   const name = document.getElementById('foodName').value.trim();
   const kcalRaw = document.getElementById('foodKcal').value;
-  if(!name || kcalRaw === '' || !(+kcalRaw >= 0)) { toast('Bitte Name und Kalorien angeben'); return; }
+  if(!name || kcalRaw === '' || !(+kcalRaw >= 0)) {
+    const box = document.getElementById('foodModalBox');
+    if(box.dataset.view === 'amount') { box.classList.add('show-fields'); document.getElementById('foodMoreBtn').setAttribute('aria-expanded', 'true'); }
+    toast('Bitte Name und Kalorien angeben'); return;
+  }
   const id = document.getElementById('foodId').value;
   const entry = { id: id || Date.now().toString(36) + Math.random().toString(36).slice(2, 6), meal: document.getElementById('foodMeal').value, name, kcal: Math.round(+kcalRaw) };
   ERN_NUTRIENTS.forEach(([k]) => { const v = document.getElementById(FOOD_FIELDS[k]).value; if(v !== '') entry[k] = Math.round(+v * 10) / 10; });
