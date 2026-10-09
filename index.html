@@ -1306,6 +1306,7 @@
     <div class="entry-tile" onclick="openModal('stepsModal','healthSteps')"><span class="entry-tile-icon tone-green"><svg class="i"><use href="#i-steps"/></svg></span><span class="entry-tile-label">Schritte</span></div>
     <div class="entry-tile" onclick="openModal('meditModal','healthMedit')"><span class="entry-tile-icon tone-green"><svg class="i"><use href="#i-leaf"/></svg></span><span class="entry-tile-label">Meditation</span></div>
     <div class="entry-tile" onclick="openModal('bpModal','healthBpSys')"><span class="entry-tile-icon tone-red"><svg class="i"><use href="#i-steth"/></svg></span><span class="entry-tile-label">Blutdruck</span></div>
+    <div class="entry-tile" onclick="openModal('hrvModal','healthRhr')"><span class="entry-tile-icon tone-red"><svg class="i"><use href="#i-activity"/></svg></span><span class="entry-tile-label">Puls &amp; HRV</span></div>
     <div class="entry-tile" onclick="openModal('tempModal','healthTemp')"><span class="entry-tile-icon tone-red"><svg class="i"><use href="#i-thermo"/></svg></span><span class="entry-tile-label">Temperatur</span></div>
   </div>
   <div class="table-hint" style="margin:-4px 0 16px">Kalorien und Gewicht erfasst du jetzt unter <a href="#ernaehrung" onclick="event.preventDefault();openTracker()">Ernährung → Tracker</a>.</div>
@@ -1317,7 +1318,7 @@
     </div>
     <div class="table-hint">Tipp: Mit dem Stift einen Tag bearbeiten, über das Notiz-Symbol eine Tagesnotiz hinzufügen, mit ✕ den ganzen Tag löschen. Ein Klick auf einen Wert löscht ihn einzeln.</div>
     <div class="table-scroll"><table class="data-table">
-      <thead><tr><th>Datum</th><th>Blutdruck</th><th>Temp.</th><th>Schritte</th><th>Meditation</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th></th></tr></thead>
+      <thead><tr><th>Datum</th><th>Blutdruck</th><th>Ruhepuls</th><th>HRV</th><th>Temp.</th><th>Schritte</th><th>Meditation</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th></th></tr></thead>
       <tbody id="healthTable"></tbody>
     </table></div>
   </div>
@@ -1337,6 +1338,10 @@
       <div class="card">
         <div class="card-title">Blutdruckverlauf</div>
         <div class="chart-wrap"><canvas id="chartBp"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Ruhepuls &amp; HRV</div>
+        <div class="chart-wrap"><canvas id="chartHrv"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">Körpertemperatur</div>
@@ -1978,6 +1983,16 @@
     </div>
     <div class="form-row">
       <div class="form-group">
+        <label class="form-label" for="heRhr">Ruhepuls (Schläge/min)</label>
+        <input type="number" min="30" max="120" step="1" class="form-input" id="heRhr" placeholder="–">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="heHrv">HRV (ms)</label>
+        <input type="number" min="5" max="250" step="1" class="form-input" id="heHrv" placeholder="–">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
         <label class="form-label" for="heSteps">Schritte</label>
         <input type="number" min="0" class="form-input" id="heSteps" placeholder="–">
       </div>
@@ -2088,6 +2103,31 @@
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('bpModal')">Abbrechen</button>
       <button class="btn btn-primary" onclick="saveBp()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="hrvModal">
+  <div class="modal">
+    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-activity"/></svg></span>Puls &amp; HRV – Neuer Eintrag</div>
+    <div class="form-hint" style="margin-top:-4px;margin-bottom:16px">Morgens von der Uhr ablesen. Ein Wert allein reicht auch.</div>
+    <div class="form-group">
+      <label class="form-label" for="hrvDate">Datum</label>
+      <input type="date" class="form-input" id="hrvDate">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="healthRhr">Ruhepuls (Schläge/min)</label>
+        <input type="number" min="30" max="120" step="1" inputmode="numeric" class="form-input" id="healthRhr" placeholder="58">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="healthHrv">HRV (ms)</label>
+        <input type="number" min="5" max="250" step="1" inputmode="numeric" class="form-input" id="healthHrv" placeholder="45">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('hrvModal')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveHrv()">Speichern</button>
     </div>
   </div>
 </div>
@@ -4118,19 +4158,21 @@ function applyRating(el, rating) {
   el.className = 'stat-delta';
 }
 function renderHealth() {
-  ['sleepDate','stepsDate','meditDate','bpDate','tempDate'].forEach(id=>document.getElementById(id).value = today());
+  ['sleepDate','stepsDate','meditDate','bpDate','hrvDate','tempDate'].forEach(id=>document.getElementById(id).value = today());
   const data = DB.get('health', []);
 
   // Table
   const tbody = document.getElementById('healthTable');
   // Gewicht/Kalorien gehören jetzt zu Ernährung → Tage nur mit diesen Werten hier ausblenden
-  const VITAL_KEYS = ['bpSys','temp','steps','medit','sleepMin','deepMin','remMin','note'];
+  const VITAL_KEYS = ['bpSys','rhr','hrv','temp','steps','medit','sleepMin','deepMin','remMin','note'];
   const rows = [...data].filter(d => VITAL_KEYS.some(k => d[k])).reverse().slice(0,20);
   // Einzelwert-Zelle: Klick löscht genau diesen Wert
   const cell = (date, field, html) => `<span class="cell-val" title="Wert löschen" onclick="deleteHealthValue('${date}','${field}')">${html}</span>`;
   tbody.innerHTML = rows.map(d=>`<tr>
     <td>${fmtDate(d.date)}</td>
     <td>${d.bpSys&&d.bpDia ? cell(d.date,'bp',`<span style="color:var(--red)">${d.bpSys}</span>/<span style="color:var(--accent2)">${d.bpDia}</span>`) : '—'}</td>
+    <td>${d.rhr ? cell(d.date,'rhr',d.rhr) : '—'}</td>
+    <td>${d.hrv ? cell(d.date,'hrv',d.hrv + ' ms') : '—'}</td>
     <td>${d.temp ? cell(d.date,'temp',`<span style="color:${parseFloat(d.temp)>=38 ? 'var(--red)' : 'inherit'}">${d.temp}°</span>`) : '—'}</td>
     <td>${d.steps ? cell(d.date,'steps',d.steps) : '—'}</td>
     <td>${d.medit ? cell(d.date,'medit',d.medit + ' min') : '—'}</td>
@@ -4142,7 +4184,7 @@ function renderHealth() {
       <button class="icon-btn note-btn${d.note ? ' has-note' : ''}" title="${d.note ? 'Notiz bearbeiten' : 'Notiz hinzufügen'}" aria-label="${d.note ? 'Notiz bearbeiten' : 'Notiz hinzufügen'}" onclick="openHealthNote('${d.date}')"><svg class="i"><use href="#i-note"/></svg></button>
       <button class="icon-btn" title="Ganzen Tag löschen" aria-label="Ganzen Tag löschen" onclick="deleteHealthEntry('${d.date}')"><svg class="i"><use href="#i-x"/></svg></button>
     </div></td>
-  </tr>${d.note ? `<tr class="health-note-row"><td colspan="9"><div class="schiri-notes"><div class="schiri-note day"><span class="schiri-note-label"><svg class="i"><use href="#i-note"/></svg>Tagesnotiz</span><span>${escHtml(d.note)}</span></div></div></td></tr>` : ''}`).join('') || `<tr><td class="empty-cell" colspan="9">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
+  </tr>${d.note ? `<tr class="health-note-row"><td colspan="11"><div class="schiri-notes"><div class="schiri-note day"><span class="schiri-note-label"><svg class="i"><use href="#i-note"/></svg>Tagesnotiz</span><span>${escHtml(d.note)}</span></div></div></td></tr>` : ''}`).join('') || `<tr><td class="empty-cell" colspan="11">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
 }
 
 const escHtml = (str) => String(str).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -4154,6 +4196,8 @@ const jsId = v => String(v ?? '').replace(/[^\w-]/g, '');
 const HEALTH_FIELDS = {
   weight:   { label: 'Gewicht',       keys: ['weight'] },
   bp:       { label: 'Blutdruck',     keys: ['bpSys','bpDia'] },
+  rhr:      { label: 'Ruhepuls',      keys: ['rhr'] },
+  hrv:      { label: 'HRV',           keys: ['hrv'] },
   temp:     { label: 'Temperatur',    keys: ['temp'] },
   steps:    { label: 'Schritte',      keys: ['steps'] },
   kcal:     { label: 'Kalorien',      keys: ['kcal'] },
@@ -4288,6 +4332,20 @@ function saveBp() {
   toast('Blutdruck gespeichert ✓');
 }
 
+// Ruhepuls und HRV: morgens von der Uhr abgelesen; ein Wert allein reicht
+function saveHrv() {
+  const date = document.getElementById('hrvDate').value || today();
+  const rhr = document.getElementById('healthRhr').value, hrv = document.getElementById('healthHrv').value;
+  if(rhr === '' && hrv === '') { toast('Bitte Ruhepuls oder HRV eingeben!'); return; }
+  if(rhr !== '' && !(+rhr >= 30 && +rhr <= 120)) { toast('Ruhepuls bitte zwischen 30 und 120'); document.getElementById('healthRhr').focus(); return; }
+  if(hrv !== '' && !(+hrv >= 5 && +hrv <= 250)) { toast('HRV bitte zwischen 5 und 250 ms'); document.getElementById('healthHrv').focus(); return; }
+  saveHealthEntry(date, { rhr: rhr === '' ? '' : String(Math.round(+rhr)), hrv: hrv === '' ? '' : String(Math.round(+hrv)) });
+  ['healthRhr','healthHrv'].forEach(id=>document.getElementById(id).value='');
+  renderHealth();
+  closeModal('hrvModal');
+  toast('Puls & HRV gespeichert ✓');
+}
+
 function saveTemp() {
   const date = document.getElementById('tempDate').value || today();
   saveHealthEntry(date, { temp: document.getElementById('healthTemp').value });
@@ -4299,7 +4357,7 @@ function saveTemp() {
 
 // Ganzen Tageseintrag bearbeiten (wie "Spiel bearbeiten" bei den Schiedsrichter-Spielen)
 // Gewicht und Kalorien werden unter Ernährung → Tracker erfasst; vorhandene Altwerte bleiben beim Bearbeiten unverändert
-const HEALTH_EDIT_FIELDS = { temp: 'heTemp', bpSys: 'heBpSys', bpDia: 'heBpDia', steps: 'heSteps', medit: 'heMedit', note: 'heNote' };
+const HEALTH_EDIT_FIELDS = { temp: 'heTemp', bpSys: 'heBpSys', bpDia: 'heBpDia', rhr: 'heRhr', hrv: 'heHrv', steps: 'heSteps', medit: 'heMedit', note: 'heNote' };
 const HEALTH_EDIT_DURATIONS = { sleepMin: 'heSleep', deepMin: 'heDeep', remMin: 'heRem' };
 let healthEditDate = null;
 function openHealthEdit(date) {
@@ -4408,7 +4466,7 @@ function syncKcalHabitFromNutrition() {
 
 function exportHealth() {
   const data = DB.get('health', []);
-  const csv = ['Datum,Gewicht,BP sys,BP dia,Temperatur (°C),Schritte,Kalorien (kcal),Meditation (min),Schlaf gesamt (min),Tiefschlaf (min),REM (min),Notiz'].concat(data.map(d=>`${d.date},${d.weight||''},${d.bpSys||''},${d.bpDia||''},${d.temp||''},${d.steps||''},${d.kcal||''},${d.medit||''},${d.sleepMin||''},${d.deepMin||''},${d.remMin||''},"${d.note||''}"`)).join('\n');
+  const csv = ['Datum,Gewicht,BP sys,BP dia,Ruhepuls (bpm),HRV (ms),Temperatur (°C),Schritte,Kalorien (kcal),Meditation (min),Schlaf gesamt (min),Tiefschlaf (min),REM (min),Notiz'].concat(data.map(d=>`${d.date},${d.weight||''},${d.bpSys||''},${d.bpDia||''},${d.rhr||''},${d.hrv||''},${d.temp||''},${d.steps||''},${d.kcal||''},${d.medit||''},${d.sleepMin||''},${d.deepMin||''},${d.remMin||''},"${d.note||''}"`)).join('\n');
   download('gesundheitsdaten.csv', 'text/csv', csv);
 }
 
@@ -4733,6 +4791,21 @@ function renderHealthAnalytics() {
       { label:'Ziel dia. 80', data:bpData.map(()=>80), borderColor:'rgba(34,211,238,0.35)', borderDash:[6,4], pointRadius:2, fill:false },
     ]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{min:50,grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{color:cGrid()},ticks:{color:cTick(),maxTicksLimit:6}} } }
+  });
+
+  // Ruhepuls & HRV – eigene Achse je Wert (Schläge/min links, ms rechts)
+  const hrvData = health.filter(d=>d.rhr||d.hrv).slice(-30);
+  if(charts.hrv) charts.hrv.destroy();
+  charts.hrv = new Chart(document.getElementById('chartHrv'), {
+    type:'line',
+    data:{ labels: hrvData.map(d=>fmtDate(d.date)), datasets:[
+      { label:'Ruhepuls', data:hrvData.map(d=>parseInt(d.rhr)||null), borderColor:'#f87171', backgroundColor:'rgba(248,113,113,0.1)', tension:0.3, fill:false, pointRadius:4, spanGaps:true, yAxisID:'y' },
+      { label:'HRV', data:hrvData.map(d=>parseInt(d.hrv)||null), borderColor:'#4ade80', backgroundColor:'rgba(74,222,128,0.1)', tension:0.3, fill:false, pointRadius:4, spanGaps:true, yAxisID:'y1' },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{
+      y:{position:'left',grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+' bpm'}},
+      y1:{position:'right',grid:{display:false},ticks:{color:cTick(),callback:v=>v+' ms'}},
+      x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:6}} } }
   });
 
   // Temperatur chart
