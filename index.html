@@ -3096,9 +3096,18 @@ function ernMacroGoal(k, day = ernView) {
 const FAST_GOALS = [12, 14, 16, 18, 20, 24];
 const ernGoal = () => Number(DB.get('ern_goal', KCAL_GOAL)) || KCAL_GOAL;
 const ernWaterGoal = () => Number(DB.get('ern_water_goal', 2500)) || 2500;
-// Sport erhöht das Tagesziel: je 20 min Training (Kraft, Ausdauer, Schiri-Einsätze) 1 l mehr, auf 250 ml gerundet
-const ERN_WATER_PER_20MIN = 1000;
-const ernSportWater = day => Math.round(trainingMinutes(day, day).total / 20 * ERN_WATER_PER_20MIN / 250) * 250;
+// Sport und Sauna erhöhen das Tagesziel je nach Art (ml pro Stunde, anteilig nach Minuten), Summe auf 250 ml gerundet.
+// Schiri-Einsätze zählen als Ausdauer.
+const ERN_WATER_PER_H = { kraft: 1000, cardio: 2000, sauna: 1500 };
+function ernSportWaterParts(day) {
+  const t = trainingMinutes(day, day);
+  const sauna = DB.get('sport_sauna', []).filter(e => e.date === day).reduce((s, e) => s + (parseFloat(e.min) || 0), 0);
+  return { kraft: t.kraft, cardio: t.cardio, sauna };
+}
+const ernSportWater = day => {
+  const p = ernSportWaterParts(day);
+  return Math.round(Object.keys(ERN_WATER_PER_H).reduce((s, k) => s + p[k] / 60 * ERN_WATER_PER_H[k], 0) / 250) * 250;
+};
 const ernWaterGoalDay = day => ernWaterGoal() + ernSportWater(day);
 // Nährwerte je 100 g/ml oder je Portion
 const ernPer100 = base => base.unit === 'g' || base.unit === 'ml';
@@ -3468,15 +3477,17 @@ function ernTickEntry(day, e) {
 // ---- Wasser ----
 function renderWaterCard() {
   const ml = DB.get('ern_water', {})[ernView] || 0, base = ernWaterGoal(), sportMl = ernSportWater(ernView), goal = base + sportMl;
-  const sportMin = Math.round(trainingMinutes(ernView, ernView).total);
+  const parts = ernSportWaterParts(ernView);
+  const sportInfo = [['kraft', 'Kraft'], ['cardio', 'Ausdauer'], ['sauna', 'Sauna']].filter(([k]) => parts[k] > 0).map(([k, n]) => `${n} ${Math.round(parts[k])} min`).join(' · ');
+  const sportIcon = parts.kraft || parts.cardio ? 'i-dumbbell' : 'i-flame';
   // Ziel in Glas-Segmente teilen (à 250 ml, höchstens 12 Segmente)
   const glasses = Math.min(12, Math.max(2, Math.round(goal / 250))), per = goal / glasses;
   const dayLabel = ernView === ddToday() ? 'heute' : new Date(ernView + 'T12:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
   document.getElementById('trackerWaterCard').innerHTML = `<div class="card-title"><svg class="i"><use href="#i-drop"/></svg>Wasser ${dayLabel}</div>
-    <div class="ern-weight-now"><span class="dd-num">${fmtL(ml)}</span><span class="dd-of">von <button type="button" class="ern-sum-goal" onclick="openErnGoal('water')" aria-label="Wasserziel ändern, aktuell ${fmtL(base)}${sportMl ? ` plus ${fmtL(sportMl)} für Sport` : ''}">${fmtL(goal)}</button></span>${ml >= goal ? '<span class="rating-good">Ziel erreicht</span>' : ''}</div>
+    <div class="ern-weight-now"><span class="dd-num">${fmtL(ml)}</span><span class="dd-of">von <button type="button" class="ern-sum-goal" onclick="openErnGoal('water')" aria-label="Wasserziel ändern, aktuell ${fmtL(base)}${sportMl ? ` plus ${fmtL(sportMl)} für ${sportInfo}` : ''}">${fmtL(goal)}</button></span>${ml >= goal ? '<span class="rating-good">Ziel erreicht</span>' : ''}</div>
     <div class="ern-glasses" style="--n:${glasses}" role="progressbar" aria-label="Wasser" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${ml}">${Array.from({ length: glasses }, (_, i) => `<b class="${ml >= (i + 1) * per - 1 ? 'on' : ''}"></b>`).join('')}</div>
     <div class="ern-glasses-caption">${Math.floor(ml / 250)} ${Math.floor(ml / 250) === 1 ? 'Glas' : 'Gläser'} à 250 ml${ml < goal ? ` · noch ${fmtL(goal - ml)}` : ''}</div>
-    ${sportMl ? `<div class="ern-glasses-caption ern-water-sport"><svg class="i"><use href="#i-dumbbell"/></svg>inkl. ${fmtL(sportMl)} für ${sportMin} min Sport</div>` : ''}
+    ${sportMl ? `<div class="ern-glasses-caption ern-water-sport"><svg class="i"><use href="#${sportIcon}"/></svg>inkl. ${fmtL(sportMl)} für ${sportInfo}</div>` : ''}
     <div class="ern-water-btns">
       <button type="button" class="btn btn-secondary" onclick="addWater(250)" aria-label="Glas, 250 ml hinzufügen" title="Glas">+ 250 ml</button>
       <button type="button" class="btn btn-secondary" onclick="addWater(500)" aria-label="Flasche, 500 ml hinzufügen" title="Flasche">+ 500 ml</button>
