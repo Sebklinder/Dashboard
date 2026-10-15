@@ -1598,6 +1598,7 @@
 <!-- SPRACHTRAINER -->
 <div id="page-sprache" class="page">
   <iframe id="spracheFrame" class="sprache-frame" title="Sprachtrainer Englisch"></iframe>
+  <div id="spracheFehlt" hidden></div>
 </div>
 
 </main>
@@ -4666,7 +4667,18 @@ const SPRACHE_KEY = 'sprachtrainer-en-v1';
 const SPRACHE_GOAL = 20;
 function openSprache() {
   const f = document.getElementById('spracheFrame');
-  if(!f.getAttribute('src')) f.src = 'sprache/index.html';
+  if(!f.getAttribute('src')) {
+    // Fehlt sprache/index.html auf dem Server, liefert der Host die Startseite aus – dann Hinweis statt Dashboard im Dashboard
+    f.onload = () => {
+      let fehlt = false;
+      try { fehlt = !!f.contentDocument?.getElementById('page-sprache'); } catch(e) {}
+      f.hidden = fehlt;
+      const box = document.getElementById('spracheFehlt');
+      box.hidden = !fehlt;
+      if(fehlt) box.innerHTML = emptyState('Sprachtrainer nicht gefunden', 'Die Datei sprache/index.html fehlt auf dem Server. Lade den Ordner „sprache“ zusätzlich zur index.html hoch.');
+    };
+    f.src = 'sprache/index.html';
+  }
   else f.contentWindow?.spracheTheme?.();
 }
 // Sprach-Habit suchen, beim ersten Mal anlegen
