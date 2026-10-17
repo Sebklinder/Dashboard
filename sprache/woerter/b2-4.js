@@ -73,7 +73,7 @@ die Artenvielfalt|biodiversity|ˌbaɪəʊdaɪˈvɜːsəti|B2|natur|Biodiversity 
 vom Aussterben bedroht|endangered|ɪnˈdeɪndʒəd|B2|natur|The tiger is an endangered species.
 das Ökosystem|ecosystem|ˈiːkəʊsɪstəm|B2|natur|The ecosystem is very fragile.
 der Meeresspiegel|sea level|ˈsiː levl|B2|natur|Sea levels are rising.
-das Gletscher|glacier|ˈɡlæsiə|B2|natur|The glaciers are melting.
+der Gletscher|glacier|ˈɡlæsiə|B2|natur|The glaciers are melting.
 die Naturkatastrophe|natural disaster|ˈnætʃrəl dɪˈzɑːstə|B2|natur|The region was hit by a natural disaster.
 der Wirbelsturm|hurricane|ˈhʌrɪkən|B2|natur|The hurricane destroyed thousands of homes.
 die Lawine|avalanche|ˈævəlɑːnʃ|B2|natur|An avalanche blocked the road.

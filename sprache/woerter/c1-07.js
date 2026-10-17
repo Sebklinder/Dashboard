@@ -79,7 +79,7 @@ der Kassenpatient|statutory patient/NHS-type patient|ˈstætʃətri ˈpeɪʃnt|C
 das Budget (Arztpraxis)|practice budget/capitation|ˈpræktɪs ˈbʌdʒɪt|C1|praxis|The practice budget limits reimbursement.
 die Wirtschaftlichkeitsprüfung|efficiency audit|ɪˈfɪʃnsi ˈɔːdɪt|C2|praxis|Every practice can face an efficiency audit.
 der Regress|recourse claim/recovery claim|rɪˈkɔːs kleɪm|C2|praxis|The doctor faced a recourse claim for prescriptions.
-die Igel-Leistung|self-pay service/private extra|ˌself ˈpeɪ ˈsɜːvɪs|C1|praxis|Self-pay services are not covered by insurance.
+die IGeL-Leistung|self-pay service/private extra|ˌself ˈpeɪ ˈsɜːvɪs|C1|praxis|Self-pay services are not covered by insurance.
 die Psyche|psyche/mind|ˈsaɪki|C1|wissen|Stress affects the psyche.
 das Unterbewusstsein|subconscious|ˌsʌbˈkɒnʃəs|C1|wissen|It's buried in the subconscious.
 die Wahrnehmung (selektiv)|selective perception|sɪˈlektɪv pəˈsepʃn|C1|wissen|Selective perception distorts reality.

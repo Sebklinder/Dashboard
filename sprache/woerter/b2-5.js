@@ -87,7 +87,7 @@ der Smalltalk|small talk|ˈsmɔːl tɔːk|B2|leute|I'm not good at small talk.
 die Höflichkeit|politeness/courtesy|pəˈlaɪtnəs|B2|leute|Politeness costs nothing.
 die Umgangsformen|manners/etiquette|ˈmænəz|B2|leute|He has good manners.
 duzen|to use the informal "you"|tə juːz ði ɪnˈfɔːml juː|B2|leute|In English, there's no difference between duzen and siezen.
-die Generationenkonflikt|generation gap|ˌdʒenəˈreɪʃn ɡæp|B2|gesell|There's a big generation gap.
+der Generationenkonflikt|generation gap|ˌdʒenəˈreɪʃn ɡæp|B2|gesell|There's a big generation gap.
 die Gleichaltrigen|peers|pɪəz|B2|gesell|Teenagers are influenced by their peers.
 der Gruppenzwang|peer pressure|pɪə ˈpreʃə|B2|gesell|He started smoking because of peer pressure.
 die Erziehung (Bildung)|upbringing|ˈʌpbrɪŋɪŋ|B2|gesell|She had a strict upbringing.

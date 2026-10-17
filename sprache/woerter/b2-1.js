@@ -74,7 +74,7 @@ das Defizit|deficit|ˈdefɪsɪt|B2|abstrakt|The budget deficit is growing.
 die Wende|turning point|ˈtɜːnɪŋ pɔɪnt|B2|abstrakt|It was a turning point in my life.
 der Durchbruch|breakthrough|ˈbreɪkθruː|B2|abstrakt|Scientists made a breakthrough.
 der Rückschlag|setback|ˈsetbæk|B2|abstrakt|We had a small setback.
-die Ursprung|origin|ˈɒrɪdʒɪn|B2|abstrakt|What's the origin of this word?
+der Ursprung|origin|ˈɒrɪdʒɪn|B2|abstrakt|What's the origin of this word?
 die Absicht (ohne)|unintentionally|ˌʌnɪnˈtenʃənəli|B2|abstrakt|I hurt him unintentionally.
 das Argument (stark)|strong argument|strɒŋ ˈɑːɡjumənt|B2|abstrakt|That's a strong argument.
 die Begründung|justification/reasoning|ˌdʒʌstɪfɪˈkeɪʃn|B2|abstrakt|What's your justification?

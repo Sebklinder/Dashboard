@@ -33,14 +33,14 @@ der Steigerungssatz|multiplier/fee factor|ˈmʌltɪplaɪə|C2|versich|The multip
 die Elektronikversicherung|electronic equipment insurance|ɪˌlekˈtrɒnɪk ɪˈkwɪpmənt ɪnˈʃɔːrəns|C1|versich|Electronic equipment insurance covers the X-ray machine.
 die Betriebsunterbrechung|business interruption|ˈbɪznəs ˌɪntəˈrʌpʃn|C1|versich|Business interruption cover pays fixed costs.
 die Gruppenversicherung|group insurance|ɡruːp ɪnˈʃɔːrəns|C1|versich|Employees benefit from group insurance.
-die Rückkaufswert|surrender value|səˈrendə ˈvæljuː|C1|versich|The surrender value is low in the first years.
+der Rückkaufswert|surrender value|səˈrendə ˈvæljuː|C1|versich|The surrender value is low in the first years.
 kündigen (Lebensversicherung)|to surrender|tə səˈrendə|C1|versich|Surrendering early often means a loss.
 die Beitragsfreistellung|making a policy paid-up|ˈmeɪkɪŋ ə ˈpɒləsi ˌpeɪd ˈʌp|C1|versich|Making the policy paid-up stops premiums.
 der Versicherungsmathematiker|actuary|ˈæktʃuəri|C2|versich|An actuary calculates the premiums.
 die Bedarfsanalyse (Versicherung)|insurance needs analysis|ɪnˈʃɔːrəns niːdz əˈnæləsɪs|C1|versich|We start with an insurance needs analysis.
 die Absicherungslücke|protection gap/coverage gap|prəˈtekʃn ɡæp|C1|versich|We found a protection gap.
 der Versicherungsordner|insurance file|ɪnˈʃɔːrəns faɪl|C1|versich|Keep all policies in an insurance file.
-die Drei-Schichten-Modell|three-tier pension model/three-pillar system|θriː tɪər ˈpenʃn ˈmɒdl|C1|vorsorge|Germany uses a three-tier pension model.
+das Drei-Schichten-Modell|three-tier pension model/three-pillar system|θriː tɪər ˈpenʃn ˈmɒdl|C1|vorsorge|Germany uses a three-tier pension model.
 der Sonderausgabenabzug|deduction for special expenses|dɪˈdʌkʃn fə ˈspeʃl ɪkˈspensɪz|C2|steuer|Contributions qualify for a deduction for special expenses.
 die Rentenanwartschaft|pension entitlement/accrued pension right|ˈpenʃn ɪnˈtaɪtlmənt|C1|vorsorge|Your pension entitlement is 1,800 euros.
 die Renteninformation|annual pension statement|ˈænjuəl ˈpenʃn ˈsteɪtmənt|C1|vorsorge|Check your annual pension statement.
@@ -64,7 +64,7 @@ der Praxisverkauf (Altersvorsorge)|practice sale as retirement provision|ˈpræk
 die Immobilie (vermietet)|buy-to-let property|ˌbaɪ tə ˈlet ˈprɒpəti|C1|vorsorge|A buy-to-let property generates rental income.
 die Mieteinnahmen|rental income|ˈrentl ˈɪnkʌm|C1|vorsorge|Rental income is taxable.
 das Erbrecht|inheritance law/law of succession|ɪnˈherɪtəns lɔː|C1|vorsorge|Inheritance law is complex.
-das Notfallordner|emergency file|ɪˈmɜːdʒənsi faɪl|C1|vorsorge|Keep an emergency file with all documents.
+der Notfallordner|emergency file|ɪˈmɜːdʒənsi faɪl|C1|vorsorge|Keep an emergency file with all documents.
 die Steuererklärung (abgeben)|to file a tax return|tə faɪl ə tæks rɪˈtɜːn|C1|steuer|You must file a tax return by July.
 der Steuerbescheid|tax assessment notice|tæks əˈsesmənt ˈnəʊtɪs|C1|steuer|Check the tax assessment notice carefully.
 die Steuernachzahlung|back tax/additional tax payment|bæk tæks|C1|steuer|We expect a back tax payment.
@@ -115,4 +115,4 @@ die Abfindung (Gesellschafter)|settlement payment/buyout|ˈsetlmənt ˈpeɪmənt
 die Absichtserklärung|declaration of intent|ˌdekləˈreɪʃn əv ɪnˈtent|C1|praxis|A declaration of intent is not binding.
 die Vertraulichkeitsvereinbarung|non-disclosure agreement/NDA|ˌnɒn dɪsˈkləʊʒər əˈɡriːmənt|C1|praxis|Please sign the non-disclosure agreement first.
 die Patientenkartei (Übergabe)|transfer of patient records|ˈtrænsfɜːr əv ˈpeɪʃnt ˈrekɔːdz|C1|praxis|The transfer of patient records requires consent.
-die Zwei-Schrank-Modell|two-cabinet model|tuː ˈkæbɪnət ˈmɒdl|C2|praxis|The two-cabinet model protects patient data.`);
+das Zwei-Schrank-Modell|two-cabinet model|tuː ˈkæbɪnət ˈmɒdl|C2|praxis|The two-cabinet model protects patient data.`);

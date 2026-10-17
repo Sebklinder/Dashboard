@@ -31,7 +31,7 @@ der Populismus|populism|ˈpɒpjəlɪzəm|C1|wirtschaft|Populism is on the rise.
 der Extremismus|extremism|ɪkˈstriːmɪzəm|C1|wirtschaft|We must fight extremism.
 die Polarisierung|polarisation|ˌpəʊləraɪˈzeɪʃn|C1|wirtschaft|Political polarisation is increasing.
 der Konsens|consensus|kənˈsensəs|C1|wirtschaft|There's a broad consensus.
-die Bündnis|alliance|əˈlaɪəns|C1|wirtschaft|The two countries formed an alliance.
+das Bündnis|alliance|əˈlaɪəns|C1|wirtschaft|The two countries formed an alliance.
 die Abrüstung|disarmament|dɪsˈɑːməmənt|C1|wirtschaft|Talks on disarmament continue.
 der Waffenstillstand|ceasefire|ˈsiːsfaɪə|C1|wirtschaft|A ceasefire was agreed.
 die Friedensverhandlungen|peace talks|piːs tɔːks|C1|wirtschaft|Peace talks resumed in Geneva.

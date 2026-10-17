@@ -58,7 +58,7 @@ schlemmen|to feast|tə fiːst|C1|essen|We feasted on seafood.
 der Heißhunger|craving|ˈkreɪvɪŋ|C1|essen|I have a craving for chocolate.
 die Unterzuckerung|low blood sugar/hypoglycaemia|ləʊ blʌd ˈʃʊɡə|C1|koerper|Low blood sugar makes you shaky.
 das Intervallfasten|intermittent fasting|ˌɪntəˈmɪtənt ˈfɑːstɪŋ|C1|koerper|He does intermittent fasting.
-der Kaloriendefizit|calorie deficit|ˈkæləri ˈdefɪsɪt|C1|koerper|To lose weight, you need a calorie deficit.
+das Kaloriendefizit|calorie deficit|ˈkæləri ˈdefɪsɪt|C1|koerper|To lose weight, you need a calorie deficit.
 der Grundumsatz|basal metabolic rate|ˈbeɪsl ˌmetəˈbɒlɪk reɪt|C1|koerper|Muscle increases your basal metabolic rate.
 der Stoffwechsel|metabolism|məˈtæbəlɪzəm|C1|koerper|Exercise boosts your metabolism.
 die Nahrungsergänzungsmittel|dietary supplements|ˈdaɪətəri ˈsʌplɪmənts|C1|koerper|Most people don't need dietary supplements.

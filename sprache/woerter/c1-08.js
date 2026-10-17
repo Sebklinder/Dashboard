@@ -93,7 +93,7 @@ die Baumwolle|cotton|ˈkɒtn|C1|haus|A cotton T-shirt.
 die Seide|silk|sɪlk|C1|haus|A silk scarf.
 das Leinen|linen|ˈlɪnɪn|C1|haus|Linen is cool in summer.
 der Samt|velvet|ˈvelvɪt|C1|haus|A velvet curtain.
-das Kunststoff|synthetic material/plastic|sɪnˈθetɪk məˈtɪəriəl|C1|haus|The chair is made of plastic.
+der Kunststoff|synthetic material/plastic|sɪnˈθetɪk məˈtɪəriəl|C1|haus|The chair is made of plastic.
 der Stahl|steel|stiːl|C1|haus|The bridge is made of steel.
 das Kupfer|copper|ˈkɒpə|C1|haus|Copper pipes.
 das Blech|sheet metal/tin|ʃiːt ˈmetl|C1|haus|A tin roof.
