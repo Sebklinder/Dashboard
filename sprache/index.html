@@ -147,6 +147,12 @@ html,body{background:transparent;margin:0}
 </head><body>
 <div class="shell"><div class="wrap" id="app"></div></div>
 
+<!--WOERTER-->
+<script src="woerter/a1-1.js"></script>
+<script src="woerter/a1-2.js"></script>
+<script src="woerter/a2-1.js"></script>
+<script src="woerter/a2-2.js"></script>
+<script src="woerter/a2-3.js"></script>
 <script>
 (function(){
 'use strict';
@@ -172,7 +178,7 @@ function scrollHost(bottom){
 }
 function applyTheme(){var h=host();try{if(h)document.documentElement.setAttribute('data-theme',h.document.documentElement.classList.contains('light')?'light':'dark')}catch(e){}}
 window.spracheTheme=applyTheme;
-var DECKS={alltag:'Alltag',reise:'Reisen',beruf:'Beruf',ff:'Falsche Freunde',finanz:'Finanzierung & BWL',anlage:'Kapitalanlage',versich:'Versicherungen',praxis:'Arztpraxis',phrasen:'Beratungsphrasen',stil:'Gehobener Ausdruck',grund:'Grundwortschatz',verben:'Wichtige Verben',zahlen:'Zahlen & Zeit',essen:'Essen & Trinken',koerper:'Körper & Gesundheit',haus:'Wohnen & Kleidung',stadt:'Stadt, Reisen & Verkehr',natur:'Natur & Wetter',leute:'Menschen & Gefühle',freizeit:'Freizeit & Medien',kommun:'Telefon & Technik',arbeit:'Arbeit & Schule',adj:'Adjektive & Bindewörter',allg:'Allgemein (Fortgeschritten)',steuer:'Steuern & Recht',vorsorge:'Altersvorsorge & Vermögen'};
+var DECKS={alltag:'Alltag',reise:'Reisen',beruf:'Beruf',ff:'Falsche Freunde',finanz:'Finanzierung & BWL',anlage:'Kapitalanlage',versich:'Versicherungen',praxis:'Arztpraxis',phrasen:'Beratungsphrasen',stil:'Gehobener Ausdruck',grund:'Grundwortschatz',verben:'Wichtige Verben',zahlen:'Zahlen & Zeit',essen:'Essen & Trinken',koerper:'Körper & Gesundheit',haus:'Wohnen & Kleidung',stadt:'Stadt, Reisen & Verkehr',natur:'Natur & Wetter',leute:'Menschen & Gefühle',freizeit:'Freizeit & Medien',kommun:'Telefon & Technik',arbeit:'Arbeit & Schule',adj:'Adjektive & Bindewörter',allg:'Allgemein (Fortgeschritten)',steuer:'Steuern & Recht',vorsorge:'Altersvorsorge & Vermögen',wirtschaft:'Wirtschaft & Politik',gesell:'Gesellschaft & Kultur',wissen:'Wissenschaft & Bildung',abstrakt:'Abstrakte Begriffe',idiom:'Redewendungen & Phrasal Verbs'};
 
 /* deutsch | englisch (Alternativen mit /) | Lautschrift | Niveau | Thema | Beispiel | Hinweis */
 var RAW=`sich verspäten|to be late|tə biː leɪt|A1|alltag|I'm sorry, I'm going to be late.|
@@ -2158,6 +2164,8 @@ einhergehen mit|to go hand in hand with|tə ɡəʊ hænd ɪn hænd wɪð|C1|stil
 in Erwägung ziehen|to contemplate|tə ˈkɒntəmpleɪt|C1|stil|We contemplate a further investment.|
 zur Verfügung stehen|to be at your disposal|tə biː ət jɔː dɪˈspəʊzl|C1|stil|I am at your disposal for any questions.|`;
 
+/* Zusätzliche Wortpakete aus woerter/*.js (gleiches Format, je Datei ein Block) */
+if(window.ST_WORDS&&window.ST_WORDS.length)RAW+='\n'+window.ST_WORDS.join('\n');
 var CARDS=[],seenIds={};
 RAW.split('\n').forEach(function(l){
   var p=l.split('|'); if(p.length<6)return;
@@ -2292,6 +2300,10 @@ function migrate(s){
     Object.keys(DECKS).forEach(function(d){if(s.set.decks.indexOf(d)<0)s.set.decks.push(d)});
     s.set.m3=1;
   }
+  if(!s.set.m5){
+    ['wirtschaft','gesell','wissen','abstrakt','idiom'].forEach(function(d){if(s.set.decks.indexOf(d)<0)s.set.decks.push(d)});
+    s.set.m5=1;
+  }
   if(!s.set.m4){
     ['steuer','vorsorge'].forEach(function(d){if(s.set.decks.indexOf(d)<0)s.set.decks.push(d)});
     s.set.m4=1;
@@ -2301,7 +2313,7 @@ function migrate(s){
 function load(){
   var s=defaults(),r=null;
   try{r=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
-  if(r&&r.v===1){s=Object.assign(s,r);s.set=Object.assign(defaults().set,r.set||{})}else{s.set.m2=1;s.set.m3=1;s.set.m4=1}
+  if(r&&r.v===1){s=Object.assign(s,r);s.set=Object.assign(defaults().set,r.set||{})}else{s.set.m2=1;s.set.m3=1;s.set.m4=1;s.set.m5=1}
   return migrate(s);
 }
 var S=load();
@@ -2800,7 +2812,7 @@ function act(a,d){
   else if(a==='tnew'){s.phase='pick';s.turns=[];s.nUser=0;s.fb=null;s.msg='';s.sc=null;render()}
   else if(a==='preset'){
     if(d.v==='start'){S.set.levels=['A1','A2','B1'];S.set.decks=['grund','verben','zahlen','essen','koerper','haus','stadt','natur','leute','freizeit','kommun','arbeit','adj','alltag','reise']}
-    else if(d.v==='beratung'){S.set.levels=['B1','B2','C1','C2'];S.set.decks=['beruf','finanz','anlage','versich','praxis','phrasen','stil','steuer','vorsorge']}
+    else if(d.v==='beratung'){S.set.levels=['B1','B2','C1','C2'];S.set.decks=['beruf','finanz','anlage','versich','praxis','phrasen','stil','steuer','vorsorge','wirtschaft','idiom']}
     else{S.set.levels=LVL.slice();S.set.decks=Object.keys(DECKS)}
     persist();rerender();
   }
