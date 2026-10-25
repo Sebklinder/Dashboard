@@ -2472,8 +2472,9 @@ function startSession(mode,extra){
       while(d.length||f.length){if(d.length)items.push(d.shift());if(d.length)items.push(d.shift());if(f.length)items.push(f.shift())}
     }
   }else if(mode==='translate'){
-    var rank=function(c){var s=S.cards[c.id];if(s&&s.b>0&&s.d<=t)return 0;if(!s||s.b===0)return 1.5;return 1+(5-s.b)/10};
-    items=shuffle(P.filter(function(c){return c.deck!=='phrasen'})).sort(function(a,b){return rank(a)-rank(b)}).slice(0,10);
+    // nur Karten, die in den Karteikarten schon dran waren – rein zufällig, damit nicht immer dieselben kommen
+    items=shuffle(CARDS.filter(function(c){var s=S.cards[c.id];return c.deck!=='phrasen'&&s&&s.b>0})).slice(0,10);
+    if(!items.length){UI.msg='Übersetzen nutzt deine bereits gelernten Karteikarten. Starte zuerst eine Runde Karteikarten.';render();return}
   }else if(mode==='listen'){
     items=shuffle(LISTEN.filter(function(x){return S.set.levels.indexOf(x[2])>=0})).slice(0,8).map(function(x){return {en:x[0],de:x[1],l:x[2]}});
   }else if(mode==='gap'){
