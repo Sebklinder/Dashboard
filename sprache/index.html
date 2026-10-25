@@ -2376,12 +2376,31 @@ function strip(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
 function core(s){return strip(s).replace(/^(to|the|a|an) /,'')}
 function lev(a,b){var m=a.length,n=b.length,d=[],i,j;for(i=0;i<=m;i++){d[i]=[i]}for(j=1;j<=n;j++)d[0][j]=j;for(i=1;i<=m;i++)for(j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
 function alts(c){return c.en.split('/').map(function(s){return s.trim()})}
+// Sucht das englische Wort (auch gebeugt: -s, -ed, -ing) im Beispielsatz und teilt den Satz dort auf
+function blankOf(c){
+  if(c.deck==='phrasen')return null;
+  var a=alts(c);
+  for(var i=0;i<a.length;i++){
+    var w=a[i].replace(/\([^)]*\)/g,'').trim().replace(/^to /,'');if(!w)continue;
+    var re=new RegExp('\\b'+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/e$/,'e?')+'(s|es|d|ed|ing)?\\b','i');
+    var m=re.exec(c.ex);
+    if(m)return {pre:c.ex.slice(0,m.index),word:m[0],post:c.ex.slice(m.index+m[0].length)};
+  }
+  return null;
+}
+function learnedCards(){return CARDS.filter(function(c){var s=S.cards[c.id];return s&&s.b>0})}
+// Hartnäckig: mindestens 3-mal falsch und noch nicht in Box 4 angekommen
+function hardCards(){return CARDS.filter(function(c){var s=S.cards[c.id];return s&&s.w>=3&&s.b<4})}
+function speakText(c){return c.deck==='phrasen'?alts(c)[0]:c.ex}
+function recCtor(){return window.SpeechRecognition||window.webkitSpeechRecognition||null}
+var BERATUNG=['beruf','finanz','anlage','versich','praxis','phrasen','stil','steuer','vorsorge','wirtschaft','idiom'];
 function pct(o){return o&&o.n?Math.round(100*o.c/o.n)+' %':'neu'}
 
 /* ---------- Zustand ---------- */
-function defaults(){return {v:1,t:0,cards:{},days:{},gap:{},listen:{n:0,c:0},write:{n:0},talk:{n:0},set:{levels:LVL.slice(),decks:Object.keys(DECKS),accent:'en-GB'}}}
+function defaults(){return {v:1,t:0,cards:{},days:{},gap:{},listen:{n:0,c:0},speak:{n:0,c:0},write:{n:0},talk:{n:0},set:{levels:LVL.slice(),decks:Object.keys(DECKS),accent:'en-GB'}}}
 function migrate(s){
   s.talk=s.talk||{n:0};
+  s.speak=s.speak||{n:0,c:0};
   if(!s.set.m2){
     LVL.forEach(function(l){if(s.set.levels.indexOf(l)<0)s.set.levels.push(l)});
     Object.keys(DECKS).forEach(function(d){if(s.set.decks.indexOf(d)<0)s.set.decks.push(d)});
@@ -2467,7 +2486,11 @@ function plan(){
   var due=P.filter(function(c){var s=S.cards[c.id];return s&&s.b>0&&s.d<=t}).sort(function(a,b){return S.cards[a.id].d-S.cards[b.id].d});
   var unseen=P.filter(function(c){return !S.cards[c.id]||S.cards[c.id].b===0});
   var room=Math.max(0,newMax()-(dd.nw||0));
-  var fresh=shuffle(unseen).sort(function(a,b){return LV[a.lvl]-LV[b.lvl]}).slice(0,room);
+  // Neue Karten: je zwei aus den Beratungs-Themen, dann eine aus dem übrigen Wortschatz
+  var byLv=function(a,b){return LV[a.lvl]-LV[b.lvl]},mix=shuffle(unseen);
+  var ber=mix.filter(function(c){return BERATUNG.indexOf(c.deck)>=0}).sort(byLv),rest=mix.filter(function(c){return BERATUNG.indexOf(c.deck)<0}).sort(byLv);
+  var fresh=[];
+  while(fresh.length<room&&(ber.length||rest.length)){if(ber.length)fresh.push(ber.shift());if(ber.length&&fresh.length<room)fresh.push(ber.shift());if(rest.length&&fresh.length<room)fresh.push(rest.shift())}
   return {pool:P,due:due,fresh:fresh};
 }
 function startSession(mode,extra){
@@ -2483,8 +2506,17 @@ function startSession(mode,extra){
     }
   }else if(mode==='translate'){
     // nur Karten, die in den Karteikarten schon dran waren – rein zufällig, damit nicht immer dieselben kommen
-    items=shuffle(CARDS.filter(function(c){var s=S.cards[c.id];return c.deck!=='phrasen'&&s&&s.b>0})).slice(0,10);
+    items=shuffle(learnedCards().filter(function(c){return c.deck!=='phrasen'})).slice(0,10);
     if(!items.length){UI.msg='Übersetzen nutzt deine bereits gelernten Karteikarten. Starte zuerst eine Runde Karteikarten.';render();return}
+  }else if(mode==='sentence'){
+    items=shuffle(learnedCards().filter(blankOf)).slice(0,10);
+    if(!items.length){UI.msg='„Im Satz“ nutzt deine bereits gelernten Karteikarten. Starte zuerst eine Runde Karteikarten.';render();return}
+  }else if(mode==='speak'){
+    items=shuffle(learnedCards()).slice(0,6);
+    if(!items.length){UI.msg='Sprechen nutzt deine bereits gelernten Karteikarten. Starte zuerst eine Runde Karteikarten.';render();return}
+  }else if(mode==='hard'){
+    items=shuffle(hardCards()).sort(function(a,b){return S.cards[b.id].w-S.cards[a.id].w}).slice(0,10);
+    if(!items.length){UI.msg='Gerade gibt es keine hartnäckigen Wörter.';render();return}
   }else if(mode==='listen'){
     items=shuffle(LISTEN.filter(function(x){return S.set.levels.indexOf(x[2])>=0})).slice(0,8).map(function(x){return {en:x[0],de:x[1],l:x[2]}});
   }else if(mode==='gap'){
@@ -2501,6 +2533,7 @@ function startSession(mode,extra){
 }
 function endSession(){
   if(SES&&SES.ctl)try{SES.ctl.abort()}catch(e){}
+  if(SES&&SES.rec)try{SES.rec.abort()}catch(e){}
   try{if('speechSynthesis' in window)speechSynthesis.cancel()}catch(e){}
   SES=null;VIEW='home';
   if(PENDING){var r=PENDING;PENDING=null;adopt(r)}else render();
@@ -2520,6 +2553,31 @@ function pickVoice(){
 function speak(text,rate){
   if(!canSpeak())return;
   try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.lang=S.set.accent;u.rate=rate||1;var v=pickVoice();if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}
+}
+
+/* ---------- Spracherkennung ---------- */
+// Nutzt die Spracherkennung des Browsers (iOS/Chrome schicken das Audio dafür an Apple bzw. Google)
+function startMic(){
+  var s=SES,R=recCtor();if(!s||!R)return;
+  var c=s.items[s.i],text=speakText(c),r;
+  try{r=new R()}catch(e){s.msg='Die Spracherkennung lässt sich hier nicht starten.';render();return}
+  r.lang=S.set.accent;r.interimResults=false;r.maxAlternatives=3;
+  s.rec=r;s.phase='rec';s.msg='';render();
+  r.onresult=function(e){
+    if(SES!==s)return;
+    var best=null,res=e.results[0];
+    for(var k=0;k<res.length;k++){var d=diffWords(text,res[k].transcript);if(!best||d.score>best.d.score)best={d:d,said:res[k].transcript}}
+    var ok=best.d.score>=0.85;
+    if(s.phase==='rec'&&!s.res){s.total++;if(ok)s.ok++;else s.miss.push({a:text,b:c.de});S.speak.n++;if(ok)S.speak.c++;bump(ok,false);persist()}
+    s.res={ok:ok,d:best.d,input:best.said};s.phase='fb';render();
+  };
+  r.onerror=function(e){
+    if(SES!==s)return;
+    s.msg=e.error==='not-allowed'||e.error==='service-not-allowed'?'Kein Zugriff aufs Mikrofon. Erlaube es in den Browser-Einstellungen.':e.error==='no-speech'?'Nichts gehört. Tippe auf „Sprechen“ und lies den Satz vor.':'Die Spracherkennung hat nicht geklappt. Versuch es noch einmal.';
+    s.phase=s.res?'fb':'ask';render();
+  };
+  r.onend=function(){if(SES===s&&s.phase==='rec'){s.phase=s.res?'fb':'ask';render()}};
+  try{r.start()}catch(e){s.phase='ask';s.msg='Die Spracherkennung lässt sich hier nicht starten.';render()}
 }
 
 /* ---------- Prüfen ---------- */
@@ -2547,6 +2605,9 @@ function diffWords(target,typed){
 var ICON={
   cards:'<rect x="4" y="6" width="16" height="12" rx="2"/><path d="M8 3h8"/>',
   translate:'<path d="M4 8h14l-3-3M20 16H6l3 3"/>',
+  sentence:'<path d="M4 7h16M4 12h5M15 12h5M4 17h11M10 13.5h4"/>',
+  speak:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',
+  hard:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
   listen:'<path d="M4 14v-2a8 8 0 0116 0v2M4 14h3v5H4zM20 14h-3v5h3z"/>',
   gap:'<path d="M8 5H5v14h3M16 5h3v14h-3M9 15h6"/>',
   write:'<path d="M4 20l1-4L16 5l3 3L8 19zM14 7l3 3"/>',
@@ -2569,7 +2630,7 @@ function chip(k,v,label,on){return '<button class="chip" aria-pressed="'+(on?'tr
 function homeView(){
   var P=plan(),k=dstr(today()),dn=(S.days[k]||{}).n||0;
   var learned=CARDS.filter(function(c){return (S.cards[c.id]||{b:0}).b>=3}).length;
-  var seen=CARDS.filter(function(c){return c.deck!=='phrasen'&&(S.cards[c.id]||{b:0}).b>0}).length;
+  var seen=learnedCards().filter(function(c){return c.deck!=='phrasen'}).length,hardN=hardCards().length;
   var gapAll={n:0,c:0};Object.keys(S.gap).forEach(function(t){gapAll.n+=S.gap[t].n;gapAll.c+=S.gap[t].c});
   var dateTxt=new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
   var hero,waiting=P.due.length+P.fresh.length;
@@ -2583,15 +2644,18 @@ function homeView(){
   }
   var sampleOff=SAMPLE===null||!window.claude;
   var rows=[
-    ['cards','Karteikarten','Vokabeln mit Wiederholungsplan',learned+' sicher'],
+    ['cards','Karteikarten','Mit Wiederholungsplan',learned+' sicher'],
+    ['hard','Hartnäckige Wörter','Was du oft falsch hattest',hardN?hardN+' Wörter':'keine'],
     ['translate','Übersetzen','Gelernte Wörter tippen',seen+' gelernt'],
+    ['sentence','Im Satz','Wort im Satz ergänzen',seen?'bereit':'—'],
+    ['speak','Sprechen','Sätze laut vorlesen',recCtor()?pct(S.speak):'nicht verfügbar'],
     ['listen','Hören','Satz anhören und aufschreiben',canSpeak()?pct(S.listen):'—'],
     ['gap','Lückentext','Grammatik in kurzen Sätzen',pct(gapAll)],
     ['write','Schreiben','Eigener Text, Korrektur durch Claude',sampleOff?'nicht verfügbar':(S.write.n?S.write.n+'×':'neu')],
     ['talk','Beratungsgespräch','Rollenspiel auf Englisch mit Claude',sampleOff?'nicht verfügbar':(S.talk.n?S.talk.n+'×':'neu')]
   ].filter(function(r){return !(sampleOff&&(r[0]==='write'||r[0]==='talk'))});
   var list=rows.map(function(r){
-    var off=(r[0]==='listen'&&!canSpeak())||((r[0]==='write'||r[0]==='talk')&&sampleOff);
+    var off=(r[0]==='listen'&&!canSpeak())||(r[0]==='speak'&&!recCtor())||(r[0]==='hard'&&!hardN)||((r[0]==='write'||r[0]==='talk')&&sampleOff);
     return '<li><button class="mode" data-act="start" data-mode="'+r[0]+'"'+(off?' disabled':'')+'>'+ico(r[0])+'<span><b>'+r[1]+'</b><small>'+r[2]+'</small></span><span class="st">'+esc(r[3])+'</span></button></li>';
   }).join('');
   var set='<details class="card set" id="set"'+(UI.setOpen?' open':'')+'><summary>Anpassen</summary>'+
@@ -2644,7 +2708,7 @@ function sessionView(){
   if(s.mode==='talk')return talkView();
   if(s.done)return doneView();
   var c=s.items[s.i],h=sesBar(),r=s.res;
-  if(s.mode==='cards'){
+  if(s.mode==='cards'||s.mode==='hard'){
     if(s.phase==='ask'){
       h+='<div class="card">'+tagsFor(c)+'<p class="'+qcls(c.de)+'">'+esc(c.de)+'</p><p class="muted">Wie heißt das auf Englisch?</p><button class="btn primary block" data-act="flip">Antwort zeigen</button></div>';
     }else{
@@ -2662,6 +2726,28 @@ function sessionView(){
       h+='<div class="fb '+(r.ok?'ok':'no')+'"><h3>'+(r.ok?(r.typo?'Richtig, mit kleinem Tippfehler':'Richtig'):'Nicht ganz')+'</h3><p>Du: '+esc(r.input||'—')+'</p><p><mark>'+esc(alts(c).join(' / '))+'</mark> <span class="ipa">/'+esc(c.ipa)+'/</span></p></div>'+
         '<div class="ex"><p>'+esc(c.ex)+'</p>'+(c.note?'<p class="small muted">'+esc(c.note)+'</p>':'')+'</div><div class="play" style="margin-top:14px">'+speakBtn(alts(c)[0],'Anhören')+'<button class="btn primary" data-act="next">Weiter</button></div></div>';
     }
+  }else if(s.mode==='sentence'){
+    var bl=blankOf(c);
+    h+='<div class="card">'+tagsFor(c)+'<p class="muted" style="margin-top:12px">Ergänze: <b>'+esc(c.de)+'</b></p>';
+    if(s.phase==='ask'){
+      h+='<p class="q sent">'+esc(bl.pre)+'<span class="gapblank">&nbsp;</span>'+esc(bl.post)+'</p>'+
+        '<input class="field" id="ans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Fehlendes englisches Wort"><p class="small muted" style="margin-top:8px">In der Form, die in den Satz passt.</p><button class="btn primary block" data-act="check">Prüfen</button></div>';
+    }else{
+      h+='<p class="q sent">'+esc(bl.pre)+'<mark>'+esc(bl.word)+'</mark>'+esc(bl.post)+'</p>'+
+        '<div class="fb '+(r.ok?'ok':'no')+'"><h3>'+(r.ok?(r.typo?'Richtig, mit kleinem Tippfehler':'Richtig'):'Nicht ganz')+'</h3><p>Du: '+esc(r.input||'—')+'</p><p>Grundform: '+esc(alts(c).join(' / '))+'</p></div>'+
+        (c.note?'<div class="ex"><p class="small muted">'+esc(c.note)+'</p></div>':'')+'<div class="play" style="margin-top:14px">'+speakBtn(c.ex,'Satz anhören')+'<button class="btn primary" data-act="next">Weiter</button></div></div>';
+    }
+  }else if(s.mode==='speak'){
+    var txt=speakText(c);
+    h+='<div class="card">'+tagsFor(c)+'<p class="muted" style="margin-top:12px">Lies den Satz laut vor.</p><p class="q sent">'+esc(txt)+'</p><p class="small muted">'+esc(c.de)+'</p>';
+    if(s.phase==='fb'){
+      var sw=r.d.tw.map(function(w,i){return '<span class="'+(r.d.hit[i]?'w-ok':'w-miss')+'">'+esc(w)+'</span>'}).join(' ');
+      h+='<div class="fb '+(r.ok?'ok':'no')+'"><h3>'+(r.ok?'Gut verständlich':'Noch nicht ganz')+' · '+Math.round(r.d.score*100)+' %</h3><p style="margin:6px 0">'+sw+'</p><p class="small muted">Erkannt: '+esc(r.input||'—')+'</p></div>';
+    }
+    if(s.msg)h+='<p class="notice" style="margin-top:12px">'+esc(s.msg)+'</p>';
+    h+='<div class="play" style="margin-top:14px">'+speakBtn(txt,'Vorsprechen',0.9)+
+      (s.phase==='rec'?'<button class="btn primary" data-act="micstop">Ich höre zu … Stopp</button>':'<button class="btn '+(s.phase==='fb'?'sec':'primary')+'" data-act="mic">'+(s.phase==='fb'?'Nochmal':'Sprechen')+'</button>')+'</div>'+
+      (s.phase==='fb'?'<button class="btn primary block" data-act="next">Weiter</button>':'<button class="btn ghost" data-act="next" style="margin-top:6px">Überspringen</button>')+'</div>';
   }else if(s.mode==='listen'){
     h+='<div class="card"><div class="tags"><span class="lv">'+c.l+'</span></div><p class="muted" style="margin-top:12px">Hör den Satz an und schreibe ihn auf.</p>'+
       '<div class="play" style="margin-top:12px">'+speakBtn(c.en,'Abspielen',1)+speakBtn(c.en,'Langsam',0.7)+'</div>';
@@ -2691,7 +2777,7 @@ function sessionView(){
 }
 
 function doneView(){
-  var s=SES,label=s.mode==='cards'?'gewusst':'richtig';
+  var s=SES,label=s.mode==='cards'||s.mode==='hard'?'gewusst':s.mode==='speak'?'verständlich':'richtig';
   var miss=s.miss.length?'<h3 class="sec" style="font-size:18px;margin-top:20px">Zum Wiederholen</h3><ul class="list">'+s.miss.map(function(m){return '<li>'+esc(m.a)+(m.b?' <b>→</b> '+esc(m.b):'')+'</li>'}).join('')+'</ul>':'<p class="muted" style="margin-top:8px">Alles gesessen.</p>';
   return '<div class="card"><p class="eyebrow">Runde beendet</p><h2 style="font-size:30px;margin-top:6px"><mark>'+s.ok+' von '+s.total+'</mark> '+label+'</h2>'+miss+
     '<div class="btns"><button class="btn sec" data-act="quit">Zur Übersicht</button><button class="btn primary" data-act="start" data-mode="'+s.mode+'">Nächste Runde</button></div></div>';
@@ -2867,6 +2953,12 @@ function act(a,d){
       r.input=inp.trim();s.res=r;s.phase='fb';s.total++;
       if(r.ok)s.ok++;else s.miss.push({a:c.de,b:alts(c).join(' / ')});
       grade(c,r.ok?1:0);render();
+    }else if(s.mode==='sentence'){
+      var bw=blankOf(c).word,r3=checkAnswer({en:bw},inp);
+      if(r3.empty)return;
+      r3.input=inp.trim();s.res=r3;s.phase='fb';s.total++;
+      if(r3.ok)s.ok++;else s.miss.push({a:c.ex,b:bw});
+      grade(c,r3.ok?1:0);render();
     }else if(s.mode==='listen'){
       if(!inp.trim())return;
       var dw=diffWords(c.en,inp),ok=dw.score>=0.85;
@@ -2883,7 +2975,9 @@ function act(a,d){
     var g2=S.gap[c.t]||(S.gap[c.t]={n:0,c:0});g2.n++;if(ok2)g2.c++;
     bump(ok2,false);persist();render();
   }
-  else if(a==='next'){nextItem()}
+  else if(a==='next'){if(s.rec)try{s.rec.abort()}catch(e){}s.msg='';nextItem()}
+  else if(a==='mic'){startMic()}
+  else if(a==='micstop'){if(s.rec)try{s.rec.stop()}catch(e){}}
   else if(a==='speak'){speak(d.t,+d.r||1)}
   else if(a==='hint'){var hb=$('#hintbox');if(hb)hb.hidden=false;var hbtn=document.querySelector('[data-act="hint"]');if(hbtn)hbtn.hidden=true}
   else if(a==='set'){
@@ -2905,7 +2999,7 @@ function act(a,d){
   else if(a==='tnew'){s.phase='pick';s.turns=[];s.nUser=0;s.fb=null;s.msg='';s.sc=null;render()}
   else if(a==='preset'){
     if(d.v==='start'){S.set.levels=['A1','A2','B1'];S.set.decks=['grund','verben','zahlen','essen','koerper','haus','stadt','natur','leute','freizeit','kommun','arbeit','adj','alltag','reise']}
-    else if(d.v==='beratung'){S.set.levels=['B1','B2','C1','C2'];S.set.decks=['beruf','finanz','anlage','versich','praxis','phrasen','stil','steuer','vorsorge','wirtschaft','idiom']}
+    else if(d.v==='beratung'){S.set.levels=['B1','B2','C1','C2'];S.set.decks=BERATUNG.slice()}
     else{S.set.levels=LVL.slice();S.set.decks=Object.keys(DECKS)}
     persist();rerender();
   }
@@ -2925,7 +3019,7 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&t&&t.id==='ans'&&!e.shiftKey){e.preventDefault();act('check');return}
   if(e.key==='Enter'&&t&&t.id==='talktxt'&&(e.ctrlKey||e.metaKey)){e.preventDefault();act('tsend');return}
   if(tag==='INPUT'||tag==='TEXTAREA')return;
-  if(SES.mode==='cards'){
+  if(SES.mode==='cards'||SES.mode==='hard'){
     if((e.key===' '||e.key==='Enter')&&SES.phase==='ask'){e.preventDefault();act('flip')}
     else if(SES.phase==='fb'&&(e.key==='1'||e.key==='2'||e.key==='3')){e.preventDefault();act('grade',{g:String(+e.key-1)})}
   }else if(SES.mode!=='write'&&SES.mode!=='talk'&&SES.phase==='fb'&&e.key==='Enter'){e.preventDefault();act('next')}
