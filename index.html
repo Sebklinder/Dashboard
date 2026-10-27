@@ -2661,7 +2661,6 @@ function weekStats(from) {
     bpSys: mean(bp.map(d => parseInt(d.bpSys))), bpDia: mean(bp.map(d => parseInt(d.bpDia))), bpN: bp.length,
     steps: mean(steps), stepsN: steps.length, stepsGoal: steps.filter(v => v >= 12000).length,
     sleep: mean(vals('sleepMin')), deep: mean(vals('deepMin')), rem: mean(vals('remMin')), sleepN: vals('sleepMin').length,
-    ...(() => { const sc = DB.get('journal', []).filter(e => e.date >= from && e.date <= to).map(checkScore).filter(v => v != null); return { check: mean(sc), checkN: sc.length }; })(),
     lang: langWeek(from, to),
   };
 }
@@ -2738,17 +2737,13 @@ function renderWeekReview() {
       cur: cur.sleepN ? `${minToHM(cur.sleep)} h<span class="wr-sub">Tief ${cur.deep ? minToHM(cur.deep) : '—'} · REM ${cur.rem ? minToHM(cur.rem) : '—'}</span>` : muted,
       prev: prev.sleepN ? `${minToHM(prev.sleep)} h` : muted,
       delta: delta(cur.sleep, prev.sleep, v => minToHM(v) + ' h', 0) },
-    { key: 'Tages-Check', rating: cur.checkN ? (cur.check >= 7 ? {label:'Gut', cls:'rating-good'} : cur.check >= 5 ? {label:'Mittel', cls:'rating-warn'} : {label:'Schwach', cls:'rating-bad'}) : null,
-      cur: cur.checkN ? `Ø ${fmtDec(cur.check)}<span class="wr-sub">„Bestes gegeben“ · an ${cur.checkN} Tagen</span>` : muted,
-      prev: prev.checkN ? `Ø ${fmtDec(prev.check)}` : muted,
-      delta: delta(cur.check, prev.check, v => fmtDec(v), 1) },
     { key: 'Sprachtrainer', rating: cur.lang.goalDays >= 5 ? {label:'Ziel erreicht', cls:'rating-good'} : cur.lang.n ? {label:`Ziel an ${cur.lang.goalDays} von 5 Tagen`, cls:'rating-warn'} : {label:'Nicht geübt', cls:'rating-bad'},
       cur: cur.lang.n ? `${cur.lang.n} Antworten · ${Math.round(100 * cur.lang.c / cur.lang.n)} %<span class="wr-sub">an ${cur.lang.days} Tagen · ${cur.lang.nw} neue Wörter</span>` : muted,
       prev: prev.lang.n ? `${prev.lang.n} · ${Math.round(100 * prev.lang.c / prev.lang.n)} %` : muted,
       delta: delta(cur.lang.n, prev.lang.n, v => Math.round(v), 1) },
   ];
 
-  const hasData = t.total || sessions(t) || cur.weightN || cur.bpN || cur.stepsN || cur.sleepN || cur.checkN || cur.lang.n;
+  const hasData = t.total || sessions(t) || cur.weightN || cur.bpN || cur.stepsN || cur.sleepN || cur.lang.n;
   if(!hasData) {
     document.getElementById('weekReviewBody').innerHTML = emptyState('Keine Daten in dieser Woche', 'Für diese Woche sind weder Training noch Vitalwerte erfasst.');
     return;
