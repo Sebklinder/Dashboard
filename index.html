@@ -1328,6 +1328,7 @@
     <div class="entry-tile" onclick="openModal('bpModal','healthBpSys')"><span class="entry-tile-icon tone-red"><svg class="i"><use href="#i-steth"/></svg></span><span class="entry-tile-label">Blutdruck</span></div>
     <div class="entry-tile" onclick="openModal('hrvModal','healthRhr')"><span class="entry-tile-icon tone-red"><svg class="i"><use href="#i-activity"/></svg></span><span class="entry-tile-label">Puls &amp; HRV</span></div>
     <div class="entry-tile" onclick="openModal('tempModal','healthTemp')"><span class="entry-tile-icon tone-red"><svg class="i"><use href="#i-thermo"/></svg></span><span class="entry-tile-label">Temperatur</span></div>
+    <div class="entry-tile" onclick="openModal('sickModal','healthSick')"><span class="entry-tile-icon tone-amber"><svg class="i"><use href="#i-alert"/></svg></span><span class="entry-tile-label">Krankheit &amp; Medikamente</span></div>
   </div>
   <div class="table-hint" style="margin:-4px 0 16px">Kalorien und Gewicht erfasst du jetzt unter <a href="#ernaehrung" onclick="event.preventDefault();openTracker()">Ernährung → Tracker</a>.</div>
 
@@ -1338,7 +1339,7 @@
     </div>
     <div class="table-hint">Tipp: Mit dem Stift einen Tag bearbeiten, über das Notiz-Symbol eine Tagesnotiz hinzufügen, mit ✕ den ganzen Tag löschen. Ein Klick auf einen Wert löscht ihn einzeln.</div>
     <div class="table-scroll"><table class="data-table">
-      <thead><tr><th>Datum</th><th>Blutdruck</th><th>Ruhepuls</th><th>HRV</th><th>Temp.</th><th>Schritte</th><th>Meditation</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th></th></tr></thead>
+      <thead><tr><th>Datum</th><th>Blutdruck</th><th>Ruhepuls</th><th>HRV</th><th>Temp.</th><th>Schritte</th><th>Meditation</th><th>Schlaf ges.</th><th>Tiefschlaf</th><th>REM</th><th>Krankheit / Medis</th><th></th></tr></thead>
       <tbody id="healthTable"></tbody>
     </table></div>
   </div>
@@ -2056,6 +2057,14 @@
       </div>
     </div>
     <div class="form-group">
+      <label class="form-label" for="heSick">Krankheit / Symptome</label>
+      <input type="text" class="form-input" id="heSick" placeholder="–">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="heMeds">Medikamente</label>
+      <input type="text" class="form-input" id="heMeds" placeholder="–">
+    </div>
+    <div class="form-group">
       <label class="form-label" for="heNote">Tagesnotiz</label>
       <textarea class="form-input" id="heNote" placeholder="Wie war der Tag körperlich?" style="min-height:64px"></textarea>
     </div>
@@ -2179,6 +2188,28 @@
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('tempModal')">Abbrechen</button>
       <button class="btn btn-primary" onclick="saveTemp()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="sickModal">
+  <div class="modal">
+    <div class="modal-title"><span class="modal-icon"><svg class="i"><use href="#i-alert"/></svg></span>Krankheit &amp; Medikamente – Neuer Eintrag</div>
+    <div class="form-group">
+      <label class="form-label" for="sickDate">Datum</label>
+      <input type="date" class="form-input" id="sickDate">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="healthSick">Krankheit / Symptome</label>
+      <input type="text" class="form-input" id="healthSick" placeholder="z. B. Erkältung, Kopfschmerzen">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="healthMeds">Medikamente</label>
+      <input type="text" class="form-input" id="healthMeds" placeholder="z. B. Ibuprofen 400 mg, 2×">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('sickModal')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveSick()">Speichern</button>
     </div>
   </div>
 </div>
@@ -2789,6 +2820,19 @@ function weekInsights(to) {
     const bal = mean(kc.map(d => d.kcal - ernDayGoal(d.date))), dw = w[w.length - 1].weight - w[0].weight;
     out.push(['Kalorien & Gewicht', `Ø ${Math.round(Math.abs(bal)).toLocaleString('de-DE')} kcal ${bal < 0 ? 'unter' : 'über'} dem Ziel, Gewicht ${sign(dw * 10, v => fmtDec(v / 10) + ' kg')} in 4 Wochen`]);
   }
+  // 4) Krankheits- bzw. Medikamententage gegen normale Tage – Morgenwerte vom selben Tag
+  const days = Object.values(health).filter(d => d.date >= from && d.date <= to);
+  const normal = days.filter(d => !d.sick && !d.meds);
+  const vitalDiff = list => [['hrv', 'HRV', v => Math.round(v) + ' %'], ['rhr', 'Ruhepuls', v => Math.round(v)],
+    ['sleepMin', 'Schlaf', v => Math.round(v) + ' min'], ['temp', 'Temperatur', v => fmtDec(v) + ' °C']].map(([k, label, f]) => {
+      const a = list.map(d => parseFloat(d[k])).filter(v => v > 0), b = normal.map(d => parseFloat(d[k])).filter(v => v > 0);
+      if(!a.length || b.length < 5) return null;
+      return `${label} ${sign(k === 'hrv' ? (mean(a) / mean(b) - 1) * 100 : mean(a) - mean(b), f)}`;
+    }).filter(Boolean);
+  [['sick', 'Krankheit', 'Krankheitstag', 'Krankheitstagen'], ['meds', 'Medikamente', 'Medikamententag', 'Medikamententagen']].forEach(([key, title, one, many]) => {
+    const list = days.filter(d => d[key]), parts = vitalDiff(list);
+    if(parts.length) out.push([`${title} & Vitalwerte`, `An ${list.length} ${list.length === 1 ? one : many}: ${parts.join(', ')} gegenüber normalen Tagen`]);
+  });
   return out;
 }
 
@@ -4386,13 +4430,13 @@ function applyRating(el, rating) {
   el.className = 'stat-delta';
 }
 function renderHealth() {
-  ['sleepDate','stepsDate','meditDate','bpDate','hrvDate','tempDate'].forEach(id=>document.getElementById(id).value = today());
+  ['sleepDate','stepsDate','meditDate','bpDate','hrvDate','tempDate','sickDate'].forEach(id=>document.getElementById(id).value = today());
   const data = DB.get('health', []);
 
   // Table
   const tbody = document.getElementById('healthTable');
   // Gewicht/Kalorien gehören jetzt zu Ernährung → Tage nur mit diesen Werten hier ausblenden
-  const VITAL_KEYS = ['bpSys','rhr','hrv','temp','steps','medit','sleepMin','deepMin','remMin','note'];
+  const VITAL_KEYS = ['bpSys','rhr','hrv','temp','steps','medit','sleepMin','deepMin','remMin','sick','meds','note'];
   const rows = [...data].filter(d => VITAL_KEYS.some(k => d[k])).reverse().slice(0,20);
   // Einzelwert-Zelle: Klick löscht genau diesen Wert
   const cell = (date, field, html) => `<span class="cell-val" title="Wert löschen" onclick="deleteHealthValue('${date}','${field}')">${html}</span>`;
@@ -4407,12 +4451,13 @@ function renderHealth() {
     <td>${d.sleepMin ? cell(d.date,'sleepMin',fmtMin(d.sleepMin)) : '—'}</td>
     <td>${d.deepMin ? cell(d.date,'deepMin',fmtMin(d.deepMin)) : '—'}</td>
     <td>${d.remMin ? cell(d.date,'remMin',fmtMin(d.remMin)) : '—'}</td>
+    <td>${d.sick || d.meds ? [d.sick && cell(d.date,'sick',escHtml(d.sick)), d.meds && cell(d.date,'meds',`<span style="color:var(--muted)">${escHtml(d.meds)}</span>`)].filter(Boolean).join('<br>') : '—'}</td>
     <td><div class="health-actions">
       <button class="icon-btn edit-btn" title="Tag bearbeiten" aria-label="Tag bearbeiten" onclick="openHealthEdit('${d.date}')"><svg class="i"><use href="#i-pencil"/></svg></button>
       <button class="icon-btn note-btn${d.note ? ' has-note' : ''}" title="${d.note ? 'Notiz bearbeiten' : 'Notiz hinzufügen'}" aria-label="${d.note ? 'Notiz bearbeiten' : 'Notiz hinzufügen'}" onclick="openHealthNote('${d.date}')"><svg class="i"><use href="#i-note"/></svg></button>
       <button class="icon-btn" title="Ganzen Tag löschen" aria-label="Ganzen Tag löschen" onclick="deleteHealthEntry('${d.date}')"><svg class="i"><use href="#i-x"/></svg></button>
     </div></td>
-  </tr>${d.note ? `<tr class="health-note-row"><td colspan="11"><div class="schiri-notes"><div class="schiri-note day"><span class="schiri-note-label"><svg class="i"><use href="#i-note"/></svg>Tagesnotiz</span><span>${escHtml(d.note)}</span></div></div></td></tr>` : ''}`).join('') || `<tr><td class="empty-cell" colspan="11">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
+  </tr>${d.note ? `<tr class="health-note-row"><td colspan="12"><div class="schiri-notes"><div class="schiri-note day"><span class="schiri-note-label"><svg class="i"><use href="#i-note"/></svg>Tagesnotiz</span><span>${escHtml(d.note)}</span></div></div></td></tr>` : ''}`).join('') || `<tr><td class="empty-cell" colspan="11">${emptyState('Noch keine Einträge', 'Nutze die Kacheln oben, um den ersten Wert zu erfassen.')}</td></tr>`;
 }
 
 const escHtml = (str) => String(str).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -4433,6 +4478,8 @@ const HEALTH_FIELDS = {
   sleepMin: { label: 'Schlaf gesamt', keys: ['sleepMin'] },
   deepMin:  { label: 'Tiefschlaf',    keys: ['deepMin'] },
   remMin:   { label: 'REM',           keys: ['remMin'] },
+  sick:     { label: 'Krankheit',     keys: ['sick'] },
+  meds:     { label: 'Medikamente',   keys: ['meds'] },
   note:     { label: 'Notiz',         keys: ['note'] },
 };
 
@@ -4585,9 +4632,20 @@ function saveTemp() {
 
 // Ganzen Tageseintrag bearbeiten (wie "Spiel bearbeiten" bei den Schiedsrichter-Spielen)
 // Gewicht und Kalorien werden unter Ernährung → Tracker erfasst; vorhandene Altwerte bleiben beim Bearbeiten unverändert
-const HEALTH_EDIT_FIELDS = { temp: 'heTemp', bpSys: 'heBpSys', bpDia: 'heBpDia', rhr: 'heRhr', hrv: 'heHrv', steps: 'heSteps', medit: 'heMedit', note: 'heNote' };
+const HEALTH_EDIT_FIELDS = { temp: 'heTemp', bpSys: 'heBpSys', bpDia: 'heBpDia', rhr: 'heRhr', hrv: 'heHrv', steps: 'heSteps', medit: 'heMedit', sick: 'heSick', meds: 'heMeds', note: 'heNote' };
 const HEALTH_EDIT_DURATIONS = { sleepMin: 'heSleep', deepMin: 'heDeep', remMin: 'heRem' };
 let healthEditDate = null;
+function saveSick() {
+  const date = document.getElementById('sickDate').value || today();
+  const sick = document.getElementById('healthSick').value.trim(), meds = document.getElementById('healthMeds').value.trim();
+  if(!sick && !meds) { toast('Bitte Krankheit oder Medikament eingeben!'); document.getElementById('healthSick').focus(); return; }
+  saveHealthEntry(date, { sick, meds });
+  ['healthSick','healthMeds'].forEach(id=>document.getElementById(id).value='');
+  renderHealth();
+  closeModal('sickModal');
+  toast('Krankheit & Medikamente gespeichert ✓');
+}
+
 function openHealthEdit(date) {
   healthEditDate = date;
   const entry = DB.get('health', []).find(d => d.date === date) || {};
@@ -4694,7 +4752,7 @@ function syncKcalHabitFromNutrition() {
 
 function exportHealth() {
   const data = DB.get('health', []);
-  const csv = ['Datum,Gewicht,BP sys,BP dia,Ruhepuls (bpm),HRV (ms),Temperatur (°C),Schritte,Kalorien (kcal),Meditation (min),Schlaf gesamt (min),Tiefschlaf (min),REM (min),Notiz'].concat(data.map(d=>`${d.date},${d.weight||''},${d.bpSys||''},${d.bpDia||''},${d.rhr||''},${d.hrv||''},${d.temp||''},${d.steps||''},${d.kcal||''},${d.medit||''},${d.sleepMin||''},${d.deepMin||''},${d.remMin||''},"${d.note||''}"`)).join('\n');
+  const csv = ['Datum,Gewicht,BP sys,BP dia,Ruhepuls (bpm),HRV (ms),Temperatur (°C),Schritte,Kalorien (kcal),Meditation (min),Schlaf gesamt (min),Tiefschlaf (min),REM (min),Krankheit,Medikamente,Notiz'].concat(data.map(d=>`${d.date},${d.weight||''},${d.bpSys||''},${d.bpDia||''},${d.rhr||''},${d.hrv||''},${d.temp||''},${d.steps||''},${d.kcal||''},${d.medit||''},${d.sleepMin||''},${d.deepMin||''},${d.remMin||''},"${d.sick||''}","${d.meds||''}","${d.note||''}"`)).join('\n');
   download('gesundheitsdaten.csv', 'text/csv', csv);
 }
 

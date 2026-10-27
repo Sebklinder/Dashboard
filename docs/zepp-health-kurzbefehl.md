@@ -11,10 +11,19 @@ schon in deiner Kurzbefehle-Mediathek (per iCloud auch auf dem iPhone).
    Beim ersten Mal fragt das iPhone, ob der Kurzbefehl Health-Daten lesen und Daten an
    `dashboard-5sc.pages.dev` senden darf → **Immer erlauben**.
    Danach erscheint eine Mitteilung wie `{"saved":[…]}` – dann hat alles geklappt.
-3. **Automatisch laufen lassen:** Kurzbefehle-App → **Automation** → **+** → **App** → **Zepp** →
-   **Ist geschlossen** → **Sofort ausführen** → Kurzbefehl **Zepp Health** auswählen.
-   So läuft er jedes Mal, wenn du die Zepp-App schließt – also direkt nachdem die Uhr synchronisiert hat.
-   (Eine feste Uhrzeit geht auch, aber bei gesperrtem iPhone kann iOS die Health-Daten nicht lesen.)
+3. **Zweimal am Tag automatisch** – zwei Automationen mit demselben Kurzbefehl:
+   Kurzbefehle-App → **Automation** → **+** → **Tageszeit** → **7:00**, **Täglich** →
+   **Sofort ausführen** → Kurzbefehl **Zepp Health** auswählen. Dasselbe noch einmal mit **23:50**.
+   - 7:00 bringt Schlaf, HRV und Ruhepuls der Nacht (und die Schritte bis dahin).
+   - 23:50 bringt die Schritte des ganzen Tages; sie ersetzen den Morgenwert.
+   Zwei getrennte Kurzbefehle sind nicht nötig: Jeder Lauf schickt alles, der Server trägt jeden
+   Wert beim richtigen Tag ein und überschreibt ihn nur mit dem neueren Stand.
+
+   **Wichtig:** Bei gesperrtem iPhone gibt iOS keine Health-Daten heraus. Liegt das iPhone um 7:00
+   noch gesperrt auf dem Nachttisch, kommt „Keine gültigen Werte“. Außerdem muss die Uhr die Nacht
+   schon an die Zepp-App übertragen haben. Klappt 7:00 oft nicht, besser stattdessen
+   **Automation → App → Zepp → Ist geschlossen** nehmen: Dann läuft er direkt nach dem ersten
+   Öffnen der Zepp-App am Morgen.
 
 ## Meldungen
 
