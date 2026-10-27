@@ -19,12 +19,12 @@ Ab 12.000 Schritten wird das Schritte-Habit automatisch abgehakt, genau wie bei 
    → Hinzufügen: Typ **Geheimnis**, Name `HEALTH_KEY`, Wert = der Schlüssel.
 3. Neu bereitstellen (nächster Push oder „Bereitstellung wiederholen“), sonst kennt die Funktion den Schlüssel noch nicht.
 
-Ohne `HEALTH_KEY` lehnt der Endpoint jede Anfrage ab.
+Ohne `HEALTH_KEY` lehnt der Endpoint jede Anfrage ab. (Am 27.10.2026 per `wrangler pages secret put HEALTH_KEY --project-name dashboard` angelegt.)
 
 ## 3. Kurzbefehl „Zepp → Dashboard“ bauen
 
-In der Kurzbefehle-App einen neuen Kurzbefehl anlegen. `ADRESSE` ist die Adresse, unter der dein Dashboard
-mit „Synchronisiert“ läuft (die Cloudflare-Pages-Adresse, nicht github.io).
+In der Kurzbefehle-App einen neuen Kurzbefehl anlegen. Die Adresse ist `dashboard-5sc.pages.dev`
+(Cloudflare Pages, Projekt `dashboard` – nicht github.io, dort gibt es kein `/api`).
 
 **Datum**
 1. *Aktuelles Datum* → *Datum formatieren*: Benutzerdefiniert `yyyy-MM-dd` → *Variable festlegen* `Heute`
@@ -50,7 +50,7 @@ Die Quelle „Zepp“ ist wichtig: Sonst zählt das iPhone seine eigenen Schritt
 
 | | Anfrage 1 (heute) | Anfrage 2 (gestern) |
 |---|---|---|
-| URL | `https://ADRESSE/api/health` | `https://ADRESSE/api/health` |
+| URL | `https://dashboard-5sc.pages.dev/api/health` | `https://dashboard-5sc.pages.dev/api/health` |
 | Methode | POST | POST |
 | Header | `X-Health-Key` = dein Schlüssel | `X-Health-Key` = dein Schlüssel |
 | Hauptteil | JSON | JSON |
@@ -71,7 +71,7 @@ von Hand erneut ausführen, er überschreibt dann einfach mit den aktuellen Wert
 ## Testen ohne iPhone
 
 ```bash
-curl -X POST https://ADRESSE/api/health -H "X-Health-Key: DEIN_SCHLUESSEL" -H "Content-Type: application/json" -d '{"date":"2026-10-27","steps":8000}'
+curl -X POST https://dashboard-5sc.pages.dev/api/health -H "X-Health-Key: DEIN_SCHLUESSEL" -H "Content-Type: application/json" -d '{"date":"2026-10-27","steps":8000}'
 ```
 
 Danach das Dashboard neu laden: Unter Gesundheit → Protokoll steht der Wert.
