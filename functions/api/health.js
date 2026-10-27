@@ -5,8 +5,8 @@
 // Feld → [min, max, als Zahl speichern?] – Typen wie bei der Handeingabe in index.html
 const FIELDS = {
   sleepMin: [60, 960, true],
-  deepMin: [0, 600, true],
-  remMin: [0, 600, true],
+  deepMin: [1, 600, true],
+  remMin: [1, 600, true],
   steps: [1, 100000, false],
   rhr: [30, 120, false],
   hrv: [5, 250, false],
@@ -45,14 +45,42 @@ function tickStepsHabit(state, saved) {
   state[key] = JSON.stringify(log);
 }
 
-// Kurzbefehl ohne Datum: Schlaf/Puls/HRV gehören zu heute, Schritte (stepsYesterday) zu gestern –
-// so muss der Kurzbefehl keine Daten formatieren
-export function withoutDate(body, now = new Date()) {
-  const today = now.toLocaleDateString('sv-SE', { timeZone: 'Europe/Berlin' });
-  const d = new Date(today + 'T12:00:00Z');
-  d.setUTCDate(d.getUTCDate() - 1);
-  const { stepsYesterday, ...rest } = body;
-  return [{ ...rest, date: today }, { date: d.toISOString().slice(0, 10), steps: stepsYesterday }];
+const berlinDate = d => d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Berlin' });
+
+// Der Kurzbefehl schickt rohe Health-Samples, eine Zeile je Sample: "art;wert;quelle;start;ende".
+// Gerechnet wird hier, damit der Kurzbefehl ohne heikle Filter auskommt. Pro Wert zählt nur die
+// Quelle mit den meisten Daten – sonst kämen iPhone- und Uhr-Schritte doppelt.
+export function fromSamples(text, now = new Date()) {
+  const rows = String(text).split('\n').map(l => l.split(';').map(s => s.trim()))
+    .map(([kind, value, source, start, end]) => ({ kind, value, source, start: new Date(start), end: new Date(end) }))
+    .filter(r => !isNaN(r.start) && !isNaN(r.end));
+  const bySource = (list, amount) => {
+    const sums = {};
+    list.forEach(r => { sums[r.source] = (sums[r.source] || 0) + amount(r); });
+    const best = Object.keys(sums).sort((a, b) => sums[b] - sums[a])[0];
+    return list.filter(r => r.source === best);
+  };
+  const entries = [];
+
+  const today = berlinDate(now);
+  const count = r => parseInt(r.value.replace(/[.,\s]/g, '')) || 0; // Schritte sind ganzzahlig: "1.200" = 1200
+  const steps = bySource(rows.filter(r => /step|schritt/i.test(r.kind) && berlinDate(r.start) === today), count);
+  if (steps.length) entries.push({ date: today, steps: steps.reduce((s, r) => s + count(r), 0) });
+
+  const mins = r => (r.end - r.start) / 60000;
+  const asleep = r => /sleep|schlaf/i.test(r.kind) && !/wach|awake|bett|bed/i.test(r.value);
+  let sleep = bySource(rows.filter(asleep), mins);
+  if (sleep.length) {
+    // nur die letzte Nacht: alles, was höchstens 16 h vor ihrem Ende begann
+    const lastEnd = Math.max(...sleep.map(r => +r.end));
+    sleep = sleep.filter(r => +r.start >= lastEnd - 16 * 3600000);
+    const sum = re => Math.round(sleep.filter(r => re.test(r.value)).reduce((s, r) => s + mins(r), 0));
+    const deepMin = sum(/tief|deep/i), remMin = sum(/rem/i), coreMin = sum(/kern|core/i);
+    // Phasen vorhanden → deren Summe, sonst die unspezifischen "Schlafend"-Abschnitte
+    const sleepMin = deepMin + remMin + coreMin || sum(/./);
+    entries.push({ date: berlinDate(new Date(lastEnd)), sleepMin, deepMin, remMin });
+  }
+  return entries;
 }
 
 export async function onRequestPost(context) {
@@ -64,7 +92,7 @@ export async function onRequestPost(context) {
   try { body = await request.json(); } catch (e) {
     return new Response('Ungültiges JSON', { status: 400 });
   }
-  const entries = Array.isArray(body) ? body : body.date ? [body] : withoutDate(body);
+  const entries = Array.isArray(body) ? body : body.samples ? fromSamples(body.samples) : [body];
 
   // shortcut: liest/schreibt den ganzen Stand ohne Sperre – ein Gerät, das genau
   // gleichzeitig synchronisiert, kann den Import überschreiben; bei Problemen auf D1 umstellen
