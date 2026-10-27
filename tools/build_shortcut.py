@@ -62,11 +62,16 @@ def field(k, v):
 
 sleep_find_u, sleep_find = find('Sleep', {'Operator': 1001, 'Values': {'Number': '2', 'Unit': 16}})  # Start in den letzten 2 Tagen
 steps_find_u, steps_find = find('Steps', {'Operator': 1002, 'Values': {'Number': '7', 'Unit': 16}})  # Start ist heute
+rhr_find_u, rhr_find = find('Resting Heart Rate', {'Operator': 1001, 'Values': {'Number': '2', 'Unit': 16}})
+hrv_find_u, hrv_find = find('Heart Rate Variability', {'Operator': 1001, 'Values': {'Number': '2', 'Unit': 16}})
 sleep_text_u, sleep_lines = lines('sleep', sleep_find_u)
 steps_text_u, steps_lines = lines('steps', steps_find_u)
+rhr_text_u, rhr_lines = lines('rhr', rhr_find_u)
+hrv_text_u, hrv_lines = lines('hrv', hrv_find_u)
+texts = [sleep_text_u, steps_text_u, rhr_text_u, hrv_text_u]
 url_u = U()
 
-actions = [sleep_find, *sleep_lines, steps_find, *steps_lines,
+actions = [sleep_find, *sleep_lines, steps_find, *steps_lines, rhr_find, *rhr_lines, hrv_find, *hrv_lines,
     {'WFWorkflowActionIdentifier': 'is.workflow.actions.downloadurl',
      'WFWorkflowActionParameters': {
          'UUID': url_u, 'ShowHeaders': True, 'WFHTTPMethod': 'POST', 'WFHTTPBodyType': 'JSON',
@@ -74,8 +79,8 @@ actions = [sleep_find, *sleep_lines, steps_find, *steps_lines,
          'WFHTTPHeaders': {'WFSerializationType': 'WFDictionaryFieldValue', 'Value': {'WFDictionaryFieldValueItems': [
              field('X-Health-Key', tokens(key, {}))]}},
          'WFJSONValues': {'WFSerializationType': 'WFDictionaryFieldValue', 'Value': {'WFDictionaryFieldValueItems': [
-             field('samples', tokens(OBJ + '\n' + OBJ, {'{0, 1}': output(sleep_text_u, 'Combined Text'),
-                                                        '{2, 1}': output(steps_text_u, 'Combined Text')}))]}}}},
+             field('samples', tokens('\n'.join([OBJ] * len(texts)),
+                                     {f'{{{2 * i}, 1}}': output(u, 'Combined Text') for i, u in enumerate(texts)}))]}}}},
     {'WFWorkflowActionIdentifier': 'is.workflow.actions.notification',
      'WFWorkflowActionParameters': {'UUID': U(), 'WFNotificationActionTitle': 'Zepp → Dashboard',
                                     'WFNotificationActionSound': False,

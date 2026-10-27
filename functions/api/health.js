@@ -80,6 +80,17 @@ export function fromSamples(text, now = new Date()) {
     const sleepMin = deepMin + remMin + coreMin || sum(/./);
     entries.push({ date: berlinDate(new Date(lastEnd)), sleepMin, deepMin, remMin });
   }
+
+  // Ruhepuls: der neueste Wert. HRV: Mittel aller Messungen vom Tag der neuesten (Zepp misst nachts mehrfach).
+  const num = r => parseFloat(r.value.replace(',', '.')) || 0;
+  for (const [field, re, mean] of [['rhr', /rhr|ruhe/i, false], ['hrv', /hrv/i, true]]) {
+    const list = bySource(rows.filter(r => re.test(r.kind) && num(r)), () => 1);
+    if (!list.length) continue;
+    const day = berlinDate(new Date(Math.max(...list.map(r => +r.end))));
+    const ofDay = list.filter(r => berlinDate(r.end) === day).sort((a, b) => a.end - b.end);
+    const value = mean ? ofDay.reduce((s, r) => s + num(r), 0) / ofDay.length : num(ofDay[ofDay.length - 1]);
+    entries.push({ date: day, [field]: value });
+  }
   return entries;
 }
 

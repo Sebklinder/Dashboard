@@ -45,6 +45,17 @@ assert.deepEqual(fromSamples(samples, new Date('2026-11-01T12:00:00+01:00')), [
   { date: '2026-11-01', steps: 1500 },
   { date: '2026-11-01', sleepMin: 420, deepMin: 90, remMin: 90 },
 ]);
+// Ruhepuls = neuester Wert, HRV = Mittel der Messungen vom Tag der neuesten; Dezimalkomma erlaubt
+assert.deepEqual(fromSamples([
+  'rhr;61;Zepp;2026-10-31T08:00:00+01:00;2026-10-31T08:00:00+01:00',
+  'rhr;58;Zepp;2026-11-01T07:00:00+01:00;2026-11-01T07:00:00+01:00',
+  'hrv;40,5;Zepp;2026-10-31T03:00:00+01:00;2026-10-31T03:00:00+01:00',
+  'hrv;44;Zepp;2026-11-01T02:00:00+01:00;2026-11-01T02:00:00+01:00',
+  'hrv;50;Zepp;2026-11-01T04:00:00+01:00;2026-11-01T04:00:00+01:00',
+].join('\n'), new Date('2026-11-01T12:00:00+01:00')), [
+  { date: '2026-11-01', rhr: 58 },
+  { date: '2026-11-01', hrv: 47 },
+]);
 // Ohne Schlafphasen zählen die "Schlafend"-Abschnitte; Tief/REM bleiben leer statt 0
 assert.deepEqual(fromSamples('sleep;Schlafend;Zepp;2026-11-01T00:00:00+01:00;2026-11-01T07:00:00+01:00', new Date('2026-11-01T12:00:00+01:00')),
   [{ date: '2026-11-01', sleepMin: 420, deepMin: 0, remMin: 0 }]);
