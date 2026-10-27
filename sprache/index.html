@@ -2552,7 +2552,9 @@ function pickVoice(){
 }
 function speak(text,rate){
   if(!canSpeak())return;
-  try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.lang=S.set.accent;u.rate=rate||1;var v=pickVoice();if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}
+  // iOS: Stummschalter würde die Ausgabe sonst stumm lassen; cancel() direkt vor speak() verschluckt dort die neue Ausgabe
+  try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
+  try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();speechSynthesis.resume();var u=new SpeechSynthesisUtterance(text);u.lang=S.set.accent;u.rate=rate||1;var v=pickVoice();if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}
 }
 
 /* ---------- Spracherkennung ---------- */
@@ -2573,7 +2575,8 @@ function startMic(){
   };
   r.onerror=function(e){
     if(SES!==s)return;
-    s.msg=e.error==='not-allowed'||e.error==='service-not-allowed'?'Kein Zugriff aufs Mikrofon. Erlaube es in den Browser-Einstellungen.':e.error==='no-speech'?'Nichts gehört. Tippe auf „Sprechen“ und lies den Satz vor.':'Die Spracherkennung hat nicht geklappt. Versuch es noch einmal.';
+    // iOS lässt die Spracherkennung in Home-Bildschirm-Apps nicht zu, nur in Safari selbst
+    s.msg=navigator.standalone&&(e.error==='not-allowed'||e.error==='service-not-allowed')?'In der Home-Bildschirm-App blockiert iOS die Spracherkennung. Öffne das Dashboard dafür in Safari.':e.error==='not-allowed'||e.error==='service-not-allowed'?'Kein Zugriff aufs Mikrofon oder die Spracherkennung. Erlaube beides in den Einstellungen (iPhone: Einstellungen › Safari › Mikrofon, und Siri muss aktiv sein).':e.error==='no-speech'?'Nichts gehört. Tippe auf „Sprechen“ und lies den Satz vor.':'Die Spracherkennung hat nicht geklappt ('+e.error+'). Versuch es noch einmal.';
     s.phase=s.res?'fb':'ask';render();
   };
   r.onend=function(){if(SES===s&&s.phase==='rec'){s.phase=s.res?'fb':'ask';render()}};
