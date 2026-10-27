@@ -1,77 +1,104 @@
-# Zepp → Dashboard per Kurzbefehl
+# Zepp → Dashboard: Kurzbefehl einrichten
 
-Weg der Daten: **Zepp-App → Apple Health → Kurzbefehl (jeden Morgen) → `/api/health` → Dashboard**.
+**Ziel:** Jeden Morgen schickt dein iPhone automatisch Schlaf und Schritte aus der Zepp-App an dein Dashboard.
+Du baust dafür einmal einen Kurzbefehl (ca. 15 Minuten), danach läuft alles von selbst.
 
-Der Endpoint trägt Schlaf (gesamt, Tief, REM), Schritte, Ruhepuls und HRV ins Gesundheits-Protokoll ein.
-Leere Werte oder 0 überschreiben nichts. Blutdruck und Temperatur trägst du weiter von Hand ein.
-Ab 12.000 Schritten wird das Schritte-Habit automatisch abgehakt, genau wie bei der Handeingabe.
+Der Server ist fertig eingerichtet. Du brauchst nur dein iPhone und den Schlüssel.
 
-## 1. Zepp → Apple Health
+---
 
-1. Zepp-App → **Profil → Konten hinzufügen** (je nach Version: „Drittanbieter-Apps“) → **Apple Health** → alles erlauben.
-2. Prüfen, was ankommt: Health-App → Profilbild → **Apps → Zepp**. Dort steht, welche Datentypen Zepp schreibt.
-   Fehlt etwas (z. B. HRV oder die Schlafphasen), schickt der Kurzbefehl dafür einfach nichts mit.
+## Teil A – Vorbereitung (2 Minuten)
 
-## 2. Geheimen Schlüssel in Cloudflare anlegen
+**A1. Zepp mit Apple Health verbinden**
+Zepp-App öffnen → unten **Profil** → **Konten hinzufügen** → **Apple Health** → **Alle aktivieren** → **Erlauben**.
 
-1. Einen langen Zufallsschlüssel erzeugen, z. B. im Terminal: `openssl rand -hex 24`
-2. Cloudflare-Dashboard → **Workers & Pages** → Dashboard-Projekt → **Einstellungen → Variablen und Geheimnisse**
-   → Hinzufügen: Typ **Geheimnis**, Name `HEALTH_KEY`, Wert = der Schlüssel.
-3. Neu bereitstellen (nächster Push oder „Bereitstellung wiederholen“), sonst kennt die Funktion den Schlüssel noch nicht.
+**A2. Prüfen, ob die Daten ankommen**
+Health-App öffnen → **Entdecken** → **Schlaf**. Steht dort die letzte Nacht? Dann passt es.
+(Falls nicht: Zepp-App einmal öffnen, damit die Uhr synchronisiert, und nochmal schauen.)
 
-Ohne `HEALTH_KEY` lehnt der Endpoint jede Anfrage ab. (Am 27.10.2026 per `wrangler pages secret put HEALTH_KEY --project-name dashboard` angelegt.)
+**A3. Schlüssel aufs iPhone holen**
+Der Schlüssel liegt auf dem Mac in `Dashboard/.claude/health-key.txt`. Am einfachsten Claude sagen
+„kopier mir den Health-Schlüssel“ – dann liegt er in der Zwischenablage und du kannst ihn am iPhone
+einfach einfügen (gleiche Apple-ID, Bluetooth an). Er ist ein Passwort: nicht weitergeben.
 
-## 3. Kurzbefehl „Zepp → Dashboard“ bauen
+---
 
-In der Kurzbefehle-App einen neuen Kurzbefehl anlegen. Die Adresse ist `dashboard-5sc.pages.dev`
-(Cloudflare Pages, Projekt `dashboard` – nicht github.io, dort gibt es kein `/api`).
+## Teil B – Kurzbefehl bauen
 
-**Datum**
-1. *Aktuelles Datum* → *Datum formatieren*: Benutzerdefiniert `yyyy-MM-dd` → *Variable festlegen* `Heute`
-2. *Datum anpassen*: aktuelles Datum, **1 Tag abziehen** → *Datum formatieren* `yyyy-MM-dd` → *Variable festlegen* `Gestern`
+Kurzbefehle-App → oben rechts **+** → oben auf den Namen tippen → **Zepp → Dashboard** nennen.
 
-**Schlaf der letzten Nacht** (zählt zum heutigen Datum, wie bei der Handeingabe)
-3. *Health-Beispiele suchen*: Typ **Schlafanalyse**, Bedingungen (alle): *Enddatum ist heute*, *Quelle ist Zepp*,
-   *Wert ist nicht Wach*, *Wert ist nicht Im Bett*
-4. *Wiederholen mit jedem* Objekt: *Zeit zwischen Datumsangaben abrufen* (Startdatum → Enddatum des Objekts) **in Minuten**
-5. Nach dem Wiederholen: *Statistik berechnen*: **Summe** → *Variable festlegen* `Schlaf`
-6. Schritte 3–5 wiederholen mit zusätzlicher Bedingung *Wert ist Tief* → `Tief`, und *Wert ist REM* → `REM`
+Jetzt fügst du nacheinander Aktionen hinzu. Eine Aktion findest du immer über das Suchfeld
+**„Aktion suchen“** unten. Variablen (die farbigen Kästchen) setzt du, indem du in ein Feld tippst
+und oben über der Tastatur die passende Variable auswählst.
 
-**Ruhepuls & HRV** (optional)
-7. *Health-Beispiele suchen*: Typ **Ruhepuls**, *Startdatum ist heute*, *Quelle ist Zepp*, sortiert nach neuestem, Limit 1 → `Ruhepuls`
-8. Dasselbe mit Typ **Herzfrequenzvariabilität** → `HRV`
+### Block 1: Schlaf der letzten Nacht
 
-**Schritte von gestern** (der Tag ist erst jetzt vollständig)
-9. *Health-Beispiele suchen*: Typ **Schritte**, *Startdatum ist gestern*, *Quelle ist Zepp* → *Statistik berechnen*: **Summe** → `Schritte`
-
-Die Quelle „Zepp“ ist wichtig: Sonst zählt das iPhone seine eigenen Schritte doppelt dazu.
-
-**Senden** – zweimal *Inhalte von URL abrufen*:
-
-| | Anfrage 1 (heute) | Anfrage 2 (gestern) |
+| # | Aktion suchen | Was du einstellst |
 |---|---|---|
-| URL | `https://dashboard-5sc.pages.dev/api/health` | `https://dashboard-5sc.pages.dev/api/health` |
-| Methode | POST | POST |
-| Header | `X-Health-Key` = dein Schlüssel | `X-Health-Key` = dein Schlüssel |
-| Hauptteil | JSON | JSON |
-| Felder | `date` (Text) = `Heute`<br>`sleepMin` (Zahl) = `Schlaf`<br>`deepMin` (Zahl) = `Tief`<br>`remMin` (Zahl) = `REM`<br>`rhr` (Zahl) = `Ruhepuls`<br>`hrv` (Zahl) = `HRV` | `date` (Text) = `Gestern`<br>`steps` (Zahl) = `Schritte` |
+| 1 | **Health-Beispiele suchen** | Bei „Typ“ **Schlafanalyse** wählen. Dann **Filter hinzufügen** und drei Filter setzen: **Enddatum** → *ist heute* · **Quelle** → *ist Zepp* · **Wert** → *ist nicht Im Bett*. Ganz oben muss **„Alle“** der Filter stehen. |
+| 2 | **Mit jedem wiederholen** | Wird automatisch mit den Health-Beispielen verbunden. |
+| 3 | **Zeit zwischen Daten abrufen** | *Innerhalb* der Wiederholung (eingerückt). Erstes Feld: Variable **Wiederholungsobjekt** antippen → **Startdatum**. Zweites Feld: **Wiederholungsobjekt** → **Enddatum**. Einheit: **Minuten**. |
+| 4 | **Statistik berechnen** | *Nach* „Ende der Wiederholung“. **Summe** von **Wiederholungsergebnisse**. |
 
-Die Antwort zeigt, was gespeichert wurde, z. B. `{"saved":[{"date":"2026-10-27","sleepMin":452,...}]}`.
-`Keine gültigen Werte` heißt: Zepp hatte für den Tag nichts in Health (Uhr nicht getragen oder noch nicht synchronisiert).
+Falls Zepp auch „Wach“-Phasen meldet, Schritt 1 noch um den Filter **Wert** → *ist nicht Wach* ergänzen.
 
-## 4. Automatisch jeden Morgen
+### Block 2: Schritte von gestern
 
-Kurzbefehle → **Automation → Neue Automation → Tageszeit**, z. B. 10:00, täglich, **Sofort ausführen**
-→ Kurzbefehl „Zepp → Dashboard“.
+| # | Aktion suchen | Was du einstellst |
+|---|---|---|
+| 5 | **Health-Beispiele suchen** | Typ **Schritte**. Filter: **Startdatum** → *ist gestern* · **Quelle** → *ist Zepp*. |
+| 6 | **Statistik berechnen** | **Summe** von **Health-Beispiele** (aus Schritt 5). |
 
-Vorher sollte die Zepp-App einmal geöffnet gewesen sein, damit die Uhr ihre Nachtdaten übertragen hat.
-Wer die Uhr erst später synchronisiert, legt die Automation später. Man kann den Kurzbefehl auch jederzeit
-von Hand erneut ausführen, er überschreibt dann einfach mit den aktuellen Werten.
+Die Quelle „Zepp“ ist wichtig – sonst zählt das iPhone seine eigenen Schritte doppelt.
 
-## Testen ohne iPhone
+### Block 3: An das Dashboard senden
 
-```bash
-curl -X POST https://dashboard-5sc.pages.dev/api/health -H "X-Health-Key: DEIN_SCHLUESSEL" -H "Content-Type: application/json" -d '{"date":"2026-10-27","steps":8000}'
-```
+| # | Aktion suchen | Was du einstellst |
+|---|---|---|
+| 7 | **Inhalte von URL abrufen** | URL: `https://dashboard-5sc.pages.dev/api/health` · Auf den Pfeil **>** tippen: **Methode** → *POST* |
+| | ↳ **Header** | **+ Neuen Header hinzufügen**: Schlüssel `X-Health-Key`, Text = **dein Schlüssel** (einfügen) |
+| | ↳ **Hauptteil anfordern** | **JSON**. Zwei Felder hinzufügen, jeweils Typ **Zahl**: <br>`sleepMin` = Variable **Statistik** aus Schritt 4 <br>`stepsYesterday` = Variable **Statistik** aus Schritt 6 |
+| 8 | **Ergebnis anzeigen** | (nur zum Testen – kann später gelöscht werden) |
 
-Danach das Dashboard neu laden: Unter Gesundheit → Protokoll steht der Wert.
+**Testen:** unten auf ▶ tippen. Erwartet: eine Meldung wie `{"saved":[{"date":"2026-10-28","sleepMin":452}, …]}`.
+Dann das Dashboard öffnen → **Gesundheit → Protokoll**: Schlaf und Schritte stehen drin.
+
+| Meldung | Bedeutung |
+|---|---|
+| `Nicht autorisiert` | Schlüssel falsch oder Header-Name falsch geschrieben (`X-Health-Key`) |
+| `Keine gültigen Werte` | Health hat für die Zeit nichts von Zepp – Zepp-App öffnen, synchronisieren lassen, nochmal |
+
+---
+
+## Teil C – Jeden Morgen automatisch
+
+Kurzbefehle-App → unten **Automation** → **+** → **Tageszeit** → z. B. **10:00**, **Täglich**
+→ **Sofort ausführen** wählen → Weiter → Kurzbefehl **Zepp → Dashboard** auswählen.
+
+Tipp: Die Uhrzeit so legen, dass du morgens schon einmal die Zepp-App offen hattest.
+Läuft er mal zu früh, einfach später von Hand nochmal starten – er überschreibt dann mit den aktuellen Werten.
+
+---
+
+## Später erweitern (optional)
+
+Weitere Felder im JSON von Schritt 7, alle Typ **Zahl**. Die Werte holst du wie in Block 1 bzw. 2:
+
+| Feld | Woher |
+|---|---|
+| `deepMin` | wie Block 1, aber Filter **Wert** → *ist Tief* |
+| `remMin` | wie Block 1, aber Filter **Wert** → *ist REM* |
+| `rhr` | **Health-Beispiele suchen**: Typ **Ruhepuls**, Startdatum *ist heute*, Quelle *Zepp*, Limit 1 |
+| `hrv` | wie Ruhepuls, Typ **Herzfrequenzvariabilität** |
+
+Ob Zepp Tief-/REM-Schlaf, Ruhepuls und HRV an Health gibt, siehst du in der Health-App unter
+Profilbild → **Apps → Zepp**. Fehlt ein Wert, wird er einfach nicht übertragen.
+
+---
+
+## Technik (für später)
+
+- Endpoint: `functions/api/health.js`, Secret `HEALTH_KEY` im Cloudflare-Projekt `dashboard`.
+- Ohne `date` im JSON gilt: Schlaf/Puls/HRV → heute, `stepsYesterday` → gestern (Zeitzone Berlin).
+  Mit `date` (`YYYY-MM-DD`) oder einer Liste von Einträgen lassen sich auch einzelne Tage nachtragen.
+- Test vom Mac: `curl -X POST https://dashboard-5sc.pages.dev/api/health -H "X-Health-Key: SCHLUESSEL" -H "Content-Type: application/json" -d '{"date":"2026-10-27","steps":8000}'`

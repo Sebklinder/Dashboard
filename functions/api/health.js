@@ -45,6 +45,16 @@ function tickStepsHabit(state, saved) {
   state[key] = JSON.stringify(log);
 }
 
+// Kurzbefehl ohne Datum: Schlaf/Puls/HRV gehören zu heute, Schritte (stepsYesterday) zu gestern –
+// so muss der Kurzbefehl keine Daten formatieren
+export function withoutDate(body, now = new Date()) {
+  const today = now.toLocaleDateString('sv-SE', { timeZone: 'Europe/Berlin' });
+  const d = new Date(today + 'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate() - 1);
+  const { stepsYesterday, ...rest } = body;
+  return [{ ...rest, date: today }, { date: d.toISOString().slice(0, 10), steps: stepsYesterday }];
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
   if (!env.HEALTH_KEY || request.headers.get('X-Health-Key') !== env.HEALTH_KEY) {
@@ -54,7 +64,7 @@ export async function onRequestPost(context) {
   try { body = await request.json(); } catch (e) {
     return new Response('Ungültiges JSON', { status: 400 });
   }
-  const entries = Array.isArray(body) ? body : [body];
+  const entries = Array.isArray(body) ? body : body.date ? [body] : withoutDate(body);
 
   // shortcut: liest/schreibt den ganzen Stand ohne Sperre – ein Gerät, das genau
   // gleichzeitig synchronisiert, kann den Import überschreiben; bei Problemen auf D1 umstellen

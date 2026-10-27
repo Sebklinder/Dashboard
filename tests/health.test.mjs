@@ -1,6 +1,6 @@
 // Selbsttest: node tests/health.test.mjs
 import assert from 'node:assert';
-import { onRequestPost } from '../functions/api/health.js';
+import { onRequestPost, withoutDate } from '../functions/api/health.js';
 
 let stored = JSON.stringify({
   health: JSON.stringify([{ date: '2026-10-26', bpSys: '120', steps: '5000' }]),
@@ -26,4 +26,9 @@ assert.deepEqual(JSON.parse(state.health), [
 ]);
 assert.deepEqual(JSON.parse(state.habit_log_7), { '2026-10-26': true });
 assert.equal(state.theme_other, 'x');
+
+// Ohne Datum: heute (Berlin) für Schlaf, gestern für Schritte – auch kurz nach Mitternacht und über den Monatswechsel
+assert.deepEqual(withoutDate({ sleepMin: 400, stepsYesterday: 7000 }, new Date('2026-10-31T23:30:00Z')),
+  [{ sleepMin: 400, date: '2026-11-01' }, { date: '2026-10-31', steps: 7000 }]);
+assert.equal((await post({ sleepMin: 410, stepsYesterday: '' })).status, 200);
 console.log('ok');
