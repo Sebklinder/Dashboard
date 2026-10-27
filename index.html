@@ -121,6 +121,8 @@
   .card-title .i { color: var(--muted); }
   .section-header .card-title { margin-bottom: 0; }
   .card-foot { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .gap-hint { margin: -8px 0 16px; font-size: 12px; color: var(--yellow); }
+  .gap-hint[hidden] { display: none; }
   /* Wochenrückblick (montags oben auf der Übersicht) */
   .review-link { display: inline-flex; align-items: center; gap: 6px; margin: -8px 0 16px; padding: 4px 8px 4px 6px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-2); font-size: 12px; font-weight: 500; cursor: pointer; }
   .review-link .i { width: 14px; height: 14px; vertical-align: 0; }
@@ -141,6 +143,13 @@
   .wr-delta { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .wr-delta.better { color: var(--green); }
   .wr-delta.worse { color: var(--yellow); }
+  .wr-line.focus b { color: var(--accent); }
+  .wr-score { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: 13px; color: var(--text-2); }
+  .wr-score b { font-size: 22px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+  .wr-insights { margin: 12px 0 0; }
+  .wr-head { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .wr-trend { display: block; width: 56px; height: 14px; margin-top: 4px; }
+  .wr-trend polyline { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
   /* Drill-down aus Übersichtskarten */
   .card-link { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; height: 28px; padding: 0 6px 0 8px; border: none; border-radius: 6px; background: transparent; color: var(--muted); font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; position: relative; }
   .card-link::before { content: ''; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: 44px; transform: translate(-50%, -50%); }
@@ -1182,6 +1191,7 @@
 <div id="page-overview" class="page active">
   <div class="page-title" id="overviewGreeting">Guten Morgen</div>
   <div class="page-sub" id="overviewDate"></div>
+  <div class="gap-hint" id="overviewGaps" hidden></div>
   <button type="button" class="review-link" id="weekReviewLink" onclick="toggleWeekReview(true)" hidden><svg class="i"><use href="#i-chart"/></svg><span id="weekReviewLinkLabel">Wochenrückblick ansehen</span><svg class="i"><use href="#i-chevron"/></svg></button>
 
   <div class="card week-review" id="weekReview" hidden>
@@ -1194,12 +1204,12 @@
       </div>
     </div>
     <div id="weekReviewBody"></div>
-    <div class="card-foot">Mittelwerte der Woche (Mo–So) im Vergleich zur Woche davor. Training: Kraft, Ausdauer und Schiedsrichter-Einsätze. Sprachtrainer: Wochenziel = an 5 Tagen je 20 Antworten.</div>
+    <div class="card-foot">Mittelwerte der Woche (Mo–So) im Vergleich zur Woche davor. Training: Kraft, Ausdauer und Schiedsrichter-Einsätze. Sprachtrainer: Wochenziel = an 5 Tagen je 20 Antworten. Alkohol: 1 Glas ≈ 10 g. Linie unter dem Namen = Verlauf der letzten 8 Wochen.</div>
   </div>
 
   <div class="overview-groups" style="margin-bottom:16px">
     <div class="card kpi-card">
-      <div class="card-title"><svg class="i"><use href="#i-bed"/></svg>Schlaf <span class="card-sub">Ø aller Einträge · h:min</span><button type="button" class="card-link" onclick="openAnalytics('health')" aria-label="Schlaf-Verlauf öffnen">Verlauf<svg class="i"><use href="#i-chevron"/></svg></button></div>
+      <div class="card-title"><svg class="i"><use href="#i-bed"/></svg>Schlaf <span class="card-sub">Ø 7 Tage · h:min</span><button type="button" class="card-link" onclick="openAnalytics('health')" aria-label="Schlaf-Verlauf öffnen">Verlauf<svg class="i"><use href="#i-chevron"/></svg></button></div>
       <div class="stat-group-3">
         <div class="stat mini">
           <div class="stat-value" id="statSleep">—</div>
@@ -1238,7 +1248,7 @@
       <div class="stat mini">
         <div class="stat-value" id="statSteps">—</div>
           <div class="stat-sub" id="statSteps7"></div>
-        <div class="stat-label">Ø aller Einträge</div>
+        <div class="stat-label">Ø 7 Tage</div>
         <div class="stat-delta" id="statStepsRating"></div>
       </div>
       <div class="spark" id="sparkSteps"></div>
@@ -1248,7 +1258,7 @@
       <div class="stat mini">
         <div class="stat-value" id="statBp">—</div>
           <div class="stat-sub" id="statBp7"></div>
-        <div class="stat-label">Ø sys/dia <span class="as-of" id="statBpAsOf"></span></div>
+        <div class="stat-label">Ø 7 Tage sys/dia <span class="as-of" id="statBpAsOf"></span></div>
         <div class="stat-delta" id="statBpNote"></div>
       </div>
       <div class="spark" id="sparkBp"></div>
@@ -1909,6 +1919,11 @@
         <div class="input-suffix own-portion"><input type="number" min="0" step="1" inputmode="decimal" class="form-input" id="ownFoodPortion" placeholder="z. B. 250"><span class="own-unit">g</span></div>
         <div class="form-hint">Wird beim Eintragen als Menge vorgeschlagen.</div>
       </div>
+      <div class="form-group" style="margin:12px 0 0">
+        <label class="form-label" for="ownFoodAlk">Alkohol <span class="label-opt">optional</span></label>
+        <div class="input-suffix own-portion"><input type="number" min="0" max="100" step="0.1" inputmode="decimal" class="form-input" id="ownFoodAlk" placeholder="z. B. 5"><span>% vol</span></div>
+        <div class="form-hint">Für die Alkohol-Auswertung im Wochenrückblick.</div>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-destructive" id="ownFoodDelete" onclick="deleteOwnFood()" style="margin-right:auto">Löschen</button>
@@ -2503,26 +2518,23 @@ function renderOverview() {
 
   document.getElementById('overviewHabitsRatio').textContent = habits.length ? `${completedToday.length}/${habits.length}` : '';
 
-  // Vitaldaten-Stats
-  // Durchschnitte über alle vorhandenen Einträge, darunter klein der Ø der letzten 7
-  const avg7 = (key, parse=Number) => { const v = getLast(data.filter(d=>d[key]), 7).map(d=>parse(d[key])); return v.length ? Math.round(avg(v)) : 0; };
-  const set7 = (id, txt) => { document.getElementById(id).textContent = txt ? `Ø letzte 7: ${txt}` : ''; };
-  const sleepAvgMin = Math.round(avg(data.filter(d=>d.sleepMin).map(d=>Number(d.sleepMin)))) || 0;
-  const deepAvgMin  = Math.round(avg(data.filter(d=>d.deepMin).map(d=>Number(d.deepMin)))) || 0;
-  const remAvgMin   = Math.round(avg(data.filter(d=>d.remMin).map(d=>Number(d.remMin)))) || 0;
+  // Vitaldaten-Stats: groß der Ø der letzten 7 Tage (bewertet), darunter klein der Ø aller Einträge
+  const since7 = addDays(td, -6), data7 = data.filter(d => d.date >= since7);
+  const avgOf = (arr, key, parse=Number) => { const v = arr.filter(d=>d[key]).map(d=>parse(d[key])); return v.length ? Math.round(avg(v)) : 0; };
+  const setAll = (id, txt) => { document.getElementById(id).textContent = txt ? `Ø gesamt: ${txt}` : ''; };
+  const sleepAvgMin = avgOf(data7, 'sleepMin'), deepAvgMin = avgOf(data7, 'deepMin'), remAvgMin = avgOf(data7, 'remMin');
   const weights = nutritionDays().filter(d=>d.weight);
   const lastWeight = weights[weights.length - 1];
   const prevWeight = weights[weights.length - 2];
-  const bpAll = data.filter(d=>d.bpSys&&d.bpDia);
-  const bpSysAvg = Math.round(avg(bpAll.map(d=>parseInt(d.bpSys)))) || 0;
-  const bpDiaAvg = Math.round(avg(bpAll.map(d=>parseInt(d.bpDia)))) || 0;
+  const bp7 = data7.filter(d=>d.bpSys&&d.bpDia);
+  const bpSysAvg = avgOf(bp7, 'bpSys', parseInt), bpDiaAvg = avgOf(bp7, 'bpDia', parseInt);
 
   document.getElementById('statWeight').textContent = lastWeight ? fmtDec(lastWeight.weight) : '—';
   document.getElementById('statWeightAsOf').textContent = lastWeight ? asOf(lastWeight.date) : '';
-  document.getElementById('statBpAsOf').textContent = bpAll.length ? `${bpAll.length} Messungen` : '';
-  set7('statSleep7', avg7('sleepMin') ? minToHM(avg7('sleepMin')) : '');
-  set7('statDeepSleep7', avg7('deepMin') ? minToHM(avg7('deepMin')) : '');
-  set7('statRemSleep7', avg7('remMin') ? minToHM(avg7('remMin')) : '');
+  document.getElementById('statBpAsOf').textContent = bp7.length ? `${bp7.length} Messungen` : '';
+  setAll('statSleep7', avgOf(data, 'sleepMin') ? minToHM(avgOf(data, 'sleepMin')) : '');
+  setAll('statDeepSleep7', avgOf(data, 'deepMin') ? minToHM(avgOf(data, 'deepMin')) : '');
+  setAll('statRemSleep7', avgOf(data, 'remMin') ? minToHM(avgOf(data, 'remMin')) : '');
   document.getElementById('statSleep').textContent = sleepAvgMin ? minToHM(sleepAvgMin) : '—';
   applyRating(document.getElementById('statSleepRating'), sleepAvgMin ? sleepDurationRating(sleepAvgMin/60) : null);
 
@@ -2534,15 +2546,17 @@ function renderOverview() {
   const remPct = (remAvgMin && sleepAvgMin) ? Math.round(remAvgMin/sleepAvgMin*100) : null;
   applyRating(document.getElementById('statRemSleepRating'), remPct!=null ? sleepShareRating(remPct,'rem') : null);
 
-  const bpSys7 = avg7('bpSys', parseInt), bpDia7 = avg7('bpDia', parseInt);
-  set7('statBp7', bpSys7 ? `${bpSys7}/${bpDia7}` : '');
-  document.getElementById('statBp').textContent = bpAll.length ? `${bpSysAvg}/${bpDiaAvg}` : '—';
-  applyRating(document.getElementById('statBpNote'), bpAll.length ? bpCategory(bpSysAvg, bpDiaAvg) : null);
+  const bpAll = data.filter(d=>d.bpSys&&d.bpDia);
+  setAll('statBp7', bpAll.length ? `${avgOf(bpAll, 'bpSys', parseInt)}/${avgOf(bpAll, 'bpDia', parseInt)}` : '');
+  document.getElementById('statBp').textContent = bp7.length ? `${bpSysAvg}/${bpDiaAvg}` : '—';
+  applyRating(document.getElementById('statBpNote'), bp7.length ? bpCategory(bpSysAvg, bpDiaAvg) : null);
 
-  const stepsAvg = Math.round(avg(data.filter(d=>d.steps).map(d=>parseInt(d.steps)))) || 0;
-  set7('statSteps7', avg7('steps', parseInt) ? avg7('steps', parseInt).toLocaleString('de-DE') : '');
+  const stepsAvg = avgOf(data7, 'steps', parseInt);
+  setAll('statSteps7', avgOf(data, 'steps', parseInt) ? avgOf(data, 'steps', parseInt).toLocaleString('de-DE') : '');
   document.getElementById('statSteps').textContent = stepsAvg ? stepsAvg.toLocaleString('de-DE') : '—';
   applyRating(document.getElementById('statStepsRating'), stepsAvg ? stepsRating(stepsAvg) : null);
+
+  renderGaps(td, data, weights);
 
   const bmi = lastWeight ? parseFloat(lastWeight.weight) / (HEIGHT_M*HEIGHT_M) : null;
   document.getElementById('statBmi').textContent = bmi ? fmtDec(bmi) : '—';
@@ -2601,6 +2615,24 @@ function toggleHabitFromOverview(id) {
   document.querySelector(`#overviewHabits [data-habit="${id}"]`)?.focus();
 }
 
+// Hinweis, wenn etwas, das sonst erfasst wird, seit ein paar Tagen fehlt.
+// shortcut: feste Spanne 3–30 Tage; wer etwas länger nicht erfasst, hat es vermutlich bewusst aufgegeben.
+function renderGaps(td, data, weights) {
+  const last = arr => arr.length ? arr.reduce((a, b) => a > b ? a : b) : null;
+  const ern = DB.get('ern_log', {});
+  const items = [
+    ['Gewicht', last(weights.map(d => d.date))],
+    ['Blutdruck', last(data.filter(d => d.bpSys).map(d => d.date))],
+    ['Schlaf', last(data.filter(d => d.sleepMin).map(d => d.date))],
+    ['Schritte', last(data.filter(d => d.steps).map(d => d.date))],
+    ['Ernährung', last(Object.keys(ern).filter(d => ern[d].length))],
+  ].map(([k, d]) => [k, d ? Math.round((new Date(td + 'T12:00:00') - new Date(d + 'T12:00:00')) / 864e5) : null])
+   .filter(([, n]) => n >= 3 && n <= 30);
+  const el = document.getElementById('overviewGaps');
+  el.hidden = !items.length;
+  el.textContent = items.length ? 'Nicht erfasst: ' + items.map(([k, n]) => `${k} seit ${n} Tagen`).join(' · ') : '';
+}
+
 // ===== TRAININGSZEIT PRO WOCHE (Übersicht) =====
 const addDays = (dateStr, n) => { const d = new Date(dateStr + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().split('T')[0]; };
 // Montag der Woche (Mo–So), in der das Datum liegt
@@ -2649,18 +2681,34 @@ const mean = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : n
 
 function weekStats(from) {
   const to = addDays(from, 6);
-  const days = DB.get('health', []).filter(d => d.date >= from && d.date <= to);
+  const inWeek = d => d >= from && d <= to;
+  const days = DB.get('health', []).filter(d => inWeek(d.date));
   const vals = key => days.filter(d => d[key]).map(d => parseFloat(d[key])).filter(v => !isNaN(v));
-  const wVals = nutritionDays().filter(d => d.weight && d.date >= from && d.date <= to).map(d => d.weight);
+  const nd = nutritionDays().filter(d => inWeek(d.date));
+  const wVals = nd.filter(d => d.weight).map(d => d.weight);
+  const kcalDays = nd.filter(d => d.kcal);
+  const fasts = nd.filter(d => d.fastingHours);
   const bp = days.filter(d => d.bpSys && d.bpDia);
   const steps = vals('steps');
+  const ddDays = Object.keys(DB.get(DD_KEY, {})).filter(d => inWeek(d) && ddSum('dozen', d) > 0);
+  const ern = DB.get('ern_log', {});
+  const alc = Object.keys(ern).filter(d => inWeek(d) && ern[d].length).map(ernAlcoholDay);
+  const sauna = DB.get('sport_sauna', []).filter(e => inWeek(e.date));
   return {
     from, to,
     training: trainingMinutes(from, to),
     weight: mean(wVals), weightN: wVals.length,
     bpSys: mean(bp.map(d => parseInt(d.bpSys))), bpDia: mean(bp.map(d => parseInt(d.bpDia))), bpN: bp.length,
+    rhr: mean(vals('rhr')), hrv: mean(vals('hrv')), pulseN: Math.max(vals('rhr').length, vals('hrv').length),
     steps: mean(steps), stepsN: steps.length, stepsGoal: steps.filter(v => v >= 12000).length,
     sleep: mean(vals('sleepMin')), deep: mean(vals('deepMin')), rem: mean(vals('remMin')), sleepN: vals('sleepMin').length,
+    kcal: mean(kcalDays.map(d => d.kcal)), kcalGoal: mean(kcalDays.map(d => ernDayGoal(d.date))), kcalN: kcalDays.length,
+    kcalIn: kcalDays.filter(d => d.kcal <= ernDayGoal(d.date) * 1.05).length,
+    fastN: fasts.length, fastReached: fasts.filter(d => d.fastingReached).length, fastH: mean(fasts.map(d => d.fastingHours)),
+    dd: mean(ddDays.map(d => ddSum('dozen', d) / ddTotalOf('dozen') * 100)), ddN: ddDays.length,
+    nutriN: alc.length, alcG: alc.reduce((a, b) => a + b, 0), alcDays: alc.filter(g => g >= 1).length,
+    saunaN: sauna.length, saunaMin: sauna.reduce((s, e) => s + (parseFloat(e.min) || 0), 0),
+    games: DB.get('schiri_spiele', []).filter(g => inWeek(g.date)).length,
     lang: langWeek(from, to),
   };
 }
@@ -2674,6 +2722,75 @@ function langWeek(from, to) {
   return { n: sum('n'), c: sum('c'), nw: sum('nw'), days: days.length, goalDays: days.filter(v => v.n >= SPRACHE_GOAL).length };
 }
 
+// ===== ALKOHOL (aus den Ernährungseinträgen) =====
+// Einträge ohne `alk` werden nur bei Einheit ml am Namen erkannt (Wortanfang), z. B. „Rotwein“, nie „Bierschinken“ in g.
+const ALC_NAMES = [[/^radler/, 2.5], [/^(bier|pils|weizen|helles|kölsch|export)/, 5], [/^(aperol|spritz)/, 8], [/^(sekt|prosecco|champagner|crémant)/, 11],
+  [/^(wein|rotwein|weißwein|rosé|riesling|grauburgunder)/, 12], [/^likör/, 20], [/^(schnaps|wodka|gin|rum|whisky|korn|obstler)/, 38]];
+const ALC_EXCLUDE = /alkoholfrei|0[,.]0|ohne alkohol|essig|ginger/i;
+function ernAlcoholG(e) {
+  const amount = parseFloat(e.amount);
+  if(!(amount > 0)) return 0;
+  let alk = e.base && ernPer100(e.base) ? parseFloat(e.base.alk) : NaN;
+  if(!(alk > 0) && e.unit === 'ml' && !ALC_EXCLUDE.test(e.name || '')) {
+    const words = (e.name || '').toLowerCase().split(/[\s,\-\/()]+/);
+    alk = ALC_NAMES.find(([re]) => words.some(w => re.test(w)))?.[1];
+  }
+  // Getränke führt Open Food Facts je 100 g – 1 g = 1 ml; Alkoholdichte 0,789 g/ml
+  return alk > 0 ? amount * alk / 100 * 0.789 : 0;
+}
+const ernAlcoholDay = day => ernDay(day).reduce((s, e) => s + ernAlcoholG(e), 0);
+
+// Trinktag D → Morgenwerte von D+1. Basis: alkoholfreie Nächte (Tage mit Ernährungseinträgen, 0 g) der 8 Wochen bis `to`.
+function alcoholEffect(from, to) {
+  const ern = DB.get('ern_log', {}), health = {};
+  DB.get('health', []).forEach(d => health[d.date] = d);
+  const drink = [], free = [];
+  for(let d = addDays(to, -55); d <= to; d = addDays(d, 1)) {
+    if(!(ern[d] || []).length) continue;
+    const m = health[addDays(d, 1)] || {};
+    if(ernAlcoholDay(d) >= 1) { if(d >= from) drink.push(m); } else free.push(m);
+  }
+  const effects = {};
+  ['hrv', 'rhr', 'deepMin', 'sleepMin'].forEach(k => {
+    const a = drink.map(m => parseFloat(m[k])).filter(v => v > 0), b = free.map(m => parseFloat(m[k])).filter(v => v > 0);
+    if(a.length >= 1 && b.length >= 5) effects[k] = k === 'hrv' ? (mean(a) / mean(b) - 1) * 100 : mean(a) - mean(b);
+  });
+  return { nights: drink.length, effects };
+}
+
+// Zusammenhänge über die 8 Wochen bis `to` – nur, wenn genug Daten für einen fairen Vergleich da sind
+function weekInsights(to) {
+  const from = addDays(to, -55), out = [], health = {};
+  DB.get('health', []).forEach(d => health[d.date] = d);
+  const sign = (v, f) => (Math.round(v) > 0 ? '+' : Math.round(v) < 0 ? '−' : '± ') + f(Math.abs(v));
+  // 1) Schlaf in der Nacht nach Trainings- bzw. Ruhetagen
+  const tr = [], rest = [];
+  for(let d = from; d <= to; d = addDays(d, 1)) {
+    const s = parseFloat(health[addDays(d, 1)]?.sleepMin);
+    if(s > 0) (trainingMinutes(d, d).total ? tr : rest).push(s);
+  }
+  if(tr.length >= 3 && rest.length >= 3)
+    out.push(['Training & Schlaf', `Nach Trainingstagen ${minToHM(mean(tr))} h, nach Ruhetagen ${minToHM(mean(rest))} h (${sign(mean(tr) - mean(rest), v => Math.round(v) + ' min')})`]);
+  // 2) Blutdruck in Wochen mit bzw. ohne erreichtes Ausdauerziel
+  const hit = [], miss = [];
+  for(let k = 0; k < 8; k++) {
+    const wf = addDays(from, 7 * k), wt = addDays(wf, 6);
+    const bp = Object.values(health).filter(d => d.date >= wf && d.date <= wt && d.bpSys && d.bpDia);
+    if(bp.length) (trainingMinutes(wf, wt).cardio >= TRAINING_GOALS.cardio ? hit : miss).push([mean(bp.map(d => parseInt(d.bpSys))), mean(bp.map(d => parseInt(d.bpDia)))]);
+  }
+  const bpTxt = l => `${Math.round(mean(l.map(x => x[0])))}/${Math.round(mean(l.map(x => x[1])))}`;
+  if(hit.length >= 2 && miss.length >= 2)
+    out.push(['Ausdauer & Blutdruck', `Wochen mit Ausdauerziel Ø ${bpTxt(hit)}, ohne Ø ${bpTxt(miss)}`]);
+  // 3) Kalorienbilanz gegen Gewichtsverlauf der letzten 4 Wochen
+  const nd = nutritionDays().filter(d => d.date >= addDays(to, -27) && d.date <= to);
+  const kc = nd.filter(d => d.tracked && d.kcal), w = nd.filter(d => d.weight);
+  if(kc.length >= 10 && w.length >= 2) {
+    const bal = mean(kc.map(d => d.kcal - ernDayGoal(d.date))), dw = w[w.length - 1].weight - w[0].weight;
+    out.push(['Kalorien & Gewicht', `Ø ${Math.round(Math.abs(bal)).toLocaleString('de-DE')} kcal ${bal < 0 ? 'unter' : 'über'} dem Ziel, Gewicht ${sign(dw * 10, v => fmtDec(v / 10) + ' kg')} in 4 Wochen`]);
+  }
+  return out;
+}
+
 function toggleWeekReview(open) {
   weekReviewOpen = open;
   if(open) weekReviewOffset = 0;
@@ -2684,81 +2801,156 @@ function shiftWeekReview(step) {
   renderWeekReview();
 }
 
+// Konkrete Aufgabe für die schwächste Kennzahl
+const WEEK_FOCUS = {
+  'Krafttraining': 'Zwei Krafteinheiten fest in den Kalender eintragen',
+  'Ausdauer': 'Ausdauer-Einheiten einplanen, bis die 2 h voll sind',
+  'Blutdruck': 'Täglich morgens messen, salzarm essen, mehr Ausdauer',
+  'Schritte': 'Jeden Tag einen 30-Minuten-Spaziergang einbauen',
+  'Schlaf': 'Feste Schlafenszeit, 7–8 h Schlaf anpeilen',
+  'Ernährung': 'Mahlzeiten vorplanen, damit das Kalorienziel öfter passt',
+  'Daily Dozen': 'Jeden Tag Bohnen, Beeren und Blattgemüse einplanen',
+  'Alkohol': 'Mehr alkoholfreie Tage einplanen',
+  'Sprachtrainer': 'Täglich 20 Antworten, z. B. morgens zum Kaffee',
+  'Gewicht': 'Kalorienziel und Bewegung im Blick behalten',
+};
+
 function renderWeekReview() {
   const td = today();
   const open = weekReviewOpen ?? (new Date().getDay() === 1);
   const from = addDays(weekStart(td), -7 * (weekReviewOffset + 1));
-  const cur = weekStats(from), prev = weekStats(addDays(from, -7));
-  const dm = d => new Date(d + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'});
   document.getElementById('weekReview').hidden = !open;
   document.getElementById('weekReviewLink').hidden = open;
   document.getElementById('weekReviewLinkLabel').textContent = `Wochenrückblick KW ${isoWeek(addDays(weekStart(td), -7))} ansehen`;
   if(!open) return;
+  // Acht Wochen bis zur betrachteten: Vergleich, Score der Vorwoche und Verlauf je Zeile
+  const weeks = Array.from({ length: 8 }, (_, i) => weekStats(addDays(from, -7 * (7 - i))));
+  const cur = weeks[7], prev = weeks[6];
+  const dm = d => new Date(d + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'});
   document.getElementById('weekReviewRange').innerHTML = `KW ${isoWeek(from)}<span class="wk-range"> · ${dm(from)}–${dm(cur.to)}</span>`;
   document.getElementById('weekReviewNext').disabled = weekReviewOffset === 0;
 
   // Veränderung zur Vorwoche; dir: +1 = mehr ist besser, -1 = weniger ist besser, 0 = neutral
   const delta = (a, b, fmt, dir) => {
     if(a == null || b == null) return '<span class="wr-delta">—</span>';
-    const d = a - b;
-    if(Math.abs(d) < 0.05) return '<span class="wr-delta">± 0</span>';
+    const d = a - b, txt = String(fmt(Math.abs(d)));
+    // Auf die Anzeige gerundet null (z. B. +0,3 mmHg) zählt als keine Veränderung
+    if(Math.abs(d) < 0.05 || !parseFloat(txt.replace(/[^\d,]/g, '').replace(',', '.'))) return '<span class="wr-delta">± 0</span>';
     const cls = dir === 0 ? '' : (d * dir > 0 ? ' better' : ' worse');
-    return `<span class="wr-delta${cls}">${d > 0 ? '+' : '−'}${fmt(Math.abs(d))}</span>`;
+    return `<span class="wr-delta${cls}">${d > 0 ? '+' : '−'}${txt}</span>`;
   };
   const muted = '<span style="color:var(--muted)">—</span>';
   const chip = r => r ? `<span class="${r.cls}">${r.label}</span>` : muted;
-  const t = cur.training, tp = prev.training;
-  const sessions = w => w.kraftSessions + w.cardioSessions;
-  const goalRating = (min, goal) => min >= goal ? {label:'Ziel erreicht', cls:'rating-good'} : min > 0 ? {label:`${fmtDur(goal - min)} fehlen`, cls:'rating-warn'} : {label:'Kein Training', cls:'rating-bad'};
-  const bmi = cur.weight ? cur.weight / (HEIGHT_M * HEIGHT_M) : null;
+  const good = label => ({ label, cls: 'rating-good' }), warn = label => ({ label, cls: 'rating-warn' }), bad = label => ({ label, cls: 'rating-bad' });
+  const goalRating = (min, goal) => min >= goal ? good('Ziel erreicht') : min > 0 ? warn(`${fmtDur(goal - min)} fehlen`) : bad('Kein Training');
+  const int = v => Math.round(v).toLocaleString('de-DE');
+  const trend = vals => {
+    const p = vals.map((v, i) => [i, v]).filter(([, v]) => v != null);
+    if(p.length < 2) return '';
+    const lo = Math.min(...p.map(x => x[1])), hi = Math.max(...p.map(x => x[1]));
+    const y = v => hi === lo ? 8 : 14 - (v - lo) / (hi - lo) * 12;
+    return `<svg class="wr-trend" viewBox="0 0 70 16" preserveAspectRatio="none" aria-hidden="true"><polyline points="${p.map(([i, v]) => `${i * 10},${y(v).toFixed(1)}`).join(' ')}"/></svg>`;
+  };
 
-  const rows = [
-    { key: 'Krafttraining', rating: goalRating(t.kraft, TRAINING_GOALS.kraft),
+  const weekRows = (cur, prev) => {
+    const t = cur.training, tp = prev.training;
+    const bmi = cur.weight ? cur.weight / (HEIGHT_M * HEIGHT_M) : null;
+    const pulse = w => `${w.rhr ? Math.round(w.rhr) : '—'} / ${w.hrv ? Math.round(w.hrv) + ' ms' : '—'}`;
+    const extras = w => [w.games && `${w.games} ${w.games === 1 ? 'Spiel' : 'Spiele'}`, w.saunaN && `${w.saunaN}× Sauna`].filter(Boolean).join(' · ');
+    return [
+    { key: 'Krafttraining', rating: goalRating(t.kraft, TRAINING_GOALS.kraft), v: w => w.training.kraft,
       cur: t.kraft || t.kraftSessions ? `${fmtDur(t.kraft)} · ${t.kraftSessions}×<span class="wr-sub">Ziel ${fmtDur(TRAINING_GOALS.kraft)}</span>` : muted,
       prev: tp.kraft || tp.kraftSessions ? `${fmtDur(tp.kraft)} · ${tp.kraftSessions}×` : muted,
       delta: delta(t.kraft, tp.kraft, fmtDur, 1) },
-    { key: 'Ausdauer', rating: goalRating(t.cardio, TRAINING_GOALS.cardio),
+    { key: 'Ausdauer', rating: goalRating(t.cardio, TRAINING_GOALS.cardio), v: w => w.training.cardio,
       cur: t.cardio || t.cardioSessions ? `${fmtDur(t.cardio)} · ${t.cardioSessions}×<span class="wr-sub">Ziel ${fmtDur(TRAINING_GOALS.cardio)} · inkl. Schiri</span>` : muted,
       prev: tp.cardio || tp.cardioSessions ? `${fmtDur(tp.cardio)} · ${tp.cardioSessions}×` : muted,
       delta: delta(t.cardio, tp.cardio, fmtDur, 1) },
-    { key: 'Gewicht', rating: bmi ? bmiRating(bmi) : null,
+    { key: 'Schiri & Sauna', rating: null, v: w => w.games + w.saunaN || null,
+      cur: extras(cur) ? `${extras(cur)}${cur.saunaMin ? `<span class="wr-sub">${fmtDur(cur.saunaMin)} Sauna</span>` : ''}` : muted,
+      prev: extras(prev) || muted,
+      delta: '<span class="wr-delta">—</span>' },
+    { key: 'Gewicht', rating: bmi ? bmiRating(bmi) : null, v: w => w.weight,
       cur: cur.weight ? `${fmtDec(cur.weight)} kg<span class="wr-sub">BMI ${fmtDec(bmi)} · ${cur.weightN}× gemessen</span>` : muted,
       prev: prev.weight ? `${fmtDec(prev.weight)} kg` : muted,
       delta: delta(cur.weight, prev.weight, v => fmtDec(v) + ' kg', 0) },
-    { key: 'Blutdruck', rating: cur.bpN ? bpCategory(cur.bpSys, cur.bpDia) : null,
+    { key: 'Blutdruck', rating: cur.bpN ? bpCategory(cur.bpSys, cur.bpDia) : null, v: w => w.bpSys,
       cur: cur.bpN ? `${Math.round(cur.bpSys)}/${Math.round(cur.bpDia)}<span class="wr-sub">${cur.bpN}× gemessen</span>` : muted,
       prev: prev.bpN ? `${Math.round(prev.bpSys)}/${Math.round(prev.bpDia)}` : muted,
       delta: cur.bpN && prev.bpN ? `${delta(cur.bpSys, prev.bpSys, v => Math.round(v), -1)} <span class="wr-delta">/</span> ${delta(cur.bpDia, prev.bpDia, v => Math.round(v), -1)}` : '<span class="wr-delta">—</span>' },
-    { key: 'Schritte', rating: cur.stepsN ? stepsRating(cur.steps) : null,
-      cur: cur.stepsN ? `${Math.round(cur.steps).toLocaleString('de-DE')}<span class="wr-sub">Ø/Tag · Ziel an ${cur.stepsGoal} von ${cur.stepsN} Tagen</span>` : muted,
-      prev: prev.stepsN ? Math.round(prev.steps).toLocaleString('de-DE') : muted,
-      delta: delta(cur.steps, prev.steps, v => Math.round(v).toLocaleString('de-DE'), 1) },
-    { key: 'Schlaf', rating: cur.sleepN ? sleepDurationRating(cur.sleep / 60) : null,
+    { key: 'Ruhepuls / HRV', rating: null, v: w => w.hrv,
+      cur: cur.pulseN ? `${pulse(cur)}<span class="wr-sub">${cur.pulseN}× gemessen</span>` : muted,
+      prev: prev.pulseN ? pulse(prev) : muted,
+      delta: cur.pulseN && prev.pulseN ? `${delta(cur.rhr, prev.rhr, v => Math.round(v), -1)} <span class="wr-delta">/</span> ${delta(cur.hrv, prev.hrv, v => Math.round(v) + ' ms', 1)}` : '<span class="wr-delta">—</span>' },
+    { key: 'Schritte', rating: cur.stepsN ? stepsRating(cur.steps) : null, v: w => w.steps,
+      cur: cur.stepsN ? `${int(cur.steps)}<span class="wr-sub">Ø/Tag · Ziel an ${cur.stepsGoal} von ${cur.stepsN} Tagen</span>` : muted,
+      prev: prev.stepsN ? int(prev.steps) : muted,
+      delta: delta(cur.steps, prev.steps, int, 1) },
+    { key: 'Schlaf', rating: cur.sleepN ? sleepDurationRating(cur.sleep / 60) : null, v: w => w.sleep,
       cur: cur.sleepN ? `${minToHM(cur.sleep)} h<span class="wr-sub">Tief ${cur.deep ? minToHM(cur.deep) : '—'} · REM ${cur.rem ? minToHM(cur.rem) : '—'}</span>` : muted,
       prev: prev.sleepN ? `${minToHM(prev.sleep)} h` : muted,
       delta: delta(cur.sleep, prev.sleep, v => minToHM(v) + ' h', 0) },
-    { key: 'Sprachtrainer', rating: cur.lang.goalDays >= 5 ? {label:'Ziel erreicht', cls:'rating-good'} : cur.lang.n ? {label:`Ziel an ${cur.lang.goalDays} von 5 Tagen`, cls:'rating-warn'} : {label:'Nicht geübt', cls:'rating-bad'},
-      cur: cur.lang.n ? `${cur.lang.n} Antworten · ${Math.round(100 * cur.lang.c / cur.lang.n)} %<span class="wr-sub">an ${cur.lang.days} Tagen · ${cur.lang.nw} neue Wörter</span>` : muted,
+    { key: 'Ernährung', v: w => w.kcal,
+      rating: !cur.kcalN ? null : cur.kcalIn / cur.kcalN >= 0.7 ? good('Im Ziel') : cur.kcalIn / cur.kcalN >= 0.4 ? warn(`im Ziel an ${cur.kcalIn} von ${cur.kcalN} Tagen`) : bad(`im Ziel an ${cur.kcalIn} von ${cur.kcalN} Tagen`),
+      cur: cur.kcalN ? `Ø ${int(cur.kcal)} kcal<span class="wr-sub">Ziel Ø ${int(cur.kcalGoal)} · im Ziel an ${cur.kcalIn} von ${cur.kcalN} Tagen</span>` : muted,
+      prev: prev.kcalN ? `Ø ${int(prev.kcal)} kcal` : muted,
+      delta: delta(cur.kcal, prev.kcal, v => int(v) + ' kcal', 0) },
+    { key: 'Fasten', rating: null, v: w => w.fastN ? w.fastReached : null,
+      cur: cur.fastN ? `${cur.fastReached}× Ziel erreicht<span class="wr-sub">${cur.fastN}× gefastet · Ø ${ernHM(cur.fastH)} h</span>` : muted,
+      prev: prev.fastN ? `${prev.fastReached}× Ziel` : muted,
+      delta: delta(cur.fastN ? cur.fastReached : null, prev.fastN ? prev.fastReached : null, v => Math.round(v) + '×', 1) },
+    { key: 'Daily Dozen', v: w => w.dd,
+      rating: !cur.ddN ? null : cur.dd >= 80 ? good('Gut') : cur.dd >= 50 ? warn('Mittel') : bad('Wenig'),
+      cur: cur.ddN ? `Ø ${Math.round(cur.dd)} %<span class="wr-sub">an ${cur.ddN} ${cur.ddN === 1 ? 'Tag' : 'Tagen'} erfasst</span>` : muted,
+      prev: prev.ddN ? `Ø ${Math.round(prev.dd)} %` : muted,
+      delta: delta(cur.ddN ? cur.dd : null, prev.ddN ? prev.dd : null, v => Math.round(v) + ' %', 1) },
+    { key: 'Alkohol', v: w => w.nutriN ? w.alcG / 10 : null,
+      rating: !cur.nutriN ? null : !cur.alcDays ? good('Alkoholfrei') : cur.alcDays <= 2 && cur.alcG < 50 ? warn('Moderat') : bad('Viel'),
+      cur: !cur.nutriN ? muted : cur.alcDays ? `${cur.alcDays} ${cur.alcDays === 1 ? 'Trinktag' : 'Trinktage'} · ≈ ${fmtDec(cur.alcG / 10)} Gläser<span class="wr-sub">${Math.round(cur.alcG)} g Alkohol</span>` : `Alkoholfrei<span class="wr-sub">an ${cur.nutriN} ${cur.nutriN === 1 ? 'erfasstem Tag' : 'erfassten Tagen'}</span>`,
+      prev: !prev.nutriN ? muted : prev.alcDays ? `≈ ${fmtDec(prev.alcG / 10)} Gläser` : 'Alkoholfrei',
+      delta: delta(cur.nutriN ? cur.alcG / 10 : null, prev.nutriN ? prev.alcG / 10 : null, v => fmtDec(v) + ' Gl.', -1) },
+    { key: 'Sprachtrainer', v: w => w.lang.n || null,
+      rating: cur.lang.goalDays >= 5 ? good('Ziel erreicht') : cur.lang.n ? warn(`Ziel an ${cur.lang.goalDays} von 5 Tagen`) : bad('Nicht geübt'),
+      cur: cur.lang.n ? `${cur.lang.n} Antworten · ${Math.round(100 * cur.lang.c / cur.lang.n)} %<span class="wr-sub">an ${cur.lang.days} ${cur.lang.days === 1 ? 'Tag' : 'Tagen'} · ${cur.lang.nw} neue Wörter</span>` : muted,
       prev: prev.lang.n ? `${prev.lang.n} · ${Math.round(100 * prev.lang.c / prev.lang.n)} %` : muted,
       delta: delta(cur.lang.n, prev.lang.n, v => Math.round(v), 1) },
-  ];
+    // Zeilen ohne Daten in beiden Wochen und ohne Ziel blenden wir aus
+    ].filter(r => r.rating || r.cur !== muted || r.prev !== muted);
+  };
 
-  const hasData = t.total || sessions(t) || cur.weightN || cur.bpN || cur.stepsN || cur.sleepN || cur.lang.n;
-  if(!hasData) {
+  const rows = weekRows(cur, prev);
+  if(!rows.some(r => r.cur !== muted)) {
     document.getElementById('weekReviewBody').innerHTML = emptyState('Keine Daten in dieser Woche', 'Für diese Woche sind weder Training noch Vitalwerte erfasst.');
     return;
   }
-  // Fazit: was gut lief, was im Blick bleiben sollte
-  const good = rows.filter(r => r.rating?.cls === 'rating-good').map(r => r.key);
+  // Score: erreichte Ziele (grüne Bewertungen) gegenüber der Vorwoche
+  const score = rs => ({ good: rs.filter(r => r.rating?.cls === 'rating-good').length, of: rs.filter(r => r.rating).length });
+  const sc = score(rows), sp = score(weekRows(prev, weeks[5]));
+  const sd = sc.good - sp.good;
+  const scoreHtml = `<div class="wr-score"><b>${sc.good}</b><span>von ${sc.of} Zielen erreicht</span>${sp.of ? `<span class="wr-delta${sd > 0 ? ' better' : sd < 0 ? ' worse' : ''}">${sd > 0 ? '↑ +' + sd : sd < 0 ? '↓ −' + -sd : '± 0'} zur Vorwoche</span>` : ''}</div>`;
+  // Fazit: was gut lief, was im Blick bleiben sollte, und eine konkrete Aufgabe für die schwächste Kennzahl
+  const goodKeys = rows.filter(r => r.rating?.cls === 'rating-good').map(r => r.key);
   const watch = rows.filter(r => r.rating && r.rating.cls !== 'rating-good').map(r => `${r.key} (${r.rating.label})`);
-  const summary = (good.length ? `<div class="wr-line good"><b>Lief gut</b><span>${good.join(', ')}</span></div>` : '')
-    + (watch.length ? `<div class="wr-line watch"><b>Im Blick behalten</b><span>${watch.join(', ')}</span></div>` : '');
+  const focus = [...rows.filter(r => r.rating?.cls === 'rating-bad'), ...rows.filter(r => r.rating?.cls === 'rating-warn')].find(r => WEEK_FOCUS[r.key]);
+  let alcLine = '';
+  if(cur.alcDays) {
+    const eff = alcoholEffect(from, cur.to).effects, s = v => (Math.round(v) > 0 ? '+' : Math.round(v) < 0 ? '−' : '± ') + Math.abs(Math.round(v));
+    const parts = [eff.hrv != null && `HRV ${s(eff.hrv)} %`, eff.rhr != null && `Ruhepuls ${s(eff.rhr)}`, eff.deepMin != null && `Tiefschlaf ${s(eff.deepMin)} min`, eff.sleepMin != null && `Schlaf ${s(eff.sleepMin)} min`].filter(Boolean);
+    alcLine = `<div class="wr-line watch"><b>Alkohol-Effekt</b><span>${parts.length ? `Nach ${cur.alcDays} ${cur.alcDays === 1 ? 'Trinktag' : 'Trinktagen'}: ${parts.join(', ')} gegenüber alkoholfreien Nächten` : 'noch zu wenig Vergleichsdaten'}</span></div>`;
+  }
+  const summary = scoreHtml
+    + (goodKeys.length ? `<div class="wr-line good"><b>Lief gut</b><span>${goodKeys.join(', ')}</span></div>` : '')
+    + (watch.length ? `<div class="wr-line watch"><b>Im Blick behalten</b><span>${watch.join(', ')}</span></div>` : '')
+    + alcLine
+    + (focus && weekReviewOffset === 0 ? `<div class="wr-line focus"><b>Fokus diese Woche</b><span>${WEEK_FOCUS[focus.key]}</span></div>` : '');
+  const insights = weekInsights(cur.to);
 
-  document.getElementById('weekReviewBody').innerHTML = (summary ? `<div class="wr-summary">${summary}</div>` : '')
+  document.getElementById('weekReviewBody').innerHTML = `<div class="wr-summary">${summary}</div>`
     + `<div class="table-scroll"><table class="data-table week-table">
       <thead><tr><th></th><th>KW ${isoWeek(from)}</th><th>Vorwoche</th><th>Veränderung</th><th>Bewertung</th></tr></thead>
-      <tbody>${rows.map(r => `<tr><td class="wr-label">${r.key}</td><td>${r.cur}</td><td>${r.prev}</td><td>${r.delta}</td><td>${chip(r.rating)}</td></tr>`).join('')}</tbody>
-    </table></div>`;
+      <tbody>${rows.map(r => `<tr><td class="wr-label">${r.key}${trend(weeks.map(r.v))}</td><td>${r.cur}</td><td>${r.prev}</td><td>${r.delta}</td><td>${chip(r.rating)}</td></tr>`).join('')}</tbody>
+    </table></div>`
+    + (insights.length ? `<div class="wr-summary wr-insights"><div class="wr-head">Zusammenhänge · letzte 8 Wochen</div>${insights.map(([k, v]) => `<div class="wr-line"><b>${k}</b><span>${v}</span></div>`).join('')}</div>` : '');
 }
 
 // Wochenziele in Minuten (Ausdauer inkl. Schiedsrichter-Einsätze)
@@ -3124,7 +3316,7 @@ function renderDD(kind) {
 // ern_fasts:  [{ id, start, end?, goal }] – Zeiten als ISO-String, ohne end läuft das Fasten gerade
 // ern_goal:   Kalorien-Tagesziel
 // ern_water:  { 'YYYY-MM-DD': ml }, Ziel in ern_water_goal (ml)
-// ern_foods:  eigene Lebensmittel [{ id, name, unit: 'g'|'ml', kcal, protein?, fett?, kh?, ballast?, portion? }] – Werte je 100 g/ml
+// ern_foods:  eigene Lebensmittel [{ id, name, unit: 'g'|'ml', kcal, protein?, fett?, kh?, ballast?, portion?, alk? (% vol) }] – Werte je 100 g/ml
 // ern_profile: { meals: { fruehstueck: %, … }, macros: { protein: %, fett: %, kh: % }, ballast: g, autoDD: bool }
 //             Einträge merken sich in `dd`, was sie im Daily Dozen / den 21 Optimierungen abgehakt haben
 const ERN_MEALS = [
@@ -3622,6 +3814,7 @@ function copyMeal() {
 const ownFoodBase = f => {
   const base = { per: 100, unit: f.unit, kcal: f.kcal, default: f.portion || 100, portion: f.portion || null };
   ERN_NUTRIENTS.forEach(([k]) => { if(f[k] != null) base[k] = f[k]; });
+  if(f.alk > 0) base.alk = f.alk;
   return base;
 };
 function openOwnFood(id) {
@@ -3632,6 +3825,7 @@ function openOwnFood(id) {
   setOwnFoodUnit(f?.unit || 'g');
   ['Kcal', 'Protein', 'Fett', 'Kh', 'Ballast'].forEach(k => document.getElementById('ownFood' + k).value = f?.[k.toLowerCase()] ?? '');
   document.getElementById('ownFoodPortion').value = f?.portion ?? '';
+  document.getElementById('ownFoodAlk').value = f?.alk ?? '';
   document.getElementById('ownFoodDelete').style.display = f ? '' : 'none';
   // Neu aus dem Eintragen-Fenster heraus: nach dem Anlegen geht es direkt mit der Menge weiter
   document.getElementById('ownFoodSave').textContent = f ? 'Speichern' : 'Anlegen und eintragen';
@@ -3652,6 +3846,8 @@ function saveOwnFood() {
   ERN_NUTRIENTS.forEach(([k]) => { const v = document.getElementById('ownFood' + (k === 'kh' ? 'Kh' : k[0].toUpperCase() + k.slice(1))).value; if(v !== '') f[k] = Math.round(+v * 10) / 10; });
   const portion = parseFloat(document.getElementById('ownFoodPortion').value);
   if(portion > 0) f.portion = portion;
+  const alk = parseFloat(document.getElementById('ownFoodAlk').value);
+  if(alk > 0 && alk <= 100) f.alk = Math.round(alk * 10) / 10;
   const foods = DB.get('ern_foods', []);
   const idx = foods.findIndex(x => x.id === f.id);
   if(idx >= 0) foods[idx] = f; else foods.push(f);
@@ -3875,7 +4071,7 @@ async function searchOFF(q) {
       const kcal = num(n['energy-kcal_100g'] ?? (n['energy_100g'] != null ? n['energy_100g'] / 4.184 : null));
       const name = (p.product_name_de || p.product_name || '').trim();
       if(!name || kcal == null) return null;
-      return { name, sub: (p.brands || '').split(',')[0].trim(), base: { per: 100, unit: 'g', kcal, protein: num(n.proteins_100g), fett: num(n.fat_100g), kh: num(n.carbohydrates_100g), ballast: num(n.fiber_100g), default: num(p.serving_quantity) || 100, portion: num(p.serving_quantity) } };
+      return { name, sub: (p.brands || '').split(',')[0].trim(), base: { per: 100, unit: 'g', kcal, protein: num(n.proteins_100g), fett: num(n.fat_100g), kh: num(n.carbohydrates_100g), ballast: num(n.fiber_100g), default: num(p.serving_quantity) || 100, portion: num(p.serving_quantity), ...(num(n.alcohol_100g) > 0 ? { alk: num(n.alcohol_100g) } : {}) } };
     }).filter(Boolean).slice(0, 12);
     if(document.getElementById('foodSearch').value !== q) return;
     renderFoodResults(q, { hits, status: hits.length ? '' : 'Bei Open Food Facts nichts gefunden.' });
@@ -3945,7 +4141,7 @@ async function scanLookup(code) {
     const name = (p?.product_name_de || p?.product_name || '').trim();
     if(!p || !name || kcal == null) { scanStatus(`Zu ${code} hat Open Food Facts keine Nährwerte – leg es als eigenes Lebensmittel an.`); scanBusy = false; return; }
     closeModal('scanModal');
-    foodHits = [{ name, sub: (p.brands || '').split(',')[0].trim(), base: { per: 100, unit: 'g', kcal, protein: num(n.proteins_100g), fett: num(n.fat_100g), kh: num(n.carbohydrates_100g), ballast: num(n.fiber_100g), default: num(p.serving_quantity) || 100, portion: num(p.serving_quantity) } }];
+    foodHits = [{ name, sub: (p.brands || '').split(',')[0].trim(), base: { per: 100, unit: 'g', kcal, protein: num(n.proteins_100g), fett: num(n.fat_100g), kh: num(n.carbohydrates_100g), ballast: num(n.fiber_100g), default: num(p.serving_quantity) || 100, portion: num(p.serving_quantity), ...(num(n.alcohol_100g) > 0 ? { alk: num(n.alcohol_100g) } : {}) } }];
     pickFood(0);
     toast(`${name} gefunden ✓`);
   } catch(e) {
