@@ -2343,8 +2343,9 @@ const DB = {
 };
 
 // ===== CLOUD SYNC (Cloudflare KV) =====
-let syncTimer = null;
+let syncTimer = null, lastLocalChange = 0;
 function queueSync() {
+  lastLocalChange = Date.now();
   clearTimeout(syncTimer);
   syncTimer = setTimeout(pushState, 800);
 }
@@ -6716,6 +6717,19 @@ pullState().then(() => {
   // Direktlink auf eine Seite, z. B. …/#ernaehrung
   const page = location.hash.slice(1);
   if(page && page !== 'overview' && document.getElementById('page-' + page)) nav(page);
+});
+
+// Werte vom Health-Kurzbefehl landen nur in der Cloud: beim Zurückholen der App neu laden,
+// sonst überschreibt ein seit gestern offener Tab sie mit seinem alten Stand
+document.addEventListener('visibilitychange', () => {
+  // ungesendete eigene Änderung nicht mit dem Cloud-Stand überschreiben
+  if(document.visibilityState !== 'visible' || Date.now() - lastLocalChange < 5000) return;
+  const before = localStorage.getItem('health');
+  pullState().then(() => {
+    if(localStorage.getItem('health') === before) return; // nichts Neues – Ansicht nicht zurücksetzen
+    const active = document.querySelector('.page.active')?.id.replace('page-', '');
+    nav(active || 'overview');
+  });
 });
 </script>
 </body>
