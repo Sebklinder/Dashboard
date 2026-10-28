@@ -62,10 +62,11 @@ export function fromSamples(text, now = new Date()) {
   };
   const entries = [];
 
-  const today = berlinDate(now);
+  // Ein Lauf am Morgen: Schritte vom ganzen gestrigen Tag (Rechnung über 12 Uhr UTC, damit Zeitumstellung nicht stört)
+  const yesterday = new Date(Date.parse(berlinDate(now) + 'T12:00:00Z') - 864e5).toISOString().slice(0, 10);
   const count = r => parseInt(r.value.replace(/[.,\s]/g, '')) || 0; // Schritte sind ganzzahlig: "1.200" = 1200
-  const steps = bySource(rows.filter(r => /step|schritt/i.test(r.kind) && berlinDate(r.start) === today), count);
-  if (steps.length) entries.push({ date: today, steps: steps.reduce((s, r) => s + count(r), 0) });
+  const steps = bySource(rows.filter(r => /step|schritt/i.test(r.kind) && berlinDate(r.start) === yesterday), count);
+  if (steps.length) entries.push({ date: yesterday, steps: steps.reduce((s, r) => s + count(r), 0) });
 
   const mins = r => (r.end - r.start) / 60000;
   const asleep = r => /sleep|schlaf/i.test(r.kind) && !/wach|awake|bett|bed/i.test(r.value);

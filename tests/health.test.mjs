@@ -35,14 +35,15 @@ const samples = [
   'sleep;Wach;Zepp;2026-11-01T05:30:00+01:00;2026-11-01T05:45:00+01:00',      // wach zählt nicht
   'sleep;Kern;Zepp;2026-10-30T23:00:00+01:00;2026-10-31T06:00:00+01:00',      // Nacht davor: raus
   'sleep;Im Bett;iPhone;2026-10-31T22:00:00+01:00;2026-11-01T06:00:00+01:00', // nur "im Bett": raus
-  'steps;800;iPhone;2026-11-01T09:00:00+01:00;2026-11-01T10:00:00+01:00',
-  'steps;1.200;Zepp;2026-11-01T09:00:00+01:00;2026-11-01T10:00:00+01:00',     // Quelle mit mehr Schritten gewinnt
-  'steps;300;Zepp;2026-11-01T11:00:00+01:00;2026-11-01T11:30:00+01:00',
-  'steps;5000;Zepp;2026-10-31T11:00:00+01:00;2026-10-31T12:00:00+01:00',     // gestern: raus
+  'steps;800;iPhone;2026-10-31T09:00:00+01:00;2026-10-31T10:00:00+01:00',
+  'steps;1.200;Zepp;2026-10-31T09:00:00+01:00;2026-10-31T10:00:00+01:00',     // Quelle mit mehr Schritten gewinnt
+  'steps;300;Zepp;2026-10-31T23:30:00+01:00;2026-10-31T23:59:00+01:00',
+  'steps;5000;Zepp;2026-11-01T06:00:00+01:00;2026-11-01T07:00:00+01:00',     // heute (unvollständig): raus
+  'steps;7000;Zepp;2026-10-30T11:00:00+01:00;2026-10-30T12:00:00+01:00',     // vorgestern: raus
   'kaputt',
 ].join('\n');
-assert.deepEqual(fromSamples(samples, new Date('2026-11-01T12:00:00+01:00')), [
-  { date: '2026-11-01', steps: 1500 },
+assert.deepEqual(fromSamples(samples, new Date('2026-11-01T07:00:00+01:00')), [
+  { date: '2026-10-31', steps: 1500 },
   { date: '2026-11-01', sleepMin: 420, deepMin: 90, remMin: 90 },
 ]);
 // Ruhepuls = neuester Wert, HRV = Mittel der Messungen vom Tag der neuesten; Dezimalkomma erlaubt
@@ -61,4 +62,6 @@ assert.deepEqual(fromSamples('sleep;Schlafend;Zepp;2026-11-01T00:00:00+01:00;202
   [{ date: '2026-11-01', sleepMin: 420, deepMin: 0, remMin: 0 }]);
 assert.equal((await post({ samples: 'sleep;Schlafend;Zepp;2026-11-01T00:00:00+01:00;2026-11-01T07:00:00+01:00' })).status, 200);
 assert.equal(JSON.parse(JSON.parse(stored).health).find(d => d.date === '2026-11-01').deepMin, undefined);
+assert.deepEqual(fromSamples('steps;100;Zepp;2026-03-29T10:00:00+02:00;2026-03-29T11:00:00+02:00', new Date('2026-03-30T00:30:00+02:00')),
+  [{ date: '2026-03-29', steps: 100 }]); // Zeitumstellung verschiebt "gestern" nicht
 console.log('ok');

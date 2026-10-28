@@ -61,7 +61,7 @@ def field(k, v):
     return {'WFItemType': 0, 'WFKey': tokens(k, {}), 'WFValue': v}
 
 sleep_find_u, sleep_find = find('Sleep', {'Operator': 1001, 'Values': {'Number': '2', 'Unit': 16}})  # Start in den letzten 2 Tagen
-steps_find_u, steps_find = find('Steps', {'Operator': 1002, 'Values': {'Number': '7', 'Unit': 16}})  # Start ist heute
+steps_find_u, steps_find = find('Steps', {'Operator': 1001, 'Values': {'Number': '2', 'Unit': 16}})  # gestern und heute; der Server nimmt gestern
 rhr_find_u, rhr_find = find('Resting Heart Rate', {'Operator': 1001, 'Values': {'Number': '2', 'Unit': 16}})
 hrv_find_u, hrv_find = find('Heart Rate Variability', {'Operator': 1001, 'Values': {'Number': '2', 'Unit': 16}})
 sleep_text_u, sleep_lines = lines('sleep', sleep_find_u)
