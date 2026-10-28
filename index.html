@@ -1328,7 +1328,7 @@
     <div class="entry-tile" onclick="openModal('bpModal','healthBpSys')"><span class="entry-tile-icon tone-red"><svg class="i"><use href="#i-steth"/></svg></span><span class="entry-tile-label">Blutdruck</span></div>
     <div class="entry-tile" onclick="openModal('hrvModal','healthRhr')"><span class="entry-tile-icon tone-red"><svg class="i"><use href="#i-activity"/></svg></span><span class="entry-tile-label">Puls &amp; HRV</span></div>
     <div class="entry-tile" onclick="openModal('tempModal','healthTemp')"><span class="entry-tile-icon tone-red"><svg class="i"><use href="#i-thermo"/></svg></span><span class="entry-tile-label">Temperatur</span></div>
-    <div class="entry-tile" onclick="openModal('sickModal','healthSick')"><span class="entry-tile-icon tone-amber"><svg class="i"><use href="#i-alert"/></svg></span><span class="entry-tile-label">Krankheit &amp; Medikamente</span></div>
+    <div class="entry-tile" onclick="openSick()"><span class="entry-tile-icon tone-amber"><svg class="i"><use href="#i-alert"/></svg></span><span class="entry-tile-label">Krankheit &amp; Medikamente</span></div>
   </div>
   <div class="table-hint" style="margin:-4px 0 16px">Kalorien und Gewicht erfasst du jetzt unter <a href="#ernaehrung" onclick="event.preventDefault();openTracker()">Ernährung → Tracker</a>.</div>
 
@@ -2199,13 +2199,17 @@
       <label class="form-label" for="sickDate">Datum</label>
       <input type="date" class="form-input" id="sickDate">
     </div>
-    <div class="form-group">
+    <label class="prof-check prof-check-inline"><input type="checkbox" id="sickOn" onchange="sickToggle()"><span>Krank</span></label>
+    <div class="form-group" id="sickWrap" hidden>
       <label class="form-label" for="healthSick">Krankheit / Symptome</label>
-      <input type="text" class="form-input" id="healthSick" placeholder="z. B. Erkältung, Kopfschmerzen">
+      <input type="text" class="form-input" id="healthSick" list="sickList" placeholder="Auswählen oder neu eingeben">
+      <datalist id="sickList"></datalist>
     </div>
-    <div class="form-group">
-      <label class="form-label" for="healthMeds">Medikamente</label>
-      <input type="text" class="form-input" id="healthMeds" placeholder="z. B. Ibuprofen 400 mg, 2×">
+    <label class="prof-check prof-check-inline"><input type="checkbox" id="medsOn" onchange="sickToggle()"><span>Medikamente genommen</span></label>
+    <div class="form-group" id="medsWrap" hidden>
+      <div id="medRows"></div>
+      <datalist id="medList"></datalist>
+      <button type="button" class="check-add" onclick="addMedRow()"><svg class="i"><use href="#i-plus"/></svg>Weiteres Medikament</button>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('sickModal')">Abbrechen</button>
@@ -4635,12 +4639,45 @@ function saveTemp() {
 const HEALTH_EDIT_FIELDS = { temp: 'heTemp', bpSys: 'heBpSys', bpDia: 'heBpDia', rhr: 'heRhr', hrv: 'heHrv', steps: 'heSteps', medit: 'heMedit', sick: 'heSick', meds: 'heMeds', note: 'heNote' };
 const HEALTH_EDIT_DURATIONS = { sleepMin: 'heSleep', deepMin: 'heDeep', remMin: 'heRem' };
 let healthEditDate = null;
+// Medikamente liegen als Text „Name ×Stück, Name ×Stück“ – so bleiben Tabelle, Export und Bearbeiten unverändert
+const medName = m => m.replace(/\s*×\s*\d+$/, '').trim();
+const medRow = () => `<div class="check-task">
+    <input class="form-input" list="medList" placeholder="Medikament" aria-label="Medikament">
+    <input type="number" min="1" class="form-input" value="1" aria-label="Stück" style="flex:0 0 72px"><span class="unit">Stk.</span>
+    <button type="button" class="icon-btn" aria-label="Medikament entfernen" title="Entfernen" onclick="this.parentElement.remove()"><svg class="i"><use href="#i-x"/></svg></button>
+  </div>`;
+function addMedRow() {
+  const wrap = document.getElementById('medRows');
+  wrap.insertAdjacentHTML('beforeend', medRow());
+  wrap.lastElementChild.querySelector('input').focus();
+}
+function openSick() {
+  // Auswahl aus allem, was schon einmal eingetragen wurde
+  const data = DB.get('health', []), opts = list => [...new Set(list.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'de')).map(v => `<option value="${escAttr(v)}">`).join('');
+  document.getElementById('sickList').innerHTML = opts(data.map(d => d.sick && d.sick.trim()));
+  document.getElementById('medList').innerHTML = opts(data.flatMap(d => (d.meds || '').split(',').map(medName)));
+  ['sickOn','medsOn'].forEach(id => document.getElementById(id).checked = false);
+  document.getElementById('healthSick').value = '';
+  document.getElementById('medRows').innerHTML = medRow();
+  sickToggle();
+  openModal('sickModal');
+}
+function sickToggle() {
+  document.getElementById('sickWrap').hidden = !document.getElementById('sickOn').checked;
+  document.getElementById('medsWrap').hidden = !document.getElementById('medsOn').checked;
+}
 function saveSick() {
   const date = document.getElementById('sickDate').value || today();
-  const sick = document.getElementById('healthSick').value.trim(), meds = document.getElementById('healthMeds').value.trim();
-  if(!sick && !meds) { toast('Bitte Krankheit oder Medikament eingeben!'); document.getElementById('healthSick').focus(); return; }
+  const isSick = document.getElementById('sickOn').checked, tookMeds = document.getElementById('medsOn').checked;
+  const sick = isSick ? document.getElementById('healthSick').value.trim() : '';
+  const meds = tookMeds ? [...document.querySelectorAll('#medRows .check-task')].map(r => {
+    const [name, qty] = r.querySelectorAll('input');
+    return name.value.trim() && `${name.value.trim()} ×${Math.max(1, parseInt(qty.value) || 1)}`;
+  }).filter(Boolean).join(', ') : '';
+  if(!isSick && !tookMeds) { toast('Bitte „Krank“ oder „Medikamente genommen“ anklicken!'); return; }
+  if(isSick && !sick) { toast('Bitte die Krankheit angeben!'); document.getElementById('healthSick').focus(); return; }
+  if(tookMeds && !meds) { toast('Bitte mindestens ein Medikament angeben!'); document.querySelector('#medRows input')?.focus(); return; }
   saveHealthEntry(date, { sick, meds });
-  ['healthSick','healthMeds'].forEach(id=>document.getElementById(id).value='');
   renderHealth();
   closeModal('sickModal');
   toast('Krankheit & Medikamente gespeichert ✓');
