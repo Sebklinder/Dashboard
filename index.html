@@ -2056,14 +2056,7 @@
         <input type="number" min="0" max="59" class="form-input" id="heRemM" placeholder="–"><span class="unit">min</span>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label" for="heSick">Krankheit / Symptome</label>
-      <input type="text" class="form-input" id="heSick" placeholder="–">
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="heMeds">Medikamente</label>
-      <input type="text" class="form-input" id="heMeds" placeholder="–">
-    </div>
+    <div id="heFields" style="margin-bottom:16px"></div>
     <div class="form-group">
       <label class="form-label" for="heNote">Tagesnotiz</label>
       <textarea class="form-input" id="heNote" placeholder="Wie war der Tag körperlich?" style="min-height:64px"></textarea>
@@ -2199,18 +2192,9 @@
       <label class="form-label" for="sickDate">Datum</label>
       <input type="date" class="form-input" id="sickDate">
     </div>
-    <label class="prof-check prof-check-inline"><input type="checkbox" id="sickOn" onchange="sickToggle()"><span>Krank</span></label>
-    <div class="form-group" id="sickWrap" hidden>
-      <label class="form-label" for="healthSick">Krankheit / Symptome</label>
-      <input type="text" class="form-input" id="healthSick" list="sickList" placeholder="Auswählen oder neu eingeben">
-      <datalist id="sickList"></datalist>
-    </div>
-    <label class="prof-check prof-check-inline"><input type="checkbox" id="medsOn" onchange="sickToggle()"><span>Medikamente genommen</span></label>
-    <div class="form-group" id="medsWrap" hidden>
-      <div id="medRows"></div>
-      <datalist id="medList"></datalist>
-      <button type="button" class="check-add" onclick="addMedRow()"><svg class="i"><use href="#i-plus"/></svg>Weiteres Medikament</button>
-    </div>
+    <div id="sickFields"></div>
+    <datalist id="sickList"></datalist>
+    <datalist id="medList"></datalist>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('sickModal')">Abbrechen</button>
       <button class="btn btn-primary" onclick="saveSick()">Speichern</button>
@@ -4636,48 +4620,74 @@ function saveTemp() {
 
 // Ganzen Tageseintrag bearbeiten (wie "Spiel bearbeiten" bei den Schiedsrichter-Spielen)
 // Gewicht und Kalorien werden unter Ernährung → Tracker erfasst; vorhandene Altwerte bleiben beim Bearbeiten unverändert
-const HEALTH_EDIT_FIELDS = { temp: 'heTemp', bpSys: 'heBpSys', bpDia: 'heBpDia', rhr: 'heRhr', hrv: 'heHrv', steps: 'heSteps', medit: 'heMedit', sick: 'heSick', meds: 'heMeds', note: 'heNote' };
+const HEALTH_EDIT_FIELDS = { temp: 'heTemp', bpSys: 'heBpSys', bpDia: 'heBpDia', rhr: 'heRhr', hrv: 'heHrv', steps: 'heSteps', medit: 'heMedit', note: 'heNote' };
 const HEALTH_EDIT_DURATIONS = { sleepMin: 'heSleep', deepMin: 'heDeep', remMin: 'heRem' };
 let healthEditDate = null;
-// Medikamente liegen als Text „Name ×Stück, Name ×Stück“ – so bleiben Tabelle, Export und Bearbeiten unverändert
-const medName = m => m.replace(/\s*×\s*\d+$/, '').trim();
-const medRow = () => `<div class="check-task">
-    <input class="form-input" list="medList" placeholder="Medikament" aria-label="Medikament">
-    <input type="number" min="1" class="form-input" value="1" aria-label="Stück" style="flex:0 0 72px"><span class="unit">Stk.</span>
+// Medikamente liegen als Text „Name ×Stück, Name ×Stück“ – so bleiben Tabelle, Export und Auswertung unverändert.
+// Dieselben Haken stehen im Fenster „Neuer Eintrag“ (Präfix sick) und „Tag bearbeiten“ (Präfix he).
+const medParts = meds => (meds || '').split(',').map(m => m.trim()).filter(Boolean).map(m => {
+  const x = m.match(/^(.*?)\s*×\s*(\d+)$/);
+  return x ? [x[1], x[2]] : [m, 1];
+});
+const medRow = (name = '', qty = 1) => `<div class="check-task">
+    <input class="form-input" list="medList" placeholder="Medikament" aria-label="Medikament" value="${escAttr(name)}">
+    <input type="number" min="1" class="form-input" value="${qty}" aria-label="Stück" style="flex:0 0 72px"><span class="unit">Stk.</span>
     <button type="button" class="icon-btn" aria-label="Medikament entfernen" title="Entfernen" onclick="this.parentElement.remove()"><svg class="i"><use href="#i-x"/></svg></button>
   </div>`;
-function addMedRow() {
-  const wrap = document.getElementById('medRows');
+const sickFields = p => `<label class="prof-check prof-check-inline"><input type="checkbox" id="${p}SickOn" onchange="sickToggle('${p}')"><span>Krank</span></label>
+    <div class="form-group" id="${p}SickWrap" hidden>
+      <label class="form-label" for="${p}SickName">Krankheit / Symptome</label>
+      <input type="text" class="form-input" id="${p}SickName" list="sickList" placeholder="Auswählen oder neu eingeben">
+    </div>
+    <label class="prof-check prof-check-inline"><input type="checkbox" id="${p}MedsOn" onchange="sickToggle('${p}')"><span>Medikamente genommen</span></label>
+    <div class="form-group" id="${p}MedsWrap" hidden>
+      <div id="${p}MedRows"></div>
+      <button type="button" class="check-add" onclick="addMedRow('${p}')"><svg class="i"><use href="#i-plus"/></svg>Weiteres Medikament</button>
+    </div>`;
+['sick', 'he'].forEach(p => document.getElementById(p + 'Fields').innerHTML = sickFields(p));
+function addMedRow(p) {
+  const wrap = document.getElementById(p + 'MedRows');
   wrap.insertAdjacentHTML('beforeend', medRow());
   wrap.lastElementChild.querySelector('input').focus();
 }
-function openSick() {
-  // Auswahl aus allem, was schon einmal eingetragen wurde
+function sickToggle(p) {
+  document.getElementById(p + 'SickWrap').hidden = !document.getElementById(p + 'SickOn').checked;
+  document.getElementById(p + 'MedsWrap').hidden = !document.getElementById(p + 'MedsOn').checked;
+}
+// Haken und Felder aus einem Tageseintrag füllen; Auswahl aus allem, was schon einmal eingetragen wurde
+function fillSick(p, entry) {
   const data = DB.get('health', []), opts = list => [...new Set(list.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'de')).map(v => `<option value="${escAttr(v)}">`).join('');
   document.getElementById('sickList').innerHTML = opts(data.map(d => d.sick && d.sick.trim()));
-  document.getElementById('medList').innerHTML = opts(data.flatMap(d => (d.meds || '').split(',').map(medName)));
-  ['sickOn','medsOn'].forEach(id => document.getElementById(id).checked = false);
-  document.getElementById('healthSick').value = '';
-  document.getElementById('medRows').innerHTML = medRow();
-  sickToggle();
-  openModal('sickModal');
+  document.getElementById('medList').innerHTML = opts(data.flatMap(d => medParts(d.meds).map(m => m[0])));
+  document.getElementById(p + 'SickOn').checked = !!entry.sick;
+  document.getElementById(p + 'MedsOn').checked = !!entry.meds;
+  document.getElementById(p + 'SickName').value = entry.sick || '';
+  const meds = medParts(entry.meds);
+  document.getElementById(p + 'MedRows').innerHTML = (meds.length ? meds : [['', 1]]).map(m => medRow(...m)).join('');
+  sickToggle(p);
 }
-function sickToggle() {
-  document.getElementById('sickWrap').hidden = !document.getElementById('sickOn').checked;
-  document.getElementById('medsWrap').hidden = !document.getElementById('medsOn').checked;
-}
-function saveSick() {
-  const date = document.getElementById('sickDate').value || today();
-  const isSick = document.getElementById('sickOn').checked, tookMeds = document.getElementById('medsOn').checked;
-  const sick = isSick ? document.getElementById('healthSick').value.trim() : '';
-  const meds = tookMeds ? [...document.querySelectorAll('#medRows .check-task')].map(r => {
+// Liefert { sick, meds } oder null (dann mit Hinweis), leere Werte heißen „nicht krank“ bzw. „keine Medikamente“
+function readSick(p) {
+  const isSick = document.getElementById(p + 'SickOn').checked, tookMeds = document.getElementById(p + 'MedsOn').checked;
+  const sick = isSick ? document.getElementById(p + 'SickName').value.trim() : '';
+  const meds = tookMeds ? [...document.querySelectorAll(`#${p}MedRows .check-task`)].map(r => {
     const [name, qty] = r.querySelectorAll('input');
     return name.value.trim() && `${name.value.trim()} ×${Math.max(1, parseInt(qty.value) || 1)}`;
   }).filter(Boolean).join(', ') : '';
-  if(!isSick && !tookMeds) { toast('Bitte „Krank“ oder „Medikamente genommen“ anklicken!'); return; }
-  if(isSick && !sick) { toast('Bitte die Krankheit angeben!'); document.getElementById('healthSick').focus(); return; }
-  if(tookMeds && !meds) { toast('Bitte mindestens ein Medikament angeben!'); document.querySelector('#medRows input')?.focus(); return; }
-  saveHealthEntry(date, { sick, meds });
+  if(isSick && !sick) { toast('Bitte die Krankheit angeben!'); document.getElementById(p + 'SickName').focus(); return null; }
+  if(tookMeds && !meds) { toast('Bitte mindestens ein Medikament angeben!'); document.querySelector(`#${p}MedRows input`)?.focus(); return null; }
+  return { sick, meds };
+}
+function openSick() {
+  fillSick('sick', {});
+  openModal('sickModal');
+}
+function saveSick() {
+  const date = document.getElementById('sickDate').value || today();
+  const v = readSick('sick');
+  if(!v) return;
+  if(!v.sick && !v.meds) { toast('Bitte „Krank“ oder „Medikamente genommen“ anklicken!'); return; }
+  saveHealthEntry(date, v);
   renderHealth();
   closeModal('sickModal');
   toast('Krankheit & Medikamente gespeichert ✓');
@@ -4693,13 +4703,18 @@ function openHealthEdit(date) {
     document.getElementById(id + 'H').value = min ? Math.floor(min / 60) : '';
     document.getElementById(id + 'M').value = min ? min % 60 : '';
   });
+  fillSick('he', entry);
   openModal('healthEditModal', 'heTemp');
 }
 function saveHealthEdit() {
   const data = DB.get('health', []);
   const entry = data.find(d => d.date === healthEditDate);
   if(!entry) return closeModal('healthEditModal');
+  const sickVals = readSick('he');
+  if(!sickVals) return;
   const set = (k, v) => { if(v === '' || v === null) delete entry[k]; else entry[k] = v; };
+  set('sick', sickVals.sick);
+  set('meds', sickVals.meds);
   Object.entries(HEALTH_EDIT_FIELDS).forEach(([k, id]) => set(k, document.getElementById(id).value.trim()));
   Object.entries(HEALTH_EDIT_DURATIONS).forEach(([k, id]) => set(k, toMin(id + 'H', id + 'M')));
   DB.set('health', data);
