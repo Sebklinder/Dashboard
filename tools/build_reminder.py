@@ -1,4 +1,4 @@
-# Baut den Kurzbefehl "Vital eintragen": fragt /api/health, welche Handwerte heute fehlen, und meldet sich nur dann.
+# Baut den Kurzbefehl "Heute offen": fragt /api/health, was heute noch fehlt (Vitalwerte, Vokabeln, Sport), und meldet sich nur dann.
 # Aufruf: python3 -I build_reminder.py <schluesseldatei> <ausgabe.plist>
 import plistlib, sys, uuid
 
@@ -23,7 +23,7 @@ actions = [
                                     'WFInput': {'Type': 'Variable', 'Variable': {
                                         'WFSerializationType': 'WFTextTokenAttachment', 'Value': result}}}},
     {'WFWorkflowActionIdentifier': 'is.workflow.actions.notification',
-     'WFWorkflowActionParameters': {'UUID': U(), 'WFNotificationActionTitle': 'Vitalwerte eintragen',
+     'WFWorkflowActionParameters': {'UUID': U(), 'WFNotificationActionTitle': 'Heute noch offen',
                                     'WFNotificationActionBody': text(OBJ, {'{0, 1}': result})}},
     {'WFWorkflowActionIdentifier': 'is.workflow.actions.conditional',
      'WFWorkflowActionParameters': {'GroupingIdentifier': if_g, 'WFControlFlowMode': 2, 'UUID': U()}},

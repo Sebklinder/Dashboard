@@ -120,14 +120,21 @@ export async function onRequestPost(context) {
   return new Response(JSON.stringify({ saved }), { headers: { 'Content-Type': 'application/json' } });
 }
 
-// Für den Erinnerungs-Kurzbefehl: welche Handwerte heute noch fehlen (Zepp-Werte kommen automatisch).
+// Für den Erinnerungs-Kurzbefehl: was heute noch fehlt – Handwerte, Vokabeln, Sport (Zepp-Werte kommen automatisch).
 // Krankheit & Medikamente fehlen bewusst – die gibt es nicht jeden Tag.
 const MANUAL = [['bpSys', 'Blutdruck'], ['temp', 'Temperatur'], ['medit', 'Meditation']];
+const VOCAB_GOAL = 20; // wie SPRACHE_GOAL in index.html
 
-export function openValues(health, now = new Date()) {
-  const today = health.find(e => e.date === berlinDate(now)) || {};
-  const open = MANUAL.filter(([k]) => !today[k]).map(([, label]) => label);
-  return open.length ? 'Offen: ' + open.join(', ') : 'Alles eingetragen ✓';
+export function openValues(state, now = new Date()) {
+  const day = berlinDate(now);
+  const get = (key, def) => { try { return JSON.parse(state[key]) || def; } catch (e) { return def; } };
+  const health = get('health', []).find(e => e.date === day) || {};
+  const open = MANUAL.filter(([k]) => !health[k]).map(([, label]) => label);
+  // Stand des Sprachtrainers, synct mit dem Rest des localStorage
+  const n = get('sprachtrainer-en-v1', {}).days?.[day]?.n || 0;
+  if (n < VOCAB_GOAL) open.push(`Vokabeln (${n}/${VOCAB_GOAL})`);
+  if (!['sport_kraft', 'sport_cardio', 'schiri_spiele'].some(k => get(k, []).some(e => e.date === day))) open.push('Sport');
+  return open.length ? 'Offen: ' + open.join(', ') : 'Alles erledigt ✓';
 }
 
 export async function onRequestGet({ request, env }) {
@@ -135,7 +142,5 @@ export async function onRequestGet({ request, env }) {
     return new Response('Nicht autorisiert', { status: 401 });
   }
   const state = JSON.parse(await env.DASHBOARD_KV.get('state') || '{}');
-  let health = [];
-  try { health = JSON.parse(state.health) || []; } catch (e) {}
-  return new Response(openValues(health), { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  return new Response(openValues(state), { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 }

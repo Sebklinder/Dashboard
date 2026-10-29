@@ -31,13 +31,17 @@ schon in deiner Kurzbefehle-Mediathek (per iCloud auch auf dem iPhone).
 
 Die alten Kurzbefehle „Zepp->Dashboard“, „Zepp Dashboard“ und „Zepp Dashboard 2“ werden nicht gebraucht und können gelöscht werden.
 
-## Erinnerung „Vital eintragen“
+## Erinnerung „Heute offen“
 
-Prüft einmal am Tag, welche Handwerte für **heute** noch fehlen (Blutdruck, Temperatur, Meditation), und meldet
-nur diese, z. B. *„Offen: Blutdruck, Temperatur“*. Ist alles eingetragen, bleibt er still.
-Krankheit & Medikamente zählen nicht mit. Einrichten: Kurzbefehle-App → **Automation** → **+** → **Tageszeit** →
-z. B. **20:00**, **Täglich** → **Sofort ausführen** → Kurzbefehl **Vital eintragen**.
-Er liest keine Health-Daten, läuft also auch bei gesperrtem iPhone.
+Prüft einmal am Tag, was für **heute** noch fehlt, und meldet nur das, z. B.
+*„Offen: Blutdruck, Vokabeln (12/20), Sport“*. Ist alles erledigt, bleibt er still.
+
+- **Vitalwerte von Hand:** Blutdruck, Temperatur, Meditation (Krankheit & Medikamente zählen nicht mit)
+- **Vokabeln:** offen, bis im Sprachtrainer 20 Antworten erreicht sind
+- **Sport:** offen, solange heute weder Kraft, Ausdauer noch ein Schiri-Spiel eingetragen ist
+
+Einrichten: Kurzbefehle-App → **Automation** → **+** → **Tageszeit** → z. B. **20:00**, **Täglich** →
+**Sofort ausführen** → Kurzbefehl **Heute offen**. Er liest keine Health-Daten, läuft also auch bei gesperrtem iPhone.
 
 ## Technik
 

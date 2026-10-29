@@ -65,9 +65,13 @@ assert.equal(JSON.parse(JSON.parse(stored).health).find(d => d.date === '2026-11
 assert.deepEqual(fromSamples('steps;100;Zepp;2026-03-29T10:00:00+02:00;2026-03-29T11:00:00+02:00', new Date('2026-03-30T00:30:00+02:00')),
   [{ date: '2026-03-29', steps: 100 }]); // Zeitumstellung verschiebt "gestern" nicht
 const now = new Date('2026-10-28T20:00:00+01:00');
-assert.equal(openValues([{ date: '2026-10-28', sleepMin: 400, bpSys: '120', temp: '36.5' }], now), 'Offen: Meditation');
-assert.equal(openValues([{ date: '2026-10-28', bpSys: '120', temp: '36.5', medit: '10' }], now), 'Alles eingetragen ✓');
-assert.equal(openValues([], now), 'Offen: Blutdruck, Temperatur, Meditation');
+const st = (health, extra = {}) => ({ health: JSON.stringify(health), ...extra });
+assert.equal(openValues(st([{ date: '2026-10-28', bpSys: '120', temp: '36.5' }], {
+  'sprachtrainer-en-v1': JSON.stringify({ days: { '2026-10-28': { n: 12 } } }) }), now), 'Offen: Meditation, Vokabeln (12/20), Sport');
+assert.equal(openValues(st([{ date: '2026-10-28', bpSys: '120', temp: '36.5', medit: '10' }], {
+  'sprachtrainer-en-v1': JSON.stringify({ days: { '2026-10-28': { n: 20 } } }),
+  sport_cardio: JSON.stringify([{ date: '2026-10-28', min: 30 }]) }), now), 'Alles erledigt ✓');
+assert.equal(openValues({}, now), 'Offen: Blutdruck, Temperatur, Meditation, Vokabeln (0/20), Sport');
 assert.equal((await onRequestGet({ env, request: new Request('https://x/api/health') })).status, 401);
 assert.match(await (await onRequestGet({ env, request: new Request('https://x/api/health', { headers: { 'X-Health-Key': 'geheim' } }) })).text(), /^(Offen|Alles)/);
 console.log('ok');
