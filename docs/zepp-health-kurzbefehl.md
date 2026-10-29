@@ -31,6 +31,13 @@ schon in deiner Kurzbefehle-Mediathek (per iCloud auch auf dem iPhone).
 
 Die alten Kurzbefehle „Zepp->Dashboard“, „Zepp Dashboard“ und „Zepp Dashboard 2“ werden nicht gebraucht und können gelöscht werden.
 
+## Erinnerung „Vital eintragen“
+
+Zeigt einmal am Tag die Mitteilung *„Noch eintragen: Blutdruck, Temperatur, Meditation – und Krankheit &
+Medikamente, falls nötig.“* Einrichten: Kurzbefehle-App → **Automation** → **+** → **Tageszeit** →
+z. B. **20:00**, **Täglich** → **Sofort ausführen** → Kurzbefehl **Vital eintragen**.
+Anderen Text: Kurzbefehl am iPhone öffnen und die Mitteilung direkt ändern.
+
 ## Technik
 
 - Der Kurzbefehl schickt rohe Health-Samples (`art;wert;quelle;start;ende` je Zeile) als `samples`.
