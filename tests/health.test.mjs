@@ -1,6 +1,6 @@
 // Selbsttest: node tests/health.test.mjs
 import assert from 'node:assert';
-import { onRequestPost, fromSamples } from '../functions/api/health.js';
+import { onRequestPost, fromSamples, onRequestGet, openValues } from '../functions/api/health.js';
 
 let stored = JSON.stringify({
   health: JSON.stringify([{ date: '2026-10-26', bpSys: '120', steps: '5000' }]),
@@ -64,4 +64,10 @@ assert.equal((await post({ samples: 'sleep;Schlafend;Zepp;2026-11-01T00:00:00+01
 assert.equal(JSON.parse(JSON.parse(stored).health).find(d => d.date === '2026-11-01').deepMin, undefined);
 assert.deepEqual(fromSamples('steps;100;Zepp;2026-03-29T10:00:00+02:00;2026-03-29T11:00:00+02:00', new Date('2026-03-30T00:30:00+02:00')),
   [{ date: '2026-03-29', steps: 100 }]); // Zeitumstellung verschiebt "gestern" nicht
+const now = new Date('2026-10-28T20:00:00+01:00');
+assert.equal(openValues([{ date: '2026-10-28', sleepMin: 400, bpSys: '120', temp: '36.5' }], now), 'Offen: Meditation');
+assert.equal(openValues([{ date: '2026-10-28', bpSys: '120', temp: '36.5', medit: '10' }], now), 'Alles eingetragen ✓');
+assert.equal(openValues([], now), 'Offen: Blutdruck, Temperatur, Meditation');
+assert.equal((await onRequestGet({ env, request: new Request('https://x/api/health') })).status, 401);
+assert.match(await (await onRequestGet({ env, request: new Request('https://x/api/health', { headers: { 'X-Health-Key': 'geheim' } }) })).text(), /^(Offen|Alles)/);
 console.log('ok');

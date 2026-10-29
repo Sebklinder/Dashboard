@@ -119,3 +119,23 @@ export async function onRequestPost(context) {
   await env.DASHBOARD_KV.put('state', JSON.stringify(state));
   return new Response(JSON.stringify({ saved }), { headers: { 'Content-Type': 'application/json' } });
 }
+
+// Für den Erinnerungs-Kurzbefehl: welche Handwerte heute noch fehlen (Zepp-Werte kommen automatisch).
+// Krankheit & Medikamente fehlen bewusst – die gibt es nicht jeden Tag.
+const MANUAL = [['bpSys', 'Blutdruck'], ['temp', 'Temperatur'], ['medit', 'Meditation']];
+
+export function openValues(health, now = new Date()) {
+  const today = health.find(e => e.date === berlinDate(now)) || {};
+  const open = MANUAL.filter(([k]) => !today[k]).map(([, label]) => label);
+  return open.length ? 'Offen: ' + open.join(', ') : 'Alles eingetragen ✓';
+}
+
+export async function onRequestGet({ request, env }) {
+  if (!env.HEALTH_KEY || request.headers.get('X-Health-Key') !== env.HEALTH_KEY) {
+    return new Response('Nicht autorisiert', { status: 401 });
+  }
+  const state = JSON.parse(await env.DASHBOARD_KV.get('state') || '{}');
+  let health = [];
+  try { health = JSON.parse(state.health) || []; } catch (e) {}
+  return new Response(openValues(health), { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+}

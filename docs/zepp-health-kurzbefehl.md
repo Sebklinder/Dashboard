@@ -33,10 +33,11 @@ Die alten Kurzbefehle „Zepp->Dashboard“, „Zepp Dashboard“ und „Zepp Da
 
 ## Erinnerung „Vital eintragen“
 
-Zeigt einmal am Tag die Mitteilung *„Noch eintragen: Blutdruck, Temperatur, Meditation – und Krankheit &
-Medikamente, falls nötig.“* Einrichten: Kurzbefehle-App → **Automation** → **+** → **Tageszeit** →
+Prüft einmal am Tag, welche Handwerte für **heute** noch fehlen (Blutdruck, Temperatur, Meditation), und meldet
+nur diese, z. B. *„Offen: Blutdruck, Temperatur“*. Ist alles eingetragen, bleibt er still.
+Krankheit & Medikamente zählen nicht mit. Einrichten: Kurzbefehle-App → **Automation** → **+** → **Tageszeit** →
 z. B. **20:00**, **Täglich** → **Sofort ausführen** → Kurzbefehl **Vital eintragen**.
-Anderen Text: Kurzbefehl am iPhone öffnen und die Mitteilung direkt ändern.
+Er liest keine Health-Daten, läuft also auch bei gesperrtem iPhone.
 
 ## Technik
 
@@ -45,6 +46,7 @@ Anderen Text: Kurzbefehl am iPhone öffnen und die Mitteilung direkt ändern.
   die Quelle mit den meisten Daten, damit iPhone und Uhr nicht doppelt zählen.
 - Neu bauen: `python3 -I tools/build_shortcut.py Dashboard/.claude/health-key.txt "Zepp Health.plist"`,
   dann `plutil -convert binary1` nach `….shortcut` und `shortcuts sign --mode anyone`.
+- Erinnerung neu bauen: genauso mit `tools/build_reminder.py` (`GET /api/health` liefert den Text).
 - Secret `HEALTH_KEY` im Cloudflare-Projekt `dashboard`; der Wert liegt in `Dashboard/.claude/health-key.txt`
   und steckt auch im Kurzbefehl – den Kurzbefehl deshalb nicht teilen.
 - Einzelne Tage nachtragen: `curl -X POST https://dashboard-5sc.pages.dev/api/health -H "X-Health-Key: SCHLUESSEL" -H "Content-Type: application/json" -d '{"date":"2026-10-27","steps":8000}'`
