@@ -120,10 +120,16 @@ export async function onRequestPost(context) {
   return new Response(JSON.stringify({ saved }), { headers: { 'Content-Type': 'application/json' } });
 }
 
-// Für den Erinnerungs-Kurzbefehl: was heute noch fehlt – Handwerte, Vokabeln, Sport (Zepp-Werte kommen automatisch).
+// Für den Erinnerungs-Kurzbefehl: was heute noch fehlt – Handwerte, Vokabeln, Ernährung, Sport (Zepp-Werte kommen automatisch).
 // Krankheit & Medikamente fehlen bewusst – die gibt es nicht jeden Tag.
 const MANUAL = [['bpSys', 'Blutdruck'], ['temp', 'Temperatur'], ['medit', 'Meditation']];
 const VOCAB_GOAL = 20; // wie SPRACHE_GOAL in index.html
+const TRAINING_GOALS = { kraft: 120, cardio: 120 }; // Minuten je Woche, wie in index.html
+
+// Wie parseDur() in index.html: "45" oder "45:30" (min:s)
+const dur = v => String(v ?? '').includes(':')
+  ? (parseInt(String(v).split(':')[0]) || 0) + (parseInt(String(v).split(':')[1]) || 0) / 60
+  : parseFloat(v) || 0;
 
 export function openValues(state, now = new Date()) {
   const day = berlinDate(now);
@@ -133,7 +139,26 @@ export function openValues(state, now = new Date()) {
   // Stand des Sprachtrainers, synct mit dem Rest des localStorage
   const n = get('sprachtrainer-en-v1', {}).days?.[day]?.n || 0;
   if (n < VOCAB_GOAL) open.push(`Vokabeln (${n}/${VOCAB_GOAL})`);
-  if (!['sport_kraft', 'sport_cardio', 'schiri_spiele'].some(k => get(k, []).some(e => e.date === day))) open.push('Sport');
+
+  if (!(get('ern_log', {})[day] || []).length) open.push('Mahlzeiten');
+  // shortcut: Grundziel ohne den Sport-Zuschlag der App, reicht als Erinnerung
+  const ml = Number(get('ern_water', {})[day]) || 0, goal = Number(get('ern_water_goal', 2500)) || 2500;
+  const l = v => (v / 1000).toLocaleString('de-DE', { maximumFractionDigits: 1 });
+  if (ml < goal) open.push(`Wasser (${l(ml)}/${l(goal)} l)`);
+
+  // Sport als Wochenziel (Mo bis heute) wie trainingMinutes() in index.html: Kraft-Dauer einmal je Einheit, Schiri zählt als Ausdauer
+  const monday = new Date(Date.parse(day + 'T12:00:00Z') - ((new Date(day + 'T12:00:00Z').getUTCDay() + 6) % 7) * 864e5).toISOString().slice(0, 10);
+  const week = k => get(k, []).filter(e => e.date >= monday && e.date <= day);
+  const seen = new Set();
+  const kraft = week('sport_kraft').reduce((s, e) => {
+    const id = e.trainingId || 'day-' + e.date;
+    if (seen.has(id)) return s;
+    seen.add(id);
+    return s + (parseFloat(e.dauer) || 0);
+  }, 0);
+  const cardio = week('sport_cardio').reduce((s, e) => s + dur(e.min), 0) + week('schiri_spiele').reduce((s, g) => s + (parseFloat(g.dauer) || 0), 0);
+  if (kraft < TRAINING_GOALS.kraft) open.push(`Kraft (${Math.round(kraft)}/${TRAINING_GOALS.kraft} min Woche)`);
+  if (cardio < TRAINING_GOALS.cardio) open.push(`Ausdauer (${Math.round(cardio)}/${TRAINING_GOALS.cardio} min Woche)`);
   return open.length ? 'Offen: ' + open.join(', ') : 'Alles erledigt ✓';
 }
 

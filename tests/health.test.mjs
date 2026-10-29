@@ -66,12 +66,22 @@ assert.deepEqual(fromSamples('steps;100;Zepp;2026-03-29T10:00:00+02:00;2026-03-2
   [{ date: '2026-03-29', steps: 100 }]); // Zeitumstellung verschiebt "gestern" nicht
 const now = new Date('2026-10-28T20:00:00+01:00');
 const st = (health, extra = {}) => ({ health: JSON.stringify(health), ...extra });
+// Mi, 28.10.2026 → Woche ab Mo 26.10.
 assert.equal(openValues(st([{ date: '2026-10-28', bpSys: '120', temp: '36.5' }], {
-  'sprachtrainer-en-v1': JSON.stringify({ days: { '2026-10-28': { n: 12 } } }) }), now), 'Offen: Meditation, Vokabeln (12/20), Sport');
+  'sprachtrainer-en-v1': JSON.stringify({ days: { '2026-10-28': { n: 12 } } }),
+  ern_water: JSON.stringify({ '2026-10-28': 1200 }),
+  sport_kraft: JSON.stringify([{ date: '2026-10-26', trainingId: 'a', dauer: '45' }, { date: '2026-10-26', trainingId: 'a', dauer: '45' },
+    { date: '2026-10-25', dauer: '90' }]),
+}), now), 'Offen: Meditation, Vokabeln (12/20), Mahlzeiten, Wasser (1,2/2,5 l), Kraft (45/120 min Woche), Ausdauer (0/120 min Woche)');
 assert.equal(openValues(st([{ date: '2026-10-28', bpSys: '120', temp: '36.5', medit: '10' }], {
   'sprachtrainer-en-v1': JSON.stringify({ days: { '2026-10-28': { n: 20 } } }),
-  sport_cardio: JSON.stringify([{ date: '2026-10-28', min: 30 }]) }), now), 'Alles erledigt ✓');
-assert.equal(openValues({}, now), 'Offen: Blutdruck, Temperatur, Meditation, Vokabeln (0/20), Sport');
+  ern_log: JSON.stringify({ '2026-10-28': [{ name: 'Müsli', kcal: 400 }] }),
+  ern_water: JSON.stringify({ '2026-10-28': 3000 }),
+  sport_kraft: JSON.stringify([{ date: '2026-10-27', dauer: '120' }]),
+  sport_cardio: JSON.stringify([{ date: '2026-10-26', min: '60:30' }]),
+  schiri_spiele: JSON.stringify([{ date: '2026-10-28', dauer: '60' }]),
+}), now), 'Alles erledigt ✓');
+assert.equal(openValues({}, now), 'Offen: Blutdruck, Temperatur, Meditation, Vokabeln (0/20), Mahlzeiten, Wasser (0/2,5 l), Kraft (0/120 min Woche), Ausdauer (0/120 min Woche)');
 assert.equal((await onRequestGet({ env, request: new Request('https://x/api/health') })).status, 401);
 assert.match(await (await onRequestGet({ env, request: new Request('https://x/api/health', { headers: { 'X-Health-Key': 'geheim' } }) })).text(), /^(Offen|Alles)/);
 console.log('ok');

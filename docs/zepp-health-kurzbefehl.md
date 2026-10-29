@@ -34,11 +34,14 @@ Die alten Kurzbefehle „Zepp->Dashboard“, „Zepp Dashboard“ und „Zepp Da
 ## Erinnerung „Heute offen“
 
 Prüft einmal am Tag, was für **heute** noch fehlt, und meldet nur das, z. B.
-*„Offen: Blutdruck, Vokabeln (12/20), Sport“*. Ist alles erledigt, bleibt er still.
+*„Offen: Blutdruck, Vokabeln (12/20), Wasser (1,2/2,5 l), Kraft (45/120 min Woche)“*. Ist alles erledigt, bleibt er still.
 
 - **Vitalwerte von Hand:** Blutdruck, Temperatur, Meditation (Krankheit & Medikamente zählen nicht mit)
 - **Vokabeln:** offen, bis im Sprachtrainer 20 Antworten erreicht sind
-- **Sport:** offen, solange heute weder Kraft, Ausdauer noch ein Schiri-Spiel eingetragen ist
+- **Mahlzeiten:** offen, solange heute nichts im Ernährungs-Tracker steht
+- **Wasser:** offen unter dem Trinkziel (Grundziel, ohne den Sport-Zuschlag der App)
+- **Sport als Wochenziel:** Kraft und Ausdauer je 120 min von Montag bis heute, Schiri-Spiele zählen als Ausdauer –
+  an Ruhetagen also keine Extra-Meldung, nur der Wochenstand
 
 Einrichten: Kurzbefehle-App → **Automation** → **+** → **Tageszeit** → z. B. **20:00**, **Täglich** →
 **Sofort ausführen** → Kurzbefehl **Heute offen**. Er liest keine Health-Daten, läuft also auch bei gesperrtem iPhone.
