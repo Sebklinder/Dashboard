@@ -33,8 +33,8 @@ Die alten Kurzbefehle „Zepp->Dashboard“, „Zepp Dashboard“ und „Zepp Da
 
 ## Erinnerung „Heute offen“
 
-Prüft einmal am Tag, was für **heute** noch fehlt, und meldet nur das, z. B.
-*„Offen: Blutdruck, Vokabeln (12/20), Wasser (1,2/2,5 l), Kraft (45/120 min Woche)“*. Ist alles erledigt, bleibt er still.
+Prüft einmal am Tag, was für **heute** noch fehlt, und meldet das als Mitteilung, z. B.
+*„Offen: Blutdruck, Vokabeln (12/20), Wasser (1,2/2,5 l), Kraft (45/120 min Woche)“*. Ist alles erledigt, steht dort „Alles erledigt ✓“.
 
 - **Vitalwerte von Hand:** Blutdruck, Temperatur, Meditation (Krankheit & Medikamente zählen nicht mit)
 - **Vokabeln:** offen, bis im Sprachtrainer 20 Antworten erreicht sind
@@ -54,6 +54,8 @@ Einrichten: Kurzbefehle-App → **Automation** → **+** → **Tageszeit** → z
 - Neu bauen: `python3 -I tools/build_shortcut.py Dashboard/.claude/health-key.txt "Zepp Health.plist"`,
   dann `plutil -convert binary1` nach `….shortcut` und `shortcuts sign --mode anyone`.
 - Erinnerung neu bauen: genauso mit `tools/build_reminder.py` (`GET /api/health` liefert den Text).
+- Derselbe Schlüssel schützt auch `/api/state` (ganzer Dashboard-Stand). Das Dashboard fragt je Gerät einmal danach
+  und merkt ihn sich lokal (`sync_key`, wird nicht mitgesynct).
 - Secret `HEALTH_KEY` im Cloudflare-Projekt `dashboard`; der Wert liegt in `Dashboard/.claude/health-key.txt`
   und steckt auch im Kurzbefehl – den Kurzbefehl deshalb nicht teilen.
 - Einzelne Tage nachtragen: `curl -X POST https://dashboard-5sc.pages.dev/api/health -H "X-Health-Key: SCHLUESSEL" -H "Content-Type: application/json" -d '{"date":"2026-10-27","steps":8000}'`

@@ -1,11 +1,11 @@
-# Baut den Kurzbefehl "Heute offen": fragt /api/health, was heute noch fehlt (Vitalwerte, Vokabeln, Sport), und meldet sich nur dann.
+# Baut den Kurzbefehl "Heute offen": fragt /api/health, was heute noch fehlt (Vitalwerte, Vokabeln, Ernährung, Sport), und zeigt es als Mitteilung.
 # Aufruf: python3 -I build_reminder.py <schluesseldatei> <ausgabe.plist>
 import plistlib, sys, uuid
 
 key = open(sys.argv[1]).read().strip()
 U = lambda: str(uuid.uuid4()).upper()
 OBJ = '￼'
-url_u, if_g = U(), U()
+url_u = U()
 result = {'Type': 'ActionOutput', 'OutputUUID': url_u, 'OutputName': 'Contents of URL'}
 text = lambda s, att={}: {'WFSerializationType': 'WFTextTokenString', 'Value': {'string': s, 'attachmentsByRange': att}}
 
@@ -16,17 +16,10 @@ actions = [
          'WFURL': 'https://dashboard-5sc.pages.dev/api/health',
          'WFHTTPHeaders': {'WFSerializationType': 'WFDictionaryFieldValue', 'Value': {'WFDictionaryFieldValueItems': [
              {'WFItemType': 0, 'WFKey': text('X-Health-Key'), 'WFValue': text(key)}]}}}},
-    # 99 = "enthält": nur bei "Offen: …" melden, bei "Alles eingetragen" still bleiben
-    {'WFWorkflowActionIdentifier': 'is.workflow.actions.conditional',
-     'WFWorkflowActionParameters': {'GroupingIdentifier': if_g, 'WFControlFlowMode': 0, 'WFCondition': 99,
-                                    'WFConditionalActionString': 'Offen',
-                                    'WFInput': {'Type': 'Variable', 'Variable': {
-                                        'WFSerializationType': 'WFTextTokenAttachment', 'Value': result}}}},
+    # shortcut: ohne "Wenn" – der importierte Wenn-Block blieb auf iOS leer; meldet daher auch "Alles erledigt ✓"
     {'WFWorkflowActionIdentifier': 'is.workflow.actions.notification',
      'WFWorkflowActionParameters': {'UUID': U(), 'WFNotificationActionTitle': 'Heute noch offen',
                                     'WFNotificationActionBody': text(OBJ, {'{0, 1}': result})}},
-    {'WFWorkflowActionIdentifier': 'is.workflow.actions.conditional',
-     'WFWorkflowActionParameters': {'GroupingIdentifier': if_g, 'WFControlFlowMode': 2, 'UUID': U()}},
 ]
 
 shortcut = {

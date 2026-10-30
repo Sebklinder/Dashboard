@@ -2375,15 +2375,19 @@ function setSyncStatus(text, state) {
     el.classList.toggle('warn', state === 'warn');
   });
 }
+// Zugangsschlüssel für /api/state (= HEALTH_KEY), je Gerät einmal eingeben; wird nicht mitgesynct
+const syncFetch = (opts = {}) => fetch('/api/state', { ...opts, headers: { 'X-Health-Key': localStorage.getItem('sync_key') || '' } });
+let syncKeyAsked = false;
 async function pushState() {
   try {
     const snapshot = {};
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k === 'theme') continue; // rein lokale UI-Einstellung, nicht syncen
+      if (k === 'theme' || k === 'sync_key') continue; // rein lokal, nicht syncen
       snapshot[k] = localStorage.getItem(k);
     }
-    const res = await fetch('/api/state', { method: 'POST', body: JSON.stringify(snapshot) });
+    const res = await syncFetch({ method: 'POST', body: JSON.stringify(snapshot) });
+    if(res.status === 401) return setSyncStatus('Sync-Schlüssel fehlt', 'warn');
     if(!res.ok) throw new Error('HTTP ' + res.status); // abgelehnte Speicherung nicht als Erfolg melden
     setSyncStatus('Synchronisiert · ' + new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}), 'ok');
   } catch (e) {
@@ -2392,7 +2396,14 @@ async function pushState() {
 }
 async function pullState() {
   try {
-    const res = await fetch('/api/state');
+    let res = await syncFetch();
+    // falscher/fehlender Schlüssel: einmal pro Seitenaufruf fragen, sonst lokal weiterarbeiten
+    if(res.status === 401 && !syncKeyAsked) {
+      syncKeyAsked = true;
+      const key = prompt('Sync-Schlüssel für dieses Gerät eingeben:');
+      if(key) { localStorage.setItem('sync_key', key.trim()); res = await syncFetch(); }
+    }
+    if(res.status === 401) return setSyncStatus('Sync-Schlüssel fehlt', 'warn');
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
