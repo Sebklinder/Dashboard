@@ -132,66 +132,109 @@
   .week-review-nav { margin-left: auto; display: flex; gap: 2px; }
   .week-review-nav .icon-btn:hover { background: var(--surface2); color: var(--text); }
   .week-review-nav .icon-btn:disabled { opacity: .35; cursor: default; background: transparent; }
-  .wr-summary { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); }
+  /* Kopf: Ring mit erreichten Wochenzielen + Fazit, Fläche je nach Gesamtton getönt */
+  .wr-hero { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: linear-gradient(135deg, var(--surface3), var(--surface2)); }
+  .wr-hero.tone-good { background: linear-gradient(135deg, var(--green-soft), var(--surface2) 70%); border-color: color-mix(in srgb, var(--green) 30%, var(--border)); }
+  .wr-hero.tone-warn { background: linear-gradient(135deg, var(--yellow-soft), var(--surface2) 70%); border-color: color-mix(in srgb, var(--yellow) 30%, var(--border)); }
+  .wr-hero.tone-bad { background: linear-gradient(135deg, var(--red-soft), var(--surface2) 70%); border-color: color-mix(in srgb, var(--red) 30%, var(--border)); }
+  .wr-ring { position: relative; flex: none; width: 88px; height: 88px; }
+  .wr-ring svg { width: 100%; height: 100%; }
+  .wr-ring circle { fill: none; stroke-width: 7; }
+  .wr-ring .bg { stroke: var(--border); }
+  .wr-ring .fg { stroke: var(--accent); stroke-linecap: round; transition: stroke-dasharray .6s ease-out; }
+  .wr-ring.is-good .fg { stroke: var(--green); }
+  .wr-ring.is-warn .fg { stroke: var(--yellow); }
+  .wr-ring.is-bad .fg { stroke: var(--red); }
+  .wr-ring-txt { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; }
+  .wr-ring-txt b { font-size: 26px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+  .wr-ring-txt span { font-size: 11px; color: var(--muted); }
+  .wr-hero-main { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .wr-hero-kicker { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .wr-hero-verdict { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.35; }
+  .wr-hero-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .wr-pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; color: var(--text-2); background: var(--surface); border: 1px solid var(--border); }
+  .wr-pill b { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .wr-pill .i { width: 13px; height: 13px; }
+  .wr-pill.watch { color: var(--yellow); background: var(--yellow-soft); border-color: transparent; }
+  .wr-pill.alert { color: var(--red); background: var(--red-soft); border-color: transparent; }
+  .up { color: var(--green); } .down { color: var(--red); }
+  @media (max-width: 600px) {
+    .wr-hero { gap: 12px; padding: 12px; align-items: flex-start; }
+    .wr-ring { width: 72px; height: 72px; }
+    .wr-ring-txt b { font-size: 22px; }
+    .wr-hero-verdict { font-size: 15px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .wr-ring .fg { transition: none; } }
+  .wr-summary { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; padding: 12px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); }
   .wr-line { display: flex; gap: 12px; align-items: baseline; font-size: 13px; line-height: 1.5; color: var(--text-2); }
   .wr-line b { flex: none; width: 128px; font-size: 12px; font-weight: 600; }
   .wr-line.good b { color: var(--green); }
   .wr-line.watch b { color: var(--yellow); }
+  .wr-line.focus b { color: var(--accent); }
   @media (max-width: 600px) { .wr-line { flex-direction: column; gap: 0; } }
   .wr-sub { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); font-weight: 400; line-height: 1.4; }
-  /* Kennzahl-Kacheln: Farbe am linken Rand + Bewertungstext, damit es nicht nur über Farbe läuft */
-  .wr-tiles-head { margin: 4px 0 8px; }
-  .wr-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
-  .wr-tile { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 12px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--border-strong); }
-  .wr-tile.is-good { border-left-color: var(--green); }
-  .wr-tile.is-warn { border-left-color: var(--yellow); }
-  .wr-tile.is-bad { border-left-color: var(--red); }
-  .wr-tile-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .wr-tile-name { font-size: 12px; font-weight: 600; color: var(--muted); }
-  .wr-tile-top .wr-trend { margin: 0; flex: none; }
-  .wr-tile-val { font-size: 17px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.3; }
-  .wr-tile-foot { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted); margin-top: auto; padding-top: 6px; border-top: 1px solid var(--border); }
-  .wr-tile-delta { white-space: nowrap; }
-  .wr-tile-delta .wr-delta { font-size: 13px; font-weight: 600; }
-  .wr-tile > [class^="rating-"] { align-self: flex-start; white-space: normal; }
-  @media (max-width: 600px) {
-    .wr-tiles { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .wr-tile { padding: 10px; }
-    .wr-tile-val { font-size: 15px; }
-    .wr-tile-top .wr-trend { width: 40px; }
-  }
+  .wr-head { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .wr-note { font-size: 12px; color: var(--muted); }
+  .wr-insights { margin: 12px 0 0; }
   .wr-delta { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .wr-delta.better { color: var(--green); }
   .wr-delta.worse { color: var(--yellow); }
-  .wr-line.focus b { color: var(--accent); }
-  .wr-line.alert b { color: var(--red); }
-  .wr-verdict { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.4; background: var(--surface3); }
-  .wr-verdict .i { flex: none; width: 20px; height: 20px; margin-top: 1px; }
-  .wr-verdict.tone-good { background: var(--green-soft); } .wr-verdict.tone-good .i { color: var(--green); }
-  .wr-verdict.tone-warn { background: var(--yellow-soft); } .wr-verdict.tone-warn .i { color: var(--yellow); }
-  .wr-verdict.tone-bad { background: var(--red-soft); } .wr-verdict.tone-bad .i { color: var(--red); }
-  .wr-verdict.tone-neutral .i { color: var(--muted); }
-  .wr-life-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; margin-top: 6px; }
-  .wr-group-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding-bottom: 4px; margin-bottom: 2px; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 600; color: var(--muted); }
-  .wr-count { font-weight: 500; font-variant-numeric: tabular-nums; }
-  .wr-item { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 13px; color: var(--text-2); padding: 5px 0; }
-  .wr-item .n { min-width: 0; }
-  .wr-item .v { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
-  .wr-st { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-size: 13px; font-weight: 700; background: var(--surface3); color: var(--muted); }
+  /* Lebensstil & Vitalwerte: Name + Werte links, Veränderungsbalken rechts (Mitte = keine Veränderung) */
+  .wr-life-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; margin-top: 4px; }
+  .wr-group-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding-bottom: 6px; margin-bottom: 2px; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 600; color: var(--text-2); }
+  .wr-count { display: flex; gap: 8px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .wr-item { display: grid; grid-template-columns: 24px minmax(0, 1fr) 38%; gap: 10px; align-items: center; padding: 6px 0; font-size: 13px; color: var(--text); }
+  .wr-item + .wr-item { border-top: 1px solid color-mix(in srgb, var(--border) 50%, transparent); }
+  .wr-item .n { min-width: 0; font-weight: 500; }
+  .wr-item .v { display: block; font-size: 12px; font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .wr-st { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; font-size: 13px; font-weight: 700; background: var(--surface3); color: var(--muted); }
   .wr-st.st-better { background: var(--green-soft); color: var(--green); }
   .wr-st.st-worse { background: var(--red-soft); color: var(--red); }
-  .wr-note { font-size: 12px; color: var(--muted); }
-  .wr-med .wr-line { padding: 8px 10px; border-radius: var(--radius-sm); background: var(--surface3); }
-  .wr-med .wr-line.watch { background: var(--yellow-soft); }
-  .wr-med .wr-line.alert { background: var(--red-soft); }
-  .wr-med .wr-line.good { background: var(--green-soft); }
-  @media (max-width: 600px) { .wr-life-grid { grid-template-columns: 1fr; } .wr-verdict { font-size: 14px; } }
-  .wr-score { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: 13px; color: var(--text-2); }
-  .wr-score b { font-size: 22px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
-  .wr-insights { margin: 12px 0 0; }
-  .wr-head { font-size: 12px; font-weight: 600; color: var(--muted); }
-  .wr-trend { display: block; width: 56px; height: 14px; margin-top: 4px; }
-  .wr-trend polyline { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .wr-chg { position: relative; height: 8px; border-radius: 4px; background: var(--surface3); }
+  .wr-chg::after { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--border-strong); }
+  .wr-chg > span { position: absolute; top: 0; bottom: 0; background: var(--muted); }
+  .wr-chg > .r { left: 50%; border-radius: 0 4px 4px 0; }
+  .wr-chg > .l { right: 50%; border-radius: 4px 0 0 4px; }
+  .wr-chg > .st-better { background: var(--green); }
+  .wr-chg > .st-worse { background: var(--red); }
+  .wr-chg > .st-stable { opacity: .5; }
+  @media (max-width: 600px) { .wr-life-grid { grid-template-columns: 1fr; } .wr-item { grid-template-columns: 24px minmax(0, 1fr) 34%; } }
+  /* Medizinischer Check */
+  .wr-flag { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.45; color: var(--text-2); background: var(--surface3); }
+  .wr-flag .i { flex: none; width: 18px; height: 18px; margin-top: 1px; }
+  .wr-flag b { display: block; font-size: 13px; font-weight: 700; color: var(--text); }
+  .wr-flag.watch { background: var(--yellow-soft); } .wr-flag.watch .i { color: var(--yellow); }
+  .wr-flag.alert { background: var(--red-soft); } .wr-flag.alert .i, .wr-flag.alert b { color: var(--red); }
+  .wr-flag.good { background: var(--green-soft); } .wr-flag.good .i { color: var(--green); }
+  /* Kennzahl-Kacheln: Farbe am linken Rand + Bewertungspille, damit es nicht nur über Farbe läuft */
+  .wr-tiles-head { margin: 4px 0 8px; }
+  .wr-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .wr-tile { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); border-top: 3px solid var(--border-strong); }
+  .wr-tile.is-good { border-top-color: var(--green); }
+  .wr-tile.is-warn { border-top-color: var(--yellow); }
+  .wr-tile.is-bad { border-top-color: var(--red); }
+  .wr-tile-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; flex-wrap: wrap; }
+  .wr-tile-name { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .wr-tile-top [class^="rating-"] { font-size: 11px; padding: 1px 8px 1px 7px; white-space: normal; }
+  .wr-tile-val { font-size: 20px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.25; letter-spacing: -.01em; }
+  .wr-goal { height: 6px; border-radius: 3px; background: var(--surface3); overflow: hidden; }
+  .wr-goal > span { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+  .wr-tile.is-good .wr-goal > span { background: var(--green); }
+  .wr-tile.is-warn .wr-goal > span { background: var(--yellow); }
+  .wr-tile.is-bad .wr-goal > span { background: var(--red); }
+  .wr-trend { position: relative; height: 30px; }
+  .wr-trend svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .wr-trend polyline { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .wr-trend polygon { fill: var(--accent-soft); stroke: none; }
+  .wr-trend .dot { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface2); }
+  .wr-tile-foot { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted); margin-top: auto; padding-top: 8px; border-top: 1px solid var(--border); }
+  .wr-tile-delta { white-space: nowrap; }
+  .wr-tile-delta .wr-delta { font-size: 13px; font-weight: 700; }
+  @media (max-width: 600px) {
+    .wr-tiles { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .wr-tile { padding: 10px; }
+    .wr-tile-val { font-size: 17px; }
+  }
   /* Drill-down aus Übersichtskarten */
   .card-link { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; height: 28px; padding: 0 6px 0 8px; border: none; border-radius: 6px; background: transparent; color: var(--muted); font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; position: relative; }
   .card-link::before { content: ''; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: 44px; transform: translate(-50%, -50%); }
@@ -2934,7 +2977,8 @@ function lifestyleBalance(weeks) {
     const a = avg(weeks.slice(0, 4), fn), b = avg(weeks.slice(4), fn);
     if(a == null || b == null) return null;
     const d = b - a, st = Math.abs(d) < thr(a) ? 'stable' : dir === 0 ? 'stable' : d * dir > 0 ? 'better' : 'worse';
-    return { label, txt: `${fmt(a)} → ${fmt(b)}`, st };
+    // gain: Veränderung in %, positiv = in die gute Richtung
+    return { label, txt: `${fmt(a)} → ${fmt(b)}`, st, gain: a ? d / Math.abs(a) * 100 * (dir || 1) : 0 };
   };
   const L = life.map(eval_).filter(Boolean), V = vital.map(eval_).filter(Boolean);
   const net = list => list.filter(x => x.st === 'better').length - list.filter(x => x.st === 'worse').length;
@@ -2983,24 +3027,41 @@ function medicalFlags(weeks, from, to) {
   return out;
 }
 
-function lifestyleHtml(weeks, from, to) {
+// score: { good, of, diff } – erreichte Ziele der Woche für den Ring im Kopf
+function lifestyleHtml(weeks, from, to, score) {
   const b = lifestyleBalance(weeks), flags = medicalFlags(weeks, from, to);
   const ST = { better: ['↑', 'besser'], worse: ['↓', 'schlechter'], stable: ['→', 'stabil'] };
   const count = items => ['better', 'worse'].map(s => items.filter(x => x.st === s).length);
+  // Balken: Veränderung in %, nach rechts = besser, nach links = schlechter; volle Halbbreite ab 25 %
+  const bar = x => `<span class="wr-chg" aria-hidden="true"><span class="st-${x.st} ${x.gain >= 0 ? 'r' : 'l'}" style="width:${Math.max(4, Math.min(Math.abs(x.gain), 25) / 25 * 50)}%"></span></span>`;
   const list = (title, items) => {
     const [up, down] = count(items);
-    return `<div class="wr-group"><div class="wr-group-head"><span>${title}</span>${items.length ? `<span class="wr-count">${up} besser · ${down} schlechter</span>` : ''}</div>
-      ${items.length ? items.map(x => `<div class="wr-item"><span class="wr-st st-${x.st}" title="${ST[x.st][1]}" aria-hidden="true">${ST[x.st][0]}</span><span class="n">${x.label}<span class="sr-only">: ${ST[x.st][1]}</span></span><span class="v">${x.txt}</span></div>`).join('') : '<div class="wr-note">noch zu wenig Daten</div>'}</div>`;
+    return `<div class="wr-group"><div class="wr-group-head"><span>${title}</span>${items.length ? `<span class="wr-count"><span class="up">${up} ↑</span> <span class="down">${down} ↓</span></span>` : ''}</div>
+      ${items.length ? items.map(x => `<div class="wr-item"><span class="wr-st st-${x.st}" title="${ST[x.st][1]}" aria-hidden="true">${ST[x.st][0]}</span><span class="n">${x.label}<span class="sr-only">: ${ST[x.st][1]}</span><span class="v">${x.txt}</span></span>${bar(x)}</div>`).join('') : '<div class="wr-note">noch zu wenig Daten</div>'}</div>`;
   };
   // Fazit-Ton fürs Symbol: beide besser → gut, beide schlechter → schlecht, sonst neutral
-  const tone = b.l > 0 && b.v >= 0 || b.v > 0 && b.l >= 0 ? 'good' : b.l < 0 && b.v < 0 ? 'bad' : b.l < 0 || b.v < 0 ? 'warn' : 'neutral';
+  const tone = b.vital.length < 2 ? 'neutral' : b.l > 0 && b.v >= 0 || b.v > 0 && b.l >= 0 ? 'good' : b.l < 0 && b.v < 0 ? 'bad' : b.l < 0 || b.v < 0 ? 'warn' : 'neutral';
+  const C = 2 * Math.PI * 26, pct = score.of ? score.good / score.of : 0;
+  const ring = `<div class="wr-ring ${pct >= 0.7 ? 'is-good' : pct >= 0.4 ? 'is-warn' : 'is-bad'}" role="img" aria-label="${score.good} von ${score.of} Wochenzielen erreicht">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" class="bg"/><circle cx="32" cy="32" r="26" class="fg" stroke-dasharray="${(pct * C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 32 32)"/></svg>
+      <div class="wr-ring-txt"><b>${score.good}</b><span>von ${score.of}</span></div>
+    </div>`;
+  const diff = score.diff == null ? '' : `<span class="wr-delta${score.diff > 0 ? ' better' : score.diff < 0 ? ' worse' : ''}">${score.diff > 0 ? '↑ +' + score.diff : score.diff < 0 ? '↓ −' + -score.diff : '± 0'} zur Vorwoche</span>`;
+  const pill = (label, [up, down]) => `<span class="wr-pill"><span>${label}</span><b class="up">${up} ↑</b><b class="down">${down} ↓</b></span>`;
   const med = flags.length
-    ? flags.map(([sev, k, txt]) => `<div class="wr-line ${sev}"><b>${sev === 'alert' ? '⚠ ' : ''}${k}</b><span>${txt}</span></div>`).join('')
+    ? flags.map(([sev, k, txt]) => `<div class="wr-flag ${sev}"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg><div><b>${sev === 'alert' ? 'Dringend: ' : ''}${k}</b><span>${txt}</span></div></div>`).join('')
       + '<div class="wr-note">Hinweise aus deinen Messwerten, keine Diagnose. Bleiben Werte auffällig, ärztlich abklären.</div>'
-    : '<div class="wr-line good"><b>Unauffällig</b><span>Keine medizinischen Auffälligkeiten in den erfassten Werten dieser Woche.</span></div>';
-  return `<div class="wr-summary wr-life">
+    : '<div class="wr-flag good"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><div><b>Unauffällig</b><span>Keine medizinischen Auffälligkeiten in den erfassten Werten dieser Woche.</span></div></div>';
+  return `<div class="wr-hero tone-${tone}">
+      ${ring}
+      <div class="wr-hero-main">
+        <div class="wr-hero-kicker">Wochenziele erreicht ${diff}</div>
+        <div class="wr-hero-verdict">${lifestyleVerdict(b)}</div>
+        <div class="wr-hero-pills">${pill('Lebensstil', count(b.life))}${pill('Vitalwerte', count(b.vital))}${flags.length ? `<span class="wr-pill ${flags.some(f => f[0] === 'alert') ? 'alert' : 'watch'}"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>${flags.length} medizinische${flags.length === 1 ? 'r Hinweis' : ' Hinweise'}</span>` : ''}</div>
+      </div>
+    </div>
+    <div class="wr-summary wr-life">
       <div class="wr-head">Lebensstil &amp; Vitalwerte · Ø pro Woche, letzte 4 Wochen gegen die 4 davor</div>
-      <div class="wr-verdict tone-${b.vital.length < 2 ? 'neutral' : tone}"><svg class="i" aria-hidden="true"><use href="#i-${tone === 'bad' || tone === 'warn' ? 'down' : 'up'}"/></svg><span>${lifestyleVerdict(b)}</span></div>
       <div class="wr-life-grid">${list('Lebensstil', b.life)}${list('Vitalwerte', b.vital)}</div>
     </div>
     <div class="wr-summary wr-med" role="status"><div class="wr-head">Medizinischer Check · KW ${isoWeek(from)}</div>${med}</div>`;
@@ -3039,8 +3100,11 @@ function renderWeekReview() {
     const p = vals.map((v, i) => [i, v]).filter(([, v]) => v != null);
     if(p.length < 2) return '';
     const lo = Math.min(...p.map(x => x[1])), hi = Math.max(...p.map(x => x[1]));
-    const y = v => hi === lo ? 8 : 14 - (v - lo) / (hi - lo) * 12;
-    return `<svg class="wr-trend" viewBox="0 0 70 16" preserveAspectRatio="none" aria-hidden="true"><polyline points="${p.map(([i, v]) => `${i * 10},${y(v).toFixed(1)}`).join(' ')}"/></svg>`;
+    // Flächen-Sparkline über die 8 Wochen; letzter Punkt (aktuelle Woche) als Kreis
+    const y = v => hi === lo ? 14 : 26 - (v - lo) / (hi - lo) * 22, x = i => i * 100 / 7;
+    const pts = p.map(([i, v]) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+    const [li, lv] = p[p.length - 1];
+    return `<div class="wr-trend"><svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><polygon points="${x(p[0][0]).toFixed(1)},30 ${pts} ${x(li).toFixed(1)},30"/><polyline points="${pts}"/></svg><span class="dot" style="left:${x(li)}%;top:${y(lv) / 30 * 100}%"></span></div>`;
   };
 
   const weekRows = (cur, prev) => {
@@ -3117,8 +3181,11 @@ function renderWeekReview() {
   // Score: erreichte Ziele (grüne Bewertungen) gegenüber der Vorwoche
   const score = rs => ({ good: rs.filter(r => r.rating?.cls === 'rating-good').length, of: rs.filter(r => r.rating).length });
   const sc = score(rows), sp = score(weekRows(prev, weeks[5]));
-  const sd = sc.good - sp.good;
-  const scoreHtml = `<div class="wr-score"><b>${sc.good}</b><span>von ${sc.of} Zielen erreicht</span>${sp.of ? `<span class="wr-delta${sd > 0 ? ' better' : sd < 0 ? ' worse' : ''}">${sd > 0 ? '↑ +' + sd : sd < 0 ? '↓ −' + -sd : '± 0'} zur Vorwoche</span>` : ''}</div>`;
+  // Zielerreichung je Kachel als Fortschrittsbalken (nur Kennzahlen mit festem Ziel)
+  const PCT = { Krafttraining: cur.training.kraft / TRAINING_GOALS.kraft, Ausdauer: cur.training.cardio / TRAINING_GOALS.cardio,
+    Schritte: cur.stepsN ? cur.steps / 12000 : null, Schlaf: cur.sleepN ? cur.sleep / 450 : null, Ernährung: cur.kcalN ? cur.kcalIn / cur.kcalN : null,
+    'Daily Dozen': cur.ddN ? cur.dd / 100 : null, Sprachtrainer: cur.lang.goalDays / 5 };
+  const goalBar = r => PCT[r.key] == null ? '' : `<div class="wr-goal" role="img" aria-label="${Math.round(PCT[r.key] * 100)} % vom Ziel"><span style="width:${Math.min(100, PCT[r.key] * 100)}%"></span></div>`;
   // Fazit: was gut lief, was im Blick bleiben sollte, und eine konkrete Aufgabe für die schwächste Kennzahl
   const focus = [...rows.filter(r => r.rating?.cls === 'rating-bad'), ...rows.filter(r => r.rating?.cls === 'rating-warn')].find(r => WEEK_FOCUS[r.key]);
   let alcLine = '';
@@ -3128,18 +3195,18 @@ function renderWeekReview() {
     alcLine = `<div class="wr-line watch"><b>Alkohol-Effekt</b><span>${parts.length ? `Nach ${cur.alcDays} ${cur.alcDays === 1 ? 'Trinktag' : 'Trinktagen'}: ${parts.join(', ')} gegenüber alkoholfreien Nächten` : 'noch zu wenig Vergleichsdaten'}</span></div>`;
   }
   // „Lief gut“ / „Im Blick“ zeigen die Kacheln selbst über ihre Bewertung
-  const summary = scoreHtml
-    + alcLine
+  const summary = alcLine
     + (focus && weekReviewOffset === 0 ? `<div class="wr-line focus"><b>Fokus diese Woche</b><span>${WEEK_FOCUS[focus.key]}</span></div>` : '');
   const insights = weekInsights(cur.to);
 
-  document.getElementById('weekReviewBody').innerHTML = lifestyleHtml(weeks, from, cur.to) + `<div class="wr-summary">${summary}</div>`
+  document.getElementById('weekReviewBody').innerHTML = lifestyleHtml(weeks, from, cur.to, { ...sc, diff: sp.of ? sc.good - sp.good : null })
+    + (summary ? `<div class="wr-summary">${summary}</div>` : '')
     + `<div class="wr-head wr-tiles-head">Kennzahlen KW ${isoWeek(from)} · gegen Vorwoche</div>
     <div class="wr-tiles">${rows.map(r => `<div class="wr-tile ${r.rating ? r.rating.cls.replace('rating-', 'is-') : ''}">
-      <div class="wr-tile-top"><span class="wr-tile-name">${r.key}</span>${trend(weeks.map(r.v))}</div>
+      <div class="wr-tile-top"><span class="wr-tile-name">${r.key}</span>${r.rating ? chip(r.rating) : ''}</div>
       <div class="wr-tile-val">${r.cur}</div>
+      ${goalBar(r)}${trend(weeks.map(r.v))}
       <div class="wr-tile-foot"><span class="wr-tile-delta">${r.delta}</span><span>Vorwoche ${r.prev}</span></div>
-      ${r.rating ? chip(r.rating) : ''}
     </div>`).join('')}</div>`
     + (insights.length ? `<div class="wr-summary wr-insights"><div class="wr-head">Zusammenhänge · letzte 8 Wochen</div>${insights.map(([k, v]) => `<div class="wr-line"><b>${k}</b><span>${v}</span></div>`).join('')}</div>` : '');
 }
