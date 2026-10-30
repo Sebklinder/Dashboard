@@ -34,7 +34,8 @@ Die alten Kurzbefehle „Zepp->Dashboard“, „Zepp Dashboard“ und „Zepp Da
 ## Erinnerung „Heute offen“
 
 Prüft einmal am Tag, was für **heute** noch fehlt, und meldet das als Mitteilung, z. B.
-*„Offen: Blutdruck, Vokabeln (12/20), Wasser (1,2/2,5 l), Kraft (45/120 min Woche)“*. Ist alles erledigt, steht dort „Alles erledigt ✓“.
+*„Blutdruck, Vokabeln 12/20, Wasser 1,2/2,5 l, Kraft 45/120 min“* (Kraft/Ausdauer = Minuten seit Montag).
+Ganzen Text sehen: Mitteilung lange drücken bzw. nach unten ziehen. Ist alles erledigt, steht dort „Alles erledigt ✓“.
 
 - **Vitalwerte von Hand:** Blutdruck, Temperatur, Meditation (Krankheit & Medikamente zählen nicht mit)
 - **Vokabeln:** offen, bis im Sprachtrainer 20 Antworten erreicht sind
