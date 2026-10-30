@@ -1514,6 +1514,7 @@
   <div id="ernaehrung-analytics" class="subpage">
     <div class="card" id="trackerChartsEmpty" hidden></div>
     <div class="card" id="trackerAvg" style="margin-bottom:16px"></div>
+    <div class="card" id="trackerTdee" style="margin-bottom:16px"></div>
     <div class="analytics-grid" id="trackerCharts">
       <div class="card">
         <div class="card-title">Kalorienzufuhr (30 Tage)</div>
@@ -3453,6 +3454,36 @@ function nutritionDays() {
   });
   return Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
 }
+// Tatsächlicher Verbrauch aus den letzten 28 Tagen: Ø gegessen minus Gewichtsänderung (7.700 kcal je kg).
+// Gewichtssteigung per Regression über echte Tagesabstände, damit einzelne Wiegungen wenig ausmachen.
+function realTdee(days, to) {
+  const from = addDays(to, -27), inRange = days.filter(d => d.date >= from && d.date <= to);
+  const kc = inRange.filter(d => d.tracked && d.kcal), w = inRange.filter(d => d.weight);
+  const t = d => (new Date(d.date) - new Date(from)) / 864e5;
+  const span = w.length ? t(w[w.length - 1]) - t(w[0]) : 0;
+  const need = { kcal: Math.max(0, 14 - kc.length), weights: Math.max(0, 4 - w.length), span: span < 14 };
+  if(need.kcal || need.weights || need.span) return { need, kcalDays: kc.length, weights: w.length };
+  const mt = mean(w.map(t)), mw = mean(w.map(d => d.weight));
+  const slope = w.reduce((s, d) => s + (t(d) - mt) * (d.weight - mw), 0) / w.reduce((s, d) => s + (t(d) - mt) ** 2, 0);
+  const intake = mean(kc.map(d => d.kcal));
+  return { tdee: Math.round(intake - slope * 7700), intake: Math.round(intake), kgPerWeek: slope * 7, kcalDays: kc.length, weights: w.length };
+}
+function tdeeHtml(r) {
+  const title = `<div class="card-title"><svg class="i"><use href="#i-flame"/></svg>Echter Verbrauch <span class="card-sub">aus Essen &amp; Gewicht · 28 Tage</span></div>`;
+  const de = v => Math.round(v).toLocaleString('de-DE');
+  if(!r.tdee) {
+    const todo = [r.need.kcal && `${r.need.kcal} weitere Tage Essen eintragen`, r.need.weights && `${r.need.weights} weitere Wiegungen`,
+      r.need.span && 'Wiegungen über mindestens 2 Wochen verteilt'].filter(Boolean);
+    return title + `<div class="chart-caption">Noch zu wenig Daten (${r.kcalDays} Esstage, ${r.weights} Wiegungen). Es fehlen: ${todo.join(', ')}.</div>`;
+  }
+  // Effektives Ziel = Grundziel + Ø Sportzuschlag, weil der gemessene Verbrauch den Sport schon enthält
+  const goal = ernGoal() + mean(Array.from({ length: 28 }, (_, i) => ernBurned(ddShift(ddToday(), -i))));
+  const atGoal = (goal - r.tdee) * 7 / 7700, kgW = v => (v > 0 ? '+' : v < 0 ? '−' : '±') + fmtDec(Math.abs(v), 2) + ' kg/Woche';
+  return title + `<div class="stat-value">≈ ${de(r.tdee)} kcal<span class="muted" style="font-size:.5em;font-weight:500"> / Tag</span></div>
+    <div class="chart-caption">Ø gegessen ${de(r.intake)} kcal, Gewicht ${kgW(r.kgPerWeek)} → tatsächlicher Verbrauch ≈ ${de(r.tdee)} kcal.
+      Dein Ziel (Ø ${de(goal)} kcal inkl. Sport) ergäbe ≈ ${kgW(atGoal)}. Für −0,5 kg/Woche: ≈ ${de(r.tdee - 550)} kcal.
+      Basis: ${r.kcalDays} Esstage, ${r.weights} Wiegungen.</div>`;
+}
 function openTracker() { nav('ernaehrung'); }
 
 function renderTracker() {
@@ -5093,6 +5124,7 @@ function renderTrackerCharts() {
   const hasData = days.some(d => d.kcal || d.weight);
   document.getElementById('trackerCharts').hidden = !hasData;
   document.getElementById('trackerAvg').hidden = !hasData;
+  document.getElementById('trackerTdee').hidden = !hasData;
   const empty = document.getElementById('trackerChartsEmpty');
   empty.hidden = hasData;
   if(!hasData) { empty.innerHTML = emptyState('Noch keine Verläufe', 'Sobald du Essen oder dein Gewicht im Tracker einträgst, siehst du hier Kalorien der letzten 30 Tage und deinen Gewichtsverlauf.'); return; }
@@ -5148,6 +5180,7 @@ function renderTrackerCharts() {
       <tbody>${rowsA.map(([n, fn, u, goal]) => `<tr><td>${n}</td><td>${fmtA(avgOf(7, fn), u)}</td><td>${fmtA(avgOf(30, fn), u)}</td><td class="muted">${goal}</td></tr>`).join('')}</tbody>
     </table></div>
     <div class="chart-caption">Gezählt werden nur Tage mit Einträgen: ${logged(7)} von 7 bzw. ${logged(30)} von 30 Tagen.</div>`;
+  document.getElementById('trackerTdee').innerHTML = tdeeHtml(realTdee(days, tk));
 
   // Daily Dozen & Optimierungen: Erfüllung in % je Tag (automatische Häkchen vorher aktualisieren)
   const d30 = span(30).reverse();
