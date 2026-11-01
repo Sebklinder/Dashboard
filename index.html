@@ -5387,11 +5387,11 @@ function renderTrackerCharts() {
   charts.nk = new Chart(document.getElementById('chartNutritionKcal'), {
     type:'bar',
     data:{ labels: kcalData.map(d=>fmtDate(d.date)), datasets:[
-      { label:'Kalorien', data:kcalData.map(d=>d.kcal), backgroundColor:kcalData.map(d=>d.kcal>goalOf(d) ? 'rgba(248,113,113,0.7)' : 'rgba(74,222,128,0.7)'), borderRadius:3, maxBarThickness:28 },
-      { label:'Tagesziel', data:kcalData.map(goalOf), type:'line', borderColor:'rgba(34,211,238,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
-      { label:'Trend', data:calcTrend(kcalData.map(d=>d.kcal)), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+      { label:'Kalorien', data:kcalData.map(d=>d.kcal), backgroundColor:kcalData.map(d=>d.kcal>goalOf(d) ? C('red',.75) : C('green',.75)), maxBarThickness:28 },
+      refDs('Tagesziel', kcalData.map(goalOf)),
+      trendDs(kcalData.map(d=>d.kcal)),
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxRotation:0,autoSkip:true,maxTicksLimit:8}} } }
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxRotation:0,autoSkip:true,maxTicksLimit:8}} } }
   });
   const last7 = getLast(kcalData, 7);
   document.getElementById('trackerKcalCaption').textContent = last7.length ? `Ø letzte ${last7.length} Tage: ${Math.round(mean(last7.map(d=>d.kcal))).toLocaleString('de-DE')} kcal · über Ziel an ${last7.filter(d=>d.kcal>goalOf(d)).length} Tagen` : '';
@@ -5401,11 +5401,11 @@ function renderTrackerCharts() {
   charts.nw = new Chart(document.getElementById('chartNutritionWeight'), {
     type:'line',
     data:{ labels:weights.map(d=>fmtDate(d.date)), datasets:[
-      { label:'Gewicht', data:weights.map(d=>d.weight), borderColor:'#22d3ee', backgroundColor:'rgba(34,211,238,0.1)', tension:0.3, fill:true, pointRadius:3 },
-      { label:`Ziel ${fmtDec(ernProfile().weightGoal)} kg`, data:weights.map(()=>ernProfile().weightGoal), borderColor:'rgba(74,222,128,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
-      { label:'Trend', data:calcTrend(weights.map(d=>d.weight)), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+      { label:'Gewicht', data:weights.map(d=>d.weight), ...lineDs('accent2'), fill:true },
+      refDs(`Ziel ${fmtDec(ernProfile().weightGoal)} kg`, weights.map(()=>ernProfile().weightGoal), 'green'),
+      trendDs(weights.map(d=>d.weight)),
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxRotation:0,autoSkip:true,maxTicksLimit:8}} } }
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxRotation:0,autoSkip:true,maxTicksLimit:8}} } }
   });
   document.getElementById('trackerWeightCaption').textContent = weights.length >= 2 ? `${weights.length} Messungen · ${fmtDec(weights[0].weight)} → ${fmtDec(lastW.weight)} kg` : '';
 
@@ -5441,10 +5441,10 @@ function renderTrackerCharts() {
   charts.ndd = new Chart(document.getElementById('chartNutritionDD'), {
     type:'bar',
     data:{ labels: d30.map(d => fmtDate(d)), datasets:[
-      { label:'Daily Dozen', data:d30.map(d => pctOf('dozen', d)), backgroundColor:'rgba(52,211,153,0.7)', borderRadius:3, maxBarThickness:14 },
-      { label:'Optimierungen', data:d30.map(d => pctOf('tweaks', d)), backgroundColor:'rgba(251,191,36,0.7)', borderRadius:3, maxBarThickness:14 },
+      { label:'Daily Dozen', data:d30.map(d => pctOf('dozen', d)), backgroundColor:C('green',.8), maxBarThickness:14 },
+      { label:'Optimierungen', data:d30.map(d => pctOf('tweaks', d)), backgroundColor:C('accent',.8), maxBarThickness:14 },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}, tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw} %`}}}, scales:{ y:{min:0,max:100,grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+' %'}}, x:{grid:{display:false},ticks:{color:cTick(),maxRotation:0,autoSkip:true,maxTicksLimit:6}} } }
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw} %`}}}, scales:{ y:{min:0,max:100,grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+' %'}}, x:{grid:{display:false},ticks:{color:cTick(),maxRotation:0,autoSkip:true,maxTicksLimit:6}} } }
   });
   const dd7 = span(7);
   document.getElementById('trackerDDCaption').textContent = `Ø letzte 7 Tage: Daily Dozen ${Math.round(mean(dd7.map(d => pctOf('dozen', d))))} %, Optimierungen ${Math.round(mean(dd7.map(d => pctOf('tweaks', d))))} %`;
@@ -5457,10 +5457,10 @@ function renderTrackerCharts() {
   charts.nfast = new Chart(document.getElementById('chartNutritionFast'), {
     type:'bar',
     data:{ labels: fasts.map(f => fmtDate(ddLocalKey(new Date(f.end)))), datasets:[
-      { label:'Gefastet (h)', data:fasts.map(f => Math.round(ernFastHours(f) * 10) / 10), backgroundColor:fasts.map(f => ernFastHours(f) >= f.goal ? 'rgba(52,211,153,0.7)' : 'rgba(251,191,36,0.7)'), borderRadius:3, maxBarThickness:22 },
-      { label:'Ziel (h)', data:fasts.map(f => f.goal), type:'line', borderColor:'rgba(110,115,245,0.7)', borderDash:[6,4], pointRadius:2, fill:false, stepped:true },
+      { label:'Gefastet (h)', data:fasts.map(f => Math.round(ernFastHours(f) * 10) / 10), backgroundColor:fasts.map(f => ernFastHours(f) >= f.goal ? C('green',.75) : C('yellow',.75)), maxBarThickness:22 },
+      { ...refDs('Ziel (h)', fasts.map(f => f.goal)), stepped:true },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{beginAtZero:true,grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxRotation:0,autoSkip:true,maxTicksLimit:6}} } }
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{beginAtZero:true,grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxRotation:0,autoSkip:true,maxTicksLimit:6}} } }
   });
   document.getElementById('trackerFastCaption').textContent = fasts.length ? `${fasts.length} Fastenzeiten · Ziel erreicht: ${fasts.filter(f => ernFastHours(f) >= f.goal).length} · Ø ${ernHM(mean(fasts.map(ernFastHours)))} h` : 'Noch kein abgeschlossenes Fasten.';
 }
@@ -5474,12 +5474,12 @@ function renderHealthAnalytics() {
   charts.bp = new Chart(document.getElementById('chartBp'), {
     type:'line',
     data:{ labels: bpData.map(d=>fmtDate(d.date)), datasets:[
-      { label:'Systolisch', data:bpData.map(d=>parseInt(d.bpSys)), borderColor:'#f87171', backgroundColor:'rgba(248,113,113,0.1)', tension:0.3, fill:false, pointRadius:4 },
-      { label:'Diastolisch', data:bpData.map(d=>parseInt(d.bpDia)), borderColor:'#22d3ee', backgroundColor:'rgba(34,211,238,0.1)', tension:0.3, fill:false, pointRadius:4 },
-      { label:'Ziel sys. 120', data:bpData.map(()=>120), borderColor:'rgba(248,113,113,0.35)', borderDash:[6,4], pointRadius:2, fill:false },
-      { label:'Ziel dia. 80', data:bpData.map(()=>80), borderColor:'rgba(34,211,238,0.35)', borderDash:[6,4], pointRadius:2, fill:false },
+      { label:'Systolisch', data:bpData.map(d=>parseInt(d.bpSys)), ...lineDs('red') },
+      { label:'Diastolisch', data:bpData.map(d=>parseInt(d.bpDia)), ...lineDs('accent2') },
+      refDs('Ziel sys. 120', bpData.map(()=>120), 'red'),
+      refDs('Ziel dia. 80', bpData.map(()=>80), 'accent2'),
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{min:50,grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{color:cGrid()},ticks:{color:cTick(),maxTicksLimit:6}} } }
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{min:50,grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:6}} } }
   });
 
   // Ruhepuls & HRV – eigene Achse je Wert (Schläge/min links, ms rechts)
@@ -5488,10 +5488,10 @@ function renderHealthAnalytics() {
   charts.hrv = new Chart(document.getElementById('chartHrv'), {
     type:'line',
     data:{ labels: hrvData.map(d=>fmtDate(d.date)), datasets:[
-      { label:'Ruhepuls', data:hrvData.map(d=>parseInt(d.rhr)||null), borderColor:'#f87171', backgroundColor:'rgba(248,113,113,0.1)', tension:0.3, fill:false, pointRadius:4, spanGaps:true, yAxisID:'y' },
-      { label:'HRV', data:hrvData.map(d=>parseInt(d.hrv)||null), borderColor:'#4ade80', backgroundColor:'rgba(74,222,128,0.1)', tension:0.3, fill:false, pointRadius:4, spanGaps:true, yAxisID:'y1' },
+      { label:'Ruhepuls', data:hrvData.map(d=>parseInt(d.rhr)||null), ...lineDs('red'), spanGaps:true, yAxisID:'y' },
+      { label:'HRV', data:hrvData.map(d=>parseInt(d.hrv)||null), ...lineDs('green'), borderDash:[5,3], spanGaps:true, yAxisID:'y1' },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{
+    options:{ responsive:true, maintainAspectRatio:false, scales:{
       y:{position:'left',grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+' bpm'}},
       y1:{position:'right',grid:{display:false},ticks:{color:cTick(),callback:v=>v+' ms'}},
       x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:6}} } }
@@ -5503,11 +5503,11 @@ function renderHealthAnalytics() {
   charts.temp = new Chart(document.getElementById('chartTemp'), {
     type:'line',
     data:{ labels: tempData.map(d=>fmtDate(d.date)), datasets:[
-      { label:'Temperatur', data:tempData.map(d=>parseFloat(d.temp)), borderColor:'#fb923c', backgroundColor:'rgba(251,146,60,0.1)', tension:0.3, fill:true, pointRadius:4 },
-      { label:'Normal 37°', data:tempData.map(()=>37), borderColor:'rgba(74,222,128,0.5)', borderDash:[6,4], pointRadius:2, fill:false },
-      { label:'Fieber 38°', data:tempData.map(()=>38), borderColor:'rgba(248,113,113,0.5)', borderDash:[6,4], pointRadius:2, fill:false },
+      { label:'Temperatur', data:tempData.map(d=>parseFloat(d.temp)), ...lineDs('meal-fruehstueck'), fill:true },
+      refDs('Normal 37°', tempData.map(()=>37), 'green'),
+      refDs('Fieber 38°', tempData.map(()=>38), 'red'),
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+'°'}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:6}} } }
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+'°'}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:6}} } }
   });
 
   // Sleep chart
@@ -5516,11 +5516,11 @@ function renderHealthAnalytics() {
   charts.sl = new Chart(document.getElementById('chartSleep'), {
     type:'bar',
     data:{ labels: sleepData.map(d=>fmtDate(d.date)), datasets:[
-      { label:'Tiefschlaf', data:sleepData.map(d=>minToH(d.deepMin)||0), backgroundColor:'rgba(99,102,241,0.8)', borderRadius:3, stack:'sleep' },
-      { label:'REM-Schlaf', data:sleepData.map(d=>minToH(d.remMin)||0), backgroundColor:'rgba(74,222,128,0.8)', borderRadius:3, stack:'sleep' },
-      { label:'Leichtschlaf', data:sleepData.map(d=>Math.max(0,minToH(d.sleepMin)-(minToH(d.deepMin)||0)-(minToH(d.remMin)||0))), backgroundColor:'rgba(100,116,139,0.5)', borderRadius:3, stack:'sleep' },
+      { label:'Tiefschlaf', data:sleepData.map(d=>minToH(d.deepMin)||0), backgroundColor:C('accent-fill'), borderRadius:0, stack:'sleep' },
+      { label:'REM-Schlaf', data:sleepData.map(d=>minToH(d.remMin)||0), backgroundColor:C('accent2',.85), borderRadius:0, stack:'sleep' },
+      { label:'Leichtschlaf', data:sleepData.map(d=>Math.max(0,minToH(d.sleepMin)-(minToH(d.deepMin)||0)-(minToH(d.remMin)||0))), backgroundColor:C('muted',.45), stack:'sleep' },
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{stacked:true,grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+'h'}}, x:{stacked:true,grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{stacked:true,grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+'h'}}, x:{stacked:true,grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 
   // Steps chart
@@ -5529,11 +5529,11 @@ function renderHealthAnalytics() {
   charts.st = new Chart(document.getElementById('chartSteps'), {
     type:'bar',
     data:{ labels: stepsData.map(d=>fmtDate(d.date)), datasets:[
-      { label:'Schritte', data:stepsData.map(d=>parseInt(d.steps)), backgroundColor:'rgba(74,222,128,0.7)', borderRadius:3 },
-      { label:'Ziel 12.000', data:stepsData.map(()=>12000), type:'line', borderColor:'rgba(34,211,238,0.6)', borderDash:[6,4], pointRadius:2, fill:false },
-      { label:'Trend', data:calcTrend(stepsData.map(d=>parseInt(d.steps))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+      { label:'Schritte', data:stepsData.map(d=>parseInt(d.steps)), backgroundColor:C('green',.75) },
+      refDs('Ziel 12.000', stepsData.map(()=>12000)),
+      trendDs(stepsData.map(d=>parseInt(d.steps))),
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick()}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 
   // Meditation chart – Minuten pro Tag
@@ -5542,10 +5542,10 @@ function renderHealthAnalytics() {
   charts.md = new Chart(document.getElementById('chartMedit'), {
     type:'bar',
     data:{ labels: meditData.map(d=>fmtDate(d.date)), datasets:[
-      { label:'Minuten', data:meditData.map(d=>parseInt(d.medit)), backgroundColor:'rgba(99,102,241,0.7)', borderRadius:3 },
-      { label:'Trend', data:calcTrend(meditData.map(d=>parseInt(d.medit))), type:'line', borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+      { label:'Minuten', data:meditData.map(d=>parseInt(d.medit)), backgroundColor:C('accent',.75) },
+      trendDs(meditData.map(d=>parseInt(d.medit))),
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}}}, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+' min'}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{grid:{color:cGrid()},ticks:{color:cTick(),callback:v=>v+' min'}}, x:{grid:{display:false},ticks:{color:cTick(),maxTicksLimit:8}} } }
   });
 }
 
@@ -5611,12 +5611,11 @@ function renderKraftExerciseAnalytics() {
   charts.kw = new Chart(document.getElementById('chartKraftWeight'), {
     type:'line',
     data:{ labels, datasets:[
-      { label:'Top-Gewicht (kg)', data:weights, borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,0.1)', tension:0.3, fill:true, pointRadius:3 },
-      { label:'Geschätztes 1RM (kg)', data:est1rms, borderColor:'#22d3ee', borderDash:[4,3], tension:0.3, fill:false, pointRadius:2 },
-      { label:'Trend', data:calcTrend(est1rms), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+      { label:'Top-Gewicht (kg)', data:weights, ...lineDs('accent'), fill:true },
+      { label:'Geschätztes 1RM (kg)', data:est1rms, ...lineDs('accent2'), borderDash:[5,3] },
+      trendDs(est1rms),
     ]},
     options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, plugins:{
-      legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}},
       // Tooltip am Datenpunkt zeigt zusätzlich Sätze × Wdh und Volumen der Einheit
       tooltip:{ callbacks:{ afterBody: items => {
         const e = entries[items[0].dataIndex];
@@ -5651,11 +5650,10 @@ function renderCardioExerciseAnalytics() {
   charts.cp = new Chart(document.getElementById('chartCardioPace'), {
     type:'line',
     data:{ labels, datasets:[
-      { label:'Tempo (min/km)', data:paces, borderColor:'#f87171', backgroundColor:'rgba(248,113,113,0.1)', tension:0.3, fill:true, pointRadius:3 },
-      { label:'Trend', data:calcTrend(paces), borderColor:'rgba(251,191,36,0.8)', borderDash:[3,3], pointRadius:0, fill:false, tension:0 },
+      { label:'Tempo (min/km)', data:paces, ...lineDs('red'), fill:true },
+      trendDs(paces),
     ]},
     options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, plugins:{
-      legend:{labels:{color:cTick(),boxWidth:12,font:{size:12}}},
       // Tooltip am Datenpunkt zeigt zusätzlich Dauer und Distanz der Einheit
       tooltip:{ callbacks:{ afterBody: items => {
         const e = entries[items[0].dataIndex];
@@ -6938,6 +6936,27 @@ function handleImport(event) {
 // ===== CHART THEME HELPERS =====
 const cGrid = () => document.documentElement.classList.contains('light') ? 'rgba(60,60,67,0.12)' : 'rgba(84,84,88,0.45)';
 const cTick = () => '#8e8e93';
+// Diagrammfarben aus den Design-Tokens (alle Hex), damit hell/dunkel stimmen
+const C = (name, a = 1) => getComputedStyle(document.documentElement).getPropertyValue('--' + name).trim() + (a < 1 ? Math.round(a * 255).toString(16).padStart(2, '0') : '');
+// Fläche unter einer Linie: Verlauf von der Linienfarbe nach transparent
+const areaFill = name => ({ chart }) => {
+  const a = chart.chartArea;
+  if(!a) return C(name, .15);
+  const g = chart.ctx.createLinearGradient(0, a.top, 0, a.bottom);
+  g.addColorStop(0, C(name, .28)); g.addColorStop(1, C(name, 0));
+  return g;
+};
+const lineDs = name => ({ borderColor:C(name), backgroundColor:areaFill(name), pointBackgroundColor:C(name), pointBorderColor:C(name), fill:false,
+  pointRadius: ({ chart }) => chart.data.labels.length > 14 ? 0 : 3 }); // Punkte nur bei wenigen Messungen
+const refDs = (label, data, name = 'text-2') => ({ label, data, type:'line', borderColor:C(name, .55), borderWidth:1.5, borderDash:[6,4], pointRadius:0, pointHoverRadius:0, pointStyle:'line', fill:false });
+const trendDs = values => ({ label:'Trend', data:calcTrend(values), type:'line', borderColor:C('text-2', .75), borderWidth:1.5, borderDash:[2,4], pointRadius:0, pointHoverRadius:0, pointStyle:'line', fill:false, tension:0 });
+function chartTheme() {
+  if(!window.Chart) return;
+  const light = document.documentElement.classList.contains('light');
+  Chart.defaults.color = cTick();
+  Chart.defaults.borderColor = cGrid();
+  Object.assign(Chart.defaults.plugins.tooltip, { backgroundColor: light ? 'rgba(255,255,255,0.97)' : 'rgba(44,44,48,0.97)', titleColor: C('text'), bodyColor: C('text-2'), borderColor: cGrid(), borderWidth: 1 });
+}
 
 // ===== THEME =====
 function setThemeButtons(isLight) {
@@ -6952,10 +6971,12 @@ function toggleTheme() {
   setThemeButtons(isLight);
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
   // Re-render current page so charts pick up new grid colors
+  chartTheme();
   const active = document.querySelector('.page.active')?.id?.replace('page-','');
   if(active === 'overview') renderOverview();
   else if(active === 'health') { renderHealth(); if(document.getElementById('health-analytics').classList.contains('active')) renderHealthAnalytics(); }
   else if(active === 'sport') { if(document.getElementById('sport-analytics').classList.contains('active')) renderSportAnalytics(); }
+  else if(active === 'ernaehrung') renderTrackerCharts();
   document.getElementById('spracheFrame').contentWindow?.spracheTheme?.();
 }
 (function() {
@@ -6975,13 +6996,25 @@ document.querySelectorAll('.modal').forEach(m => {
 if(window.Chart) {
   Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
   Chart.defaults.font.size = 12;
-  Chart.defaults.plugins.tooltip.padding = 10;
-  Chart.defaults.plugins.tooltip.cornerRadius = 8;
   Chart.defaults.plugins.legend.labels.usePointStyle = true;
-  Chart.defaults.plugins.legend.labels.pointStyle = 'rectRounded';
+  Chart.defaults.elements.line.borderWidth = 2.25;
+  Chart.defaults.elements.line.tension = 0.35;
+  Chart.defaults.elements.line.cubicInterpolationMode = 'monotone'; // keine Überschwinger zwischen Messpunkten
   Chart.defaults.elements.point.radius = 0;
-  Chart.defaults.elements.point.hoverRadius = 4;
-  Chart.defaults.elements.line.borderWidth = 2;
+  Chart.defaults.elements.point.hoverRadius = 5;
+  Chart.defaults.elements.point.hoverBorderWidth = 3;
+  Chart.defaults.elements.bar.borderRadius = 5;
+  Chart.defaults.datasets.bar.categoryPercentage = 0.7;
+  Chart.defaults.interaction = { mode: 'index', intersect: false };
+  Chart.defaults.scale.border = { display: false };
+  Chart.defaults.scale.ticks.padding = 8;
+  Object.assign(Chart.defaults.scales.category.ticks, { maxRotation: 0, autoSkipPadding: 16 });
+  // Achse kurz (03.10.), Tooltip behält das volle Datum
+  Chart.defaults.scales.category.ticks.callback = function(v) { const l = this.getLabelForValue(v); return typeof l === 'string' ? l.replace(/^(\d\d\.\d\d\.)\d{4}$/, '$1') : l; };
+  Chart.defaults.plugins.legend.align = 'start';
+  Object.assign(Chart.defaults.plugins.legend.labels, { boxWidth: 7, boxHeight: 7, padding: 14, font: { size: 12, weight: '500' } });
+  Object.assign(Chart.defaults.plugins.tooltip, { padding: 12, cornerRadius: 12, usePointStyle: true, boxPadding: 4, caretSize: 0, titleFont: { weight: '600' } });
+  chartTheme();
 }
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeAllModals(); });
 document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===e.currentTarget) el.classList.remove('open'); }));
