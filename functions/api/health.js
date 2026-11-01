@@ -1,6 +1,7 @@
 // Nimmt Gesundheitswerte vom iPhone-Kurzbefehl (Apple Health ← Zepp) entgegen
 // und merged sie in den gespeicherten Dashboard-Stand, Schlüssel 'health'.
 // Body: ein Eintrag oder eine Liste, z. B. [{ "date": "2026-10-27", "sleepMin": 452, "steps": 9800 }]
+import '../../rules.js'; // setzt globalThis.RULES (gemeinsam mit index.html)
 
 // Feld → [min, max, als Zahl speichern?] – Typen wie bei der Handeingabe in index.html
 const FIELDS = {
@@ -32,7 +33,7 @@ export function mergeHealth(health, entries) {
   return saved;
 }
 
-// Wie checkStepsHabit() in index.html: ab 12.000 Schritten das Schritte-Habit abhaken
+// Wie checkStepsHabit() in index.html: ab RULES.STEPS_GOAL Schritten das Schritte-Habit abhaken
 function tickStepsHabit(state, saved) {
   let habits = [];
   try { habits = JSON.parse(state.habits) || []; } catch (e) {}
@@ -41,7 +42,7 @@ function tickStepsHabit(state, saved) {
   const key = 'habit_log_' + habit.id;
   let log = {};
   try { log = JSON.parse(state[key]) || {}; } catch (e) {}
-  saved.filter(e => +e.steps >= 12000).forEach(e => { log[e.date] = true; });
+  saved.filter(e => +e.steps >= globalThis.RULES.STEPS_GOAL).forEach(e => { log[e.date] = true; });
   state[key] = JSON.stringify(log);
 }
 
@@ -123,13 +124,8 @@ export async function onRequestPost(context) {
 // Für den Erinnerungs-Kurzbefehl: was heute noch fehlt – Handwerte, Vokabeln, Ernährung, Sport (Zepp-Werte kommen automatisch).
 // Krankheit & Medikamente fehlen bewusst – die gibt es nicht jeden Tag.
 const MANUAL = [['bpSys', 'Blutdruck'], ['temp', 'Temp.'], ['medit', 'Meditation']];
-const VOCAB_GOAL = 20; // wie SPRACHE_GOAL in index.html
-const TRAINING_GOALS = { kraft: 120, cardio: 120 }; // Minuten je Woche, wie in index.html
-
-// Wie parseDur() in index.html: "45" oder "45:30" (min:s)
-const dur = v => String(v ?? '').includes(':')
-  ? (parseInt(String(v).split(':')[0]) || 0) + (parseInt(String(v).split(':')[1]) || 0) / 60
-  : parseFloat(v) || 0;
+const { VOCAB_GOAL, TRAINING_GOALS } = globalThis.RULES;
+const dur = v => globalThis.RULES.parseDur(v) || 0;
 
 export function openValues(state, now = new Date()) {
   const day = berlinDate(now);

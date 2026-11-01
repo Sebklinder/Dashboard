@@ -3,3 +3,6 @@
 
 # macOS
 .DS_Store
+
+# lokaler Cloudflare-Testserver
+.wrangler/

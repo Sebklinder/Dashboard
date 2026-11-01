@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="vendor/chart-4.4.0.umd.min.js"></script>
 <style>
   /* ===== Design-Tokens ===== */
   :root {
@@ -87,6 +87,9 @@
   .logo-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--accent-fill); color: #fff; display: inline-flex; align-items: center; justify-content: center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 1px 2px rgba(0,0,0,0.06); }
   .logo-mark .i { width: 16px; height: 16px; stroke-width: 2.2; vertical-align: 0; }
   .nav-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.6px; text-transform: uppercase; padding: 4px 10px 8px; }
+  /* Navigation sind echte Buttons (Tastatur, VoiceOver) – Browser-Button-Optik zurücksetzen */
+  .nav-item, .tab-item { background: none; border: 0; font-family: inherit; line-height: inherit; }
+  .nav-item { width: 100%; text-align: left; }
   .nav-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 7px 10px; margin-bottom: 2px; cursor: pointer; color: var(--text-2); font-size: 14px; font-weight: 500; border-radius: var(--radius-sm); user-select: none; }
   .nav-item .i { width: 18px; height: 18px; color: var(--muted); }
   .nav-item:hover { color: var(--text); background: var(--surface2); }
@@ -1238,14 +1241,14 @@
 <nav class="sidebar">
   <div class="logo"><span class="logo-mark"><svg class="i"><use href="#i-activity"/></svg></span><span>Dashboard</span></div>
   <div class="nav-label">Bereiche</div>
-  <div class="nav-item active" onclick="nav('overview')"><svg class="i"><use href="#i-home"/></svg><span>Übersicht</span></div>
-  <div class="nav-item" onclick="nav('habits')"><svg class="i"><use href="#i-habits"/></svg><span>Habits</span></div>
-  <div class="nav-item" onclick="nav('health')"><svg class="i"><use href="#i-heart"/></svg><span>Gesundheit</span></div>
-  <div class="nav-item" onclick="nav('journal')"><svg class="i"><use href="#i-book"/></svg><span>Tages-Check</span></div>
-  <div class="nav-item" onclick="nav('sport')"><svg class="i"><use href="#i-dumbbell"/></svg><span>Sport</span></div>
-  <div class="nav-item" onclick="nav('ernaehrung')"><svg class="i"><use href="#i-utensils"/></svg><span>Ernährung</span></div>
-  <div class="nav-item" onclick="nav('schiri')"><svg class="i"><use href="#i-ball"/></svg><span>Schiedsrichter</span></div>
-  <div class="nav-item" onclick="nav('sprache')"><svg class="i"><use href="#i-lang"/></svg><span>Sprachtrainer</span></div>
+  <button type="button" class="nav-item active" aria-current="page" onclick="nav('overview')"><svg class="i"><use href="#i-home"/></svg><span>Übersicht</span></button>
+  <button type="button" class="nav-item" onclick="nav('habits')"><svg class="i"><use href="#i-habits"/></svg><span>Habits</span></button>
+  <button type="button" class="nav-item" onclick="nav('health')"><svg class="i"><use href="#i-heart"/></svg><span>Gesundheit</span></button>
+  <button type="button" class="nav-item" onclick="nav('journal')"><svg class="i"><use href="#i-book"/></svg><span>Tages-Check</span></button>
+  <button type="button" class="nav-item" onclick="nav('sport')"><svg class="i"><use href="#i-dumbbell"/></svg><span>Sport</span></button>
+  <button type="button" class="nav-item" onclick="nav('ernaehrung')"><svg class="i"><use href="#i-utensils"/></svg><span>Ernährung</span></button>
+  <button type="button" class="nav-item" onclick="nav('schiri')"><svg class="i"><use href="#i-ball"/></svg><span>Schiedsrichter</span></button>
+  <button type="button" class="nav-item" onclick="nav('sprache')"><svg class="i"><use href="#i-lang"/></svg><span>Sprachtrainer</span></button>
   <div class="sidebar-footer">
     <div class="sidebar-meta">
       <div class="date-display" id="sidebarDate"></div>
@@ -1703,13 +1706,13 @@
 
 <!-- Tab-Leiste unten (nur Smartphone) -->
 <nav class="tabbar">
-  <div class="tab-item" onclick="nav('sport')"><svg class="i"><use href="#i-dumbbell"/></svg><span>Sport</span></div>
-  <div class="tab-item" onclick="nav('health')" aria-label="Gesundheit"><svg class="i"><use href="#i-heart"/></svg><span>Vital</span></div>
-  <div class="tab-item" onclick="nav('sprache')" aria-label="Sprachtrainer"><svg class="i"><use href="#i-lang"/></svg><span>Sprache</span></div>
-  <div class="tab-item tab-home active" onclick="nav('overview')"><span class="tab-home-btn"><svg class="i"><use href="#i-home"/></svg></span><span>Start</span></div>
-  <div class="tab-item" onclick="nav('habits')"><svg class="i"><use href="#i-habits"/></svg><span>Habits</span></div>
-  <div class="tab-item" onclick="nav('journal')" aria-label="Tages-Check"><svg class="i"><use href="#i-book"/></svg><span>Check</span></div>
-  <div class="tab-item" onclick="nav('ernaehrung')" aria-label="Ernährung"><svg class="i"><use href="#i-utensils"/></svg><span>Essen</span></div>
+  <button type="button" class="tab-item" onclick="nav('sport')"><svg class="i"><use href="#i-dumbbell"/></svg><span>Sport</span></button>
+  <button type="button" class="tab-item" onclick="nav('health')" aria-label="Gesundheit"><svg class="i"><use href="#i-heart"/></svg><span>Vital</span></button>
+  <button type="button" class="tab-item" onclick="nav('sprache')" aria-label="Sprachtrainer"><svg class="i"><use href="#i-lang"/></svg><span>Sprache</span></button>
+  <button type="button" class="tab-item tab-home active" aria-current="page" onclick="nav('overview')"><span class="tab-home-btn"><svg class="i"><use href="#i-home"/></svg></span><span>Start</span></button>
+  <button type="button" class="tab-item" onclick="nav('habits')"><svg class="i"><use href="#i-habits"/></svg><span>Habits</span></button>
+  <button type="button" class="tab-item" onclick="nav('journal')" aria-label="Tages-Check"><svg class="i"><use href="#i-book"/></svg><span>Check</span></button>
+  <button type="button" class="tab-item" onclick="nav('ernaehrung')" aria-label="Ernährung"><svg class="i"><use href="#i-utensils"/></svg><span>Essen</span></button>
 </nav>
 
 <!-- Modal: Habit hinzufügen -->
@@ -2440,6 +2443,8 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-icon"><svg class="i"><use href="#i-check"/></svg></span><span id="toastMsg"></span></div>
 
+<script src="rules.js"></script>
+<script src="sync.js"></script>
 <script>
 // ===== DATA LAYER =====
 const DB = {
@@ -2466,15 +2471,13 @@ const syncFetch = (opts = {}) => fetch('/api/state', { ...opts, headers: { 'X-He
 let syncKeyAsked = false;
 async function pushState() {
   try {
-    const snapshot = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k === 'theme' || k === 'sync_key') continue; // rein lokal, nicht syncen
-      snapshot[k] = localStorage.getItem(k);
+    const changes = syncChanges(localStorage, readSyncBase(localStorage));
+    if(Object.keys(changes).length) {
+      const res = await syncFetch({ method: 'POST', body: JSON.stringify(changes) });
+      if(res.status === 401) return setSyncStatus('Sync-Schlüssel fehlt', 'warn');
+      if(!res.ok) throw new Error('HTTP ' + res.status); // abgelehnte Speicherung nicht als Erfolg melden
+      syncMarkSent(localStorage, changes);
     }
-    const res = await syncFetch({ method: 'POST', body: JSON.stringify(snapshot) });
-    if(res.status === 401) return setSyncStatus('Sync-Schlüssel fehlt', 'warn');
-    if(!res.ok) throw new Error('HTTP ' + res.status); // abgelehnte Speicherung nicht als Erfolg melden
     setSyncStatus('Synchronisiert · ' + new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}), 'ok');
   } catch (e) {
     setSyncStatus('Sync fehlgeschlagen', 'warn');
@@ -2492,7 +2495,7 @@ async function pullState() {
     if(res.status === 401) return setSyncStatus('Sync-Schlüssel fehlt', 'warn');
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+    if(syncApplyPull(localStorage, data)) queueSync(); // eigene ungesendete Änderungen nachschicken
     setSyncStatus('Aktuell · ' + new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}), 'ok');
   } catch (e) {
     setSyncStatus('Offline – lokaler Stand', 'warn');
@@ -2510,8 +2513,12 @@ function nav(page) {
   document.getElementById('page-' + page).classList.add('active');
   // Auf dem iPhone teilen sich Sport und Schiri einen Tab
   const tabPage = page === 'schiri' ? 'sport' : page;
-  document.querySelectorAll('.nav-item').forEach(n => { n.classList.toggle('active', !!n.getAttribute('onclick')?.includes("'" + page + "'")); });
-  document.querySelectorAll('.tab-item').forEach(n => { n.classList.toggle('active', !!n.getAttribute('onclick')?.includes("'" + tabPage + "'")); });
+  const mark = (sel, p) => document.querySelectorAll(sel).forEach(n => {
+    const on = !!n.getAttribute('onclick')?.includes("'" + p + "'");
+    n.classList.toggle('active', on);
+    on ? n.setAttribute('aria-current', 'page') : n.removeAttribute('aria-current');
+  });
+  mark('.nav-item', page); mark('.tab-item', tabPage);
   window.scrollTo({ top: 0 });
   if(page === 'health' || page === 'sport' || page === 'ernaehrung') resetSubtab(page);
   if(page === 'overview') renderOverview();
@@ -3212,7 +3219,7 @@ function renderWeekReview() {
 }
 
 // Wochenziele in Minuten (Ausdauer inkl. Schiedsrichter-Einsätze)
-const TRAINING_GOALS = { kraft: 120, cardio: 120 };
+const TRAINING_GOALS = RULES.TRAINING_GOALS;
 
 function renderWeeklyTraining() {
   const td = today();
@@ -4392,7 +4399,7 @@ async function openScan() {
       }, 250);
     } else {
       scanStatus('Kamera wird gestartet …');
-      if(!window.Html5Qrcode) await new Promise((ok, fail) => { const sc = document.createElement('script'); sc.src = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js'; sc.onload = ok; sc.onerror = fail; document.head.appendChild(sc); });
+      if(!window.Html5Qrcode) await new Promise((ok, fail) => { const sc = document.createElement('script'); sc.src = 'vendor/html5-qrcode-2.3.8.min.js'; sc.onload = ok; sc.onerror = fail; document.head.appendChild(sc); });
       document.getElementById('scanVideo').hidden = true;
       let host = document.getElementById('scanLib');
       if(!host) { host = document.createElement('div'); host.id = 'scanLib'; host.style.cssText = 'position:absolute;inset:0'; document.getElementById('scanView').prepend(host); }
@@ -5002,7 +5009,7 @@ function saveHealthNote() {
 }
 
 function checkStepsHabit(date, steps) {
-  if(steps < 12000) return;
+  if(steps < RULES.STEPS_GOAL) return;
   const habits = DB.get('habits', []);
   const stepsHabit = habits.find(h => /schritt|steps/i.test(h.name));
   if(!stepsHabit) return;
@@ -5235,7 +5242,7 @@ function renderCheckList() {
 // der wie alle Schlüssel mitsynchronisiert wird. Erreicht man das Tagesziel des Trainers
 // (20 Antworten), wird das Sprach-Habit abgehakt – nur gesetzt, nie zurückgenommen.
 const SPRACHE_KEY = 'sprachtrainer-en-v1';
-const SPRACHE_GOAL = 20;
+const SPRACHE_GOAL = RULES.VOCAB_GOAL;
 function openSprache() {
   const f = document.getElementById('spracheFrame');
   if(!f.getAttribute('src')) {
@@ -5633,17 +5640,7 @@ function renderCardioExerciseAnalytics() {
 }
 
 // ===== SPORT =====
-// Wandelt Dauer-Eingaben in Dezimalminuten um — akzeptiert "mm:ss" und reine Minutenzahlen (Alt-Einträge).
-function parseDur(v) {
-  if(v === undefined || v === null || v === '') return null;
-  v = String(v).trim();
-  if(v.includes(':')) {
-    const [m, s] = v.split(':');
-    return (parseInt(m) || 0) + (parseInt(s) || 0) / 60;
-  }
-  const n = parseFloat(v);
-  return isNaN(n) ? null : n;
-}
+function parseDur(v) { return RULES.parseDur(v); } // gemeinsam mit functions/api/health.js
 // Formatiert Dezimalminuten als "m:ss".
 function fmtMinSec(totalMin) {
   const total = Math.round(totalMin * 60);
@@ -7076,6 +7073,8 @@ document.addEventListener('click', e => {
   bad[0].focus({ preventScroll: true });
 }, true);
 
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {}); // Offline-Fallback
 
 pullState().then(() => {
   syncKcalHabitFromNutrition();
