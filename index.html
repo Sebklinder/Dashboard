@@ -46,6 +46,9 @@
     --glass-hl: rgba(255,255,255,0.16);
     --glass-shadow: 0 10px 30px -6px rgba(0,0,0,0.55);
     --glass-blur: blur(24px) saturate(180%);
+    --card-glass: rgba(38,38,42,0.5);
+    --card-blur: blur(18px) saturate(170%);
+    --glass-sheen: linear-gradient(160deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02) 38%, transparent 60%, rgba(255,255,255,0.04));
     --seg-thumb: rgba(118,118,128,0.42);
     --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
     color-scheme: dark;
@@ -80,6 +83,8 @@
     --glass-edge: rgba(255,255,255,0.75);
     --glass-hl: rgba(255,255,255,0.95);
     --glass-shadow: 0 8px 28px -6px rgba(0,0,0,0.14), 0 1px 2px rgba(0,0,0,0.05);
+    --card-glass: rgba(255,255,255,0.58);
+    --glass-sheen: linear-gradient(160deg, rgba(255,255,255,0.7), rgba(255,255,255,0.15) 40%, transparent 62%, rgba(255,255,255,0.3));
     --seg-thumb: #ffffff;
     color-scheme: light;
   }
@@ -134,10 +139,14 @@
   .modal { background: var(--glass-strong); box-shadow: inset 0 1px 0 var(--glass-hl), var(--shadow-lg); }
   .subnav, .seg { box-shadow: inset 0 1px 0 var(--glass-hl), 0 1px 3px rgba(0,0,0,0.08); }
   .mobile-actions .btn-primary { background: var(--accent-fill); border-color: transparent; }
+  /* Dock: dünneres Glas mit Lichtkante oben und Glanz, damit der Grund durchscheint */
+  .sidebar, .tabbar { background: var(--glass-sheen), color-mix(in srgb, var(--glass) 78%, transparent); -webkit-backdrop-filter: blur(30px) saturate(200%); backdrop-filter: blur(30px) saturate(200%); box-shadow: inset 0 1px 0 var(--glass-hl), inset 1px 0 0 color-mix(in srgb, var(--glass-hl) 50%, transparent), inset 0 -1px 0 rgba(255,255,255,0.06), var(--glass-shadow); }
+  /* Kacheln: Glas statt deckender Fläche */
+  .card, .subnav-tiles .subnav-btn { background: var(--glass-sheen), var(--card-glass); -webkit-backdrop-filter: var(--card-blur, var(--glass-blur)); backdrop-filter: var(--card-blur, var(--glass-blur)); border-color: var(--glass-edge); box-shadow: inset 0 1px 0 var(--glass-hl), var(--glass-shadow); }
   /* Wer weniger Transparenz eingestellt hat, bekommt deckende Flächen */
   @media (prefers-reduced-transparency: reduce) {
-    :root { --glass: var(--surface); --glass-strong: var(--surface); }
-    .sidebar, .mobile-header, .tabbar, .subnav, .seg, .btn-secondary, .review-link, .toast, .modal, .modal-actions, .mobile-actions .btn { -webkit-backdrop-filter: none; backdrop-filter: none; }
+    :root, :root.light { --glass: var(--surface); --glass-strong: var(--surface); --card-glass: var(--surface); --glass-sheen: none; }
+    .card, .subnav-tiles .subnav-btn, .sidebar, .mobile-header, .tabbar, .subnav, .seg, .btn-secondary, .review-link, .toast, .modal, .modal-actions, .mobile-actions .btn { -webkit-backdrop-filter: none; backdrop-filter: none; }
     body::before { display: none; }
   }
 
@@ -148,7 +157,7 @@
   .page-sub { color: var(--text-2); font-size: 15px; margin-bottom: 28px; }
 
   /* ===== Cards ===== */
-  .card { background: var(--surface); border: 1px solid var(--card-edge); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+  .card { border: 1px solid var(--glass-edge); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
   .card-title { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.1px; margin-bottom: 16px; }
   .card-sub { color: var(--muted); font-weight: 500; font-size: 12px; }
   .card-title .i { color: var(--accent); }
@@ -712,12 +721,11 @@
   .subnav-secondary .subnav-btn.active { background: var(--accent-soft); color: var(--accent); box-shadow: none; border-color: transparent; }
   /* Reiter als Kacheln (wie die Erfassen-Kacheln bei Sport) */
   .subnav.subnav-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 12px; width: 100%; padding: 0; background: none; border: none; border-radius: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; margin-bottom: 20px; }
-  .subnav-tiles .subnav-btn { justify-content: flex-start; gap: 12px; padding: 12px 14px; min-height: 56px; background: var(--surface); border: 1px solid var(--card-edge); border-radius: var(--radius); box-shadow: var(--shadow); color: var(--text); text-align: left; transition: border-color .15s ease, background .15s ease, transform .15s ease; }
-  .subnav-tiles .subnav-btn:hover { background: color-mix(in srgb, var(--surface) 92%, var(--text)); }
+  .subnav-tiles .subnav-btn { justify-content: flex-start; gap: 12px; padding: 12px 14px; min-height: 56px; border: 1px solid var(--glass-edge); border-radius: var(--radius); color: var(--text); text-align: left; transition: border-color .15s ease, background .15s ease, transform .15s ease; }
+  .subnav-tiles .subnav-btn:hover { background: var(--glass-sheen), color-mix(in srgb, var(--card-glass) 88%, var(--text)); }
   .subnav-tiles .subnav-btn:active { transform: scale(0.98); }
   .subnav-tiles .subnav-btn .entry-tile-icon .i { width: 18px; height: 18px; }
-  .subnav-tiles .subnav-btn.active { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent), var(--shadow); }
-  :root.light .subnav-tiles .subnav-btn.active { background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
+  .subnav-tiles .subnav-btn.active { background: var(--glass-sheen), color-mix(in srgb, var(--accent) 14%, var(--card-glass)); border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent), var(--shadow); }
   @media (max-width: 640px) { .subnav.subnav-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .subnav-tiles .subnav-btn { padding: 12px; gap: 10px; white-space: normal; } .subnav-tiles .subnav-btn:last-child:nth-child(odd) { grid-column: 1 / -1; } }
   @media (max-width: 480px) { .subnav-secondary .subnav-btn .i { display: none; } .subnav-secondary .subnav-btn { padding: 6px 4px; min-width: 0; } }
   .subnav-btn:hover { color: var(--text); }
