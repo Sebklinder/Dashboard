@@ -272,13 +272,12 @@
   .wr-tile-foot { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted); margin-top: auto; padding-top: 8px; border-top: 1px solid var(--border); }
   .wr-tile-delta { white-space: nowrap; }
   .wr-tile.has-units { cursor: pointer; }
-  .wr-tile.open { grid-column: 1 / -1; }
   .wr-units-toggle { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; color: var(--accent); font-weight: 600; }
-  .wr-units-toggle .i { width: 14px; height: 14px; vertical-align: 0; transition: transform .2s ease; }
-  .wr-tile.open .wr-units-toggle .i { transform: rotate(90deg); }
-  .wr-units { display: none; list-style: none; flex-direction: column; gap: 2px; font-size: 13px; }
-  .wr-tile.open .wr-units { display: flex; }
-  .wr-units li { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 10px; padding: 6px 0; border-top: 1px solid var(--border); }
+  .wr-units-toggle .i { width: 14px; height: 14px; vertical-align: 0; }
+  .wr-tile.has-units:hover { border-color: var(--border-strong); }
+  .wr-units-sub { color: var(--muted); font-size: 13px; margin: -14px 0 14px; }
+  .wr-units { display: flex; flex-direction: column; list-style: none; font-size: 14px; padding-bottom: env(safe-area-inset-bottom); }
+  .wr-units li { display: grid; grid-template-columns: 84px minmax(0, 1fr) auto; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); }
   .wr-unit-d { color: var(--muted); font-variant-numeric: tabular-nums; }
   .wr-unit-n { color: var(--text); overflow-wrap: anywhere; }
   .wr-unit-v { color: var(--text-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -2408,6 +2407,15 @@
   </div>
 </div>
 
+<!-- Wochenrückblick: Einheiten einer Trainings-Kachel -->
+<div class="modal-overlay" id="wrUnitsModal" role="dialog" aria-modal="true" aria-labelledby="wrUnitsTitle">
+  <div class="modal">
+    <div class="modal-title"><span class="modal-icon"><svg class="i"><use id="wrUnitsIcon" href="#i-chart"/></svg></span><span id="wrUnitsTitle"></span></div>
+    <div class="wr-units-sub" id="wrUnitsSub"></div>
+    <ul class="wr-units" id="wrUnitsList"></ul>
+  </div>
+</div>
+
 <!-- Eingabe-Modal: Schiedsrichter -->
 <div class="modal-overlay" id="schiriModal">
   <div class="modal modal-wide">
@@ -2976,6 +2984,17 @@ function weekInsights(to) {
   return out;
 }
 
+// Einheiten der angezeigten Woche je Trainings-Kachel; die Kachel öffnet sie im Fenster
+let wrUnits = {};
+const WR_UNIT_ICON = { Krafttraining: 'i-dumbbell', Ausdauer: 'i-activity', 'Schiri & Sauna': 'i-flame' };
+function openWrUnits(key) {
+  const u = wrUnits[key] || [];
+  document.getElementById('wrUnitsTitle').textContent = key;
+  document.getElementById('wrUnitsIcon').setAttribute('href', '#' + (WR_UNIT_ICON[key] || 'i-chart'));
+  document.getElementById('wrUnitsSub').textContent = `${wrUnits.range} · ${u.length} ${u.length === 1 ? 'Einheit' : 'Einheiten'}`;
+  document.getElementById('wrUnitsList').innerHTML = u.map(x => x.html).join('');
+  openModal('wrUnitsModal');
+}
 function toggleWeekReview(open) {
   weekReviewOpen = open;
   if(open) weekReviewOffset = 0;
@@ -3262,16 +3281,16 @@ function renderWeekReview() {
     'Schiri & Sauna': [...games, ...saunas],
   };
   const unitsOf = r => (UNITS[r.key] || []).sort((a, b) => a.date.localeCompare(b.date));
+  wrUnits = { range: `KW ${isoWeek(from)} · ${dm(from)}–${dm(cur.to)}`, ...UNITS };
 
   document.getElementById('weekReviewBody').innerHTML = lifestyleHtml(weeks, from, cur.to, { ...sc, diff: sp.of ? sc.good - sp.good : null })
     + (summary ? `<div class="wr-summary">${summary}</div>` : '')
     + `<div class="wr-head wr-tiles-head">Kennzahlen KW ${isoWeek(from)} · gegen Vorwoche</div>
-    <div class="wr-tiles">${rows.map(r => { const u = unitsOf(r); return `<div class="wr-tile ${r.rating ? r.rating.cls.replace('rating-', 'is-') : ''}${u.length ? ' has-units' : ''}"${u.length ? ` onclick="this.setAttribute('aria-expanded', this.classList.toggle('open'))" aria-expanded="false" aria-label="${r.key}: ${u.length} ${u.length === 1 ? 'Einheit' : 'Einheiten'} anzeigen"` : ''}>
+    <div class="wr-tiles">${rows.map(r => { const u = unitsOf(r); return `<div class="wr-tile ${r.rating ? r.rating.cls.replace('rating-', 'is-') : ''}${u.length ? ' has-units' : ''}"${u.length ? ` onclick="openWrUnits('${r.key}')" aria-haspopup="dialog" aria-label="${r.key}: ${u.length} ${u.length === 1 ? 'Einheit' : 'Einheiten'} anzeigen"` : ''}>
       <div class="wr-tile-top"><span class="wr-tile-name">${r.key}</span>${r.rating ? chip(r.rating) : ''}</div>
       <div class="wr-tile-val">${r.cur}</div>
       ${goalBar(r)}${trend(weeks.map(r.v))}
       <div class="wr-tile-foot"><span class="wr-tile-delta">${r.delta}</span><span>Vorwoche ${r.prev}</span>${u.length ? `<span class="wr-units-toggle">${u.length} ${u.length === 1 ? 'Einheit' : 'Einheiten'}<svg class="i"><use href="#i-chevron"/></svg></span>` : ''}</div>
-      ${u.length ? `<ul class="wr-units">${u.map(x => x.html).join('')}</ul>` : ''}
     </div>`; }).join('')}</div>`
     + (insights.length ? `<div class="wr-summary wr-insights"><div class="wr-head">Zusammenhänge · letzte 8 Wochen</div>${insights.map(([k, v]) => `<div class="wr-line"><b>${k}</b><span>${v}</span></div>`).join('')}</div>` : '');
 }
