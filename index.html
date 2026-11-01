@@ -271,6 +271,17 @@
   .wr-trend .dot { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface2); }
   .wr-tile-foot { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted); margin-top: auto; padding-top: 8px; border-top: 1px solid var(--border); }
   .wr-tile-delta { white-space: nowrap; }
+  .wr-tile.has-units { cursor: pointer; }
+  .wr-tile.open { grid-column: 1 / -1; }
+  .wr-units-toggle { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; color: var(--accent); font-weight: 600; }
+  .wr-units-toggle .i { width: 14px; height: 14px; vertical-align: 0; transition: transform .2s ease; }
+  .wr-tile.open .wr-units-toggle .i { transform: rotate(90deg); }
+  .wr-units { display: none; list-style: none; flex-direction: column; gap: 2px; font-size: 13px; }
+  .wr-tile.open .wr-units { display: flex; }
+  .wr-units li { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 10px; padding: 6px 0; border-top: 1px solid var(--border); }
+  .wr-unit-d { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .wr-unit-n { color: var(--text); overflow-wrap: anywhere; }
+  .wr-unit-v { color: var(--text-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .wr-tile-delta .wr-delta { font-size: 13px; font-weight: 700; }
   @media (max-width: 600px) {
     .wr-tiles { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -3236,16 +3247,32 @@ function renderWeekReview() {
   const summary = alcLine
     + (focus && weekReviewOffset === 0 ? `<div class="wr-line focus"><b>Fokus diese Woche</b><span>${WEEK_FOCUS[focus.key]}</span></div>` : '');
   const insights = weekInsights(cur.to);
+  // Einzelne Einheiten der Woche hinter den Trainings-Kacheln (Klick auf die Kachel klappt sie auf)
+  const inCur = x => x.date >= from && x.date <= cur.to;
+  const wd = d => new Date(d + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
+  const unit = (date, name, min) => ({ date, html: `<li><span class="wr-unit-d">${wd(date)}</span><span class="wr-unit-n">${escHtml(name)}</span><span class="wr-unit-v">${min ? fmtDur(min) : ''}</span></li>` });
+  const sess = sportSessions().filter(inCur);
+  const exNames = x => x.items.map(e => e.uebung).join(', ');
+  // Wie trainingMinutes: alle Schiri-Spiele zählen als Ausdauer, deshalb hier direkt aus schiri_spiele
+  const games = DB.get('schiri_spiele', []).filter(inCur).map(g => unit(g.date, `Schiri: ${g.heim} – ${g.gast}`, parseDur(g.dauer)));
+  const saunas = sess.filter(x => x.kind === 'sauna').map(x => unit(x.date, 'Sauna', parseFloat(x.min)));
+  const UNITS = {
+    Krafttraining: sess.filter(x => x.kind === 'kraft').map(x => unit(x.date, exNames(x), parseFloat(x.dauer))),
+    Ausdauer: [...sess.filter(x => x.kind === 'cardio' && !x.schiriId).map(x => unit(x.date, exNames(x), x.items.reduce((a, e) => a + (parseDur(e.min) || 0), 0))), ...games],
+    'Schiri & Sauna': [...games, ...saunas],
+  };
+  const unitsOf = r => (UNITS[r.key] || []).sort((a, b) => a.date.localeCompare(b.date));
 
   document.getElementById('weekReviewBody').innerHTML = lifestyleHtml(weeks, from, cur.to, { ...sc, diff: sp.of ? sc.good - sp.good : null })
     + (summary ? `<div class="wr-summary">${summary}</div>` : '')
     + `<div class="wr-head wr-tiles-head">Kennzahlen KW ${isoWeek(from)} · gegen Vorwoche</div>
-    <div class="wr-tiles">${rows.map(r => `<div class="wr-tile ${r.rating ? r.rating.cls.replace('rating-', 'is-') : ''}">
+    <div class="wr-tiles">${rows.map(r => { const u = unitsOf(r); return `<div class="wr-tile ${r.rating ? r.rating.cls.replace('rating-', 'is-') : ''}${u.length ? ' has-units' : ''}"${u.length ? ` onclick="this.setAttribute('aria-expanded', this.classList.toggle('open'))" aria-expanded="false" aria-label="${r.key}: ${u.length} ${u.length === 1 ? 'Einheit' : 'Einheiten'} anzeigen"` : ''}>
       <div class="wr-tile-top"><span class="wr-tile-name">${r.key}</span>${r.rating ? chip(r.rating) : ''}</div>
       <div class="wr-tile-val">${r.cur}</div>
       ${goalBar(r)}${trend(weeks.map(r.v))}
-      <div class="wr-tile-foot"><span class="wr-tile-delta">${r.delta}</span><span>Vorwoche ${r.prev}</span></div>
-    </div>`).join('')}</div>`
+      <div class="wr-tile-foot"><span class="wr-tile-delta">${r.delta}</span><span>Vorwoche ${r.prev}</span>${u.length ? `<span class="wr-units-toggle">${u.length} ${u.length === 1 ? 'Einheit' : 'Einheiten'}<svg class="i"><use href="#i-chevron"/></svg></span>` : ''}</div>
+      ${u.length ? `<ul class="wr-units">${u.map(x => x.html).join('')}</ul>` : ''}
+    </div>`; }).join('')}</div>`
     + (insights.length ? `<div class="wr-summary wr-insights"><div class="wr-head">Zusammenhänge · letzte 8 Wochen</div>${insights.map(([k, v]) => `<div class="wr-line"><b>${k}</b><span>${v}</span></div>`).join('')}</div>` : '');
 }
 
