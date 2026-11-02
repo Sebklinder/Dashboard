@@ -432,6 +432,11 @@
   .kpi-card .spark { margin-top: auto; padding-top: 14px; }
   .overview-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .overview-bottom { display: grid; grid-template-columns: 1fr 1fr 1.3fr 1.7fr; gap: 16px; }
+  /* Habits-Kachel gibt die Zeilenhöhe nicht vor (sonst wachsen die KPI-Kacheln mit), viele Habits scrollen innen */
+  @media (min-width: 768px) {
+    .overview-habits { display: flex; flex-direction: column; height: 0; min-height: 100%; }
+    #overviewHabits { flex: 1; min-height: 0; overflow-y: auto; }
+  }
   .stat-group-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
   .stat-group-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; }
   .stat-group-3 > .stat + .stat, .stat-group-2 > .stat + .stat { border-left: 1px solid var(--border); padding-left: 16px; }
