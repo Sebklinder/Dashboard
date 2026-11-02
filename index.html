@@ -1234,6 +1234,7 @@
   <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></symbol>
   <symbol id="i-utensils" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></symbol>
   <symbol id="i-lang" viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></symbol>
+  <symbol id="i-med" viewBox="0 0 24 24"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></symbol>
   <symbol id="i-ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M2 12h20"/><path d="M5.6 4.4a14 14 0 0 1 0 15.2"/><path d="M18.4 4.4a14 14 0 0 0 0 15.2"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
@@ -1288,6 +1289,7 @@
   <button type="button" class="nav-item" onclick="nav('ernaehrung')"><svg class="i"><use href="#i-utensils"/></svg><span>Ernährung</span></button>
   <button type="button" class="nav-item" onclick="nav('schiri')"><svg class="i"><use href="#i-ball"/></svg><span>Schiedsrichter</span></button>
   <button type="button" class="nav-item" onclick="nav('sprache')"><svg class="i"><use href="#i-lang"/></svg><span>Sprachtrainer</span></button>
+  <button type="button" class="nav-item" onclick="nav('medizin')"><svg class="i"><use href="#i-med"/></svg><span>Medizintrainer</span></button>
   <div class="sidebar-footer">
     <div class="sidebar-meta">
       <div class="date-display" id="sidebarDate"></div>
@@ -1736,8 +1738,16 @@
 
 <!-- SPRACHTRAINER -->
 <div id="page-sprache" class="page">
+  <div class="page-switch"><div class="subnav" role="tablist" aria-label="Sprache oder Medizin"><button class="subnav-btn active" role="tab" aria-selected="true" onclick="nav('sprache')"><svg class="i"><use href="#i-lang"/></svg>Sprache</button><button class="subnav-btn" role="tab" aria-selected="false" onclick="nav('medizin')"><svg class="i"><use href="#i-med"/></svg>Medizin</button></div></div>
   <iframe id="spracheFrame" class="sprache-frame" title="Sprachtrainer Englisch" allow="microphone"></iframe>
   <div id="spracheFehlt" hidden></div>
+</div>
+
+<!-- MEDIZINTRAINER -->
+<div id="page-medizin" class="page">
+  <div class="page-switch"><div class="subnav" role="tablist" aria-label="Sprache oder Medizin"><button class="subnav-btn" role="tab" aria-selected="false" onclick="nav('sprache')"><svg class="i"><use href="#i-lang"/></svg>Sprache</button><button class="subnav-btn active" role="tab" aria-selected="true" onclick="nav('medizin')"><svg class="i"><use href="#i-med"/></svg>Medizin</button></div></div>
+  <iframe id="medizinFrame" class="sprache-frame" title="Medizintrainer Grundlagen"></iframe>
+  <div id="medizinFehlt" hidden></div>
 </div>
 
 </main>
@@ -1751,7 +1761,7 @@
   <button type="button" class="tab-item" onclick="nav('journal')" aria-label="Tages-Check"><svg class="i"><use href="#i-book"/></svg><span>Check</span></button>
   <button type="button" class="tab-item" onclick="nav('sport')"><svg class="i"><use href="#i-dumbbell"/></svg><span>Sport</span></button>
   <button type="button" class="tab-item" onclick="nav('ernaehrung')" aria-label="Ernährung"><svg class="i"><use href="#i-utensils"/></svg><span>Essen</span></button>
-  <button type="button" class="tab-item" onclick="nav('sprache')" aria-label="Sprachtrainer"><svg class="i"><use href="#i-lang"/></svg><span>Sprache</span></button>
+  <button type="button" class="tab-item" onclick="nav('sprache')" aria-label="Sprach- und Medizintrainer"><svg class="i"><use href="#i-lang"/></svg><span>Lernen</span></button>
 </nav>
 
 <!-- Modal: Habit hinzufügen -->
@@ -2559,8 +2569,8 @@ const avg = arr => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1)
 function nav(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  // Auf dem iPhone teilen sich Sport und Schiri einen Tab
-  const tabPage = page === 'schiri' ? 'sport' : page;
+  // Auf dem iPhone teilen sich Sport und Schiri sowie Sprache und Medizin je einen Tab
+  const tabPage = page === 'schiri' ? 'sport' : page === 'medizin' ? 'sprache' : page;
   const mark = (sel, p) => document.querySelectorAll(sel).forEach(n => {
     const on = !!n.getAttribute('onclick')?.includes("'" + p + "'");
     n.classList.toggle('active', on);
@@ -2577,6 +2587,7 @@ function nav(page) {
   if(page === 'ernaehrung') { ddView = ernView = ddToday(); renderTracker(); }
   if(page === 'schiri') renderSchiri();
   if(page === 'sprache') openSprache();
+  if(page === 'medizin') openMedizin();
 }
 
 // ===== SUBTABS (Erfassen / Analytics je Seite) =====
@@ -5318,21 +5329,22 @@ function renderCheckList() {
 // (20 Antworten), wird das Sprach-Habit abgehakt – nur gesetzt, nie zurückgenommen.
 const SPRACHE_KEY = 'sprachtrainer-en-v1';
 const SPRACHE_GOAL = RULES.VOCAB_GOAL;
-function openSprache() {
-  const f = document.getElementById('spracheFrame');
+function openSprache() { openTrainer('sprache', 'Sprachtrainer', 'spracheTheme'); }
+function openTrainer(dir, name, themeFn) {
+  const f = document.getElementById(dir + 'Frame');
   if(!f.getAttribute('src')) {
-    // Fehlt sprache/index.html auf dem Server, liefert der Host die Startseite aus – dann Hinweis statt Dashboard im Dashboard
+    // Fehlt <dir>/index.html auf dem Server, liefert der Host die Startseite aus – dann Hinweis statt Dashboard im Dashboard
     f.onload = () => {
       let fehlt = false;
-      try { fehlt = !!f.contentDocument?.getElementById('page-sprache'); } catch(e) {}
+      try { fehlt = !!f.contentDocument?.getElementById('page-' + dir); } catch(e) {}
       f.hidden = fehlt;
-      const box = document.getElementById('spracheFehlt');
+      const box = document.getElementById(dir + 'Fehlt');
       box.hidden = !fehlt;
-      if(fehlt) box.innerHTML = emptyState('Sprachtrainer nicht gefunden', 'Die Datei sprache/index.html fehlt auf dem Server. Lade den Ordner „sprache“ zusätzlich zur index.html hoch.');
+      if(fehlt) box.innerHTML = emptyState(name + ' nicht gefunden', `Die Datei ${dir}/index.html fehlt auf dem Server. Lade den Ordner „${dir}“ zusätzlich zur index.html hoch.`);
     };
-    f.src = 'sprache/index.html';
+    f.src = dir + '/index.html';
   }
-  else f.contentWindow?.spracheTheme?.();
+  else f.contentWindow?.[themeFn]?.();
 }
 // Sprach-Habit suchen, beim ersten Mal anlegen
 function spracheHabit() {
@@ -5366,6 +5378,43 @@ function spracheGeaendert(date, n, goal) {
   log[date] = true;
   DB.set('habit_log_' + h.id, log);
   toast('🗣️ Sprach-Habit automatisch abgehakt ✓');
+}
+
+// ===== MEDIZINTRAINER =====
+// Wie der Sprachtrainer: eigener localStorage-Schlüssel, Tagesziel erreicht → Medizin-Habit abhaken
+const MEDIZIN_KEY = 'medizintrainer-v1';
+const MEDIZIN_GOAL = RULES.MED_GOAL;
+function openMedizin() { openTrainer('medizin', 'Medizintrainer', 'medizinTheme'); }
+function medizinHabit() {
+  const habits = DB.get('habits', []);
+  let h = habits.find(x => /medizin/i.test(x.name));
+  if(!h) {
+    h = { id: Date.now().toString(), name: 'Medizin lernen', emoji: '🩺', goal: `${MEDIZIN_GOAL} Antworten im Medizintrainer`, created: today() };
+    habits.push(h);
+    DB.set('habits', habits);
+  }
+  return h;
+}
+function syncMedizinHabit() {
+  let st = null;
+  try { st = JSON.parse(localStorage.getItem(MEDIZIN_KEY)); } catch(e) {}
+  const days = (st && st.days) || {};
+  if(!Object.keys(days).length) return; // Habit erst anlegen, wenn der Trainer benutzt wurde
+  const h = medizinHabit();
+  const log = DB.get('habit_log_' + h.id, {});
+  let changed = false;
+  Object.keys(days).forEach(d => { if((days[d].n || 0) >= MEDIZIN_GOAL && !log[d]) { log[d] = true; changed = true; } });
+  if(changed) DB.set('habit_log_' + h.id, log);
+}
+function medizinGeaendert(date, n, goal) {
+  queueSync();
+  if(n < (goal || MEDIZIN_GOAL)) return;
+  const h = medizinHabit();
+  const log = DB.get('habit_log_' + h.id, {});
+  if(log[date]) return;
+  log[date] = true;
+  DB.set('habit_log_' + h.id, log);
+  toast('🩺 Medizin-Habit automatisch abgehakt ✓');
 }
 
 function checkJournalHabit(date) {
@@ -7022,6 +7071,7 @@ function toggleTheme() {
   else if(active === 'sport') { if(document.getElementById('sport-analytics').classList.contains('active')) renderSportAnalytics(); }
   else if(active === 'ernaehrung') renderTrackerCharts();
   document.getElementById('spracheFrame').contentWindow?.spracheTheme?.();
+  document.getElementById('medizinFrame').contentWindow?.medizinTheme?.();
 }
 (function() {
   if(localStorage.getItem('theme') === 'light') {
@@ -7187,6 +7237,7 @@ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch
 pullState().then(() => {
   syncKcalHabitFromNutrition();
   syncSpracheHabit();
+  syncMedizinHabit();
   renderOverview();
   // Direktlink auf eine Seite, z. B. …/#ernaehrung
   const page = location.hash.slice(1);

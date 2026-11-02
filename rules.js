@@ -3,6 +3,7 @@
 globalThis.RULES = {
   STEPS_GOAL: 12000,                         // ab hier wird das Schritte-Habit abgehakt
   VOCAB_GOAL: 20,                            // Sprachtrainer: Antworten je Tag
+  MED_GOAL: 20,                              // Medizintrainer: Antworten je Tag
   TRAINING_GOALS: { kraft: 120, cardio: 120 }, // Minuten je Woche
   // Dauer-Eingaben in Dezimalminuten – "mm:ss" oder reine Minutenzahl (Alt-Einträge); leer/ungültig = null
   parseDur(v) {

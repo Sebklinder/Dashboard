@@ -1,0 +1,473 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Medizintrainer</title>
+<style>
+/* Gleiches Aussehen wie der Sprachtrainer (sprache/index.html), damit sich beide im Dashboard gleich anfühlen. */
+:root{
+  --bg:#f2f2f7; --surface:#FFFFFF; --ink:#1d1d1f; --muted:#6e6e73; --line:rgba(60,60,67,.14); --soft:#eeeef3;
+  --accent:#5856d6; --fill:#5856d6; --on-fill:#FFFFFF; --hl:rgba(88,86,214,.12);
+  --good:#248a3d; --good-bg:rgba(36,138,61,.1); --bad:#d70015; --bad-bg:rgba(215,0,21,.08);
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px -8px rgba(0,0,0,.08);
+  --glass:rgba(255,255,255,.6); --glass-edge:rgba(255,255,255,.75); --glass-hl:rgba(255,255,255,.95); --thumb:#FFFFFF;
+  --f-display:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;
+  --f-body:var(--f-display);
+  --f-ipa:'Noto Sans','Segoe UI','Lucida Sans Unicode',sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#000000; --surface:#1c1c1e; --ink:#f5f5f7; --muted:#aeaeb2; --line:rgba(255,255,255,.08); --soft:#2c2c2e;
+    --accent:#8583ff; --fill:#5e5ce6; --on-fill:#FFFFFF; --hl:rgba(133,131,255,.2);
+    --good:#30d158; --good-bg:rgba(48,209,88,.15); --bad:#ff453a; --bad-bg:rgba(255,69,58,.15);
+    --shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    --glass:rgba(44,44,48,.52); --glass-edge:rgba(255,255,255,.12); --glass-hl:rgba(255,255,255,.16); --thumb:rgba(118,118,128,.42); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#000000; --surface:#1c1c1e; --ink:#f5f5f7; --muted:#aeaeb2; --line:rgba(255,255,255,.08); --soft:#2c2c2e;
+  --accent:#8583ff; --fill:#5e5ce6; --on-fill:#FFFFFF; --hl:rgba(133,131,255,.2);
+  --good:#30d158; --good-bg:rgba(48,209,88,.15); --bad:#ff453a; --bad-bg:rgba(255,69,58,.15);
+  --shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  --glass:rgba(44,44,48,.52); --glass-edge:rgba(255,255,255,.12); --glass-hl:rgba(255,255,255,.16); --thumb:rgba(118,118,128,.42); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--f-body);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;-webkit-tap-highlight-color:transparent}
+button,.mode,.chip,.opt{transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .1s ease}
+button:not([disabled]):active{transform:scale(.96)}
+.shell{padding-block:12px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:640px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;line-height:1.15;letter-spacing:-.02em;text-wrap:balance;margin:0}
+p{margin:0}
+mark{background:var(--hl);color:inherit;padding:0 4px;border-radius:4px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.muted{color:var(--muted)} .small{font-size:14px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-block:8px 14px}
+.brand h1{font-size:30px;letter-spacing:-.025em}
+.lang{display:inline-block;margin-top:2px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.streak{text-align:right;line-height:1.1}
+.streak b{font-family:var(--f-display);font-size:26px;font-weight:700;display:block;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.streak span{font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:2px;padding:4px;border-radius:99px;margin-bottom:16px;background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 var(--glass-hl),0 1px 3px rgba(0,0,0,.08)}
+.tabs button{flex:1;min-height:44px;border:0;border-radius:99px;background:none;color:var(--muted);font-weight:600;font-size:15px;cursor:pointer}
+.tabs button[aria-current="page"]{background:var(--thumb);color:var(--ink);box-shadow:inset 0 1px 0 var(--glass-hl),0 2px 8px -2px rgba(0,0,0,.25)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
+.stack{display:grid;gap:14px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.today h2{font-size:26px;margin:6px 0 2px}
+.today .bar{margin:16px 0 6px}
+.bar{height:8px;border-radius:99px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s ease}
+.btn{min-height:50px;padding:0 22px;border-radius:99px;border:1px solid transparent;font-weight:600;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.primary{background:var(--fill);color:var(--on-fill);box-shadow:0 6px 16px -8px var(--fill)}
+.btn.sec{background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border-color:var(--glass-edge);box-shadow:inset 0 1px 0 var(--glass-hl);color:var(--ink)}
+@media (hover:hover){.btn.primary:hover{filter:brightness(1.08)}.btn.sec:hover,.chip:hover,.opt:not([disabled]):hover{border-color:var(--muted)}.mode:not([disabled]):hover{background:var(--soft)}}
+.btn.ghost{background:none;color:var(--muted);min-height:44px;padding:0 10px}
+.btn.block{width:100%;margin-top:14px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btns .btn{flex:1 1 140px}
+
+/* Übungsarten als eine gruppierte Liste statt einzelner Kästen */
+.modes{display:grid;margin:0;padding:0;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.modes li+li{border-top:1px solid var(--line)}
+.mode{display:grid;grid-template-columns:40px minmax(0,1fr) auto 16px;align-items:center;gap:14px;width:100%;min-height:68px;text-align:left;padding:12px 14px;background:none;border:0;color:var(--ink);font-size:16px;cursor:pointer}
+.mode::after{content:'';width:8px;height:8px;border-right:2px solid var(--muted);border-top:2px solid var(--muted);transform:rotate(45deg);justify-self:center;opacity:.7}
+.mode[disabled]{opacity:.55;cursor:not-allowed}
+.mode .ico{width:40px;height:40px;border-radius:10px;background:var(--hl);display:grid;place-items:center}
+.mode svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mode b{display:block;font-family:var(--f-display);font-size:16px;font-weight:600}
+.mode small{display:block;color:var(--muted);font-size:14px;line-height:1.35}
+.mode .st{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.set{box-shadow:none}
+.set summary{cursor:pointer;font-weight:600;min-height:28px}
+.lbl{margin:16px 0 8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 15px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:500;font-size:15px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.notice{padding:12px 14px;border-radius:12px;background:var(--soft);font-size:15px}
+
+.sesbar{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.prog{flex:1;height:8px;border-radius:99px;background:var(--soft);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);transition:width .3s ease}
+.cnt{font-size:14px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.tags{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lv{display:inline-block;padding:2px 8px;border-radius:6px;background:var(--soft);font-weight:600;font-size:12px;letter-spacing:.04em;color:var(--muted)}
+.q{font-family:var(--f-display);font-size:clamp(26px,7.5vw,36px);font-weight:700;letter-spacing:-.025em;line-height:1.15;margin:14px 0 6px;overflow-wrap:anywhere;text-wrap:balance}
+.q.sent{font-size:clamp(22px,6vw,28px);line-height:1.25;font-weight:500}
+.ipa{font-family:var(--f-ipa);color:var(--muted);font-size:16px}
+.ex{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.ex p+p{margin-top:6px}
+.field{width:100%;min-height:54px;margin-top:16px;padding:10px 14px;border:2px solid transparent;border-radius:14px;background:var(--soft);color:var(--ink);font:inherit;font-size:18px}
+textarea.field{min-height:150px;resize:vertical;line-height:1.45}
+.field:focus{border-color:var(--accent);outline:none}
+.fb{margin-top:16px;padding:14px 16px;border-radius:16px;border:1px solid}
+.fb.ok{background:var(--good-bg);border-color:var(--good)}
+.fb.no{background:var(--bad-bg);border-color:var(--bad)}
+.fb h3{font-size:18px;margin-bottom:4px}
+.fb.ok h3{color:var(--good)} .fb.no h3{color:var(--bad)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.opt{min-height:58px;padding:8px 12px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-size:18px;font-weight:600;cursor:pointer}
+.opt.is-ok{border-color:var(--good);background:var(--good-bg)}
+.opt.is-no{border-color:var(--bad);background:var(--bad-bg)}
+.opt[disabled]{cursor:default}
+.gapblank{display:inline-block;min-width:3.2em;border-bottom:3px solid var(--ink);vertical-align:baseline}
+.w-miss{background:var(--bad-bg);color:var(--bad);border-radius:4px;padding:0 3px;font-weight:700}
+.w-ok{color:var(--good);font-weight:600}
+.play{display:flex;gap:10px;margin-top:6px}
+.play .btn{flex:1}
+.grades{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.grades .btn{flex-direction:column;gap:0;min-height:62px;font-size:16px;line-height:1.2}
+.grades small{font-weight:400;font-size:12px;opacity:.85}
+.list{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.list li{padding:10px 12px;background:var(--soft);border-radius:10px;font-size:16px}
+.errs li b{color:var(--bad)} .errs li i{font-style:normal;font-weight:700;color:var(--good)}
+.corr{white-space:pre-wrap;overflow-wrap:anywhere}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{padding:14px}
+.stat b{display:block;font-family:var(--f-display);font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted)}
+.cols{display:flex;align-items:flex-end;gap:8px;height:170px;margin-top:12px}
+.col{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px}
+.col .b{width:100%;max-width:44px;background:var(--accent);border-radius:6px 6px 2px 2px}
+.col .b.new{background:var(--line)}
+.col .b.today{background:var(--ink)}
+.col .v{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.col .l{font-size:12px;color:var(--muted);white-space:nowrap}
+.cols.days{height:120px;gap:4px}
+.cols.days .v{font-size:11px}
+.rows{display:grid;gap:12px;margin-top:12px}
+.rowline{display:grid;grid-template-columns:110px minmax(0,1fr) 56px;gap:10px;align-items:center;font-size:15px}
+.rowline span:last-child{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.rowline .t{overflow-wrap:anywhere}
+h2.sec{font-size:20px}
+#bubbles{display:flex;flex-direction:column;align-items:flex-start}
+.bub{max-width:88%;padding:10px 14px;margin:6px 0;border-radius:18px;overflow-wrap:anywhere;white-space:pre-wrap}
+.bub.them{background:var(--surface);border:1px solid var(--line);border-top-left-radius:4px}
+.bub.me{background:var(--fill);color:var(--on-fill);align-self:flex-end;border-top-right-radius:4px}
+.bub.muted{color:var(--muted)}
+#bubbles .btn.ghost{min-height:36px;font-size:14px;padding:0 4px;margin-top:-4px}
+@media (prefers-reduced-transparency:reduce){.tabs,.btn.sec{background:var(--surface);-webkit-backdrop-filter:none;backdrop-filter:none}}
+@media (prefers-reduced-motion:reduce){.bar i,.prog i,button,.mode,.chip,.opt{transition:none}button:not([disabled]):active{transform:none}}
+/* Im Dashboard eingebettet: Hintergrund und Ränder kommen von der Dashboard-Seite */
+html,body{background:transparent;margin:0}
+.shell{padding:0 0 24px}
+.wrap{margin:0}
+@media (max-width:420px){.rowline{grid-template-columns:90px minmax(0,1fr) 52px}.grades .btn{font-size:15px}}
+.grades .btn{min-width:0;padding:0 8px}
+.opts.one{grid-template-columns:1fr}
+.opts.one .opt{font-size:16px;text-align:left;padding:10px 14px;line-height:1.35}
+.ans{font-family:var(--f-display);font-size:22px;font-weight:700;line-height:1.25;margin-top:6px;overflow-wrap:anywhere}
+.lex li b{display:block;font-weight:600}
+.lex li span{display:block;margin-top:2px}
+.lex li small{display:block;margin-top:4px;color:var(--muted);font-size:14px;line-height:1.4}
+.lex .field{margin-top:12px}
+</style>
+</head><body>
+<div class="shell"><div class="wrap" id="app"></div></div>
+
+<script src="karten/grundlagen-1.js"></script>
+<script src="karten/grundlagen-2.js"></script>
+<script src="karten/grundlagen-3.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ---------- Inhalte ---------- */
+// Gleicher Ablauf wie im Sprachtrainer: Leitner-Boxen 1–5, Box 1 täglich, Box 5 alle 16 Tage
+var INT=[0,0,1,3,7,16],GOAL=20,KEY='medizintrainer-v1';
+var STUFE={'1':'Basis','2':'Aufbau','3':'Vertiefung'};
+var FACH={termi:'Fachsprache',zelle:'Zelle & Gewebe',skelett:'Bewegungsapparat',herz:'Herz & Kreislauf',atmung:'Atmung',verdau:'Verdauung & Leber',niere:'Niere & Harnwege',nerven:'Nervensystem',hormon:'Hormone & Stoffwechsel',blut:'Blut & Immunsystem',pharma:'Arzneimittel',krank:'Krankheitslehre',labor:'Labor & Diagnostik',notfall:'Notfall & Erste Hilfe'};
+var FK=Object.keys(FACH);
+function newMax(){return (S&&S.set&&S.set.nm)||10}
+
+/* ---------- Dashboard-Anbindung ---------- */
+function host(){try{return window.parent!==window?window.parent:null}catch(e){return null}}
+function tellHost(){var h=host(),k=dstr(today());try{if(h&&h.medizinGeaendert)h.medizinGeaendert(k,(S.days[k]||{}).n||0,GOAL)}catch(e){}}
+function fitHost(){var f=null;try{f=window.frameElement}catch(e){}var sh=document.querySelector('.shell');if(f&&sh)f.style.height=Math.ceil(sh.getBoundingClientRect().height)+'px'}
+function scrollHost(){var h=host();if(!h){window.scrollTo(0,0);return}try{h.scrollTo(0,0)}catch(e){}}
+function applyTheme(){var h=host();try{if(h)document.documentElement.setAttribute('data-theme',h.document.documentElement.classList.contains('light')?'light':'dark')}catch(e){}}
+window.medizinTheme=applyTheme;
+
+var CARDS=[],seen={},rank={};
+(window.MED_CARDS||[]).join('\n').split('\n').forEach(function(l){
+  var p=l.split('|');if(p.length<5||!FACH[p[0]]||!STUFE[p[1]])return;
+  var id=p[0]+':'+p[2].toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48);
+  while(seen[id])id+='x';seen[id]=1;
+  var g=p[0]+p[1];rank[g]=(rank[g]||0)+1;
+  CARDS.push({id:id,f:p[0],st:p[1],q:p[2],a:p[3],e:p[4],rk:rank[g]});
+});
+
+/* ---------- Hilfen ---------- */
+var $=function(s){return document.querySelector(s)};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function today(){var d=new Date();return Math.floor((d.getTime()-d.getTimezoneOffset()*60000)/864e5)}
+function dstr(n){return new Date(n*864e5).toISOString().slice(0,10)}
+function dow(n){return new Date(n*864e5).getUTCDay()}
+function box(c){return (S.cards[c.id]||{b:0}).b}
+function learnedCards(){return CARDS.filter(function(c){return box(c)>0})}
+function hardCards(){return CARDS.filter(function(c){var s=S.cards[c.id];return s&&s.w>=3&&s.b<4})}
+
+/* ---------- Zustand ---------- */
+function defaults(){return {v:1,t:0,cards:{},days:{},quiz:{n:0,c:0},set:{st:['1','2','3'],f:FK.slice(),nm:10}}}
+function load(){
+  var s=defaults(),r=null;
+  try{r=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
+  if(r&&r.v===1){s=Object.assign(s,r);s.set=Object.assign(defaults().set,r.set||{})}
+  return s;
+}
+var S=load(),PENDING=null,VIEW='home',SES=null,UI={setOpen:false,msg:'',confirm:false,lexF:'termi',lexQ:''};
+function persist(){S.t=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}tellHost()}
+function adopt(r){S=Object.assign(defaults(),r);S.set=Object.assign(defaults().set,r.set||{});render()}
+
+function bump(ok,isNew){
+  var k=dstr(today()),d=S.days[k]||(S.days[k]={n:0,c:0,nw:0});
+  d.n++;if(ok)d.c++;if(isNew)d.nw=(d.nw||0)+1;
+}
+function grade(card,g){
+  var st=S.cards[card.id]||(S.cards[card.id]={b:0,d:0,s:0,w:0});
+  var isNew=st.b===0;
+  st.s++;
+  if(g===0){st.b=1;st.w++;st.d=today()}
+  else{st.b=Math.min(5,(isNew?1:st.b)+g);st.d=today()+INT[st.b]}
+  bump(g>0,isNew);persist();
+}
+function streak(){var t=today(),n=0;function has(x){var d=S.days[dstr(x)];return d&&d.n>0}if(!has(t))t--;while(has(t)){n++;t--}return n}
+
+/* ---------- Planung ---------- */
+function byOrder(a,b){return a.st-b.st||a.rk-b.rk||FK.indexOf(a.f)-FK.indexOf(b.f)}
+function pool(){return CARDS.filter(function(c){return S.set.st.indexOf(c.st)>=0&&S.set.f.indexOf(c.f)>=0})}
+function plan(){
+  var t=today(),P=pool(),dd=S.days[dstr(t)]||{};
+  var due=P.filter(function(c){var s=S.cards[c.id];return s&&s.b>0&&s.d<=t}).sort(function(a,b){return S.cards[a.id].d-S.cards[b.id].d});
+  // Neue Karten: erst alle Basis-Karten, je Fach in der Reihenfolge der Datei, Fächer abwechselnd
+  var fresh=P.filter(function(c){return box(c)===0}).sort(byOrder);
+  return {pool:P,due:due,fresh:fresh.slice(0,Math.max(0,newMax()-(dd.nw||0)))};
+}
+function quizItem(c){
+  var same=shuffle(CARDS.filter(function(x){return x.f===c.f&&x.a!==c.a})),other=shuffle(CARDS.filter(function(x){return x.f!==c.f}));
+  var wrong=same.concat(other).slice(0,3).map(function(x){return {txt:x.a,ok:false}});
+  return {c:c,opts:shuffle(wrong.concat([{txt:c.a,ok:true}]))};
+}
+function startSession(mode,extra){
+  var items=[],P=pool();
+  UI.msg='';
+  if(mode==='cards'){
+    var pl=plan();
+    if(extra||(!pl.due.length&&!pl.fresh.length)){
+      items=P.slice().sort(function(a,b){return box(a)-box(b)||byOrder(a,b)}).slice(0,10);
+    }else{
+      var d=pl.due.slice(0,20),f=pl.fresh.slice();
+      while(d.length||f.length){if(d.length)items.push(d.shift());if(d.length)items.push(d.shift());if(f.length)items.push(f.shift())}
+    }
+  }else if(mode==='hard'){
+    items=hardCards().sort(function(a,b){return S.cards[b.id].w-S.cards[a.id].w}).slice(0,10);
+    if(!items.length){UI.msg='Gerade gibt es keine hartnäckigen Karten.';render();return}
+  }else if(mode==='quiz'){
+    items=shuffle(learnedCards()).slice(0,10).map(quizItem);
+    if(items.length<4){UI.msg='Das Quiz nutzt Karten, die du schon gelernt hast. Starte zuerst ein paar Runden Karteikarten.';render();return}
+  }
+  if(!items.length){UI.msg='Mit dieser Auswahl gibt es nichts zu üben. Wähle unter „Anpassen“ weitere Stufen oder Fächer.';render();return}
+  SES={mode:mode,items:items,i:0,phase:'ask',ok:0,total:0,miss:[],req:{},done:false};
+  VIEW='session';render();
+}
+function endSession(){SES=null;VIEW='home';if(PENDING){var r=PENDING;PENDING=null;adopt(r)}else render()}
+function nextItem(){var s=SES;s.i++;s.phase='ask';s.res=null;if(s.i>=s.items.length)s.done=true;render()}
+
+/* ---------- Ansichten ---------- */
+var ICON={
+  cards:'<rect x="3" y="6" width="14" height="12" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v10"/>',
+  hard:'<path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/>',
+  quiz:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17h.01"/>'
+};
+function ico(k){return '<span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true">'+ICON[k]+'</svg></span>'}
+function header(){
+  var st=streak();
+  return '<header class="top"><div class="brand"><h1>Medizintrainer</h1><span class="lang">Grundlagen</span></div>'+
+    '<div class="streak"><b>'+st+'</b><span>'+(st===1?'Tag':'Tage')+' in Folge</span></div></header>';
+}
+function tabs(){
+  return '<nav class="tabs" aria-label="Bereiche">'+[['home','Üben'],['lex','Nachschlagen'],['progress','Fortschritt']].map(function(t){
+    return '<button data-act="tab" data-v="'+t[0]+'"'+(VIEW===t[0]?' aria-current="page"':'')+'>'+t[1]+'</button>'}).join('')+'</nav>';
+}
+function chip(k,v,label,on){return '<button class="chip" aria-pressed="'+(on?'true':'false')+'" data-act="set" data-k="'+k+'" data-v="'+esc(v)+'">'+esc(label)+'</button>'}
+function pct(o){return o&&o.n?Math.round(100*o.c/o.n)+' %':'neu'}
+
+function homeView(){
+  var P=plan(),dn=(S.days[dstr(today())]||{}).n||0,hardN=hardCards().length,learnedN=learnedCards().length;
+  var sure=CARDS.filter(function(c){return box(c)>=3}).length;
+  var dateTxt=new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+  var hero,waiting=P.due.length+P.fresh.length;
+  var bar='<div class="bar" role="progressbar" aria-valuenow="'+Math.min(dn,GOAL)+'" aria-valuemin="0" aria-valuemax="'+GOAL+'"><i style="width:'+Math.min(100,dn/GOAL*100)+'%"></i></div><p class="small muted">'+dn+' von '+GOAL+' Antworten heute</p>';
+  if(!P.pool.length){
+    hero='<section class="card today"><p class="eyebrow">'+esc(dateTxt)+'</p><h2>Keine Karten ausgewählt</h2><p class="muted">Wähle unter „Anpassen“ mindestens eine Stufe und ein Fach.</p></section>';
+  }else if(!waiting){
+    hero='<section class="card today"><p class="eyebrow">'+esc(dateTxt)+'</p><h2>Für heute ist alles erledigt</h2><p class="muted">Nichts fällig und das Limit für neue Karten ist erreicht.</p>'+bar+'<button class="btn sec block" data-act="start" data-mode="cards" data-extra="1">Trotzdem üben</button></section>';
+  }else{
+    hero='<section class="card today"><p class="eyebrow">'+esc(dateTxt)+'</p><h2>'+waiting+(waiting===1?' Karte wartet':' Karten warten')+'</h2><p class="muted">'+P.due.length+' zum Wiederholen · '+P.fresh.length+' neu</p>'+bar+'<button class="btn primary block" data-act="start" data-mode="cards">Tagesrunde starten</button></section>';
+  }
+  var rows=[
+    ['cards','Karteikarten','Frage, Antwort, Wiederholungsplan',sure+' sicher'],
+    ['hard','Hartnäckige Karten','Was du oft falsch hattest',hardN?hardN+' Karten':'keine'],
+    ['quiz','Quiz','Vier Antworten, eine stimmt',learnedN<4?'—':pct(S.quiz)]
+  ];
+  var list=rows.map(function(r){
+    var off=(r[0]==='hard'&&!hardN)||(r[0]==='quiz'&&learnedN<4);
+    return '<li><button class="mode" data-act="start" data-mode="'+r[0]+'"'+(off?' disabled':'')+'>'+ico(r[0])+'<span><b>'+r[1]+'</b><small>'+r[2]+'</small></span><span class="st">'+esc(r[3])+'</span></button></li>';
+  }).join('');
+  var set='<details class="card set" id="set"'+(UI.setOpen?' open':'')+'><summary>Anpassen</summary>'+
+    '<p class="lbl">Neue Karten pro Tag</p><div class="chips">'+[5,10,15,20,30].map(function(n){return '<button class="chip" aria-pressed="'+(newMax()===n?'true':'false')+'" data-act="set" data-k="nm" data-v="'+n+'">'+n+'</button>'}).join('')+'</div>'+
+    '<p class="lbl">Stufe</p><div class="chips">'+Object.keys(STUFE).map(function(k){return chip('st',k,STUFE[k],S.set.st.indexOf(k)>=0)}).join('')+'</div>'+
+    '<p class="lbl">Fächer</p><div class="chips">'+FK.map(function(k){return chip('f',k,FACH[k],S.set.f.indexOf(k)>=0)}).join('')+'</div></details>';
+  return '<div class="stack">'+(UI.msg?'<p class="notice">'+esc(UI.msg)+'</p>':'')+hero+'<ul class="modes">'+list+'</ul>'+set+'</div>';
+}
+
+function lexItems(){
+  var q=UI.lexQ.trim().toLowerCase();
+  var hit=CARDS.filter(function(c){return q?(c.q+' '+c.a+' '+c.e).toLowerCase().indexOf(q)>=0:c.f===UI.lexF});
+  if(!hit.length)return '<li class="muted">Nichts gefunden.</li>';
+  return hit.map(function(c){return '<li><b>'+esc(c.q)+'</b><span><mark>'+esc(c.a)+'</mark></span><small>'+esc(c.e)+(q?' · '+esc(FACH[c.f]):'')+'</small></li>'}).join('');
+}
+function lexView(){
+  return '<div class="stack"><section class="card lex"><h2 class="sec">Nachschlagen</h2><p class="small muted">Alle Karten zum Lesen – praktisch vor oder nach einer Runde.</p>'+
+    '<input class="field" id="lexq" type="search" placeholder="Suchen, z. B. Insulin" value="'+esc(UI.lexQ)+'" aria-label="Karten durchsuchen">'+
+    '<div class="chips" style="margin-top:12px">'+FK.map(function(k){return '<button class="chip" aria-pressed="'+(UI.lexF===k&&!UI.lexQ?'true':'false')+'" data-act="lexf" data-v="'+k+'">'+esc(FACH[k])+'</button>'}).join('')+'</div>'+
+    '<ul class="list" id="lexlist">'+lexItems()+'</ul></section></div>';
+}
+
+function progressView(){
+  var counts=[0,0,0,0,0,0];
+  CARDS.forEach(function(c){counts[box(c)]++});
+  var learned=counts[3]+counts[4]+counts[5],t=today(),n7=0,c7=0,k;
+  for(k=0;k<7;k++){var d=S.days[dstr(t-k)];if(d){n7+=d.n;c7+=d.c}}
+  var maxc=Math.max.apply(null,counts.concat([1]));
+  var boxes=counts.map(function(v,i){return '<div class="col"><span class="v">'+v+'</span><div class="b'+(i===0?' new':'')+'" style="height:'+Math.max(v/maxc*74,1.5)+'%"></div><span class="l">'+(i?'Box '+i:'Neu')+'</span></div>'}).join('');
+  var arr=[],maxd=GOAL;
+  for(k=13;k>=0;k--){var dd=S.days[dstr(t-k)],nn=dd?dd.n:0;arr.push({n:nn,day:t-k});if(nn>maxd)maxd=nn}
+  var wd=['S','M','D','M','D','F','S'];
+  var days=arr.map(function(x,i){return '<div class="col"><span class="v">'+(x.n||'')+'</span><div class="b'+(i===13?' today':'')+'" style="height:'+Math.max(x.n/maxd*70,1.5)+'%"></div><span class="l">'+wd[dow(x.day)]+'</span></div>'}).join('');
+  var fach=FK.map(function(f){
+    var tot=CARDS.filter(function(c){return c.f===f}),got=tot.filter(function(c){return box(c)>=3}).length;
+    return '<div class="rowline"><span class="t">'+esc(FACH[f])+'</span><div class="bar"><i style="width:'+(tot.length?got/tot.length*100:0)+'%"></i></div><span>'+got+'/'+tot.length+'</span></div>';
+  }).join('');
+  var where=host()?'Dein Fortschritt wird im Dashboard gespeichert und mit deinen anderen Geräten synchronisiert.':'Dein Fortschritt wird nur in diesem Browser gespeichert.';
+  var reset=UI.confirm?'<p class="small">Wirklich alles löschen? Das lässt sich nicht rückgängig machen.</p><div class="btns"><button class="btn sec" data-act="resetno">Abbrechen</button><button class="btn primary" data-act="resetyes">Fortschritt löschen</button></div>':'<button class="btn ghost" data-act="reset">Fortschritt zurücksetzen</button>';
+  return '<div class="stack"><div class="stats"><div class="card stat"><b>'+streak()+'</b><span>Tage in Folge</span></div><div class="card stat"><b>'+learned+'</b><span>von '+CARDS.length+' sitzen</span></div><div class="card stat"><b>'+(n7?Math.round(100*c7/n7):0)+' %</b><span>richtig, 7 Tage</span></div></div>'+
+    '<section class="card"><h2 class="sec">Karten nach Box</h2><p class="small muted">Box 1 kommt täglich wieder, Box 5 alle 16 Tage.</p><div class="cols">'+boxes+'</div></section>'+
+    '<section class="card"><h2 class="sec">Antworten pro Tag</h2><p class="small muted">Letzte 14 Tage, Ziel '+GOAL+'.</p><div class="cols days">'+days+'</div></section>'+
+    '<section class="card"><h2 class="sec">Wissen nach Fach</h2><p class="small muted">Gezählt werden Karten ab Box 3.</p><div class="rows">'+fach+'</div></section>'+
+    '<p class="small muted">'+where+'</p>'+reset+'</div>';
+}
+
+function sesBar(){
+  var s=SES,n=s.items.length;
+  return '<div class="sesbar"><button class="btn ghost" data-act="quit">Beenden</button><div class="prog"><i style="width:'+(s.i/n*100)+'%"></i></div><span class="cnt">'+Math.min(s.i+1,n)+'/'+n+'</span></div>';
+}
+function tagsFor(c){return '<div class="tags"><span class="lv">'+esc(STUFE[c.st])+'</span><span class="lv">'+esc(FACH[c.f])+'</span></div>'}
+function sessionView(){
+  var s=SES;
+  if(s.done)return doneView();
+  var h=sesBar();
+  if(s.mode==='quiz'){
+    var it=s.items[s.i],c=it.c,r=s.res;
+    h+='<div class="card">'+tagsFor(c)+'<p class="q sent">'+esc(c.q)+'</p><div class="opts one">'+it.opts.map(function(o,i){
+      var cl=s.phase==='fb'?(o.ok?' is-ok':(i===r.pick?' is-no':'')):'';
+      return '<button class="opt'+cl+'" data-act="opt" data-i="'+i+'"'+(s.phase==='fb'?' disabled':'')+'>'+esc(o.txt)+'</button>'}).join('')+'</div>';
+    if(s.phase==='fb')h+='<div class="fb '+(r.ok?'ok':'no')+'"><h3>'+(r.ok?'Richtig':'Leider falsch')+'</h3><p>'+esc(c.e)+'</p></div><button class="btn primary block" data-act="next">Weiter</button>';
+    return h+'</div>';
+  }
+  var k=s.items[s.i];
+  if(s.phase==='ask'){
+    h+='<div class="card">'+tagsFor(k)+'<p class="q sent">'+esc(k.q)+'</p><p class="muted">Überlege dir die Antwort, dann aufdecken.</p><button class="btn primary block" data-act="flip">Antwort zeigen</button></div>';
+  }else{
+    h+='<div class="card">'+tagsFor(k)+'<p class="muted" style="margin-top:12px">'+esc(k.q)+'</p><p class="ans"><mark>'+esc(k.a)+'</mark></p>'+
+      '<div class="ex"><p>'+esc(k.e)+'</p></div>'+
+      '<div class="grades"><button class="btn sec" data-act="grade" data-g="0">Nochmal<small>heute wieder</small></button><button class="btn primary" data-act="grade" data-g="1">Gewusst<small>1</small></button><button class="btn sec" data-act="grade" data-g="2">Leicht<small>länger Pause</small></button></div></div>';
+  }
+  return h;
+}
+function doneView(){
+  var s=SES,label=s.mode==='quiz'?'richtig':'gewusst';
+  var miss=s.miss.length?'<h3 class="sec" style="font-size:18px;margin-top:20px">Zum Wiederholen</h3><ul class="list">'+s.miss.map(function(m){return '<li>'+esc(m.q)+' <b>→</b> '+esc(m.a)+'</li>'}).join('')+'</ul>':'<p class="muted" style="margin-top:8px">Alles gesessen.</p>';
+  return '<div class="card"><p class="eyebrow">Runde beendet</p><h2 style="font-size:30px;margin-top:6px"><mark>'+s.ok+' von '+s.total+'</mark> '+label+'</h2>'+miss+
+    '<div class="btns"><button class="btn sec" data-act="quit">Zur Übersicht</button><button class="btn primary" data-act="start" data-mode="'+s.mode+'">Nächste Runde</button></div></div>';
+}
+
+function render(keep){
+  var h;
+  if(VIEW==='session'&&SES)h=sessionView();
+  else h=header()+tabs()+(VIEW==='progress'?progressView():VIEW==='lex'?lexView():homeView());
+  $('#app').innerHTML=h;
+  fitHost();
+  if(!keep)scrollHost();
+}
+function rerender(){var y=window.scrollY;render(true);window.scrollTo(0,y)}
+
+/* ---------- Aktionen ---------- */
+function act(a,d){
+  d=d||{};var s=SES;
+  if(a==='tab'){VIEW=d.v;UI.confirm=false;UI.msg='';render()}
+  else if(a==='start'){startSession(d.mode,d.extra)}
+  else if(a==='quit'){endSession()}
+  else if(a==='flip'){if(s.phase==='ask'){s.phase='fb';render()}}
+  else if(a==='grade'){
+    var c=s.items[s.i],g=+d.g;grade(c,g);s.total++;
+    if(g>0)s.ok++;else{s.miss.push(c);if(!s.req[c.id]){s.req[c.id]=1;s.items.push(c)}}
+    nextItem();
+  }
+  else if(a==='opt'){
+    if(s.phase!=='ask')return;
+    var it=s.items[s.i],i=+d.i,ok=it.opts[i].ok;
+    s.res={ok:ok,pick:i};s.phase='fb';s.total++;
+    if(ok)s.ok++;else s.miss.push(it.c);
+    S.quiz.n++;if(ok)S.quiz.c++;
+    grade(it.c,ok?1:0);render();
+  }
+  else if(a==='next'){nextItem()}
+  else if(a==='set'){
+    if(d.k==='nm')S.set.nm=+d.v;
+    else{var arr=S.set[d.k],ix=arr.indexOf(d.v);if(ix>=0){if(arr.length>1)arr.splice(ix,1)}else arr.push(d.v)}
+    UI.msg='';persist();rerender();
+  }
+  else if(a==='lexf'){UI.lexF=d.v;UI.lexQ='';rerender()}
+  else if(a==='reset'){UI.confirm=true;rerender()}
+  else if(a==='resetno'){UI.confirm=false;rerender()}
+  else if(a==='resetyes'){var keep=S.set;S=defaults();S.set=keep;UI.confirm=false;persist();rerender()}
+}
+
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-act]');if(!el||el.disabled)return;
+  act(el.dataset.act,el.dataset);
+});
+// Suche: nur die Liste neu zeichnen, damit das Eingabefeld den Fokus behält
+document.addEventListener('input',function(e){
+  if(e.target.id!=='lexq')return;
+  UI.lexQ=e.target.value;$('#lexlist').innerHTML=lexItems();
+  document.querySelectorAll('[data-act="lexf"]').forEach(function(b){b.setAttribute('aria-pressed',String(!UI.lexQ&&b.dataset.v===UI.lexF))});
+  fitHost();
+});
+document.addEventListener('toggle',function(e){if(e.target&&e.target.id==='set'){UI.setOpen=e.target.open;fitHost()}},true);
+document.addEventListener('keydown',function(e){
+  if(!SES||VIEW!=='session'||SES.done)return;
+  var tag=e.target&&e.target.tagName;if(tag==='INPUT'||tag==='TEXTAREA')return;
+  if(SES.mode==='quiz'){
+    if(SES.phase==='ask'&&/^[1-4]$/.test(e.key)){e.preventDefault();act('opt',{i:String(+e.key-1)})}
+    else if(SES.phase==='fb'&&e.key==='Enter'){e.preventDefault();act('next')}
+  }else if((e.key===' '||e.key==='Enter')&&SES.phase==='ask'){e.preventDefault();act('flip')}
+  else if(SES.phase==='fb'&&/^[1-3]$/.test(e.key)){e.preventDefault();act('grade',{g:String(+e.key-1)})}
+});
+// Neuer Stand aus der Cloud (vom Dashboard geladen): übernehmen, wenn er jünger ist
+window.addEventListener('storage',function(e){
+  if(e.key!==KEY||!e.newValue)return;
+  var r=null;try{r=JSON.parse(e.newValue)}catch(x){}
+  if(r&&r.v===1&&(r.t||0)>S.t){if(SES)PENDING=r;else adopt(r)}
+});
+if(window.ResizeObserver){try{new ResizeObserver(fitHost).observe(document.querySelector('.shell'))}catch(e){}}
+
+applyTheme();
+render();
+})();
+</script>
+
+</body></html>
