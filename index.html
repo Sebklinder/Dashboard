@@ -5389,8 +5389,11 @@ function medizinHabit() {
   const habits = DB.get('habits', []);
   let h = habits.find(x => /medizin/i.test(x.name));
   if(!h) {
-    h = { id: Date.now().toString(), name: 'Medizin lernen', emoji: '🩺', goal: `${MEDIZIN_GOAL} Antworten im Medizintrainer`, created: today() };
+    h = { id: Date.now().toString(), name: 'Medizin lernen', emoji: '🧠', goal: `${MEDIZIN_GOAL} Antworten im Medizintrainer`, created: today() };
     habits.push(h);
+    DB.set('habits', habits);
+  } else if(h.emoji === '🩺') { // 🩺 ist auf dem Mac nur ein blasses graues Stethoskop
+    h.emoji = '🧠';
     DB.set('habits', habits);
   }
   return h;
@@ -5414,7 +5417,7 @@ function medizinGeaendert(date, n, goal) {
   if(log[date]) return;
   log[date] = true;
   DB.set('habit_log_' + h.id, log);
-  toast('🩺 Medizin-Habit automatisch abgehakt ✓');
+  toast('🧠 Medizin-Habit automatisch abgehakt ✓');
 }
 
 function checkJournalHabit(date) {
